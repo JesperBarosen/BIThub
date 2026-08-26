@@ -3,7 +3,8 @@ metadata:
   name: template #keep it 14 characters or less for the devcontainer name
 components:
   - name: javafx-template
-    image: adrianstoica/it1901:latest
+    container:
+      image: adrianstoica/it1901:latest
       memoryLimit: 3Gi
       endpoints:
         - exposure: public # needed for the devcontainer UI to be accessible from the browser via no VNC
