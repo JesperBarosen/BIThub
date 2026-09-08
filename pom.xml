@@ -79,27 +79,7 @@
                     </configuration>
                     <executions>
                         <execution>
-                        <id>checkstyle-check</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!-- Run the spotbugs code quality tool -->
-                <plugin>
-                    <groupId>com.github.spotbugs</groupId>
-                    <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.9.3.0</version>
-                    <configuration>
-                        <xmlOutput>false</xmlOutput>
-                        <htmlOutput>true</htmlOutput>
-                        <excludeFilterFile>./config/spotbugs/exclude.xml</excludeFilterFile>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>spotbugs-check</id>
+                            <id>checkstyle-check</id>
                             <phase>verify</phase>
                             <goals>
                                 <goal>check</goal>
@@ -107,10 +87,58 @@
                         </execution>
                     </executions>
                 </plugin>
+                <!-- Run the spotbugs code quality tool -->
+                <plugin>
+    <groupId>com.github.spotbugs</groupId>
+    <artifactId>spotbugs-maven-plugin</artifactId>
+    <version>4.8.6.6</version>
+    <configuration>
+        <xmlOutput>false</xmlOutput>
+        <htmlOutput>true</htmlOutput>
+        <excludeFilterFile>./config/spotbugs/exclude.xml</excludeFilterFile>
+    </configuration>
+    <executions>
+        <execution>
+            <id>spotbugs-check</id>
+            <phase>verify</phase>
+            <goals>
+                <goal>check</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+                <!-- Configure JaCoCo code coverage plugin -->
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.12</version>
+                    <executions>
+                        <execution>
+                            <id>prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>report</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
-    </build>
 
+        <!-- Activate JaCoCo for all modules -->
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
     <modules>
         <module>core</module>
         <module>ui</module>
