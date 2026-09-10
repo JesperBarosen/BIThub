@@ -10,6 +10,11 @@ public class Review {
       if (rating < 1 || rating > 5) {
           throw new IllegalArgumentException("Rating must be between 1 and 5.");
       }
+
+      if (reviewerName == null || reviewerName.isEmpty()) {
+          throw new IllegalArgumentException("Reviewer name cannot be null or empty.");
+      }
+      
         this.reviewerName = reviewerName;
         this.rating = rating;
         this.comment = comment;
