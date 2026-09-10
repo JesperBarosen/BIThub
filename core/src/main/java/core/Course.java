@@ -9,6 +9,12 @@ public class Course {
   private List<Review> reviews;
 
   public Course(String courseCode, String courseName) {
+    if (courseCode == null || courseCode.isEmpty()) {
+      throw new IllegalArgumentException("Course code cannot be null or empty.");
+    }
+    if (courseName == null || courseName.isEmpty()) {
+      throw new IllegalArgumentException("Course name cannot be null or empty.");
+    }
     this.courseCode = courseCode;
     this.courseName = courseName;
     this.reviews = new ArrayList<>();
@@ -23,6 +29,9 @@ public class Course {
   }
 
   public void addReview(Review review) {
+    if (review == null) {
+      throw new IllegalArgumentException("Review cannot be null.");
+    }
     reviews.add(review);
   }
 
