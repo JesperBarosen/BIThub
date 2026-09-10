@@ -36,7 +36,7 @@ public class Course {
   }
 
   public List<Review> getReviews() {
-    return reviews;
+    return List.copyOf(reviews);
   }
 
   public double getAverageRating() {
