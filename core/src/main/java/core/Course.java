@@ -4,22 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Course {
-  private String Coursecode;
-  private String Coursename;
+  private String coursecode;
+  private String coursename;
   private List<Review> reviews;
 
   public Course(String coursecode, String coursename) {
-    this.Coursecode = coursecode;
-    this.Coursename = coursename;
+    this.coursecode = coursecode;
+    this.coursename = coursename;
     this.reviews = new ArrayList<>();
   }
 
   public String getCoursecode() {
-    return Coursecode;
+    return coursecode;
   }
 
   public String getCoursename() {
-    return Coursename;
+    return coursename;
   }
 
   public void addReview(Review review) {
