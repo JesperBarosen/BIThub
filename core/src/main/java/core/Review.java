@@ -1,5 +1,6 @@
 package core;
 
+//representerer en anmeldelse av et emne
 public class Review {
   private String reviewerName;
   private int rating;
@@ -11,7 +12,7 @@ public class Review {
       throw new IllegalArgumentException("Rating must be between 1 and 5.");
     }
 
-    if (reviewerName == null || reviewerName.isEmpty()) {
+    if (reviewerName == null || reviewerName.isBlank()) {
       throw new IllegalArgumentException("Reviewer name cannot be null or empty.");
     }
 

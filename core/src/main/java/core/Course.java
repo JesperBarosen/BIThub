@@ -3,16 +3,17 @@ package core;
 import java.util.ArrayList;
 import java.util.List;
 
+//representerer et emne og kursets anmeldelser
 public class Course {
   private String courseCode;
   private String courseName;
   private List<Review> reviews;
 
   public Course(String courseCode, String courseName) {
-    if (courseCode == null || courseCode.isEmpty()) {
+    if (courseCode == null || courseCode.isBlank()) {
       throw new IllegalArgumentException("Course code cannot be null or empty.");
     }
-    if (courseName == null || courseName.isEmpty()) {
+    if (courseName == null || courseName.isBlank()) {
       throw new IllegalArgumentException("Course name cannot be null or empty.");
     }
     this.courseCode = courseCode;
@@ -20,11 +21,11 @@ public class Course {
     this.reviews = new ArrayList<>();
   }
 
-  public String getCoursecode() {
+  public String getCourseCode() {
     return courseCode;
   }
 
-  public String getCoursename() {
+  public String getCourseName() {
     return courseName;
   }
 
