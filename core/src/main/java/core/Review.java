@@ -15,6 +15,10 @@ public class Review {
       throw new IllegalArgumentException("Reviewer name cannot be null or empty.");
     }
 
+    if (comment == null) {
+      comment = "";
+    }
+
     this.reviewerName = reviewerName;
     this.rating = rating;
     this.comment = comment;
