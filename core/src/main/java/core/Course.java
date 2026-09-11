@@ -18,7 +18,9 @@ public class Course {
     }
     this.courseCode = courseCode;
     this.courseName = courseName;
-    this.reviews = new ArrayList<>();
+    /*Til senere utvikling: Burde denne arrayen hente reviews fra reviews.csv? */
+    this.reviews = new ArrayList<>(); 
+    /*Til senere utvikling: Burde denne arrayen hente reviews fra reviews.csv? */
   }
 
   public String getCourseCode() {
