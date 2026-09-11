@@ -1,164 +1,44 @@
 package ui;
 
-import core.Calc;
+import core.Course;
 import java.util.List;
-import java.util.function.BinaryOperator;
-import java.util.function.UnaryOperator;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
 import javafx.scene.control.ListView;
 
-/**
- * Main controller for the application.
- */
 public class AppController {
 
-  private Calc calc;
-
-  /**
-   * Default constructor.
-   */
-  public AppController() {
-    calc = new Calc(0.0, 0.0, 0.0);
-  }
-
-  public Calc getCalc() {
-    return calc;
-  }
+  private List<Course> courses;
 
   @FXML
-  private ListView<Double> operandsView;
+  private ListView<String> courseListView;
 
   @FXML
-  private Label operandView;
+  private Label selectedCourseLabel;
 
   @FXML
   void initialize() {
-    updateOperandsView();
-  }
+    courses = List.of(
+        new Course("IT1901", "Informatikk prosjektarbeid"),
+        new Course("TDT4100", "Objektorientert programmering"),
+        new Course("TDT4160", "Datamaskiner og digitalteknikk")
+    );
 
-  private void updateOperandsView() {
-    List<Double> operands = operandsView.getItems();
-    operands.clear();
-    int elementCount = Math.min(calc.getOperandCount(), 3);
-    for (int i = 0; i < elementCount; i++) {
-      operands.add(calc.peekOperand(elementCount - i - 1));
-    }
-  }
+    for (Course course : courses) {
+      String courseText =
+          course.getCourseCode() + " – " + course.getCourseName();
 
-  private String getOperandString() {
-    return operandView.getText();
-  }
-
-  private boolean hasOperand() {
-    return !getOperandString().isBlank();
-  }
-
-  private double getOperand() {
-    return Double.parseDouble(operandView.getText());
-  }
-
-  private void setOperand(String operandString) {
-    operandView.setText(operandString);
-  }
-
-  @FXML
-  void handleEnter() {
-    if (hasOperand()) {
-      calc.pushOperand(getOperand());
-    } else {
-      calc.dup();
-    }
-    setOperand("");
-    updateOperandsView();
-  }
-
-  private void appendToOperand(String s) {
-    setOperand(getOperandString() + s);
-  }
-
-  @FXML
-  void handleDigit(ActionEvent ae) {
-    if (ae.getSource() instanceof Labeled l) {
-      appendToOperand(l.getText());
+      courseListView.getItems().add(courseText);
     }
   }
 
   @FXML
-  void handlePoint() {
-    var operandString = getOperandString();
-    if (operandString.contains(".")) {
-      setOperand(getOperandString().replaceAll("\\..*", "."));
-    } else {
-      setOperand(operandString + ".");
+  void handleCourseClick() {
+    String selectedCourse =
+        courseListView.getSelectionModel().getSelectedItem();
+
+    if (selectedCourse != null) {
+      selectedCourseLabel.setText("Valgt fag: " + selectedCourse);
     }
-  }
-
-  @FXML
-  void handleClear() {
-    setOperand("");
-  }
-
-  @FXML
-  void handleSwap() {
-    calc.swap();
-    updateOperandsView();
-  }
-
-  private void performOperation(UnaryOperator<Double> op) {
-    calc.performOperation(op);
-    updateOperandsView();
-  }
-
-  private void performOperation(boolean swap, BinaryOperator<Double> op) {
-    if (hasOperand()) {
-      calc.pushOperand(getOperand());
-    }
-    if (swap) {
-      calc.swap();
-    }
-    calc.performOperation(op);
-    handleClear();
-    updateOperandsView();
-  }
-
-  @FXML
-  void handleOpAdd() {
-    BinaryOperator<Double> add = (x, y) -> x + y;
-    performOperation(false, add);
-  }
-
-  @FXML
-  void handleOpSub() {
-    BinaryOperator<Double> sub = (x, y) -> x - y;
-    performOperation(false, sub);
-  }
-
-  @FXML
-  void handleOpMult() {
-    BinaryOperator<Double> mult = (x, y) -> x * y;
-    performOperation(false, mult);
-
-  }
-
-  @FXML
-  void handleOpDiv() {
-    BinaryOperator<Double> div = (x, y) -> x / y;
-    performOperation(false, div);
-  }
-
-  @FXML
-  @SuppressWarnings({"java:S1612"})
-  void handleOpSqrt() {
-    UnaryOperator<Double> sqrt = x -> Math.sqrt(x);
-    performOperation(sqrt);
-  }
-
-  @FXML
-  void handleOpPi() {
-    calc.pushOperand(Math.PI);
-    updateOperandsView();
   }
 }
