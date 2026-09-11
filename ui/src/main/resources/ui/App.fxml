@@ -23,6 +23,7 @@
    <Label text="Fag" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
    <Label text="Velg et fag" />
 
+   <!--Liste med fag som vises-->
    <ListView 
       fx:id="courseListView" 
       prefHeight="220.0" 
@@ -30,11 +31,7 @@
       onMouseClicked="#handleCourseClick" 
    />
 
+   <!--Fag valg display-->
    <Label fx:id="selectedCourseLabel" text="Valgt fag: Ingen valgt" />
 
 </VBox>
-
-
-
-
-
