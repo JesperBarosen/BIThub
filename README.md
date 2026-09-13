@@ -10,9 +10,9 @@ med terningkast 1-5 og kommentar, og viser gjennomsnittlig vurdering per emne.
 
 Kodingsprosjektet ligger i rota av kodelageret og består av `pom.xml`, `core/` og `ui/`.
 
-- `core/` - domenelogikk (`Course`, `Review`) og persistens
+- `core/src/main/java/core` - domenelogikk (`Course`, `Review`) og persistens
 - `docs/` - dokumentasjon per release 
-- `ui/` - brukergrensesnitt i JavaFX (`App`, `AppController`, `App.fxml`)
+- `ui/src/main/java/ui` - brukergrensesnitt i JavaFX (`App`, `AppController`, `App.fxml`)
 - `config/` - konfigurasjon for kodekvalitetsverktøy (Checkstyle og SpotBugs)
 
 
