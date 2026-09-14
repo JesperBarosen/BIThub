@@ -1,4 +1,6 @@
-I arbeidet med release 1 har vi brukt KI-verktøyene ChatGPT og Claude. Vi brukte dem hovedsakelig når vi var usikre på enkelte deler av oppgaveteksten og for å få en enkel oversikt over hva vi skulle gjøre. Oppgaven inneholder krav til blant annet Maven, GitHub, issues, brukerhistorier og prosjektstruktur, så KI hjalp oss med å skjønne hva vi måtte gjøre og hva de ulike puktene i oppgaveteksten innebærer.
+# Bruk av KI i release1
+
+I arbeidet med release 1 har vi brukt KI-verktøyene ChatGPT, Google Gemini og Claude. Vi brukte de hovedsakelig for å få en enkel oversikt over hva vi skulle gjøre i oppgaven, eventuelt når vi var usikre på deler av oppgaveteksten.
 
 Vi har også fått hjelp til Git-kommandoer i terminalen, opprettelse av brancher i terminalen og pull requests.
 
