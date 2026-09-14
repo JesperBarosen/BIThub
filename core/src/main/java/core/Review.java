@@ -1,7 +1,7 @@
 package core;
 
 //representerer en anmeldelse av et emne
-public class Review {
+public final class Review {
   private String reviewerName;
   private int rating;
   private String comment;
