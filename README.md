@@ -1,34 +1,44 @@
 
-# Javafx template
+# Gr2610 - IT1901 prosjekt
 
-[open in Eclipse Che](https://che.iaas.ntnu.no/#https://git.ntnu.no/IT1901-dev/javafx-template?new)
+[open in Eclipse Che](Oppdatert lenke kommer)
 
-A repository with three variants of a javafx projects, with maven setup for Java 17+ and JavaFX 21, and JUnit 5 (Jupiter) and TestFX for testing.
+Dette er kodelageret til gruppe 2610 i faget IT1901 ved NTNU. Appen lar studenter anmelde emner
+med terningkast 1-5 og kommentar, og viser gjennomsnittlig vurdering per emne.
 
-Use this as a starting point for your project to see examples of configuration. It is recommended to use modules-template for your project, but you can start with a simpler template and move on to multi module multi package project later.
+## Innhold i repoet
 
-To make the project(s) templates more interesting, it is the start of an [RPN](https://en.wikipedia.org/wiki/Reverse_Polish_notation) calculator. 
-The core logic is implemented (in [Calc.java](javafx-template/src/main/java/app/Calc.java)), the fxml file (in [App.fxml](javafx-template/src/main/resources/app/App.fxml) and the controller class (in [AppController.java](javafx-template/src/main/java/app/AppController.java). And last, but not least, there is a TestFX-based test (in [AppTest.java](javafx-template/src/test/java/app/AppTest.java), see the [README](javafx-template/src/test/java/app/README.md) for details about what it tests).
+Kodingsprosjektet ligger i rota av kodelageret og består av `pom.xml`, `core/` og `ui/`.
 
-## javafx-template
+- `core/src/main/java/core` - domenelogikk (`Course`, `Review`) og persistens
+- `docs/` - dokumentasjon per release 
+- `ui/src/main/java/ui` - brukergrensesnitt i JavaFX (`App`, `AppController`, `App.fxml`)
+- `config/` - konfigurasjon for kodekvalitetsverktøy (Checkstyle og SpotBugs)
 
-Template for  single-module, single-package javafx project.
 
-## packages-template
+## Nødvendige verktøy og avhengigheter
 
-Template for  single-module, multi-package javafx project.
+- **Java 17** eller nyere
+- **Maven 3.9** eller nyere
+- **JavaFX 21** 
+- **JUnit 5**
+- **JaCoCo** 
 
-## modules-template
+Alle avhengigheter lastes ned automatisk av Maven ved bygging.
 
-Template for  multi-module, multi-package javafx project.
 
-## Trying it out
+## Bygge, teste og kjøre
 
-All projects can be tried out by cd-ing into the corresponding folder and using `mvn`:
+Kommandoene kjøres fra rota av kodelageret:
 
-- change directory to the desired sample, such as `cd javafx-template`
-- if using the multi-module template run `mvn clean install` to allow local dependencies to be available
-- compile with `mvn compile`
-- test with `mvn test`
-- run quality checks with `mvn verify`
-- run with `mvn javafx:run`
+- `mvn clean install` - bygger alle moduler
+- `mvn test` - kjører testene
+- `mvn verify` - kjører tester, kodekvalitetssjekker og genererer testdekningsrapport
+
+Testdekningsrapporten fra JaCoCo finnes etterpå i `core/target/site/jacoco/index.html` 
+og `ui/target/site/jacoco/index.html`.
+
+Appen startes fra `ui`-modulen:
+
+    mvn javafx:run -f ui/pom.xml
+
