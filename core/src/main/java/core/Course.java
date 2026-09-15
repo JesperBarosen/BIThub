@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 //representerer et emne og kursets anmeldelser
-public  final class Course {
+public final class Course {
   private String courseCode;
   private String courseName;
   private List<Review> reviews;
