@@ -14,76 +14,73 @@ import javafx.scene.control.ListView;
 import javafx.stage.Stage;
 
 /**
- * TestFX test suite for the application's JavaFX user interface.
- *
- * <p>Verifies that the application starts successfully, that
- * the course list is populated, and that selecting a course
- * updates the user interface correctly.
+ * Testklasse for applikasjonens JavaFX-brukergrensesnitt.
+ * Verifiserer at applikasjonen starter korrekt, at faglisten fylles med fag,
+ * og at valg av fag oppdaterer brukergrensesnittet.
  */
 class AppTest extends ApplicationTest {
 
-  private Parent root;
+    private Parent root;
 
-  /**
-   * Loads the application's FXML file and displays the JavaFX scene
-   * before each test is executed.
-   *
-   * @param stage the JavaFX stage used by TestFX
-   * @throws IOException if the FXML file cannot be loaded
-   */
-  @Override
-  public void start(Stage stage) throws IOException {
-    FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("App.fxml"));
-    root = fxmlLoader.load();
-    stage.setScene(new Scene(root));
-    stage.show();
-  }
+    /**
+     * Laster inn applikasjonens FXML-fil og viser JavaFX-vinduet
+     * før hver test kjøres.
+     *
+     * @param stage JavaFX-vinduet som brukes av TestFX
+     * @throws IOException hvis FXML-filen ikke kan lastes inn
+     */
+    @Override
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("App.fxml"));
+        root = fxmlLoader.load();
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
 
-  /**
-   * Tests that the application starts and successfully loads
-   * the root JavaFX node.
-   */
-  @Test
-  void testAppStarts() {
-    Assertions.assertNotNull(root);
-  }
+    /**
+     * Verifiserer at applikasjonen starter og laster inn rotnoden korrekt.
+     */
+    @Test
+    void testAppStarts() {
+        Assertions.assertNotNull(root);
+    }
 
-  /**
-   * Tests that the course list exists and contains at least one course
-   * when the application is started.
-   */
-  @Test
-  void testCourseListIsNotEmpty() {
-    @SuppressWarnings("unchecked")
-    ListView<String> courseListView =
-        (ListView<String>) root.lookup("#courseListView");
+    /**
+     * Verifiserer at faglisten finnes og inneholder minst ett fag
+     * når applikasjonen starter.
+     */
+    @Test
+    void testCourseListIsNotEmpty() {
+        @SuppressWarnings("unchecked")
+        ListView<String> courseListView
+                = (ListView<String>) root.lookup("#courseListView");
 
-    Assertions.assertNotNull(courseListView);
-    Assertions.assertFalse(courseListView.getItems().isEmpty());
-  }
+        Assertions.assertNotNull(courseListView);
+        Assertions.assertFalse(courseListView.getItems().isEmpty());
+    }
 
-  /**
-   * Tests that selecting a course in the course list updates
-   * the label showing the currently selected course.
-   */
-  @Test
-  void testSelectingCourseUpdatesLabel() {
-    @SuppressWarnings("unchecked")
-    ListView<String> courseListView =
-        (ListView<String>) root.lookup("#courseListView");
+    /**
+     * Verifiserer at valg av et fag i faglisten oppdaterer etiketten
+     * som viser hvilket fag som er valgt.
+     */
+    @Test
+    void testSelectingCourseUpdatesLabel() {
+        @SuppressWarnings("unchecked")
+        ListView<String> courseListView
+                = (ListView<String>) root.lookup("#courseListView");
 
-    Assertions.assertNotNull(courseListView);
+        Assertions.assertNotNull(courseListView);
 
-    String firstCourse = courseListView.getItems().get(0);
-    clickOn(firstCourse);
+        String firstCourse = courseListView.getItems().get(0);
+        clickOn(firstCourse);
 
-    Label selectedCourseLabel =
-        (Label) root.lookup("#selectedCourseLabel");
+        Label selectedCourseLabel
+                = (Label) root.lookup("#selectedCourseLabel");
 
-    Assertions.assertNotNull(selectedCourseLabel);
-    Assertions.assertEquals(
-        "Valgt fag: " + firstCourse,
-        selectedCourseLabel.getText()
-    );
-  }
+        Assertions.assertNotNull(selectedCourseLabel);
+        Assertions.assertEquals(
+                "Valgt fag: " + firstCourse,
+                selectedCourseLabel.getText()
+        );
+    }
 }
