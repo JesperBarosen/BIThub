@@ -55,11 +55,11 @@ public class AppController {
     }
   }
 
-  /**
-   * Trigges av museklikk i GUI-et. Oppdaterer etikett og håndterer dobbeltklikk for scenebytte.
-   */
+  /*
+  Trigges av museklikk i GUI-et. Oppdaterer etikett og håndterer dobbeltklikk for scenebytte.
+  */
   @FXML
-  void handleCourseClick(MouseEvent event) {
+  public void handleCourseClick(MouseEvent event) {
     // Kaller hjelpemetoden for å oppdatere selectedCourseLabel
     handleCourseClick();
 
