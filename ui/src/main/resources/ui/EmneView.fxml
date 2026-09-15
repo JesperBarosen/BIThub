@@ -10,15 +10,14 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.EmneController">
    <children>
       <Text layoutX="127.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="BIThub">
          <font>
             <Font size="48.0" />
          </font>
       </Text>
-      <Label layoutX="12.0" layoutY="78.0" prefHeight="35.0" prefWidth="377.0" text="Fagnavn">
+      <Label fx:id="emneTittelLabel" layoutX="12.0" layoutY="78.0" prefHeight="35.0" prefWidth="377.0" text="Fagnavn">
          <font>
             <Font size="36.0" />
          </font>

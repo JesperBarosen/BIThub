@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 class AppTest extends ApplicationTest {
 
     private Parent root;
+    private AppController controller;
 
     /**
      * Laster inn applikasjonens FXML-fil og viser JavaFX-vinduet
@@ -33,6 +34,7 @@ class AppTest extends ApplicationTest {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("App.fxml"));
         root = fxmlLoader.load();
+        controller = fxmlLoader.getController();
         stage.setScene(new Scene(root));
         stage.show();
     }
@@ -71,15 +73,17 @@ class AppTest extends ApplicationTest {
 
         Assertions.assertNotNull(courseListView);
 
-        String firstCourse = courseListView.getItems().get(0);
-        clickOn(firstCourse);
+        interact(() -> {
+            courseListView.getSelectionModel().selectFirst();
+            controller.handleCourseClick();
+        });
 
         Label selectedCourseLabel
                 = (Label) root.lookup("#selectedCourseLabel");
 
         Assertions.assertNotNull(selectedCourseLabel);
         Assertions.assertEquals(
-                "Valgt fag: " + firstCourse,
+                "Valgt fag: IT1901 - Informatikk prosjektarbeid",
                 selectedCourseLabel.getText()
         );
     }

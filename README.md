@@ -15,6 +15,7 @@ Kodingsprosjektet ligger i rota av kodelageret og består av `pom.xml`, `core/` 
 - `ui/src/main/java/ui` - brukergrensesnitt i JavaFX (`App`, `AppController`, `App.fxml`)
 - `config/` - konfigurasjon for kodekvalitetsverktøy (Checkstyle og SpotBugs)
 
+Se [denne filen](ui/README.md) for beskrivelse av appen og dens funksjonalitet, skjermbilder og brukerhistorier.
 
 ## Nødvendige verktøy og avhengigheter
 
