@@ -12,7 +12,7 @@
     },
     {
       "type": "java",
-      "name": "Launch modules-template - multi-module, multi-package ",
+      "name": "Launch BIThub ",
       "request": "launch",
       "mainClass": "bithub.ui/ui.App",
       "projectName": "modules-ui",

@@ -9,7 +9,7 @@
       "vmArgs": []
     },
     {
-      "name": "modules-template testing",
+      "name": "BIThub testing",
       "vmArgs": [
         "--add-opens",
         "bithub.ui/ui=ALL-UNNAMED",
@@ -20,7 +20,7 @@
       ]
     }
   ],
-  "java.test.defaultConfig": "modules-template testing",
+  "java.test.defaultConfig": "BIThub testing",
   "java.compile.nullAnalysis.mode": "automatic",
   "java.debug.settings.onBuildFailureProceed": true,
   "java.format.settings.url": ".vscode/java-formatter.xml",
