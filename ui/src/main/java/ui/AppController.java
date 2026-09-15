@@ -1,11 +1,19 @@
 package ui;
 
+import java.io.IOException;
 import java.util.List;
 
 import core.Course;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 public class AppController {
 
@@ -38,14 +46,34 @@ public class AppController {
   }
 
   @FXML
-  void handleCourseClick() {
-    /* Lagrer markert fag*/
-    String selectedCourse =
-        courseListView.getSelectionModel().getSelectedItem();
+  void handleCourseClick(MouseEvent event) {
+    /*Lagre emne som valgt */
+    String selectedCourse = courseListView.getSelectionModel().getSelectedItem();
 
-    /*Hvis markert, så hvises markert fag */
+    /*Hvis emne ikke er null så vises det nederst */
     if (selectedCourse != null) {
       selectedCourseLabel.setText("Valgt fag: " + selectedCourse);
+
+      /*Hvis dobbeltklikk */
+      if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+        try {
+          //Finner plassering til EmneView.fxml og bygger grensesnittet basert på FXML-filen
+          FXMLLoader loader = new FXMLLoader(getClass().getResource("EmneView.fxml"));
+          Parent root = loader.load();
+
+          //Loader controller og setter Labelen emneTittelLabel til vakgt emne 
+          EmneController controller = loader.getController();
+          controller.setEmneData(selectedCourse);
+
+          //Bytter ut det nåværende skjermbildet med det nye grensesnittet
+          Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+          stage.setScene(new Scene(root));
+          stage.show();
+
+        } catch (IOException e) {
+          System.err.println("Kunne ikke laste EmneView.fxml: " + e.getMessage());
+        }
+      }
     }
   }
 }
