@@ -1,7 +1,7 @@
 
 # Gr2610 - IT1901 prosjekt
 
-[open in Eclipse Che](Oppdatert lenke kommer)
+[open in Eclipse Che](https://che.iaas.ntnu.no/#https://git.ntnu.no/IT1901-2026-groups/gr2610?new)
 
 Dette er kodelageret til gruppe 2610 i faget IT1901 ved NTNU. Appen lar studenter anmelde emner
 med terningkast 1-5 og kommentar, og viser gjennomsnittlig vurdering per emne.
