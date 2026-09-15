@@ -87,7 +87,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Aktiverer JaCoCo for ui-modulen -->
+            <!-- Aktiverer JaCoCo for ui-modulen (arver versjon og executions fra rot-POM) -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
