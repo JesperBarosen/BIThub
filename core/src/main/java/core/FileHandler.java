@@ -10,7 +10,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileHandler {
+//Gjorde final for å ungå spotbugs feil
+public final class FileHandler {
   private final Path path;
   private final String lineSeparator = "\r\n";
 
@@ -19,6 +20,20 @@ public class FileHandler {
       throw new IllegalArgumentException("Path cannot be empty");
     }
     this.path = Path.of(path);
+  }
+
+  //Sjekker om filen finnes fra før
+  public boolean isEmpty() {
+    if (!Files.exists(this.path)) {
+      return true;
+    }
+    try {
+      return Files.size(this.path) == 0;
+    } 
+    // Hvis det oppstår en I/O-feil, behandler vi den som tom/manglende
+    catch (IOException e) {
+      return true; 
+    }
   }
 
 
@@ -31,8 +46,8 @@ public class FileHandler {
       /*Legger til vær linje fra filen inn i lines listen*/
       while ((line=reader.readLine())!=null){
         /*Splitter med "," Ved utak av ,'er inne i "..." som kan skje i Comment
-        Comment feltet burde derfor pakkes inn i "" */
-        lines.add(line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"));
+        Comment feltet burde derfor pakkes inn i ""*/
+        lines.add(line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")); //Fikk regex fra Gemini
       }
     }
 
@@ -47,22 +62,28 @@ public class FileHandler {
   }
 
 
-  public void addToFile(String[] line){
-    /*Linjen som skal skrives */
-    String lineToWrite = String.join(",",line) + this.lineSeparator;
+  public void addToFile(String[] line) {
+    String lineToWrite = String.join(",", line) + this.lineSeparator;
 
-    /*Skriving til fil*/
-    try (BufferedWriter writer = Files.newBufferedWriter(
-      this.path,
-      StandardCharsets.UTF_8,
-      StandardOpenOption.APPEND
-    )){
-      writer.write(lineToWrite);
-    }
-    
-    /*Håndterer feil */
-    catch (IOException e){
-      throw new RuntimeException("Feil med skriving til fil",e);
+    try {
+      // Oppretter mappen ("data/") dersom den ikke finnes fra før
+      if (this.path.getParent() != null) {
+        Files.createDirectories(this.path.getParent());
+      }
+
+      // Skriving til fil
+      try (BufferedWriter writer = Files.newBufferedWriter(
+          this.path,
+          StandardCharsets.UTF_8,
+          StandardOpenOption.APPEND,
+          StandardOpenOption.CREATE
+      )) {
+        writer.write(lineToWrite);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Feil med skriving til fil", e);
     }
   }
+
+
 }
