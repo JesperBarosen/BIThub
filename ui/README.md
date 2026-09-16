@@ -12,7 +12,43 @@ Om man ønsker å endre eller slette en anmeldelse i ettertid, har man funksjone
 Inne på profil finnes også funksjoner for å endre navn, brukernavn og passord, samt logge ut. 
 Det er mulig å se informasjon om appen om man klikker på linken som ligger nederst på "logg inn" skjermen og "hjem" skjermen.
 
-## Illustrerende skjermbilde
+## Illustrerende skjermbilde - Figma
+
+Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal se ut og fungere når den er ferdig. 
+
+### Logg inn
+![alt text](image.png)
+
+### Registrer ny bruker
+![alt text](image-1.png)
+
+### Info om appen
+![alt text](image-2.png)
+
+### Profil side
+![alt text](image-3.png)
+
+### Endre passord
+![alt text](image-4.png)
+
+### Hjem skjerm
+![alt text](image-5.png)
+
+### Velg fag
+![alt text](image-6.png)
+Denne siden vil bli brukt for å velge fag både når man skal skrive anmeldelser og lese anmeldelser.
+
+### Lese anmeldelser - eksempel
+![alt text](image-7.png)
+
+### Skrive anmeldelse - eksempel
+![alt text](image-8.png)
+
+### Mine anmeldelser - eksempel
+![alt text](image-9.png)
+
+### Endre egen anmeldelse - eksempel
+![alt text](image-10.png)
 
 
 ## Brukerhistorier

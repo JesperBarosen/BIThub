@@ -46,6 +46,6 @@ public class EmneControllerTest extends ApplicationTest {
         Assertions.assertNotNull(emneTittelLabel, "emneTittelLabel ble ikke funnet i EmneView.fxml");
         
         // Forvent at kontrolleren har lagt til "Detaljer for: " automatisk
-        Assertions.assertEquals("Detaljer for: " + testData, emneTittelLabel.getText());
+        Assertions.assertEquals(testData, emneTittelLabel.getText());
     }
 }

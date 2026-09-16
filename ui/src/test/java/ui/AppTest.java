@@ -5,13 +5,15 @@ import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
-import javafx.scene.input.MouseEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 /**
@@ -94,8 +96,30 @@ class AppTest extends ApplicationTest {
     */
     @Test
     void testDoubleClickSwitchesScene() {
-        // Dobbeltklikker på et element i listen
-        doubleClickOn("IT1901 - Informatikk prosjektarbeid");
+        @SuppressWarnings("unchecked")
+        ListView<String> courseListView
+                = (ListView<String>) root.lookup("#courseListView");
+
+        Assertions.assertNotNull(courseListView);
+
+        interact(() -> {
+            courseListView.getSelectionModel().selectFirst();
+
+            MouseEvent doubleClick = new MouseEvent(
+                    MouseEvent.MOUSE_CLICKED,
+                    0, 0, 0, 0,
+                    MouseButton.PRIMARY,
+                    2,
+                    false, false, false, false,
+                    true, false, false,
+                    false, false, false,
+                    null
+            );
+
+            courseListView.fireEvent(doubleClick);
+        });
+
+        WaitForAsyncUtils.waitForFxEvents();
 
         // Finner elementet #emneTittelLabel i den nylig lastede scenen (EmneView.fxml)
         Label emneTittelLabel = (Label) window(0).getScene().getRoot().lookup("#emneTittelLabel");

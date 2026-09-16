@@ -10,9 +10,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Håndterer lesing fra og skriving til fil.
- */
+// Gjorde final for å unngå SpotBugs-feil
 public final class FileHandler {
 
   private final Path path;
@@ -31,11 +29,20 @@ public final class FileHandler {
     this.path = Path.of(path);
   }
 
-  /**
-   * Leser alle linjene fra filen og deler dem opp i felter.
-   *
-   * @return en liste med feltene fra hver linje
-   */
+  // Sjekker om filen finnes fra før
+  public boolean isEmpty() {
+    if (!Files.exists(this.path)) {
+      return true;
+    }
+
+    try {
+      return Files.size(this.path) == 0;
+    } catch (IOException e) {
+      // Hvis det oppstår en I/O-feil, behandler vi den som tom/manglende
+      return true;
+    }
+  }
+
   public List<String[]> readFile() {
     List<String[]> lines = new ArrayList<>();
 
@@ -46,8 +53,14 @@ public final class FileHandler {
     try (BufferedReader reader = Files.newBufferedReader(this.path)) {
       String line;
 
-      /* Legger til hver linje fra filen i lines-listen. */
+      /* Legger til hver linje fra filen inn i lines-listen. */
       while ((line = reader.readLine()) != null) {
+        /*
+         * Splitter med "," med unntak av komma inne i "..." som kan
+         * forekomme i comment-feltet. Comment-feltet bør derfor pakkes
+         * inn i "".
+         */
+        // Regex fra Gemini
         lines.add(line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"));
       }
     } catch (IOException e) {
@@ -57,22 +70,25 @@ public final class FileHandler {
     return lines;
   }
 
-  /**
-   * Legger til en ny linje i filen.
-   *
-   * @param line feltene som skal skrives til filen
-   */
   public void addToFile(String[] line) {
-    /* Linjen som skal skrives. */
     String lineToWrite = String.join(",", line) + LINE_SEPARATOR;
 
-    /* Skriver til fil. */
-    try (BufferedWriter writer = Files.newBufferedWriter(
-        this.path,
-        StandardCharsets.UTF_8,
-        StandardOpenOption.APPEND
-    )) {
-      writer.write(lineToWrite);
+    try {
+      // Oppretter mappen ("data/") dersom den ikke finnes fra før
+      Path parent = this.path.getParent();
+      if (parent != null) {
+        Files.createDirectories(parent);
+      }
+
+      // Skriving til fil
+      try (BufferedWriter writer = Files.newBufferedWriter(
+          this.path,
+          StandardCharsets.UTF_8,
+          StandardOpenOption.APPEND,
+          StandardOpenOption.CREATE
+      )) {
+        writer.write(lineToWrite);
+      }
     } catch (IOException e) {
       throw new RuntimeException("Feil med skriving til fil", e);
     }
