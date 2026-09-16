@@ -38,7 +38,7 @@
             <Insets top="15.0" />
          </padding>
          <children>
-            <Label text="Fagnavn">
+            <Label fx:id="emneTittelLabel" text="Fagnavn">
                <font>
                   <Font name="System Bold" size="30.0" />
                </font>
