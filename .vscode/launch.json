@@ -12,13 +12,13 @@
     },
     {
       "type": "java",
-      "name": "Launch modules-template - multi-module, multi-package ",
+      "name": "Launch BIThub ",
       "request": "launch",
-      "mainClass": "calc.ui/ui.App",
+      "mainClass": "bithub.ui/ui.App",
       "projectName": "modules-ui",
       "vmArgs": [
         "--add-opens",
-        "calc.ui/ui=ALL-UNNAMED",
+        "bithub.ui/ui=ALL-UNNAMED",
         "--add-exports",
         "javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
         "--add-opens",

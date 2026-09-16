@@ -1,5 +1,5 @@
-module calc.ui {
-  requires calc.core;
+module bithub.ui {
+  requires bithub.core;
   requires javafx.controls;
   requires javafx.fxml;
   requires javafx.graphics;
