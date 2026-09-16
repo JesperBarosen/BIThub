@@ -13,10 +13,13 @@ Denne filen forklarer hvilke valg vi har tatt for den første innleveringen, men
 Målet for første innlevering var å sette på plass et solid utgangspunkt for BIThub. BIThub er en app der vi har lagt inn følgende:  
  
 - Domenemodell for [emner](/core/src/main/java/core/Course.java) og  [anmeldelser](/core/src/main/java/core/Review.java) 
-- Validering av fagkode, fagnavn, navn på anmelder og     vurdering (1-5)  
-- [Emneoversikt](/ui/src/main/resources/ui/App.fxml) i JavaFX der man kan velge et emne  
+- Validering av fagkode, fagnavn, navn på anmelder og vurdering (1-5)
+- [Emneoversikt](/ui/src/main/resources/ui/App.fxml) i JavaFX der man kan velge et emne
+- [Velg fag](/ui/src/main/resources/ui/VelgFag.fxml) i JavaFX for valg av fag
+- [Vurderingsskjema](/ui/src/main/resources/ui/EmneView.fxml) i JavaFX der man kan skrive vurdering
+- [Hjemmeside](/ui/src/main/resources/ui/Hjemmeside.fxml) i JavaFX for HjemmeSide
 - [FileHandler](/core/src/main/java/core/FileHandler.java) som kan lese og skrive linjer i CSV-filer   
-- Lesing av anmeldelser fra fil  
+- Skrivig av anmeldelser til fil  
 - Tester for domenelogikk og brukergrensesnitt  
 - Testdekningsrapport med JaCoCo  
  
