@@ -16,7 +16,7 @@ public class EmneController {
 
   // Metode som tar med emneNavn basert på hvilket emne klikkes på i AppController
   public void setEmneData(String emneNavn) {
-    emneTittelLabel.setText("Detaljer for: " + emneNavn);
+    emneTittelLabel.setText(emneNavn);
   }
 
 
