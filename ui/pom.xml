@@ -114,6 +114,7 @@
                 <configuration>
                     <!-- syntax: module-name/full-app-class-name -->
                     <mainClass>bithub.ui/ui.App</mainClass>
+                    <skip>false</skip>
                 </configuration>
             </plugin>
 

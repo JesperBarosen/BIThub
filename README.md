@@ -39,7 +39,7 @@ Kommandoene kjøres fra rota av kodelageret:
 Testdekningsrapporten fra JaCoCo finnes etterpå i `core/target/site/jacoco/index.html` 
 og `ui/target/site/jacoco/index.html`.
 
-Appen startes fra `ui`-modulen:
+Appen startes fra roten:
 
-    mvn javafx:run -f ui/pom.xml
+    mvn javafx:run
 
