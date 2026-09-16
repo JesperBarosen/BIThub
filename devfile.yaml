@@ -1,8 +1,8 @@
 schemaVersion: 2.1.0
 metadata:
-  name: template #keep it 14 characters or less for the devcontainer name
+  name: gr2610 #keep it 14 characters or less for the devcontainer name
 components:
-  - name: javafx-template
+  - name: bithub
     container:
       image: adrianstoica/it1901:latest
       memoryLimit: 3Gi
