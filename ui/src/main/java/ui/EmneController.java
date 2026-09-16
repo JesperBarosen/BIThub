@@ -28,11 +28,11 @@ public class EmneController {
   private String courseCode = "";
   private String courseName = "";
   private FileHandler fileHandler;
-  private final String filename = "data/reviews.csv";
+  private static final String FILENAME = "data/reviews.csv";
 
   @FXML
   void initialize() {
-    fileHandler = new FileHandler(filename);
+    fileHandler = new FileHandler(FILENAME);
 
     // Oppretter filen med overskrifter dersom den ikke finnes fra før
     if (fileHandler.isEmpty()) {
