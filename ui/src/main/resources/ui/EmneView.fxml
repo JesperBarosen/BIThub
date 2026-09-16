@@ -1,75 +1,135 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.EmneController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.EmneController">
    <children>
-      <Text layoutX="127.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="BIThub">
-         <font>
-            <Font size="48.0" />
-         </font>
-      </Text>
-      <Label fx:id="emneTittelLabel" layoutX="12.0" layoutY="78.0" prefHeight="35.0" prefWidth="377.0" text="Fagnavn">
-         <font>
-            <Font size="36.0" />
-         </font>
-      </Label>
-      <Text layoutX="14.0" layoutY="157.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Vurder fra 1 til 5: ">
-         <font>
-            <Font size="24.0" />
-         </font>
-      </Text>
-      <Text layoutX="231.0" layoutY="157.0" strokeType="OUTSIDE" strokeWidth="0.0" text="/5 ">
-         <font>
-            <Font size="24.0" />
-         </font>
-      </Text>
-      <TextField layoutX="201.0" layoutY="136.0" prefHeight="24.0" prefWidth="24.0" />
-      <Text layoutX="15.0" layoutY="203.0" strokeType="OUTSIDE" strokeWidth="0.0" text="SKRIV INN KOMMENTAR:">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Text>
-      <TextArea layoutX="15.0" layoutY="210.0" prefHeight="181.0" prefWidth="368.0" text="Skriv her..." />
-      <Text layoutX="18.0" layoutY="437.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Anonym?">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Text>
-      <CheckBox layoutX="116.0" layoutY="420.0" mnemonicParsing="false" text="JA">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </CheckBox>
-      <CheckBox layoutX="177.0" layoutY="420.0" mnemonicParsing="false" text="NEI">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </CheckBox>
-      <Button layoutX="15.0" layoutY="461.0" mnemonicParsing="false" text="SEND INN">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Button>
-      <Line endX="228.0" layoutX="172.0" layoutY="524.0" startX="-172.0" />
-      <Line endX="50.0" endY="64.0" layoutX="155.0" layoutY="536.0" startX="50.0" startY="-12.5" />
-      <Button layoutX="46.0" layoutY="536.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="120.0" text="TILBAKE">
-         <font>
-            <Font size="24.0" />
-         </font>
-      </Button>
-      <Button layoutX="245.0" layoutY="536.0" mnemonicParsing="false" prefHeight="51.0" prefWidth="120.0" text="HJEM">
-         <font>
-            <Font size="24.0" />
-         </font>
-      </Button>
+      <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar" stylesheets="@Style.css">
+         <children>
+            <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+            <Label alignment="CENTER" prefHeight="70.0" prefWidth="250.0" text="BIThub">
+               <font>
+                  <Font name="System Bold" size="40.0" />
+               </font>
+            </Label>
+            <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+            <Button mnemonicParsing="false" styleClass="profil-knapp" stylesheets="@Style.css" text="👤">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Button>
+         </children>
+         <padding>
+            <Insets left="20.0" right="20.0" />
+         </padding>
+      </HBox>
+      <VBox alignment="TOP_CENTER" spacing="12.0" stylesheets="@Style.css" VBox.vgrow="ALWAYS">
+         <padding>
+            <Insets top="15.0" />
+         </padding>
+         <children>
+            <Label fx:id="emneTittelLabel" text="Fagnavn">
+               <font>
+                  <Font name="System Bold" size="30.0" />
+               </font>
+            </Label>
+            <HBox>
+               <children>
+                  <Label text="Vurder fra 1 til 5: ">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+                  <TextField prefHeight="35.0" prefWidth="35.0" />
+                  <Label text=" /5">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+               <VBox.margin>
+                  <Insets left="10.0" right="10.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox>
+               <children>
+                  <Label text="SKRIV INN KOMMENTAR:">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets left="10.0" right="10.0" />
+               </padding>
+            </HBox>
+            <TextArea prefHeight="128.0" prefWidth="380.0" text="Skriv her..." VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets left="10.0" right="10.0" />
+               </VBox.margin>
+            </TextArea>
+            <HBox>
+               <children>
+                  <Label text="Anonym?   ">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets left="10.0" />
+               </padding>
+            </HBox>
+            <HBox>
+               <children>
+                  <CheckBox mnemonicParsing="false" text="YES       " />
+                  <CheckBox mnemonicParsing="false" text="NO" />
+               </children>
+               <padding>
+                  <Insets left="10.0" right="10.0" />
+               </padding>
+            </HBox>
+            <HBox>
+               <children>
+                  <Button mnemonicParsing="false" styleClass="send-inn-knapp" stylesheets="@Style.css" text="SEND INN">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Button>
+               </children>
+               <opaqueInsets>
+                  <Insets left="10.0" />
+               </opaqueInsets>
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </HBox>
+         </children>
+      </VBox>
+      <HBox alignment="CENTER" prefHeight="70.0" prefWidth="200.0" styleClass="header-bar" stylesheets="@Style.css">
+         <children>
+            <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="bunn-knapp" stylesheets="@Style.css" text="TILBAKE" HBox.hgrow="ALWAYS">
+               <font>
+                  <Font name="System Bold" size="36.0" />
+               </font>
+            </Button>
+            <Line endX="100.0" startX="100.0" startY="-67.57472229003906" />
+            <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="bunn-knapp" stylesheets="@Style.css" text="HJEM" HBox.hgrow="ALWAYS">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+         </children>
+      </HBox>
    </children>
-</Pane>
+</VBox>
