@@ -36,7 +36,7 @@ Vi er fornøyde med å ha fått på plass alle disse funksjonene i release 1, og
  
 Vi startet med JavaFX-malen som var anbefalt og satt derfor opp prosjektet som et flermodulprosjekt med modulene core og ui.  
  
-Vi brukte GitHub issues for å fordele de ulike oppgavene. Oppgavene ble knyttet til milepælen Release1 og lagt inn i en Github Project-tavle. Tavlen ble brukt til å vise om oppgavene var i Backlog, klare, under arbeid, til vurdering eller ferdige.   
+Vi brukte GitHub issues for å fordele de ulike oppgavene. Oppgavene ble knyttet til milepælen Release1 og lagt inn i en GitHub Project-tavle. Tavlen ble brukt til å vise om oppgavene var i Backlog, klare, under arbeid, til vurdering eller ferdige.   
  
 Arbeidet med de forskjellige issuene ble gjort på separate brancher. Alle endringer ble sendt inn gjennom pull requests og gjennomgått av andre gruppemedlemmer før de ble merget til master-branchen. Pull requests ble knyttet til de korresponderende issuene.  
  
@@ -80,7 +80,7 @@ Vi har heller prioritert å ha noe i alle de tre arkitekturlagene, altså domene
  
 ## Tester og testdekning  
  
-Testene kan kjøres fra rotmappen med kommandoen ´mvn test´ i terminalen, og JaCoCo lager en rapport over testdekningsgraden for hver modul.  
+Testene kan kjøres fra rotmappen med kommandoen `mvn test` i terminalen, og JaCoCo lager en rapport over testdekningsgraden for hver modul.  
  
 - [CourseTest](/core/src/test/java/core/CourseTest.java) tester opprettelse og validering av emner, at anmeldelsene blir lagt til riktig og at listen med anmeldelser ikke kan endres utenfra.  
 - [ReviewTest](/core/src/test/java/core/ReviewTest.java) tester opprettelse og validering av anmeldelser.  
