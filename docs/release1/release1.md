@@ -54,7 +54,7 @@ Gruppen møttes 1 gang i uken på tirsdager kl. 13:30 for å diskutere hva vi ha
  
 ### Utfordringer i release 1  
  
-En av utfordringene var å få en JavaFX-test til å fungere på både macOS og Windows. Testen simulerte først et museklikk på teksten til et emne. Dette fungerte på Windows-maskiner, men ikke på Mac. Testen ble derfor endret slik at den valgte emnet direkte gjennom JavaFX-komponenten og controlleren.  
+En av utfordringene var å få en JavaFX-test til å fungere på både macOS og Windows. Testen simulerte først et museklikk på teksten til et emne. Dette fungerte på Windows-maskiner, men ikke på Mac. Testen ble derfor endret slik at den valgte emnet direkte gjennom JavaFX-komponenten og controlleren.  Vi hadde også utfordringer med oppsett av JaCoCo, men fikk etter hvert satt det opp i rot, ui og core slik at vi nå kan generere og se testdekningsgraden i index.html-filene.
  
 SpotBugs ga tilbakemelding på at enkelte domeneklasser kunne arves fra samtidig som konstruktørene kunne kaste unntak. Vi endret derfor klassene Course og Review til final, siden de ikke skal arves fra.  
  
