@@ -10,9 +10,9 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileHandler {
+public final class FileHandler {
   private final Path path;
-  private final String lineSeparator = "\r\n";
+  private static final String LINE_SEPARATOR = "\r\n";
 
   public FileHandler(String path){
     if (path == null || path.isBlank()){
@@ -49,7 +49,7 @@ public class FileHandler {
 
   public void addToFile(String[] line){
     /*Linjen som skal skrives */
-    String lineToWrite = String.join(",",line) + this.lineSeparator;
+    String lineToWrite = String.join(",", line) + LINE_SEPARATOR;
 
     /*Skriving til fil*/
     try (BufferedWriter writer = Files.newBufferedWriter(
