@@ -33,7 +33,7 @@ Skjermbilder
 
  
 
-###Arbeidsflyt 
+### Arbeidsflyt 
 
 Vi startet med JavaFX-malen som var anbefalt og satt derfor opp prosjektet som et flermodulprosjekt med modulene core og ui. 
 
