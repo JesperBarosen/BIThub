@@ -93,9 +93,9 @@ public final class ReviewHandler implements DataHandler<CourseDTO>{
 
   public void addReview(String courseCode, String courseName, Review review) {
     List<CourseDTO> courses = readFromFile();
-
+    
     CourseDTO targetCourse = courses.stream()
-        .filter(c -> c.courseCode != null && c.courseCode.equalsIgnoreCase(courseCode))
+        .filter(c -> c.getCourseCode() != null && c.getCourseCode().equalsIgnoreCase(courseCode))
         .findFirst()
         .orElse(null);
 
@@ -131,6 +131,12 @@ public final class ReviewHandler implements DataHandler<CourseDTO>{
     }
   }
 
+  /**
+   * Returnerer standard filbane for en gitt fil i brukerens hjemmemappe under .bithub-katalogen.
+   * 
+   * @param fileName Navnet på filen som skal hentes bane til.
+   * @return En Path-objekt som peker til filen i ~/.bithub/fileName.
+   */
   public static Path getDefaultPath(String fileName) {
     return Path.of(System.getProperty("user.home"), ".bithub", fileName);
   }
