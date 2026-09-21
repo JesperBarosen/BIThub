@@ -1,0 +1,38 @@
+@startuml classDiagramCore
+
+package core {
+    class Course {
+        - courseCode: String
+        - courseName: String 
+        - reviews: List<Review>
+        + Course(courseCode: String, courseName: String)
+        + getCourseCode(): String 
+        + getCourseName(): String
+        + addReview(review: Review): void
+        + getReviews(): List<Review>
+        + getAverageRating(): double
+
+    }
+
+    class Review {
+        - reviewerName: String 
+        - rating: int 
+        - comment: String 
+        + Review(reviewerName: String, rating: int, comment: String)
+        + getReviewerName(): String 
+        + getRating(): int
+        + getComment(): String
+    }
+
+    class FileHandler {
+        - path: Path 
+        + FileHandler(path: String)
+        + isEmpty(): boolean
+        + readFile(): List<String[]>
+        + addToFile(line: String[]): void
+    }
+
+    Course -right-> "reviews: 0..*" Review
+}
+
+@enduml
