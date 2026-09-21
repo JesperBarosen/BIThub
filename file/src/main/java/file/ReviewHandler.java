@@ -6,15 +6,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import core.Review;
 
-/**
- * Håndterer persistering av anmeldelser organisert per emne til og fra JSON.
- */
+/*
+Håndterer persistering av anmeldelser organisert per emne til og fra JSON.
+*/
 public final class ReviewHandler {
 
   private final Path path;
@@ -33,48 +32,6 @@ public final class ReviewHandler {
     this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
   }
 
-  /**
-   * DTO-struktur for JSON.
-   */
-  @JsonPropertyOrder({ "courseCode", "courseName", "reviews" })
-  public static class CourseDTO {
-    public String courseCode;
-    public String courseName;
-    public List<Review> reviews = new ArrayList<>();
-
-    public CourseDTO() {
-    }
-
-    public CourseDTO(String courseCode, String courseName) {
-      this.courseCode = courseCode;
-      this.courseName = courseName;
-    }
-
-    public String getCourseCode() {
-      return courseCode;
-    }
-
-    public void setCourseCode(String courseCode) {
-      this.courseCode = courseCode;
-    }
-
-    public String getCourseName() {
-      return courseName;
-    }
-
-    public void setCourseName(String courseName) {
-      this.courseName = courseName;
-    }
-
-    public List<Review> getReviews() {
-      return reviews;
-    }
-
-    public void setReviews(List<Review> reviews) {
-      this.reviews = reviews != null ? reviews : new ArrayList<>();
-    }
-  }
-
   public boolean isEmpty() {
     if (!Files.exists(this.path)) {
       return true;
@@ -86,14 +43,15 @@ public final class ReviewHandler {
     }
   }
 
-  /**
-   * Leser eksisterende emner og anmeldelser fra JSON-filen.
-   */
+  /*
+  Leser eksisterende emner og anmeldelser fra JSON-filen.
+  */
   public List<CourseDTO> readFromFile() {
     if (isEmpty()) {
       return new ArrayList<>();
     }
     try {
+      //Henter info fra filer i form av CourseDTO
       return objectMapper.readValue(
           this.path.toFile(),
           objectMapper.getTypeFactory().constructCollectionType(List.class, CourseDTO.class)
@@ -103,10 +61,10 @@ public final class ReviewHandler {
     }
   }
 
-  /**
-   * Legger til en anmeldelse for et emne. Dersom emnet allerede finnes i JSON-filen,
-   * legges anmeldelsen til i det eksisterende emnet.
-   */
+  /*
+  Legger til en anmeldelse for et emne. Dersom emnet allerede finnes i JSON-filen,
+  legges anmeldelsen til i det eksisterende emnet.
+  */
   public void addReview(String courseCode, String courseName, Review review) {
     List<CourseDTO> courses = readFromFile();
 
