@@ -14,7 +14,7 @@ import core.Review;
 /*
 Håndterer persistering av anmeldelser organisert per emne til og fra JSON.
 */
-public final class ReviewHandler {
+public final class ReviewHandler implements DataHandler<CourseDTO>{
 
   private final Path path;
   private final ObjectMapper objectMapper;
@@ -29,6 +29,7 @@ public final class ReviewHandler {
    * @param path filstien som skal brukes til lagring og lesing av anmeldelser
    * @throws IllegalArgumentException hvis den medfølgende filstien er null
    */
+
   public ReviewHandler(Path path) {
     if (path == null) {
       throw new IllegalArgumentException("Path cannot be null");
@@ -44,6 +45,8 @@ public final class ReviewHandler {
    * 
    * @return true hvis filen ikke finnes eller har en størrelse på 0 bytes, ellers false
    */
+
+  @Override 
   public boolean isEmpty() {
     if (!Files.exists(this.path)) {
       return true;
@@ -60,6 +63,8 @@ public final class ReviewHandler {
   * 
   * @return liste av emner med reviews
   */
+
+  @Override 
   public List<CourseDTO> readFromFile() {
     if (isEmpty()) {
       return new ArrayList<>();
@@ -85,6 +90,7 @@ public final class ReviewHandler {
   * @param courseName navnet på emnet (f.eks. "Informatikk prosjektarbeid")
   * @param review selve anmeldelsesobjektet som skal legges til
   */
+
   public void addReview(String courseCode, String courseName, Review review) {
     List<CourseDTO> courses = readFromFile();
 
@@ -111,6 +117,8 @@ public final class ReviewHandler {
   *  
   * @param data listen med CourseDTO-objekter som skal lagres
   */
+
+  @Override 
   public void writeToFile(List<CourseDTO> data) {
     try {
       Path parent = this.path.getParent();
