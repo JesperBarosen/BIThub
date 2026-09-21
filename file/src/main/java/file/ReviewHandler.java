@@ -23,6 +23,12 @@ public final class ReviewHandler {
     this(getDefaultPath("courses.json"));
   }
 
+  /**
+   * Konstruerer en ny ReviewHandler med en spesifisert filsti.
+   * 
+   * @param path filstien som skal brukes til lagring og lesing av anmeldelser
+   * @throws IllegalArgumentException hvis den medfølgende filstien er null
+   */
   public ReviewHandler(Path path) {
     if (path == null) {
       throw new IllegalArgumentException("Path cannot be null");
@@ -32,6 +38,12 @@ public final class ReviewHandler {
     this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
   }
 
+
+  /**
+   * Sjekker om JSON-filen enten ikke eksisterer eller er tom.
+   * 
+   * @return true hvis filen ikke finnes eller har en størrelse på 0 bytes, ellers false
+   */
   public boolean isEmpty() {
     if (!Files.exists(this.path)) {
       return true;
@@ -43,8 +55,10 @@ public final class ReviewHandler {
     }
   }
 
-  /*
-  Leser eksisterende emner og anmeldelser fra JSON-filen.
+  /**
+  * Leser eksisterende emner og anmeldelser fra JSON-filen.
+  * 
+  * @return liste av emner med reviews
   */
   public List<CourseDTO> readFromFile() {
     if (isEmpty()) {
@@ -61,32 +75,42 @@ public final class ReviewHandler {
     }
   }
 
-  /*
-  Legger til en anmeldelse for et emne. Dersom emnet allerede finnes i JSON-filen,
-  legges anmeldelsen til i det eksisterende emnet.
+
+
+  /**
+  * Legger til en anmeldelse for et emne. Dersom emnet allerede finnes i JSON-filen,
+  * legges anmeldelsen til i det eksisterende emnet.
+  * 
+  * @param courseCode emnekoden til faget (f.eks. "IT1901")
+  * @param courseName navnet på emnet (f.eks. "Informatikk prosjektarbeid")
+  * @param review selve anmeldelsesobjektet som skal legges til
   */
   public void addReview(String courseCode, String courseName, Review review) {
     List<CourseDTO> courses = readFromFile();
 
-    // Søker etter et eksisterende emne basert på emnekode
     CourseDTO targetCourse = courses.stream()
         .filter(c -> c.courseCode != null && c.courseCode.equalsIgnoreCase(courseCode))
         .findFirst()
         .orElse(null);
 
     if (targetCourse == null) {
-      // Oppretter nytt emne dersom det ikke fantes fra før
       targetCourse = new CourseDTO(courseCode, courseName);
       courses.add(targetCourse);
     }
 
-    // Legger til den nye anmeldelsen i emnets liste
     targetCourse.getReviews().add(review);
 
-    // Lagrer hele strukturen på nytt
     writeToFile(courses);
   }
 
+
+
+  /**
+  * Skriver en liste med emner og anmeldelser ned til JSON-filen. 
+  * Oppretter automatisk overliggende mapper dersom de ikke eksisterer fra før.
+  *  
+  * @param data listen med CourseDTO-objekter som skal lagres
+  */
   public void writeToFile(List<CourseDTO> data) {
     try {
       Path parent = this.path.getParent();
