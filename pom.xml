@@ -1,6 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>it1901</groupId>
     <artifactId>gr2610</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -17,6 +20,7 @@
     <modules>
         <module>core</module>
         <module>ui</module>
+        <module>file</module>
     </modules>
 
     <dependencyManagement>
@@ -45,7 +49,7 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Start JavaFX only in the ui module. -->
+                <!-- Start JavaFX kun i ui-modulen -->
                 <plugin>
                     <groupId>org.openjfx</groupId>
                     <artifactId>javafx-maven-plugin</artifactId>
@@ -73,7 +77,7 @@
                     </configuration>
                 </plugin>
 
-                <!-- Checkstyle code quality tool -->
+                <!-- Checkstyle kodekvalitetsverktøy -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
@@ -106,7 +110,7 @@
                     </executions>
                 </plugin>
 
-                <!-- SpotBugs code quality tool -->
+                <!-- SpotBugs kodekvalitetsverktøy -->
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
@@ -127,7 +131,7 @@
                     </executions>
                 </plugin>
 
-                <!-- JaCoCo code coverage plugin -->
+                <!-- JaCoCo kodedekning -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
