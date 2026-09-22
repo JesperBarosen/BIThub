@@ -1,4 +1,4 @@
-@startuml classDiagramCore
+@startuml klassediagramCore
 
 package core {
     class Course {
