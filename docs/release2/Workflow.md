@@ -112,6 +112,7 @@ Knappene hadde for lav kontrast i mørk modus. Har oppdatert
 designsystemet slik at UU-kravene for kontrast blir ivaretatt.
 
 Co-authored-by: Ola Nordmann <ola.nordmann@stud.ntnu.no>
+Co-authored-by: Tobias Bernard <tob.bern@stud.ntnu.no>
 
 fixes #108
 ```
