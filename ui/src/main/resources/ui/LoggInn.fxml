@@ -67,7 +67,7 @@
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin></PasswordField>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="20.0" prefWidth="320.0" styleClass="logg-inn-knapp" stylesheets="@Style.css" text="LOGG INN">
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="20.0" prefWidth="320.0" styleClass="logg-inn-knapp" stylesheets="@Style.css" text="Logg inn">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
@@ -77,7 +77,7 @@
                   <Font size="14.0" />
                </font>
             </Hyperlink>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="REGISTRER NY BRUKER">
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="registrer-ny-bruker-knapp" stylesheets="@Style.css" text="Registrer ny bruker">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
