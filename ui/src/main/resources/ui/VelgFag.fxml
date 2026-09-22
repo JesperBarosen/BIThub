@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -12,7 +10,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.EmneController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.VelgFagController">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar" stylesheets="@Style.css">
          <children>
@@ -47,28 +45,20 @@
                   </Label>
                </children>
             </HBox>
-            <ComboBox editable="true" maxWidth="1.7976931348623157E308" prefHeight="35.0" prefWidth="350.0" promptText="Søk">
-                <items>
-                    <FXCollections fx:factory="observableArrayList">
-                        <String fx:value="BI2081 - Natur, miljø og bærekraft" />
-                        <String fx:value="EXPH0300 - Examen philosophicum" />
-                        <String fx:value="HMS0002 - HMS-kurs for 1. årsstudenter" />
-                        <String fx:value="IT1604 - Digitalt samfunn" />
-                        <String fx:value="IT1901 - Informatikk prosjektarbeid I" />
-                    </FXCollections>
-                </items>
-            </ComboBox>
+            <ComboBox fx:id="courseComboBox" maxWidth="1.7976931348623157E308" prefHeight="35.0" prefWidth="350.0" promptText="Velg fag" />
+            <Label fx:id="statusLabel" />
+            <Button fx:id="nextButton" mnemonicParsing="false" onAction="#handleNext" styleClass="send-inn-knapp" stylesheets="@Style.css" text="GÅ VIDERE" />
          </children>
       </VBox>
       <HBox alignment="CENTER" prefHeight="70.0" prefWidth="200.0" styleClass="header-bar" stylesheets="@Style.css">
          <children>
-            <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="bunn-knapp" stylesheets="@Style.css" text="TILBAKE" HBox.hgrow="ALWAYS">
+            <Button fx:id="backButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleBack" styleClass="bunn-knapp" stylesheets="@Style.css" text="TILBAKE" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="System Bold" size="36.0" />
                </font>
             </Button>
             <Line endX="100.0" startX="100.0" startY="-67.57472229003906" />
-            <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="bunn-knapp" stylesheets="@Style.css" text="HJEM" HBox.hgrow="ALWAYS">
+            <Button fx:id="homeButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleHome" styleClass="bunn-knapp" stylesheets="@Style.css" text="HJEM" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>

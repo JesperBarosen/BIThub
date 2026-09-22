@@ -1,9 +1,8 @@
 package ui;
 
+import core.Course;
 import java.io.IOException;
 import java.util.List;
-
-import core.Course;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -15,6 +14,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+/** Kontroller for den opprinnelige faglisten i App.fxml. */
 public class AppController {
 
   private List<Course> courses;
