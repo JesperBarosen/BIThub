@@ -1,10 +1,93 @@
+
+<h1 style="color:#60A5FA; border: none; margin-bottom: 0;">Samlet workflow</h1>
+
+<hr style="border: none; height: 1px; background: linear-gradient(to right, #60A5FA, transparent); margin: 12px 0 20px 0;">
+
+<div style="background-color: #171717; padding: 20px; border-radius: 8px; border: 1px solid #333; margin-bottom: 30px;">
+
+```text
+1. ISSUE
+   │
+   │  Beskriv problem/funksjon
+   │  + acceptance criteria
+   ▼
+2. BRANCH
+   │
+   │  feature/#42-vipps-innlogging
+   ▼
+3. IMPLEMENTASJON
+   │
+   │  Skriv kode + tester
+   │  Lag commits med issue-referanse
+   ▼
+4. PULL REQUEST
+   │
+   │  closes #42
+   │  Beskriv endringer + testing
+   ▼
+5. CODE REVIEW
+   │
+   │  Minst 1 annen person godkjenner
+   ▼
+6. MERGE
+   │
+   │  Merge til main
+   ▼
+7. ISSUE LUKKES
+   │
+   │  Definition of Done er oppfylt
+   ▼
+8. FERDIG
+```
+
+## <span style="color:#E2E8F0"><u>Hovedregel</u></span>
+
+> **Issue → Branch → Commit → PR → Review → Merge → Closed**
+
+Dette gir en tydelig kobling mellom hva som skal gjøres, arbeidet som utføres, og hvordan arbeidet blir kvalitetssikret før det merges til `main`.
+
+</div>
+
+
+
 <h1 style="color:#60A5FA; border: none; margin-bottom: 0;">1. Commit-melding</h1>
 <hr style="border: none; height: 1px; background: linear-gradient(to right, #60A5FA, transparent); margin: 12px 0 20px 0;">
 
 <div style="background-color: #171717; padding: 20px; border-radius: 8px; border: 1px solid #333; margin-bottom: 30px;">
 
-## <span style="color:#E2E8F0"><u>Mal</u></span>
+## <span style="color:#E2E8F0"><u>Regler</u></span>
+
+Commit-meldinger skal være korte, tydelige og beskrive hva committen gjør. Skriv i presens og bruk imperativ form.
+
+### Subject
+
+- Skill subject fra body med en tom linje.
+- Begrens subject til **50 tegn**.
+- Start subject med stor bokstav.
+- Ikke avslutt subject med punktum.
+- Bruk imperativ form i subject.
+
+Eksempel:
+
 ```text
+Legg til validering av e-postadresse
+```
+
+### Body
+
+- Bruk body til å forklare **hva** som er gjort og **hvorfor**.
+- Ikke bruk body til å beskrive detaljert **hvordan** implementasjonen fungerer.
+- Bryt linjer i body ved omtrent **72 tegn**.
+- Body er valgfri, men bør brukes når endringen trenger mer forklaring.
+
+
+Når en commit er knyttet til et issue, skal issue-nummeret inkluderes i commit-meldingen.
+
+
+
+
+## <span style="color:#E2E8F0"><u>Mal</u></span>
+```bash
 Kort oppsummering av endringen i presens
 
 [Valgfri utdypende beskrivelse/body av hva som er gjort og hvorfor]
@@ -22,7 +105,7 @@ Kort oppsummering av endringen i presens
 <br>
 
 ## <span style="color:#E2E8F0"><u>Eksempel</u></span>
-```text
+```bash
 Endre farge og tekststørrelse på primærknapper
 
 Knappene hadde for lav kontrast i mørk modus. Har oppdatert 
@@ -33,6 +116,20 @@ Co-authored-by: Jesper
 fixes #108
 ```
 
+
+## <span style="color:#E2E8F0"><u>Kommandoer</u></span>
+
+
+```bash
+git add <filnavn>          # legg til spesifikke filer
+git add .                  # legg til alle endrede filer
+
+git commit -m "Kort oppsummering av endringen i presens"
+
+# eller med body/beskrivelse:
+git commit -m "Kort oppsummering" -m "Utdypende beskrivelse av hva og hvorfor"
+```
+
 </div>
 
 <h1 style="color:#60A5FA; border: none; margin-bottom: 0;">2. Branch-navngivning</h1>
@@ -41,7 +138,7 @@ fixes #108
 <div style="background-color: #171717; padding: 20px; border-radius: 8px; border: 1px solid #333; margin-bottom: 30px;">
 
 ## <span style="color:#E2E8F0"><u>Mal</u></span>
-```text
+```bash
 <type>/#<issue-nummer>-<kort-beskrivelse-med-bindestrek>
 ```
 
@@ -51,12 +148,11 @@ fixes #108
 * `bugfix` (for feilretting)
 * `refactor` (for opprydding i kode)
 * `docs` (for dokumentasjonsarbeid)
-* `hotfix` (for kritiske produksjonsfeil)
 
 <br>
 
 ## <span style="color:#E2E8F0"><u>Eksempler</u></span>
-```text
+```bash
 feature/#42-vipps-innlogging
 bugfix/#108-fix-knapp-farge
 hotfix/#201-kritisk-databasefeil
@@ -68,6 +164,14 @@ hotfix/#201-kritisk-databasefeil
 <hr style="border: none; height: 1px; background: linear-gradient(to right, #60A5FA, transparent); margin: 12px 0 20px 0;">
 
 <div style="background-color: #171717; padding: 20px; border-radius: 8px; border: 1px solid #333; margin-bottom: 30px;">
+
+## <span style="color:#E2E8F0"><u>Regler</u></span>
+
+- Én branch skal normalt knyttes til ett issue.
+- Branch-navnet skal være kort og beskrivende.
+- Bruk små bokstaver.
+- Bruk bindestrek mellom ord.
+- Ikke bruk mellomrom eller spesialtegn utover `/`, `#` og `-`.
 
 ## <span style="color:#E2E8F0"><u>Mal</u></span>
 ```markdown
@@ -103,7 +207,7 @@ Skjermbilder, skisser, stacktrace eller lenker til ekstern dokumentasjon.
 
 </div>
 
-## 5. Anbefalte Labels for Issues
+##  Anbefalte Labels for Issues
 Her er en oversikt over standard labels som bør brukes på issues for å holde prosjekttavlen organisert og oversiktlig:
 
 * `bug`: Noe som er ødelagt eller ikke fungerer som forventet i applikasjonen.
@@ -158,6 +262,19 @@ Lenke til design i Figma: https://figma.com/file/eksempel...
 <hr style="border: none; height: 1px; background: linear-gradient(to right, #60A5FA, transparent); margin: 12px 0 20px 0;">
 
 <div style="background-color: #171717; padding: 20px; border-radius: 8px; border: 1px solid #333; margin-bottom: 30px;">
+
+
+## <span style="color:#E2E8F0"><u>Formål</u></span>
+
+En PR brukes til å få endringer reviewet før de merges til `main`.
+
+En PR skal:
+
+- Være knyttet til et issue.
+- Forklare hva som er endret.
+- Forklare hvordan endringen kan testes.
+- Ha gjennomført relevante tester.
+- Være reviewet av minst ett annet teammedlem.
 
 ## <span style="color:#E2E8F0"><u>Mal</u></span>
 ```markdown
@@ -273,14 +390,12 @@ closes #42
   * At koden løser det issuet beskriver
   * At tester dekker ny/endret funksjonalitet
   * Kodestandard og lesbarhet
-  * At ingen hemmeligheter eller sensitiv informasjon er inkludert
 * Forventet responstid på review-forespørsler: **innen 1 arbeidsdag**.
 
-## Definisjon of Done
+## Definisjon av ferdig
 
 En oppgave regnes som ferdig når:
 - [ ] Koden er skrevet og fungerer som forventet
-- [ ] Enhetstester (og ev. integrasjonstester) er skrevet og kjører grønt
 - [ ] Koden er reviewet og godkjent
 - [ ] Dokumentasjon er oppdatert ved behov
 - [ ] PR er merget til `main`
