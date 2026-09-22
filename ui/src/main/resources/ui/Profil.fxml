@@ -57,7 +57,7 @@
             </HBox>
             <HBox prefHeight="49.0" prefWidth="380.0">
                <children>
-                  <Label text="Brukernavn: ">
+                  <Label text="E-post: ">
                      <font>
                         <Font size="18.0" />
                      </font>
