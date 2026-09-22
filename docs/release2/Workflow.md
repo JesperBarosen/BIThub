@@ -92,7 +92,7 @@ Kort oppsummering av endringen i presens
 
 [Valgfri utdypende beskrivelse/body av hva som er gjort og hvorfor]
 
-[Co-authored-by:Navn]
+[Co-authored-by: navn <mail>]
 
 [ref/closes/fixes] #<issue-nummer>
 ```
@@ -111,7 +111,7 @@ Endre farge og tekststørrelse på primærknapper
 Knappene hadde for lav kontrast i mørk modus. Har oppdatert 
 designsystemet slik at UU-kravene for kontrast blir ivaretatt.
 
-Co-authored-by: Jesper
+Co-authored-by: Ola Nordmann <ola.nordmann@stud.ntnu.no>
 
 fixes #108
 ```
