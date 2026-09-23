@@ -62,7 +62,7 @@
 6. MERGE
 
    │
-   │  Merge til main
+   │  Merge til master
    ▼
 
 7. ISSUE LUKKES
@@ -78,7 +78,7 @@
 
 > **Issue → Branch → Commit → PR → Review → Merge → Closed**
 
-Dette gir en tydelig kobling mellom hva som skal gjøres, arbeidet som utføres, og hvordan arbeidet blir kvalitetssikret før det merges til `main`.
+Dette gir en tydelig kobling mellom hva som skal gjøres, arbeidet som utføres, og hvordan arbeidet blir kvalitetssikret før det merges til `master`.
 
 </div>
 
@@ -300,7 +300,7 @@ git commit -m "Kort oppsummering" -m "Utdypende beskrivelse av hva og hvorfor"
 
 ## <span style="color:#E2E8F0"><u>Formål</u></span>
 
-En PR brukes til å få endringer reviewet før de merges til `main`.
+En PR brukes til å få endringer reviewet før de merges til `master`.
 
 En PR skal:
 
@@ -398,7 +398,7 @@ Code review brukes for å kontrollere at endringen er korrekt, forståelig, test
 
 ## <span style="color:#E2E8F0"><u>Regler</u></span>
 
-* Minst **1 godkjenning** kreves før merge til `main`.
+* Minst **1 godkjenning** kreves før merge til `master`.
 * For kritiske deler av systemet kan det kreves **2 godkjenninger**.
 * Review-kommentarer skal være konkrete og konstruktive.
 * Forventet responstid på review-forespørsler er **innen 1 arbeidsdag**.
@@ -432,7 +432,7 @@ PR-en kan merges når:
 * [ ] Minst én reviewer har godkjent.
 * [ ] Alle nødvendige review-kommentarer er håndtert.
 * [ ] Det ikke finnes uløste merge conflicts.
-* [ ] Branch-en er oppdatert mot `main` ved behov.
+* [ ] Branch-en er oppdatert mot `master` ved behov.
 * [ ] CI/CD eller automatiske checks passerer.
 
 ## <span style="color:#E2E8F0"><u>Merge-metode</u></span>
@@ -454,7 +454,7 @@ Code Review
 Approval + checks
       │
       ▼
-Merge → main
+Merge → master
 ```
 
 ## <span style="color:#E2E8F0"><u>Etter merge</u></span>
@@ -531,7 +531,7 @@ En oppgave regnes som ferdig når:
 * [ ] Alle relevante tester passerer.
 * [ ] Koden er reviewet og godkjent.
 * [ ] Review-kommentarer er håndtert.
-* [ ] PR-en er merget til `main`.
+* [ ] PR-en er merget til `master`.
 * [ ] Tilhørende issue er lukket.
 * [ ] Dokumentasjon er oppdatert ved behov.
 * [ ] Feature-branchen er slettet dersom den ikke lenger trengs.
