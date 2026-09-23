@@ -1,0 +1,102 @@
+# Kodekvalitet
+
+Dette dokumentet beskriver hvordan kodekvalitet sikres i BIThub.
+Prosjektet bruker automatiserte tester og kodeanalyse gjennom Maven for
+å oppdage feil og opprettholde en konsistent kodebase.
+
+## Testing
+
+Tester brukes for å kontrollere at eksisterende funksjonalitet fortsetter
+å fungere når prosjektet endres. Domenelogikk testes med enhetstester,
+mens brukergrensesnittet testes med relevante JavaFX-tester.
+
+Alle modulene skal ha relevante tester. Persistenslaget testes blant
+annet for lesing, skriving og håndtering av feiltilfeller.
+
+Testene skal kunne kjøres gjennom Maven slik at kvalitetssikringen ikke
+er avhengig av hvilken IDE et gruppemedlem bruker.
+
+## Testdekning med JaCoCo
+
+JaCoCo brukes for å måle hvilke deler av koden som blir kjørt av
+testene. Rapporten brukes for å identifisere områder med mangelfull
+testdekning og som hjelp ved vurdering av hvor det bør skrives flere
+tester.
+
+Høy testdekning er ikke et mål i seg selv. Testene skal først og fremst
+kontrollere forventet oppførsel, grenseverdier og relevante
+feilsituasjoner.
+
+## Checkstyle
+
+Checkstyle brukes for å kontrollere at Java-koden følger en konsistent
+kodestil. Dette gjør koden lettere å lese og bidrar til at kode skrevet
+av forskjellige gruppemedlemmer følger de samme reglene.
+
+Checkstyle er integrert i Maven og bruker prosjektets valgte 
+Checkstyle-regler.
+Både produksjonskode og testkode kontrolleres. Kontrollen kjøres i
+`verify`-fasen, og brudd på reglene fører til at kvalitetssjekken
+mislykkes.
+
+Eventuelle endringer i Checkstyle-konfigurasjonen skal gjøres bevisst
+og begrunnes dersom standardreglene ikke passer prosjektet.
+
+## SpotBugs
+
+SpotBugs brukes til statisk analyse av Java-koden. Verktøyet analyserer
+koden for å finne potensielle feil og problematiske kodemønstre som ikke
+nødvendigvis blir oppdaget av kompilatoren eller testene.
+
+SpotBugs er integrert i Maven og kjøres i `verify`-fasen. Prosjektet har
+også et eget filter for tilfeller hvor en SpotBugs-advarsel bevisst skal
+utelates.
+
+Slike unntak skal bare brukes når gruppen har vurdert advarselen og kan
+begrunne hvorfor den ikke representerer et problem i den aktuelle
+situasjonen.
+
+## Maven og automatisert kvalitetssikring
+
+Maven brukes som felles verktøy for bygging, testing og kontroll av
+kodekvalitet. Dette gjør at de samme kontrollene kan kjøres uavhengig av
+hvilken IDE eller utviklingsplattform et gruppemedlem bruker.
+
+Den viktigste samlede kvalitetssjekken kjøres fra rotmappen med:
+
+`mvn clean verify`
+
+Denne kommandoen bygger prosjektet, kjører testene og gjennomfører de
+konfigurerte kontrollene for kodekvalitet. JaCoCo genererer samtidig
+informasjon om testdekning.
+
+Ved å samle kontrollene i Maven reduseres risikoen for at forskjellige
+gruppemedlemmer bruker ulike metoder for å kontrollere prosjektet.
+
+## Kvalitetskontroll før sammenslåing
+
+Før en Pull Request ferdigstilles, hentes siste versjon av `master` inn
+i branchen. Eventuelle konflikter løses før prosjektet kontrolleres på
+nytt.
+
+Deretter kjøres `mvn clean verify` for å kontrollere at endringene
+fungerer sammen med den nyeste versjonen av prosjektet. Nye og
+eksisterende tester skal bestå, og Checkstyle og SpotBugs skal ikke
+rapportere feil som hindrer bygget.
+
+Relevant dokumentasjon skal også oppdateres dersom endringen påvirker
+arkitektur, funksjonalitet eller arbeidsflyt.
+
+## Håndtering av advarsler og unntak
+
+Advarsler og feil fra testene eller kodekvalitetsverktøyene skal som
+hovedregel undersøkes og rettes fremfor å ignoreres.
+
+Dersom det er nødvendig å legge inn et unntak i et kvalitetsverktøy,
+skal gruppen først vurdere hvorfor advarselen oppstår og om koden kan
+endres på en bedre måte. Unntak skal være så avgrensede som mulig og
+kun brukes når gruppen kan begrunne valget.
+
+Dette gjør at Checkstyle, SpotBugs og de andre kvalitetskontrollene
+fortsetter å fungere som reelle kvalitetssjekker og ikke bare som krav
+som omgås for å få bygget til å bestå.
