@@ -231,6 +231,7 @@ Commit-meldinger skal være korte, tydelige og beskrive hva committen gjør. Skr
 * Ikke avslutt subject med punktum.
 * Bruk imperativ form.
 
+#### Eksempel på commit tittel
 ```text
 Legg til validering av e-postadresse
 ```
