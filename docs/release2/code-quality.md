@@ -20,12 +20,12 @@ er avhengig av hvilken IDE et gruppemedlem bruker.
 
 JaCoCo brukes for å måle hvilke deler av koden som blir kjørt av
 testene. Rapporten brukes for å identifisere områder med mangelfull
-testdekning og som hjelp ved vurdering av hvor det bør skrives flere
-tester.
+testdekning, slik at vi kan utvikle flere tester for disse delene.
 
 Høy testdekning er ikke et mål i seg selv. Testene skal først og fremst
 kontrollere forventet oppførsel, grenseverdier og relevante
-feilsituasjoner.
+feilsituasjoner. Når testene dekker dette for alle klasene vil en høy 
+testdekning komme naturlig.
 
 ## Checkstyle
 
@@ -33,8 +33,8 @@ Checkstyle brukes for å kontrollere at Java-koden følger en konsistent
 kodestil. Dette gjør koden lettere å lese og bidrar til at kode skrevet
 av forskjellige gruppemedlemmer følger de samme reglene.
 
-Checkstyle er integrert i Maven og bruker prosjektets valgte 
-Checkstyle-regler.
+Checkstyle er integrert i Maven og bruker regelsettet `google_checks.xml`. 
+Dette gir prosjektet et etablert og konsistent sett med regler for Java-kode.
 Java-koden kontrolleres mot prosjektets valgte Checkstyle-regler. 
 Kontrollen kjøres i `verify`-fasen, og brudd på reglene fører til 
 at kvalitetssjekken mislykkes.
