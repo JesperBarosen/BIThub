@@ -334,9 +334,9 @@ closes #<issue-nummer>
 ## Sjekkliste før review
 
 - [ ] Koden er testet lokalt
-- [ ] Nye og eksisterende tester kjører uten feil
+- [ ] `mvn clean verify` fullføres uten feil
 - [ ] Acceptance criteria er oppfylt
-- [ ] Dokumentasjon er oppdatert ved behov
+- [ ] Dokumentasjonen er gjennomgått og oppdatert der det er nødvendig
 ```
 
 ## <span style="color:#E2E8F0"><u>Eksempel</u></span>
@@ -367,9 +367,9 @@ closes #42
 ## Sjekkliste før review
 
 - [x] Koden er testet lokalt
-- [x] Nye og eksisterende tester kjører uten feil
+- [x] mvn clean verify fullføres uten feil
 - [x] Acceptance criteria er oppfylt
-- [x] Dokumentasjon er oppdatert ved behov
+- [x] Dokumentasjonen er gjennomgått og oppdatert der det er nødvendig
 ```
 
 </div>
@@ -394,7 +394,7 @@ Code review brukes for å kontrollere at endringen er korrekt, forståelig, test
 * At eksisterende tester fortsatt fungerer.
 * Kodestandard og lesbarhet.
 * Unødvendig kompleksitet eller duplisering.
-* At dokumentasjon er oppdatert ved behov.
+* Dokumentasjonen er gjennomgått og oppdatert der det er nødvendig.
 
 ## <span style="color:#E2E8F0"><u>Regler</u></span>
 
@@ -432,8 +432,8 @@ PR-en kan merges når:
 * [ ] Minst én reviewer har godkjent.
 * [ ] Alle nødvendige review-kommentarer er håndtert.
 * [ ] Det ikke finnes uløste merge conflicts.
-* [ ] Branch-en er oppdatert mot `master` ved behov.
-* [ ] CI/CD eller automatiske checks passerer.
+* [ ] Branch-en er oppdatert mot `master`.
+* [ ] mvn clean verify fullføres uten feil.
 
 ## <span style="color:#E2E8F0"><u>Merge-metode</u></span>
 
@@ -460,7 +460,6 @@ Merge → master
 ## <span style="color:#E2E8F0"><u>Etter merge</u></span>
 
 * Kontroller at PR-en er merget til riktig branch.
-* Kontroller at CI/CD fortsatt passerer.
 * Kontroller at tilhørende issue blir lukket.
 * Slett feature-branchen dersom den ikke lenger trengs.
 
@@ -533,7 +532,7 @@ En oppgave regnes som ferdig når:
 * [ ] Review-kommentarer er håndtert.
 * [ ] PR-en er merget til `master`.
 * [ ] Tilhørende issue er lukket.
-* [ ] Dokumentasjon er oppdatert ved behov.
+* [ ] Dokumentasjonen er gjennomgått og oppdatert der det er nødvendig.
 * [ ] Feature-branchen er slettet dersom den ikke lenger trengs.
 
 ## <span style="color:#E2E8F0"><u>Fullført workflow</u></span>
