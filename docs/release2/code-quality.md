@@ -35,12 +35,12 @@ av forskjellige gruppemedlemmer følger de samme reglene.
 
 Checkstyle er integrert i Maven og bruker prosjektets valgte 
 Checkstyle-regler.
-Både produksjonskode og testkode kontrolleres. Kontrollen kjøres i
-`verify`-fasen, og brudd på reglene fører til at kvalitetssjekken
-mislykkes.
+Java-koden kontrolleres mot prosjektets valgte Checkstyle-regler. 
+Kontrollen kjøres i `verify`-fasen, og brudd på reglene fører til 
+at kvalitetssjekken mislykkes.
 
 Eventuelle endringer i Checkstyle-konfigurasjonen skal gjøres bevisst
-og begrunnes dersom standardreglene ikke passer prosjektet.
+og begrunnes dersom de valgte reglene ikke passer prosjektet.
 
 ## SpotBugs
 
@@ -55,6 +55,21 @@ utelates.
 Slike unntak skal bare brukes når gruppen har vurdert advarselen og kan
 begrunne hvorfor den ikke representerer et problem i den aktuelle
 situasjonen.
+
+## Konfigurasjon av kvalitetsverktøy
+
+JaCoCo, Checkstyle og SpotBugs er konfigurert gjennom Maven slik at
+kvalitetskontrollene kan kjøres på samme måte av alle gruppemedlemmer.
+
+Checkstyle kjøres som en del av `verify`-fasen og kontrollerer koden
+mot prosjektets valgte regler. SpotBugs kjøres også i `verify`-fasen
+og bruker et eget filter for eksplisitte unntak.
+
+JaCoCo kobles til testkjøringen og genererer rapporter som brukes til
+å vurdere testdekningen i prosjektet.
+
+Konfigurasjonen skal bare endres når gruppen har vurdert hvorfor en
+regel eller innstilling ikke passer prosjektet.
 
 ## Maven og automatisert kvalitetssikring
 
