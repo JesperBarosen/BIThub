@@ -1,7 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>modules-ui</artifactId>
 
     <parent>
         <groupId>it1901</groupId>
@@ -10,15 +11,23 @@
         <relativePath>..</relativePath>
     </parent>
 
+    <artifactId>ui</artifactId>
+
     <dependencies>
+        <!-- Avhengigheter til undermoduler -->
+        <dependency>
+            <groupId>it1901</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>it1901</groupId>
-            <artifactId>modules-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <artifactId>file</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
-        <!-- javafx -->
+        <!-- JavaFX -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -30,7 +39,7 @@
             <version>21</version>
         </dependency>
 
-        <!-- junit testing with jupiter -->
+        <!-- JUnit testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -44,7 +53,7 @@
             <artifactId>junit-jupiter-params</artifactId>
         </dependency>
 
-        <!-- test javafx with TextFX -->
+        <!-- TestFX -->
         <dependency>
             <groupId>org.testfx</groupId>
             <artifactId>testfx-core</artifactId>
@@ -63,7 +72,6 @@
             <version>3.0</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -77,29 +85,25 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- @{argLine} beholder JaCoCo sin agent sammen med JavaFX modul-åpningene -->
                     <argLine>
-                    @{argLine}
-                    --add-opens bithub.ui/ui=ALL-UNNAMED
-                    --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-                    --add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+                        @{argLine}
+                        --add-opens bithub.ui/ui=ALL-UNNAMED
+                        --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+                        --add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
                     </argLine>
                 </configuration>
             </plugin>
 
-            <!-- Aktiverer JaCoCo for ui-modulen (arver versjon og executions fra rot-POM) -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Aktiverer Checkstyle for ui-modulen -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
 
-            <!-- Aktiverer SpotBugs for ui-modulen -->
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
@@ -109,15 +113,11 @@
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
-                <!-- Default configuration for running -->
-                <!-- Usage: mvn javafx:run -->
                 <configuration>
-                    <!-- syntax: module-name/full-app-class-name -->
                     <mainClass>bithub.ui/ui.App</mainClass>
                     <skip>false</skip>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 </project>
