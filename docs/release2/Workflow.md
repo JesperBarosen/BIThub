@@ -16,6 +16,7 @@
 * [6. Merge](#merge)
 * [7. Issue lukkes](#issue-lukkes)
 * [8. Ferdig](#ferdig)
+* [9. Kommentarer](#Kommentarer)
 
 **Hurtignavigasjon**
 
@@ -565,3 +566,60 @@ Ferdig
 > Den er ferdig når endringen er testet, reviewet, merget og dokumentert ved behov, og det tilhørende issuet er lukket.
 
 </div>
+
+<a id="Kommentarer"></a>
+
+<h1 style="color:#60A5FA; border: none; margin-bottom: 0;">9. Kommentarer</h1>
+
+<hr style="border: none; height: 1px; background: linear-gradient(to right, #60A5FA, transparent); margin: 12px 0 20px 0;">
+
+<div style="background-color: #171717; padding: 20px; border-radius: 8px; border: 1px solid #333; margin-bottom: 30px;">
+
+## <span style="color:#E2E8F0"><u>Kodekommentarer og dokumentasjon</u></span>
+
+
+Koden skal primært være selvdokumenterende gjennom gode navnevalg på variabler, metoder og klasser. Kommentarer skal brukes bevisst for å øke lesbarheten, ikke for å forklare det koden allerede uttrykker tydelig.
+
+* **Forklar *hvorfor*, ikke *hva*:** Kommentarer skal forklare bakgrunnen for komplekse logiske valg, forretningsregler eller omveier (workarounds), heller enn å gjenta hva koden gjør linje for linje.
+* **Javadoc:** Offentlige API-er, sentrale grensesnitt (interfaces) og komplekse offentlige metoder skal ha Javadoc som beskriver hva metoden gjør, argumenter (`@param`), returverdi (`@return`) og eventuelle unntak (`@throws`).
+* **Unngå utdatert og utkommentert kode:** Utkommentert kode skal ikke committes til `master`. Ubrukt kode fjernes helt, da tidligere versjoner uansett ligger i Git-historikken.
+* **TODO-kommentarer:** `// TODO:` kan brukes underveis i utviklingen på egne bransjer, men skal som hovedregel være resolved eller fylt ut før en Pull Request slås sammen med `master`.
+
+## <span style="color:#E2E8F0"><u>Mal</u></span>
+
+```java
+/**
+ * [Kort beskrivelse av hva metoden oppnår].
+ *
+ * @param [paramNavn] [Beskrivelse av parameter]
+ * @return [Beskrivelse av returverdi]
+ * @throws [ExceptionKlasse] [Når og hvorfor unntaket kastes]
+ */
+ ```
+
+## <span style="color:#E2E8F0"><u>Eksempel</u></span>
+
+```java
+/**
+ * Beregner totalprisen for en handlekurv inkludert MVA og eventuell rabatt.
+ * 
+ * Tar hensyn til kampanjekoder dersom kunden er innlogget.
+ *
+ * @param handlekurv list over varer som skal beregnes
+ * @param rabattkode valgfri kampanjekode (kan være null)
+ * @return samlet sum avrundet til to dekadiske plasser
+ * @throws IllegalArgumentException dersom handlekurven er tom eller null
+ */
+public double beregnTotalpris(List<Vare> handlekurv, String rabattkode) {
+    if (handlekurv == null || handlekurv.isEmpty()) {
+        throw new IllegalArgumentException("Handlekurven kan ikke være tom.");
+    }
+
+    // Metodeimplementasjon...
+}
+```
+
+
+
+</div>
+

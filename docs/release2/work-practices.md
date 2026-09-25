@@ -20,7 +20,7 @@ Requests er beskrevet i `workflow.md`.
 
 ## Parprogrammering
 
-Arbeidet i release 2 gjennomføres i par. Under programmering fungerer
+Arbeidsoppgaver i release 2 gjennomføres i par. Under parprogrammering fungerer
 en person som driver og skriver koden, mens den andre fungerer som
 navigator og følger med på løsningen, vurderer valg og foreslår
 forbedringer.
@@ -31,7 +31,7 @@ av prosjektet, samtidig som løsninger vurderes av mer enn en person
 mens de utvikles.
 
 Arbeid som utføres i par dokumenteres i commit-historikken med
-`Co-authored-by`.
+`Co-authored-by` slik beskrevet i `workflow.md`.
 
 ## Fordeling og koordinering av oppgaver
 
