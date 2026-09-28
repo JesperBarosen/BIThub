@@ -6,6 +6,9 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -13,11 +16,33 @@ import org.junit.jupiter.api.io.TempDir;
 import core.User;
 
 class UserHandlerTest {
+
   /**
    * JUnit lager en midlertidig mappe for hver test og sletter den etter.
    */
   @TempDir
   Path tempDir;
+
+  /**
+   * Verifiserer at standardkonstruktør og getDefaultPath oppretter en gyldig sti.
+   */
+  @Test
+  void testDefaultConstructorAndGetDefaultPath() {
+    UserHandler handler = new UserHandler();
+    assertNotNull(handler);
+
+    Path defaultPath = UserHandler.getDefaultPath("test.json");
+    assertNotNull(defaultPath);
+    assertTrue(defaultPath.endsWith("test.json"));
+  }
+
+  /**
+   * Verifiserer at konstruktøren kaster IllegalArgumentException ved null som sti.
+   */
+  @Test
+  void testConstructorThrowsOnNullPath() {
+    assertThrows(IllegalArgumentException.class, () -> new UserHandler(null));
+  }
 
   /**
    * Verifiserer at en bruker som er lagt til kan leses tilbake av en ny UserHandler.
@@ -28,8 +53,7 @@ class UserHandlerTest {
     UserHandler handler = new UserHandler(file);
     handler.addUser(new User("Ola Nordmann", "ola@gmail.com", "jegharmangepassord123"));
 
-    // Ny handler på samme fil som beviser at dataene som faktisk ble lagret på
-    // disken
+    // Ny handler på samme fil som beviser at dataene faktisk ble lagret på disken
     List<UserDTO> users = new UserHandler(file).readFromFile();
 
     assertEquals(1, users.size());
@@ -57,6 +81,17 @@ class UserHandlerTest {
   }
 
   /**
+   * Verifiserer at addUser kaster IllegalArgumentException hvis brukeren er null.
+   */
+  @Test
+  void testAddUserThrowsOnNull() {
+    Path file = tempDir.resolve("users.json");
+    UserHandler handler = new UserHandler(file);
+
+    assertThrows(IllegalArgumentException.class, () -> handler.addUser(null));
+  }
+
+  /**
    * Tester isEmpty når filen ikke eksisterer.
    */
   @Test
@@ -64,6 +99,18 @@ class UserHandlerTest {
     Path file = tempDir.resolve("randomfile.json");
     UserHandler handler = new UserHandler(file);
     assertTrue(handler.isEmpty());
+  }
+
+  /**
+   * Tester isEmpty når filen eksisterer og har innhold.
+   */
+  @Test
+  void testIsEmptyWithPopulatedFile() {
+    Path file = tempDir.resolve("users.json");
+    UserHandler handler = new UserHandler(file);
+    handler.addUser(new User("Ola Nordmann", "ola@gmail.com", "passord123"));
+
+    assertFalse(handler.isEmpty());
   }
 
   /**
@@ -88,5 +135,48 @@ class UserHandlerTest {
     Files.createFile(file);
     UserHandler handler = new UserHandler(file);
     assertTrue(handler.isEmpty());
+  }
+
+  /**
+   * Verifiserer at writeToFile automatisk oppretter foreldermappen dersom den
+   * ikke eksisterer fra før.
+   */
+  @Test
+  void testWriteToFileCreatesParentDirectories() {
+    Path nestedFile = tempDir.resolve("subfolder").resolve("nested_users.json");
+    UserHandler handler = new UserHandler(nestedFile);
+
+    handler.writeToFile(List.of(new UserDTO("Kari", "kari@gmail.com", "passord")));
+
+    assertTrue(Files.exists(nestedFile));
+    assertEquals(1, handler.readFromFile().size());
+  }
+
+  /**
+   * Verifiserer at readFromFile kaster RuntimeException dersom JSON-filen har
+   * ugyldig format eller ikke kan leses.
+   */
+  @Test
+  void testReadFromFileThrowsRuntimeExceptionOnCorruptedJson() throws IOException {
+    Path file = tempDir.resolve("corrupted.json");
+    Files.writeString(file, "{ korrupt json content }");
+
+    UserHandler handler = new UserHandler(file);
+
+    assertThrows(RuntimeException.class, handler::readFromFile);
+  }
+
+  /**
+   * Verifiserer at writeToFile kaster RuntimeException dersom det oppstår en
+   * feil ved skriving til fil (f.eks. ved skriving til en mappe).
+   */
+  @Test
+  void testWriteToFileThrowsRuntimeExceptionOnIOException() throws IOException {
+    Path dir = tempDir.resolve("invalid_write_target");
+    Files.createDirectories(dir);
+
+    UserHandler handler = new UserHandler(dir);
+
+    assertThrows(RuntimeException.class, () -> handler.writeToFile(List.of()));
   }
 }
