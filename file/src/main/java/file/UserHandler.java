@@ -14,7 +14,7 @@ import core.User;
 /*
 Håndterer persistens av brukerdata til og fra JSON.
  */
-public final class UserHandler {
+public final class UserHandler implements DataHandler<UserDTO>{
 
     private final Path path;
     private final ObjectMapper objectMapper;
@@ -33,6 +33,7 @@ public final class UserHandler {
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
+    @Override
     public boolean isEmpty() {
         if (!Files.exists(this.path)) {
             return true;
@@ -48,6 +49,7 @@ public final class UserHandler {
     /*
     Leser eksisterende brukere fra JSON-filen.
      */
+    @Override
     public List<UserDTO> readFromFile() {
         if (isEmpty()) {
             return new ArrayList<>();
@@ -66,6 +68,7 @@ public final class UserHandler {
         }
     }
 
+    @Override
     public void writeToFile(List<UserDTO> data) {
         try {
             Path parent = this.path.getParent();
