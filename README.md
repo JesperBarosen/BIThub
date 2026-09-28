@@ -4,17 +4,17 @@
 [open in Eclipse Che](https://che.iaas.ntnu.no/#https://git.ntnu.no/IT1901-2026-groups/gr2610?new)
 
 Dette er kodelageret til gruppe 2610 i faget IT1901 ved NTNU. Vi lager appen BIThub, der studenter kan anmelde emner
-med terningkast 1-5 og kommentar, og viser gjennomsnittlig vurdering per emne. Data lagres automatisk i JSON-filer.
+med terningkast 1-5 og kommentar, og se gjennomsnittlig vurdering per emne. Data lagres automatisk i JSON-filer.
 
 Se [ui/README.md](ui/README.md) for beskrivelse av appen og dens funksjonalitet, skjermbilder og brukerhistorier.
 
 ## Arkitektur
 
-Appen er bygget med tre-lags arkitektur. Hvert lag er både en egen Maven-modul og en egen Java-modul (`module-info.java`). Slik at avhengighetene mellom lagene er eksplisitte.
+Appen er bygget med tre-lags arkitektur. Hvert lag er både en egen Maven-modul og en egen Java-modul (`module-info.java`), slik at avhengighetene mellom lagene er eksplisitte.
 
 
 - **core** (`bithub.core`) er domenelaget og er ikke avhengig av noen av de andre modulene.
-- **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core` og gjør dem om til og fra JSON med Jackson
+- **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core` og gjør dem om til og fra JSON med Jackson.
 - **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene og `file` for å lagre og hente data.
 
 ```mermaid
@@ -80,8 +80,11 @@ flowchart TD
 - **JavaFX 21** 
 - **JUnit 5**
 - **JaCoCo** 
+- **Checkstyle** og **SpotBugs** for kodekvalitet
+- **Jackson**
+- **TestFX**
 
-Alle avhengigheter lastes ned automatisk av Maven ved bygging.
+Alle avhengigheter bortsett fra Java og Maven lastes ned automatisk av Maven ved bygging.
 
 
 ## Bygge, teste og kjøre
@@ -92,10 +95,11 @@ Kommandoene kjøres fra rota av kodelageret:
 - `mvn test` - kjører testene
 - `mvn verify` - kjører tester, kodekvalitetssjekker og genererer testdekningsrapport
 
-Testdekningsrapporten fra JaCoCo finnes etterpå i `core/target/site/jacoco/index.html` 
-og `ui/target/site/jacoco/index.html`.
+Testdekningsrapporten fra JaCoCo finnes etterpå i `core/target/site/jacoco/index.html`, `file/target/site/jacoco/index.html` og `ui/target/site/jacoco/index.html`.
 
 Appen startes fra roten:
-
-    mvn javafx:run
+```
+mvn clean install
+mvn javafx:run
+```
 
