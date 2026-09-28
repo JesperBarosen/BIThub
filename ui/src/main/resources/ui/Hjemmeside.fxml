@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.HjemmesideController">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar" stylesheets="@Style.css">
          <children>
@@ -22,7 +22,7 @@
                </font>
             </Label>
             <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" styleClass="profil-knapp" stylesheets="@Style.css" text="👤">
+            <Button fx:id="profileButton" mnemonicParsing="false" onAction="#handleProfile" styleClass="profil-knapp" stylesheets="@Style.css" text="👤">
                <font>
                   <Font size="24.0" />
                </font>
@@ -34,9 +34,9 @@
       </HBox>
       <VBox alignment="TOP_CENTER" spacing="15.0" stylesheets="@Style.css">
          <children>
-            <Button mnemonicParsing="false" styleClass="meny-knapp" stylesheets="@Style.css" text="LES ANMELDELSER" />
-            <Button mnemonicParsing="false" styleClass="meny-knapp" stylesheets="@Style.css" text="SKRIV ANMELDELSE" />
-            <Button mnemonicParsing="false" styleClass="meny-knapp" stylesheets="@Style.css" text="MINE ANMELDELSER" />
+            <Button fx:id="readReviewsButton" mnemonicParsing="false" onAction="#handleReadReviews" styleClass="meny-knapp" stylesheets="@Style.css" text="LES ANMELDELSER" />
+            <Button fx:id="writeReviewButton" mnemonicParsing="false" onAction="#handleWriteReview" styleClass="meny-knapp" stylesheets="@Style.css" text="SKRIV ANMELDELSE" />
+            <Button fx:id="myReviewsButton" mnemonicParsing="false" onAction="#handleMyReviews" styleClass="meny-knapp" stylesheets="@Style.css" text="MINE ANMELDELSER" />
          </children>
          <padding>
             <Insets top="50.0" />

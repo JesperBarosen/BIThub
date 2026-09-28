@@ -90,16 +90,55 @@ brukerens hjemmemappe.
 
 ```
 
-### 2. Dokumentmetafor (desktop) vs implisitt lagring (app)
 
-Applikasjonen bruker implisitt lagring fremfor en tradisjonell
-dokumentmetafor. Brukeren trenger derfor ikke å åpne, velge eller lagre
-JSON-filer manuelt.
 
-Persistenslaget håndterer lesing og skriving av data når applikasjonen
-trenger å hente eller lagre informasjon. Data lagres i applikasjonens egne
-JSON-filer under `.bithub` i brukerens hjemmemappe.
+## 2. Lagringsmodell: Dokumentmetafor vs. implisitt lagring
 
-Dette gjør at filhåndteringen skjules for brukeren, mens applikasjonen selv
-har ansvar for å lese eksisterende data og skrive oppdaterte data tilbake
-til fil.
+I prosjektet har vi drøftet og valgt mellom to ulike prinsipper for hvordan applikasjonen håndterer filbehandling og brukerinteraksjon: **dokumentmetafor** og **implisitt lagring**.
+
+### 2.1 Teoretisk sammenligning
+
+* **Dokumentmetafor (Desktop-modell):** Brukeren har eksplisitt kontroll over filhåndteringen, tilsvarende klassiske skrivebordsapplikasjoner. Brukeren må aktivt åpne, lagre og opprette filer via fildialoger (`FileChooser`), og data i minnet går tapt dersom det ikke lagres før applikasjonen lukkes.
+
+* **Implisitt lagring (App-modell):** Filhåndteringen skjules helt for brukeren. Applikasjonen har selv ansvar for å lese og skrive data automatisk til faste plasseringer i bakgrunnen ved oppstart og endringer i tilstand.
+
+### 2.2 Vårt valg og begrunnelse med referanse til brukergrensesnittet
+
+Vi har valgt **implisitt lagring** fremfor en tradisjonell dokumentmetafor. Valget er forankret i designet og brukermodellen som er definert i Figma-prototypen:
+
+* **Sømløs navigasjon og brukeropplevelse:** Som vist på skjermbildene nedenfor (*Hjem skjerm* og *Velg fag*), er applikasjonen bygget opp som en navigasjonsbasert plattform. Brukeren navigerer via knapper som «LES ANMELDELSER» og «SKRIV ANMELDELSE». Å kreve at brukeren må åpne en `.json`-fil manuelt fra filsystemet for å lese eller skrive anmeldelser ville brutt med applikasjonens intenderte flyt.
+
+<figure>
+  <img src="../../ui/images/image-5.png" alt="Hjem skjerm" width="250">
+  <figcaption><em>Figur 2.1: Hjem-skjerm med navigasjonsknapper for lesing, skriving og egne anmeldelser.</em></figcaption>
+</figure>
+
+<figure>
+  <img src="../../ui/images/image-6.png" alt="Velg fag skjerm" width="250">
+  <figcaption><em>Figur 2.2: Fagutvalg der data hentes og visning oppdateres automatisk.</em></figcaption>
+</figure>
+
+
+* **Skjulmating av filhåndtering:** I skjermbildet *Skrive anmeldelse* benyttes dedikerte knapper som `SEND INN`. Når brukeren trykker på denne, håndteres skriveoperasjonen automatisk mot filsystemet i bakgrunnen uten at brukeren blir spurt om filsti eller filnavn.
+
+<figure>
+  <img src="../../ui/images/image-8.png" alt="SkrivAnmeldelse skjerm" width="250">
+  <figcaption><em>Figur 2.3: Innsending av anmeldelse hvor data lagres i bakgrunnen ved trykk på «SEND INN».</em></figcaption>
+</figure>
+
+
+
+* **Bruker- og tilstandshåndtering:** Skjermbildene for innlogging, registrering og profil viser at brukeren forholder seg til sin egen konto og sine data. Persistenslaget håndterer automatisk opprettelse og oppdatering av brukerdata under `.bithub/users.json` i bakgrunnen.
+
+<figure>
+  <img src="../../ui/images/image.png" alt="Innloging skjerm" width="250">
+  <figcaption><em>Figur 2.4: Brukergrensesnitt for innlogging.</em></figcaption>
+</figure>
+
+
+### 2.3 Egenrefleksjon og begrensninger ved valgt modell
+
+Selv om implisitt lagring er det mest hensiktsmessige valget for applikasjonens grensesnitt, er det viktig å belyse noen tekniske begrensninger i forhold til brukergrensesnittet i Figma:
+
+* **Handlingstrigget lagring fremfor kontinuerlig auto-lagring:** Lagringen i grensesnittet er «handlingstrigget implisitt». Filbehandlingen skjules helt for brukeren, men selve skriveoperasjonen utløses eksplisitt ved trykk på knapper som `SEND INN` (*Skrive anmeldelse*) og `LAG NY BRUKER` (*Registrer ny bruker*).
+* **Lokal JSON-persistens vs. sky-basert brukermodell:** Grensesnittet på *Logg inn side* og *Profil* gir brukeren en mental modell av en sentralisert sky-tjeneste der man kan logge inn fra hvilken som helst enhet. Siden nåværende persistenslag lagrer data i lokale JSON-filer under `.bithub/` i brukerens hjemmemappe, er dataene avgrenset til den enkelte datamaskinen. Dette er en kjent begrensning ved lokal fil-persistens som ville krevd en ekstern database/REST-API for fullstendig å matche brukermodellen i Figma.
