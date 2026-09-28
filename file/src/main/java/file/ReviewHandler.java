@@ -10,11 +10,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import core.Review;
+import core.ReviewRepository;
 
 /*
 Håndterer persistering av anmeldelser organisert per emne til og fra JSON.
 */
-public final class ReviewHandler implements DataHandler<CourseDTO>{
+public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewRepository {
 
   private final Path path;
   private final ObjectMapper objectMapper;
@@ -90,7 +91,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>{
   * @param courseName navnet på emnet (f.eks. "Informatikk prosjektarbeid")
   * @param review selve anmeldelsesobjektet som skal legges til
   */
-
+  @Override
   public void addReview(String courseCode, String courseName, Review review) {
     List<CourseDTO> courses = readFromFile();
     
