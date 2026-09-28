@@ -17,6 +17,15 @@ Appen er bygget med tre-lags arkitektur. Hvert lag er både en egen Maven-modul 
 - **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core` og gjør dem om til og fra JSON med Jackson
 - **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene og `file` for å lagre og hente data.
 
+```mermaid
+flowchart TD
+    ui["<b>ui</b><br/>brukergrensesnitt"] --> file["<b>file</b><br/>persistens"]
+    ui --> core["<b>core</b><br/>domenelogikk"]
+    file --> core
+    ui -.-> javafx["JavaFX"]
+    file -.-> jackson["Jackson"]
+```
+
 ## Mappestruktur
 
 ```
