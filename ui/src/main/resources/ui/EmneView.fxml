@@ -115,7 +115,7 @@
             <HBox>
                <children>
                   <!-- La til onAction-->
-                  <Button mnemonicParsing="false" onAction="#handleSendInn" styleClass="send-inn-knapp" stylesheets="@Style.css" text="SEND INN">
+                  <Button fx:id="sendInnButton" mnemonicParsing="false" onAction="#handleSendInn" styleClass="send-inn-knapp" stylesheets="@Style.css" text="SEND INN">
                      <font>
                         <Font name="System Bold" size="18.0" />
                      </font>
