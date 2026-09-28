@@ -66,3 +66,13 @@
     -fx-border-width: 1.5;
     -fx-border-radius: 4;
 }
+
+.profil-knapper{
+    -fx-background-color: #90CAF9;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-border-color: #333333;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+}
