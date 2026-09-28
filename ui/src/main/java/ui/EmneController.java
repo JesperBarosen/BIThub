@@ -1,5 +1,6 @@
 package ui;
 
+import core.Course;
 import core.Review;
 import file.ReviewHandler;
 import javafx.fxml.FXML;
@@ -10,7 +11,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 
-/** Kontroller for skjemaet der brukeren skriver en anmeldelse. */
+/**
+ * Kontroller for skjemaet der brukeren skriver og sender inn en anmeldelse.
+ */
 public class EmneController {
 
   @FXML
@@ -28,18 +31,23 @@ public class EmneController {
   @FXML
   private Label statusLabel;
 
+  @FXML
+  private Button backButton;
+
+  @FXML
+  private Button homeButton;
+
   private String courseCode = "";
   private String courseName = "";
   private ReviewHandler reviewHandler;
 
   @FXML
   void initialize() {
-    // Initialiserer ReviewHandler som automatisk peker på user.home/.bithub/reviews.json
     this.reviewHandler = new ReviewHandler();
   }
 
   /**
-   * Viser et emne angitt som tekst. Brukes fortsatt av den gamle visningen.
+   * Viser et emne angitt som tekst ("KODE - NAVN").
    *
    * @param emneData emnekode og emnenavn skilt med " - "
    */
@@ -58,7 +66,7 @@ public class EmneController {
   /**
    * Viser det valgte emnet på anmeldelsessiden.
    *
-   * @param course emnet som ble valgt i fagvelgeren
+   * @param course emnet som ble valgt
    * @throws IllegalArgumentException hvis emnet er null
    */
   public void setCourse(Course course) {
@@ -71,44 +79,33 @@ public class EmneController {
   }
 
   @FXML
-private void handleSendInn() {
-  String ratingInput = ratingField.getText() != null ? ratingField.getText().trim() : "";
-  String commentInput = commentArea.getText() != null ? commentArea.getText().trim() : "";
+  private void handleSendInn() {
+    String ratingInput = ratingField.getText() != null ? ratingField.getText().trim() : "";
+    String commentInput = commentArea.getText() != null ? commentArea.getText().trim() : "";
 
-  int rating;
-  try {
-    rating = Integer.parseInt(ratingInput);
-    if (rating < 1 || rating > 5) {
-      showErrorMessage("Vurdering må være et tall fra 1 til 5.");
+    int rating;
+    try {
+      rating = Integer.parseInt(ratingInput);
+      if (rating < 1 || rating > 5) {
+        showErrorMessage("Vurdering må være et tall fra 1 til 5.");
+        return;
+      }
+    } catch (NumberFormatException e) {
+      showErrorMessage("Vurdering må være et gyldig tall.");
       return;
     }
-  } catch (NumberFormatException e) {
-    showErrorMessage("Vurdering må være et gyldig tall.");
-    return;
-  }
 
-  String reviewerName = anonymousCheckBox.isSelected() ? "Anonym" : "Student";
+    String reviewerName = anonymousCheckBox.isSelected() ? "Anonym" : "Student";
 
-  try {
-    // 1. Oppretter et Review-objekt
-    Review newReview = new Review(reviewerName, rating, commentInput);
+    try {
+      Review newReview = new Review(reviewerName, rating, commentInput);
+      reviewHandler.addReview(this.courseCode, this.courseName, newReview);
 
-    // 2. Sender inn emnekode, emnenavn og anmeldelsen til handleren
-    reviewHandler.addReview(this.courseCode, this.courseName, newReview);
-
-    showSuccessMessage("Vurderingen ble sendt inn!");
-    clearFields();
-  } catch (Exception e) {
-    showErrorMessage("Feil ved lagring: Kunne ikke skrive til fil.");
-  }
-}
-
-  public String getCourseCode() {
-    return courseCode;
-  }
-
-  public String getCourseName() {
-    return courseName;
+      showSuccessMessage("Vurderingen ble sendt inn!");
+      clearFields();
+    } catch (Exception e) {
+      showErrorMessage("Feil ved lagring: Kunne ikke skrive til fil.");
+    }
   }
 
   @FXML
@@ -119,6 +116,14 @@ private void handleSendInn() {
   @FXML
   private void handleHome() {
     Navigation.showHome(homeButton);
+  }
+
+  public String getCourseCode() {
+    return courseCode;
+  }
+
+  public String getCourseName() {
+    return courseName;
   }
 
   private void showSuccessMessage(String message) {
