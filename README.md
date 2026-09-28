@@ -3,19 +3,66 @@
 
 [open in Eclipse Che](https://che.iaas.ntnu.no/#https://git.ntnu.no/IT1901-2026-groups/gr2610?new)
 
-Dette er kodelageret til gruppe 2610 i faget IT1901 ved NTNU. Appen lar studenter anmelde emner
-med terningkast 1-5 og kommentar, og viser gjennomsnittlig vurdering per emne.
+Dette er kodelageret til gruppe 2610 i faget IT1901 ved NTNU. Vi lager appen BIThub, der studenter kan anmelde emner
+med terningkast 1-5 og kommentar, og viser gjennomsnittlig vurdering per emne. Data lagres automatisk i JSON-filer.
 
-## Innhold i repoet
+Se [ui/README.md](ui/README.md) for beskrivelse av appen og dens funksjonalitet, skjermbilder og brukerhistorier.
 
-Kodingsprosjektet ligger i rota av kodelageret og består av `pom.xml`, `core/` og `ui/`.
+## Arkitektur
 
-- `core/src/main/java/core` - domenelogikk (`Course`, `Review`) og persistens
-- `docs/` - dokumentasjon per release 
-- `ui/src/main/java/ui` - brukergrensesnitt i JavaFX (`App`, `AppController`, `App.fxml`)
-- `config/` - konfigurasjon for kodekvalitetsverktøy (Checkstyle og SpotBugs)
+Appen er bygget med tre-lags arkitektur. Hvert lag er både en egen Maven-modul og en egen Java-modul (`module-info.java`). Slik at avhengighetene mellom lagene er eksplisitte.
 
-Se [denne filen](ui/README.md) for beskrivelse av appen og dens funksjonalitet, skjermbilder og brukerhistorier.
+
+- **core** (`bithub.core`) er domenelaget og er ikke avhengig av noen av de andre modulene.
+- **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core` og gjør dem om til og fra JSON med Jackson
+- **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene og `file` for å lagre og hente data.
+
+## Mappestruktur
+
+```
+└───bithub
+    ├───core
+    │   └───src
+    │       ├───main
+    │       │   └───java
+    │       │       └───core
+    │       │           -- Course, Review og User ligger her.
+    │       │           -- De står for domenelogikken og validering i appen.
+    │       └───test
+    │           └───java
+    │               └───core
+    │                   -- Testene for core-modulen ligger her.
+    │
+    ├───file
+    │   └───src
+    │       ├───main
+    │       │   └───java
+    │       │       └───file
+    │       │           -- ReviewHandler og UserHandler leser og skriver JSON med Jackson.
+    │       │           -- CourseDTO og UserDTO er objektene som lagres til fil.
+    │       └───test
+    │           └───java
+    │               └───file
+    │                   -- Testene for file-modulen ligger her.
+    │
+    └───ui
+        ├───images
+        │    -- Skisser fra Figma som brukes i ui/README.md.
+        │
+        └───src
+            ├───main
+            │   ├───java
+            │   │   └───ui
+            │   │       -- App og kontrollerne AppController og EmneController ligger her.
+            │   └───resources
+            │       └───ui
+            │           -- FXML-filene og Style.css for brukergrensesnittet ligger her.
+            │                  
+            └───test
+                └───java
+                    └───ui
+                        -- Testene for ui-modulen ligger her, skrevet med TestFX.
+```
 
 ## Nødvendige verktøy og avhengigheter
 
