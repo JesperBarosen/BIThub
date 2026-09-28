@@ -132,13 +132,13 @@
       </VBox>
       <HBox alignment="CENTER" prefHeight="70.0" prefWidth="200.0" styleClass="header-bar" stylesheets="@Style.css">
          <children>
-            <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="bunn-knapp" stylesheets="@Style.css" text="TILBAKE" HBox.hgrow="ALWAYS">
+            <Button fx:id="backButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleBack" styleClass="bunn-knapp" stylesheets="@Style.css" text="TILBAKE" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="System Bold" size="36.0" />
                </font>
             </Button>
             <Line endX="100.0" startX="100.0" startY="-67.57472229003906" />
-            <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="bunn-knapp" stylesheets="@Style.css" text="HJEM" HBox.hgrow="ALWAYS">
+            <Button fx:id="homeButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleHome" styleClass="bunn-knapp" stylesheets="@Style.css" text="HJEM" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
