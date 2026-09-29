@@ -1,9 +1,12 @@
 package ui;
 
+import core.Review;
 import core.ReviewService;
+import file.CourseDTO;
 import file.ReviewHandler;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -33,6 +36,7 @@ public class EmneControllerTest extends ApplicationTest {
 
     private EmneController controller;
     private Parent root;
+    private Path testFilePath;
 
     /**
      * Klargjør og viser grensesnittet EmneView.fxml før hver test.
@@ -48,7 +52,7 @@ public class EmneControllerTest extends ApplicationTest {
         controller = loader.getController();
 
         // Oppretter en isolert filbane i JUnit sin midlertidige testmappe
-        Path testFilePath = tempDir.resolve("test-reviews.json");
+        testFilePath = tempDir.resolve("test-reviews.json");
         ReviewHandler testHandler = new ReviewHandler(testFilePath);
         
         // MÅTE 2: Injiserer via eksisterende Service/Handler-setter i EmneController
@@ -172,6 +176,18 @@ public class EmneControllerTest extends ApplicationTest {
         Assertions.assertEquals("", ratingField.getText());
         Assertions.assertEquals("", commentArea.getText());
         Assertions.assertFalse(anonymousCheckBox.isSelected());
+
+        // Les fra fil med en ny handler for å kontrollere hva som faktisk ble lagret.
+        List<CourseDTO> courses = new ReviewHandler(testFilePath).readFromFile();
+        Assertions.assertEquals(1, courses.size());
+        CourseDTO course = courses.get(0);
+        Assertions.assertEquals("TDT4120", course.getCourseCode());
+        Assertions.assertEquals("Algoritmer og datastrukturer", course.getCourseName());
+        Assertions.assertEquals(1, course.getReviews().size());
+        Review review = course.getReviews().get(0);
+        Assertions.assertEquals("Anonym", review.getReviewerName());
+        Assertions.assertEquals(5, review.getRating());
+        Assertions.assertEquals("Veldig bra emne!", review.getComment());
     }
 
     /**
