@@ -66,10 +66,54 @@
     -fx-border-width: 1.5;
     -fx-border-radius: 4;
 }
+.lag-ny-bruker-knapp {
+    -fx-background-color: #A8D4F0;
+    -fx-text-fill: #1A1A1A;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-border-color: #333333;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 4;
+}
 
-.profil-knapper{
+.tilbake-knapp-registrer-bruker {
+    -fx-background-color: #A8D4F0;
+    -fx-text-fill: #1A1A1A;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-border-color: #333333;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 4;
+}
+
+.profil-knapper {
     -fx-background-color: #90CAF9;
     -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-border-color: #333333;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+}
+
+.innholdsfortegnelse-om-appen {
+    -fx-background-color: #d9eefb;
+    -fx-border-color: #555555;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8 10 8 10;
+    -fx-spacing: 2;
+}
+
+.info-scrollpane {
+    -fx-border-color: #555555;
+    -fx-border-width: 1;
+    -fx-background-color: white;
+    -fx-background-insets: 0;
+}
     -fx-font-weight: bold;
     -fx-background-radius: 4;
     -fx-border-color: #333333;
