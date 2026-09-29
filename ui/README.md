@@ -51,9 +51,39 @@ Denne siden vil bli brukt for å velge fag både når man skal skrive anmeldelse
 ![alt text](images/image-10.png)
 
 
-## Brukerhistorier
+# Brukerhistorier
 
-1: Som student, skal jeg kunne skrive anmeldelser av fag, for å kunne hjelpe andre studenter med for eksempel å velge riktig valgfag for dem.
+## Brukerhistorie 1
+
+**Brukerhistorie 1:** «Som student, skal jeg kunne skrive anmeldelser av fag, for å kunne
+hjelpe andre studenter med for eksempel å velge riktig valgfag for dem.»
+
+Diagrammet dekker flyten fra brukeren velger fag i `VelgFagController`, til anmeldelsen er
+validert i `core` og lagret som JSON av `file`-modulen.
+
+### Sekvensdiagram for brukerhistorie 1:
+
+![Sekvensdiagram brukerhistorie 1](../arkitektur/png/brukerhistorie1Sekvensdiagram.png)
+
+Kildefilen til diagrammet (PlantUML) ligger i
+[`arkitektur/brukerhistorie1Sekvensdiagram.puml`](../arkitektur/brukerhistorie1Sekvensdiagram.puml).
+
+*PNG-en er generert fra `.puml`-filen via [plantuml.com](https://www.plantuml.com/plantuml/uml/):
+lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
+
+## Kommentarer til diagrammet
+
+- **`ui → core`:** `EmneController` kjenner kun `core.ReviewService`. Den vet ingenting om
+  at anmeldelsen til slutt havner i en JSON-fil.
+- **`core → file` (via grensesnitt):** `ReviewService` kjenner kun `core.ReviewRepository`.
+  `ReviewHandler` i `file`-modulen implementerer dette grensesnittet, så `core` er ikke
+  avhengig av `file`.
+- **Kobling ved oppstart:** Det er `App.start(...)` som oppretter
+  `new ReviewService(new ReviewHandler())` og gir tjenesten videre til `Navigation`. Dette
+  er eneste sted i `ui` som kjenner den konkrete `file`-klassen.
+- **Validering ligger i `core`:** Både format på vurdering (1–5, gyldig tall) og selve
+  `Review`-objektet valideres i `core` (`ReviewService.parseRating` og `Review`-konstruktøren),
+  ikke i kontrolleren. Kontrolleren viser bare feilmeldingen den får tilbake.
 
 2: Som foreleser, skal jeg kunne lese anmeldelser av faget jeg har, for å kunne forbedre og tilpasse faget til neste år.
 
