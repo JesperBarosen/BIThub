@@ -8,11 +8,12 @@ med terningkast 1-5 og kommentar, og viser gjennomsnittlig vurdering per emne.
 
 ## Innhold i repoet
 
-Kodingsprosjektet ligger i rota av kodelageret og består av `pom.xml`, `core/` og `ui/`.
+Kodingsprosjektet ligger i rota av kodelageret og består av `pom.xml`, `core/`, `file/` og `ui/`.
 
-- `core/src/main/java/core` - domenelogikk (`Course`, `Review`) og persistens
+- `core/src/main/java/core` - domenelogikk (`Course`, `Review`, `ReviewService`)
 - `docs/` - dokumentasjon per release 
-- `ui/src/main/java/ui` - brukergrensesnitt i JavaFX (`App`, `AppController`, `App.fxml`)
+- `file/src/main/java/file` - persistens (`ReviewHandler`, `UserHandler`)
+- `ui/src/main/java/ui` - brukergrensesnitt i JavaFX (`App`, `EmneController`, `EmneView.fxml`)
 - `config/` - konfigurasjon for kodekvalitetsverktøy (Checkstyle og SpotBugs)
 
 Se [denne filen](ui/README.md) for beskrivelse av appen og dens funksjonalitet, skjermbilder og brukerhistorier.
@@ -36,8 +37,8 @@ Kommandoene kjøres fra rota av kodelageret:
 - `mvn test` - kjører testene
 - `mvn verify` - kjører tester, kodekvalitetssjekker og genererer testdekningsrapport
 
-Testdekningsrapporten fra JaCoCo finnes etterpå i `core/target/site/jacoco/index.html` 
-og `ui/target/site/jacoco/index.html`.
+Testdekningsrapporten fra JaCoCo finnes etterpå i `core/target/site/jacoco/index.html`, 
+`file/target/site/jacoco/index.html` og `ui/target/site/jacoco/index.html`.
 
 Appen startes fra roten:
 

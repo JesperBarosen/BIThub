@@ -1,8 +1,8 @@
 package ui;
 
 import core.Course;
-import core.Review;
-import file.ReviewHandler;
+import core.ReviewService;
+import java.util.Objects;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -39,11 +39,17 @@ public class EmneController {
 
   private String courseCode = "";
   private String courseName = "";
-  private ReviewHandler reviewHandler;
+  private ReviewService reviewService;
 
-  @FXML
-  void initialize() {
-    this.reviewHandler = new ReviewHandler();
+  /**
+   * Setter tjenesten kontrolleren skal bruke når brukeren sender inn en anmeldelse.
+   * Kontrolleren oppretter ikke lagring selv, den får den utenfra.
+   *
+   * @param reviewService tjenesten fra core som validerer og lagrer anmeldelser
+   * @throws NullPointerException hvis reviewService er null
+   */
+  public void setReviewService(ReviewService reviewService) {
+    this.reviewService = Objects.requireNonNull(reviewService);
   }
 
   /**
@@ -80,30 +86,18 @@ public class EmneController {
 
   @FXML
   private void handleSendInn() {
-    String ratingInput = ratingField.getText() != null ? ratingField.getText().trim() : "";
-    String commentInput = commentArea.getText() != null ? commentArea.getText().trim() : "";
-
-    int rating;
-    try {
-      rating = Integer.parseInt(ratingInput);
-      if (rating < 1 || rating > 5) {
-        showErrorMessage("Vurdering må være et tall fra 1 til 5.");
-        return;
-      }
-    } catch (NumberFormatException e) {
-      showErrorMessage("Vurdering må være et gyldig tall.");
-      return;
-    }
-
     String reviewerName = anonymousCheckBox.isSelected() ? "Anonym" : "Student";
 
     try {
-      Review newReview = new Review(reviewerName, rating, commentInput);
-      reviewHandler.addReview(this.courseCode, this.courseName, newReview);
+      reviewService.submitReview(courseCode, courseName, reviewerName,
+          ratingField.getText(), commentArea.getText());
 
       showSuccessMessage("Vurderingen ble sendt inn!");
       clearFields();
-    } catch (Exception e) {
+    } catch (IllegalArgumentException e) {
+      // Valideringsfeil fra core, for eksempel ugyldig vurdering
+      showErrorMessage(e.getMessage());
+    } catch (RuntimeException e) {
       showErrorMessage("Feil ved lagring: Kunne ikke skrive til fil.");
     }
   }
