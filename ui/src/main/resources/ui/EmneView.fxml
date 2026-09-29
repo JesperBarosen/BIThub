@@ -12,7 +12,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.EmneController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.EmneController">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar" stylesheets="@Style.css">
          <children>
@@ -35,12 +35,12 @@
       </HBox>
       <VBox alignment="TOP_CENTER" spacing="12.0" stylesheets="@Style.css" VBox.vgrow="ALWAYS">
          <padding>
-            <Insets top="15.0" />
+            <Insets top="5.0" />
          </padding>
          <children>
-            <Label fx:id="emneTittelLabel" text="Fagnavn">
+            <Label fx:id="emneTittelLabel" alignment="CENTER" prefHeight="207.0" prefWidth="400.0" text="Fagnavn" textAlignment="CENTER" wrapText="true" VBox.vgrow="ALWAYS">
                <font>
-                  <Font name="System Bold" size="30.0" />
+                  <Font name="System Bold" size="28.0" />
                </font>
             </Label>
             <HBox>
@@ -75,7 +75,7 @@
                </padding>
             </HBox>
             <!--Kommentar La til prompt og id-->
-            <TextArea fx:id="commentArea" prefHeight="128.0" prefWidth="380.0" promptText="Skriv her..." VBox.vgrow="ALWAYS">
+            <TextArea fx:id="commentArea" prefHeight="201.0" prefWidth="380.0" promptText="Skriv her..." VBox.vgrow="ALWAYS">
                <VBox.margin>
                   <Insets left="10.0" right="10.0" />
                </VBox.margin>
@@ -94,7 +94,7 @@
             </HBox>
             <HBox>
                <children>
-                  <CheckBox fx:id="anonymousCheckBox" mnemonicParsing="false" text="Send som anonym">
+                  <CheckBox fx:id="anonymousCheckBox" mnemonicParsing="false" text="Ja">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
