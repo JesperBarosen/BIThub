@@ -1,7 +1,9 @@
 package ui;
 
 import core.Course;
+import core.ReviewService;
 import java.io.IOException;
+import java.util.Objects;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -14,7 +16,21 @@ import javafx.stage.Stage;
 /** Samler navigasjon mellom skjermbildene som finnes i appen. */
 public final class Navigation {
 
+  /** Tjenesten for anmeldelser, satt én gang av App ved oppstart. */
+  private static ReviewService reviewService;
+
   private Navigation() {
+  }
+
+  /**
+   * Setter tjenesten som skal gis videre til skjermbildene som trenger den.
+   * Kalles fra App, slik at lagringen bestemmes ett sted.
+   *
+   * @param service tjenesten fra core som validerer og lagrer anmeldelser
+   * @throws NullPointerException hvis service er null
+   */
+  public static void setReviewService(ReviewService service) {
+    reviewService = Objects.requireNonNull(service);
   }
 
   /**
@@ -49,6 +65,7 @@ public final class Navigation {
     try {
       Parent root = loader.load();
       EmneController controller = loader.getController();
+      controller.setReviewService(reviewService);
       controller.setCourse(course);
       stageOf(source).setScene(new Scene(root));
     } catch (IOException e) {
