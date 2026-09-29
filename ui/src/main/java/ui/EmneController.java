@@ -1,8 +1,9 @@
 package ui;
 
+import java.util.Objects;
+
 import core.Course;
 import core.ReviewService;
-import java.util.Objects;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -51,6 +52,7 @@ public class EmneController {
   public void setReviewService(ReviewService reviewService) {
     this.reviewService = Objects.requireNonNull(reviewService);
   }
+  
 
   /**
    * Viser et emne angitt som tekst ("KODE - NAVN").
