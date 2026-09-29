@@ -35,12 +35,12 @@
       </HBox>
       <VBox alignment="TOP_CENTER" spacing="12.0" stylesheets="@Style.css" VBox.vgrow="ALWAYS">
          <padding>
-            <Insets top="15.0" />
+            <Insets top="5.0" />
          </padding>
          <children>
-            <Label fx:id="emneTittelLabel" text="Fagnavn">
+            <Label fx:id="emneTittelLabel" alignment="CENTER" prefHeight="110.0" prefWidth="400.0" text="Fagnavn" textAlignment="CENTER" wrapText="true">
                <font>
-                  <Font name="System Bold" size="30.0" />
+                  <Font name="System Bold" size="28.0" />
                </font>
             </Label>
             <HBox>
