@@ -213,6 +213,18 @@ public class EmneControllerTest extends ApplicationTest {
         Label statusLabel = (Label) root.lookup("#statusLabel");
         Assertions.assertEquals("Vurderingen ble sendt inn!", statusLabel.getText());
         Assertions.assertEquals(Color.GREEN, statusLabel.getTextFill());
+
+        // Les fra fil med en ny handler for å kontrollere hva som faktisk ble lagret.
+        List<CourseDTO> courses = new ReviewHandler(testFilePath).readFromFile();
+        Assertions.assertEquals(1, courses.size());
+        CourseDTO course = courses.get(0);
+        Assertions.assertEquals("TDT4100", course.getCourseCode());
+        Assertions.assertEquals("Objektorientert programmering", course.getCourseName());
+        Assertions.assertEquals(1, course.getReviews().size());
+        Review review = course.getReviews().get(0);
+        Assertions.assertEquals("Student", review.getReviewerName());
+        Assertions.assertEquals(4, review.getRating());
+        Assertions.assertEquals("Moro prosjekt.", review.getComment());
     }
 
     private void sendInn() {
