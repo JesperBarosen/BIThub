@@ -10,8 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mockStatic;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
 
 import core.User;
 
@@ -114,16 +116,20 @@ class UserHandlerTest {
   }
 
   /**
-   * Tester isEmpty når stien peker på en mappe og ikke en fil. Files.size() vil
-   * da kaste en IOException, som fanges og gjør at isEmpty returnerer true.
+   * Tester feilhåndtering når filstørrelsen ikke kan leses, uavhengig av operativsystem.
    */
   @Test
-  void testIsEmptyThrowsIOExceptionWhenPathIsDirectory() throws IOException {
-    Path dir = tempDir.resolve("randomDirectory");
-    Files.createDirectories(dir);
+  void testIsEmptyReturnsTrueWhenSizeThrowsIOException() throws IOException {
+    Path file = tempDir.resolve("unreadable.json");
+    UserHandler handler = new UserHandler(file);
 
-    UserHandler handler = new UserHandler(dir);
-    assertTrue(handler.isEmpty());
+    try (MockedStatic<Files> files = mockStatic(Files.class)) {
+      files.when(() -> Files.exists(file)).thenReturn(true);
+      files.when(() -> Files.size(file)).thenThrow(new IOException("Kan ikke lese filstørrelsen"));
+
+      assertTrue(handler.isEmpty());
+      files.verify(() -> Files.size(file));
+    }
   }
 
   /**
