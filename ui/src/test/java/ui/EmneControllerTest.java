@@ -1,12 +1,9 @@
 package ui;
 
+import core.ReviewService;
+import file.ReviewHandler;
 import java.io.IOException;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.testfx.framework.junit5.ApplicationTest;
-
+import java.nio.file.Path;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -16,6 +13,11 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.testfx.framework.junit5.ApplicationTest;
 
 /**
  * Enhetstester og UI-tester for {@link EmneController} ved bruk av TestFX.
@@ -25,11 +27,15 @@ import javafx.stage.Stage;
  */
 public class EmneControllerTest extends ApplicationTest {
 
+    @TempDir
+    Path tempDir;
+
     private EmneController controller;
     private Parent root;
 
     /**
      * Klargjør og viser grensesnittet EmneView.fxml før hver test.
+     * Sett opp en midlertidig filsti for lagring slik at I/O ikke feiler under testkjøring.
      *
      * @param stage Hovedscenen for TestFX
      * @throws IOException dersom FXML-filen ikke kan lastes
@@ -39,6 +45,14 @@ public class EmneControllerTest extends ApplicationTest {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("EmneView.fxml"));
         root = loader.load();
         controller = loader.getController();
+
+        // Oppretter en isolert filbane i JUnit sin midlertidige testmappe
+        Path testFilePath = tempDir.resolve("test-reviews.json");
+        ReviewHandler testHandler = new ReviewHandler(testFilePath);
+        
+        // MÅTE 2: Injiserer via eksisterende Service/Handler-setter i EmneController
+        // (Bytt ut setReviewService med setStorage / setFileHandler dersom navnet avviker)
+        controller.setReviewService(new ReviewService(testHandler));
 
         stage.setScene(new Scene(root));
         stage.show();
@@ -97,10 +111,9 @@ public class EmneControllerTest extends ApplicationTest {
     @DisplayName("Skal vise feilmelding dersom rating ikke er et gyldig tall")
     void testHandleSendInnInvalidNumber() {
         TextField ratingField = (TextField) root.lookup("#ratingField");
-        ratingField.setText("abc");
+        interact(() -> ratingField.setText("abc"));
 
-        // Trykk på send inn-knappen
-        clickOn("#sendInnButton"); // Sjekk at FXML har fx:id="sendInnButton" eller tilsvarende knapp
+        clickOn("#sendInnButton");
 
         Label statusLabel = (Label) root.lookup("#statusLabel");
         Assertions.assertEquals("Vurdering må være et gyldig tall.", statusLabel.getText());
