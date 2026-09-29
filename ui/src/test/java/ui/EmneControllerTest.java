@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -113,7 +114,7 @@ public class EmneControllerTest extends ApplicationTest {
         TextField ratingField = (TextField) root.lookup("#ratingField");
         interact(() -> ratingField.setText("abc"));
 
-        clickOn("#sendInnButton");
+        sendInn();
 
         Label statusLabel = (Label) root.lookup("#statusLabel");
         Assertions.assertEquals("Vurdering må være et gyldig tall.", statusLabel.getText());
@@ -130,7 +131,7 @@ public class EmneControllerTest extends ApplicationTest {
 
         // Test rating for lav (0)
         interact(() -> ratingField.setText("0"));
-        clickOn("#sendInnButton");
+        sendInn();
 
         Label statusLabel = (Label) root.lookup("#statusLabel");
         Assertions.assertEquals("Vurdering må være et tall fra 1 til 5.", statusLabel.getText());
@@ -138,7 +139,7 @@ public class EmneControllerTest extends ApplicationTest {
 
         // Test rating for høy (6)
         interact(() -> ratingField.setText("6"));
-        clickOn("#sendInnButton");
+        sendInn();
         Assertions.assertEquals("Vurdering må være et tall fra 1 til 5.", statusLabel.getText());
         Assertions.assertEquals(Color.RED, statusLabel.getTextFill());
     }
@@ -161,7 +162,7 @@ public class EmneControllerTest extends ApplicationTest {
             anonymousCheckBox.setSelected(true);
         });
 
-        clickOn("#sendInnButton");
+        sendInn();
 
         Label statusLabel = (Label) root.lookup("#statusLabel");
         Assertions.assertEquals("Vurderingen ble sendt inn!", statusLabel.getText());
@@ -191,10 +192,20 @@ public class EmneControllerTest extends ApplicationTest {
             anonymousCheckBox.setSelected(false);
         });
 
-        clickOn("#sendInnButton");
+        sendInn();
 
         Label statusLabel = (Label) root.lookup("#statusLabel");
         Assertions.assertEquals("Vurderingen ble sendt inn!", statusLabel.getText());
         Assertions.assertEquals(Color.GREEN, statusLabel.getTextFill());
+    }
+
+    private void sendInn() {
+        // Tester FXML-handlingen uten å være avhengig av museklikk eller vindusfokus.
+        interact(() -> {
+            Button button = (Button) root.lookup("#sendInnButton");
+            Assertions.assertNotNull(button);
+            Assertions.assertFalse(button.isDisabled());
+            button.fire();
+        });
     }
 }
