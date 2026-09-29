@@ -1,4 +1,3 @@
-
 # Gr2610 - IT1901 prosjekt
 
 [open in Eclipse Che](https://che.iaas.ntnu.no/#https://git.ntnu.no/IT1901-2026-groups/gr2610?new)
@@ -15,13 +14,12 @@ Appen er bygget med tre-lags arkitektur. Hvert lag er både en egen Maven-modul 
 
 - **core** (`bithub.core`) er domenelaget og er ikke avhengig av noen av de andre modulene.
 - **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core` og gjør dem om til og fra JSON med Jackson.
-- **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene og `file` for å lagre og hente data.
+- **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene.
 
 ```mermaid
 flowchart TD
-    ui["<b>ui</b><br/>brukergrensesnitt"] --> file["<b>file</b><br/>persistens"]
-    ui --> core["<b>core</b><br/>domenelogikk"]
-    file --> core
+    ui["<b>ui</b><br/>brukergrensesnitt"] --> core["<b>core</b><br/>domenelogikk"]
+    file["<b>file</b><br/>persistens"]  --> core
     ui -.-> javafx["JavaFX"]
     file -.-> jackson["Jackson"]
 ```
