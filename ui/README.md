@@ -56,7 +56,7 @@ Denne siden vil bli brukt for å velge fag både når man skal skrive anmeldelse
 ## Brukerhistorie 1
 
 **Brukerhistorie 1:** «Som student, skal jeg kunne skrive anmeldelser av fag, for å kunne
-hjelpe andre studenter med for eksempel å velge riktig valgfag for dem.»
+hjelpe andre studenter med for eksempel å velge riktig valgfag for dem.» 
 
 Diagrammet dekker flyten fra brukeren velger fag i `VelgFagController`, til anmeldelsen er
 validert i `core` og lagret som JSON av `file`-modulen.
@@ -85,6 +85,44 @@ lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
   `Review`-objektet valideres i `core` (`ReviewService.parseRating` og `Review`-konstruktøren),
   ikke i kontrolleren. Kontrolleren viser bare feilmeldingen den får tilbake.
 
-2: Som foreleser, skal jeg kunne lese anmeldelser av faget jeg har, for å kunne forbedre og tilpasse faget til neste år.
+</br>
+</br>
 
-3: Som mulig fremtidig informatikkstudent, skal jeg kunne lese anmeldelsene av fagene, for å kunne se om dette er noe jeg har lyst å studere.
+
+## Brukerhistorie 2
+
+**Brukerhistorie 2:** «Som foreleser, skal jeg kunne lese anmeldelser av faget jeg har, for å kunne forbedre og tilpasse faget til neste år.»
+
+
+<!-- ### Sekvensdiagram for brukerhistorie 2:
+
+![Sekvensdiagram brukerhistorie 2]()
+
+Kildefilen til diagrammet (PlantUML) ligger i
+[`arkitektur/brukerhistorie2Sekvensdiagram.puml`]().
+
+*PNG-en er generert fra `.puml`-filen via [plantuml.com](https://www.plantuml.com/plantuml/uml/):
+lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
+
+## Kommentarer til diagrammet -->
+
+
+</br>
+</br>
+
+## Brukerhistorie 3
+
+**Brukerhistorie 3:** «Som mulig fremtidig informatikkstudent, skal jeg kunne lese anmeldelsene av fagene, for å kunne se om dette er noe jeg har lyst å studere.»
+
+
+<!-- ### Sekvensdiagram for brukerhistorie 3:
+
+![Sekvensdiagram brukerhistorie 3]()
+
+Kildefilen til diagrammet (PlantUML) ligger i
+[`arkitektur/brukerhistorie3Sekvensdiagram.puml`]().
+
+*PNG-en er generert fra `.puml`-filen via [plantuml.com](https://www.plantuml.com/plantuml/uml/):
+lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
+
+## Kommentarer til diagrammet -->
