@@ -21,11 +21,11 @@ Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal s
 <tr>
 <td align="center">
 <b>Logg inn</b><br>
-<img src="images/image.png" alt="Logg inn" height="300">
+<img src="ui/images/image.png" alt="Logg inn" height="300">
 </td>
 <td align="center">
 <b>Registrer ny bruker</b><br>
-<img src="images/image-1.png" alt="Registrer ny bruker" height="300">
+<img src="ui/images/image-1.png" alt="Registrer ny bruker" height="300">
 </td>
 </tr>
 </table>
@@ -36,15 +36,15 @@ Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal s
 <tr>
 <td align="center">
 <b>Info om appen</b><br>
-<img src="images/image-2.png" alt="Info om appen" height="300">
+<img src="ui/images/image-2.png" alt="Info om appen" height="300">
 </td>
 <td align="center">
 <b>Profil side</b><br>
-<img src="images/image-3.png" alt="Profil side" height="300">
+<img src="ui/images/image-3.png" alt="Profil side" height="300">
 </td>
 <td align="center">
 <b>Endre passord</b><br>
-<img src="images/image-4.png" alt="Endre passord" height="300">
+<img src="ui/images/image-4.png" alt="Endre passord" height="300">
 </td>
 </tr>
 </table>
@@ -55,11 +55,11 @@ Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal s
 <tr>
 <td align="center">
 <b>Hjem skjerm</b><br>
-<img src="images/image-5.png" alt="Hjem skjerm" height="300">
+<img src="ui/images/image-5.png" alt="Hjem skjerm" height="300">
 </td>
 <td align="center">
 <b>Velg fag</b><br>
-<img src="images/image-6.png" alt="Velg fag" height="300"><br>
+<img src="ui/images/image-6.png" alt="Velg fag" height="300"><br>
 <!-- <sub>Denne siden vil bli brukt for å velge fag både når man skal skrive anmeldelser og lese anmeldelser.</sub> -->
 </td>
 </tr>
@@ -71,21 +71,21 @@ Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal s
 <tr>
 <td align="center">
 <b>Lese anmeldelser - eksempel</b><br>
-<img src="images/image-7.png" alt="Lese anmeldelser" height="300">
+<img src="ui/images/image-7.png" alt="Lese anmeldelser" height="300">
 </td>
 <td align="center">
 <b>Skrive anmeldelse - eksempel</b><br>
-<img src="images/image-8.png" alt="Skrive anmeldelse" height="300">
+<img src="ui/images/image-8.png" alt="Skrive anmeldelse" height="300">
 </td>
 </tr>
 <tr>
 <td align="center">
 <b>Mine anmeldelser - eksempel</b><br>
-<img src="images/image-9.png" alt="Mine anmeldelser" height="300">
+<img src="ui/images/image-9.png" alt="Mine anmeldelser" height="300">
 </td>
 <td align="center">
 <b>Endre egen anmeldelse - eksempel</b><br>
-<img src="images/image-10.png" alt="Endre egen anmeldelse" height="300">
+<img src="ui/images/image-10.png" alt="Endre egen anmeldelse" height="300">
 </td>
 </tr>
 </table>
