@@ -45,9 +45,7 @@ class CourseTest {
      */
     @Test
     void constructorThrowsWhenCourseCodeIsBlank() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Course(" ", "Informatikk Prosjektarbeid 1"));
+        assertThrows(IllegalArgumentException.class, () -> new Course(" ", "Informatikk Prosjektarbeid 1"));
     }
 
     /**
@@ -71,9 +69,7 @@ class CourseTest {
      */
     @Test
     void constructorThrowsWhenCourseNameIsBlank() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Course("IT1901", " "));
+        assertThrows(IllegalArgumentException.class, () -> new Course("IT1901", " "));
     }
 
     /**
@@ -113,7 +109,8 @@ class CourseTest {
     void getReviewsReturnsUnmodifiableList() {
         Course course = new Course("IT1901", "Informatikk Prosjektarbeid 1");
         course.addReview(new Review("Ola Nordmann", 4, "Ikke dårlig"));
-        assertThrows(UnsupportedOperationException.class, () -> course.getReviews().add(new Review("Ola Nordmann", 3, "Ait")));
+        assertThrows(UnsupportedOperationException.class,
+                () -> course.getReviews().add(new Review("Ola Nordmann", 3, "Ait")));
     }
 
     /**
@@ -127,8 +124,8 @@ class CourseTest {
     }
 
     /**
-     * Verifiserer at gjennomsnittlig vurdering er lik vurderingen når faget kun
-     * har én vurdering.
+     * Verifiserer at gjennomsnittlig vurdering er lik vurderingen når faget kun har
+     * én vurdering.
      */
     @Test
     void averageRatingEqualsSingleReviewRating() {
@@ -138,8 +135,8 @@ class CourseTest {
     }
 
     /**
-     * Verifiserer at gjennomsnittlig vurdering beregnes korrekt når faget har
-     * flere vurderinger.
+     * Verifiserer at gjennomsnittlig vurdering beregnes korrekt når faget har flere
+     * vurderinger.
      */
     @Test
     void averageRatingIsCalculatedCorrectly() {
@@ -150,8 +147,8 @@ class CourseTest {
     }
 
     /**
-     * Verifiserer at gjennomsnittlig vurdering beregnes korrekt når resultatet
-     * ikke er et helt tall.
+     * Verifiserer at gjennomsnittlig vurdering beregnes korrekt når resultatet ikke
+     * er et helt tall.
      */
     @Test
     void averageRatingHandlesNonExactDivision() {
