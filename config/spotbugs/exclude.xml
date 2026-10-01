@@ -1,9 +1,4 @@
 <FindBugsFilter>
-    <!-- Testability -->
-    <Match>
-        <Bug pattern="EI_EXPOSE_REP" />
-        <Class name="ui.AppController" />
-    </Match>
     <!-- ReviewService skal bruke lagringen den får fra App, ikke en kopi.
          Unntaket gjelder bare dette ene feltet. -->
     <Match>

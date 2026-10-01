@@ -2,6 +2,12 @@ package file;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+/**
+ * Dataoverføringsobjekt for brukerdata.
+ *
+ * <p>Brukes ved serialisering og deserialisering av brukere med Jackson.
+ */
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 @JsonPropertyOrder({"name", "email", "password"})
 public class UserDTO {
 
@@ -9,9 +15,21 @@ public class UserDTO {
     private String email;
     private String password;
 
+    /**
+     * Oppretter et tomt UserDTO-objekt.
+     *
+     * <p>Kreves av Jackson ved deserialisering.
+     */
     public UserDTO() {
     }
 
+    /**
+     * Oppretter et nytt UserDTO-objekt med navn, e-post og passord.
+     *
+     * @param name navnet til brukeren
+     * @param email e-postadressen til brukeren
+     * @param password passordet til brukeren
+     */
     public UserDTO(String name, String email, String password) {
         this.name = name;
         this.email = email;
@@ -35,7 +53,7 @@ public class UserDTO {
     }
 
     public String getPassword() {
-        return password;  
+        return password;
     }
 
     public void setPassword(String password) {
