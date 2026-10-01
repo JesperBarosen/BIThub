@@ -60,6 +60,11 @@ linjelengde på 100 tegn. Dette samkjører formatteringen med de valgte
 Checkstyle-reglene. Automatisk formatering retter mange stilbrudd,
 mens blant annet manglende JavaDoc må håndteres manuelt.
 
+VS Code bruker formatterprofilen `JavaConventions` fra formatterfila.
+HTML-formatering i JavaDoc er deaktivert slik at formatteren beholder
+`<p>` på samme linje som avsnittsteksten, i tråd med prosjektets
+Checkstyle-regler.
+
 Checkstyle kan også kjøres separat fra `bithub/` med
 `mvn checkstyle:check`.
 
