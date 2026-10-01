@@ -3,6 +3,7 @@ package core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -29,7 +30,9 @@ class CourseTest {
      */
     @Test
     void constructorThrowsWhenCourseCodeIsNull() {
-        assertThrows(IllegalArgumentException.class, () -> new Course(null, "Informatikk Prosjektarbeid 1"));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new Course(null, "Informatikk Prosjektarbeid 1"));
     }
 
     /**
@@ -37,7 +40,9 @@ class CourseTest {
      */
     @Test
     void constructorThrowsWhenCourseCodeIsEmpty() {
-        assertThrows(IllegalArgumentException.class, () -> new Course("", "Informatikk Prosjektarbeid 1"));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new Course("", "Informatikk Prosjektarbeid 1"));
     }
 
     /**
@@ -45,7 +50,9 @@ class CourseTest {
      */
     @Test
     void constructorThrowsWhenCourseCodeIsBlank() {
-        assertThrows(IllegalArgumentException.class, () -> new Course(" ", "Informatikk Prosjektarbeid 1"));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new Course(" ", "Informatikk Prosjektarbeid 1"));
     }
 
     /**
@@ -53,7 +60,9 @@ class CourseTest {
      */
     @Test
     void constructorThrowsWhenCourseNameIsNull() {
-        assertThrows(IllegalArgumentException.class, () -> new Course("IT1901", null));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new Course("IT1901", null));
     }
 
     /**
@@ -61,7 +70,9 @@ class CourseTest {
      */
     @Test
     void constructorThrowsWhenCourseNameIsEmpty() {
-        assertThrows(IllegalArgumentException.class, () -> new Course("IT1901", ""));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new Course("IT1901", ""));
     }
 
     /**
@@ -69,7 +80,9 @@ class CourseTest {
      */
     @Test
     void constructorThrowsWhenCourseNameIsBlank() {
-        assertThrows(IllegalArgumentException.class, () -> new Course("IT1901", " "));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new Course("IT1901", " "));
     }
 
     /**
@@ -99,7 +112,9 @@ class CourseTest {
     @Test
     void addReviewThrowsWhenReviewIsNull() {
         Course course = new Course("IT1901", "Informatikk Prosjektarbeid 1");
-        assertThrows(IllegalArgumentException.class, () -> course.addReview(null));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> course.addReview(null));
     }
 
     /**

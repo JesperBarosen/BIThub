@@ -3,13 +3,14 @@ package core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
  * Testklasse for {@link Review}-klassen.
  *
- * Verifiserer at vurderinger opprettes og endres korrekt, samt at validering av
+ * <p>Verifiserer at vurderinger opprettes og endres korrekt, samt at validering av
  * navn og rating avviser ugyldige verdier.
  */
 class ReviewTest {
@@ -68,7 +69,9 @@ class ReviewTest {
     @Test
     @DisplayName("Skal kaste unntak når rating er under 1")
     void testConstructorThrowsWhenRatingBelowMinimum() {
-        assertThrows(IllegalArgumentException.class, () -> new Review("Ola Nordmann", 0, "Kommentar"));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Review("Ola Nordmann", 0, "Kommentar"));
     }
 
     /**
@@ -78,7 +81,9 @@ class ReviewTest {
     @Test
     @DisplayName("Skal kaste unntak når rating er over 5")
     void testConstructorThrowsWhenRatingAboveMax() {
-        assertThrows(IllegalArgumentException.class, () -> new Review("Ola Nordmann", 6, "Kommentar"));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Review("Ola Nordmann", 6, "Kommentar"));
     }
 
     /**

@@ -100,9 +100,17 @@ class ReviewServiceTest {
      */
     @Test
     void submitReviewRejectsMissingCourseOrReviewer() {
-        assertThrows(IllegalArgumentException.class, () -> service.submitReview("", "Prosjektarbeid", "Student", "4", ""));
-        assertThrows(IllegalArgumentException.class, () -> service.submitReview("IT1901", "", "Student", "4", ""));
-        assertThrows(IllegalArgumentException.class, () -> service.submitReview("IT1901", "Prosjektarbeid", "", "4", ""));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.submitReview("", "Prosjektarbeid", "Student", "4", ""));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.submitReview("IT1901", "", "Student", "4", ""));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.submitReview("IT1901", "Prosjektarbeid", "", "4", ""));
         assertTrue(savedReviews.isEmpty());
     }
 

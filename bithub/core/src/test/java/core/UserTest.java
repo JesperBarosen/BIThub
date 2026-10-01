@@ -3,6 +3,7 @@ package core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,7 +12,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 /**
  * Enhetstester for {@link User}-klassen.
  *
- * Verifiserer at valideringslogikken for navn, e-post og passord fungerer som
+ * <p>Verifiserer at valideringslogikken for navn, e-post og passord fungerer som
  * forventet, samt at tilstandshenting via gettere returnerer korrekte verdier.
  */
 class UserTest {
@@ -59,7 +60,10 @@ class UserTest {
      * @param invalidName Ugyldig navnestreng som skal testes
      */
     @ParameterizedTest
-    @ValueSource(strings = {"", "   ", "A", "AB", "DetteNavnetErAltforLangtOgOverstiger30Tegn", "Ola123", "Kari!"})
+    @ValueSource(strings = {
+        "", "   ", "A", "AB", "DetteNavnetErAltforLangtOgOverstiger30Tegn",
+        "Ola123", "Kari!"
+    })
     @DisplayName("Skal kaste unntak for ugyldige navn")
     void testInvalidNames(String invalidName) {
         assertThrows(IllegalArgumentException.class, ()
@@ -106,7 +110,10 @@ class UserTest {
      * @param invalidEmail Ugyldig e-poststreng som skal testes
      */
     @ParameterizedTest
-    @ValueSource(strings = {"", "   ", "uten-at-tegn", "mangler-domene@", "@mangler-bruker.no", "test@domain"})
+    @ValueSource(strings = {
+        "", "   ", "uten-at-tegn", "mangler-domene@", "@mangler-bruker.no",
+        "test@domain"
+    })
     @DisplayName("Skal kaste unntak for ugyldig e-postformat")
     void testInvalidEmail(String invalidEmail) {
         assertThrows(IllegalArgumentException.class, ()
