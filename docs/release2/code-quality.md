@@ -20,12 +20,20 @@ er avhengig av hvilken IDE et gruppemedlem bruker.
 
 JaCoCo brukes for å måle hvilke deler av koden som blir kjørt av
 testene. Rapporten brukes for å identifisere områder med mangelfull
-testdekning, slik at vi kan utvikle flere tester for disse delene.
+testdekning, slik at det kan utvikles flere tester der det er nødvendig.
+
+Prosjektet bruker JaCoCo Maven Plugin versjon 0.8.12. `prepare-agent`
+kobler JaCoCo til testkjøringen, mens `report` kjøres i `test`-fasen og
+genererer rapporten over testdekning.
+
+Det er ikke konfigurert en fast minimumsgrense for testdekning. JaCoCo
+brukes derfor som et analyseverktøy for å vurdere om de ulike delene av
+prosjektet har rimelig testdekning.
 
 Høy testdekning er ikke et mål i seg selv. Testene skal først og fremst
 kontrollere forventet oppførsel, grenseverdier og relevante
-feilsituasjoner. Når testene dekker dette for alle klasene vil en høy 
-testdekning komme naturlig.
+feilsituasjoner. Når testene dekker dette for alle klassene, vil god
+testdekning være en naturlig konsekvens av testarbeidet.
 
 ## Checkstyle
 
@@ -33,11 +41,16 @@ Checkstyle brukes for å kontrollere at Java-koden følger en konsistent
 kodestil. Dette gjør koden lettere å lese og bidrar til at kode skrevet
 av forskjellige gruppemedlemmer følger de samme reglene.
 
-Checkstyle er integrert i Maven og bruker regelsettet `google_checks.xml`. 
-Dette gir prosjektet et etablert og konsistent sett med regler for Java-kode.
-Java-koden kontrolleres mot prosjektets valgte Checkstyle-regler. 
-Kontrollen kjøres i `verify`-fasen, og brudd på reglene fører til 
-at kvalitetssjekken mislykkes.
+Prosjektet bruker Maven Checkstyle Plugin versjon 3.6.0 med Checkstyle
+versjon 10.26.1. `google_checks.xml` brukes som regelsett.
+
+Både produksjonskode og testkode kontrolleres. Resultatet skrives til
+konsollen, og `failsOnError` er satt til `true`. Dette gjør at
+Checkstyle-feil fører til at Maven-kontrollen mislykkes.
+
+Checkstyle kjører målet `check` i `verify`-fasen. Dette gjør
+kodestilkontrollen til en del av den samlede kvalitetssjekken før
+endringer slås sammen.
 
 Eventuelle endringer i Checkstyle-konfigurasjonen skal gjøres bevisst
 og begrunnes dersom de valgte reglene ikke passer prosjektet.
@@ -48,28 +61,18 @@ SpotBugs brukes til statisk analyse av Java-koden. Verktøyet analyserer
 koden for å finne potensielle feil og problematiske kodemønstre som ikke
 nødvendigvis blir oppdaget av kompilatoren eller testene.
 
-SpotBugs er integrert i Maven og kjøres i `verify`-fasen. Prosjektet har
-også et eget filter for tilfeller hvor en SpotBugs-advarsel bevisst skal
-utelates.
+Prosjektet bruker SpotBugs Maven Plugin versjon 4.8.6.6. Målet `check`
+kjøres i `verify`-fasen og inngår dermed i den samlede
+kvalitetssjekken.
+
+SpotBugs er konfigurert til å generere HTML-rapport, mens XML-output er
+deaktivert. Prosjektet bruker `config/spotbugs/exclude.xml` som filter
+for eksplisitte unntak.
 
 Slike unntak skal bare brukes når gruppen har vurdert advarselen og kan
 begrunne hvorfor den ikke representerer et problem i den aktuelle
-situasjonen.
-
-## Konfigurasjon av kvalitetsverktøy
-
-JaCoCo, Checkstyle og SpotBugs er konfigurert gjennom Maven slik at
-kvalitetskontrollene kan kjøres på samme måte av alle gruppemedlemmer.
-
-Checkstyle kjøres som en del av `verify`-fasen og kontrollerer koden
-mot prosjektets valgte regler. SpotBugs kjøres også i `verify`-fasen
-og bruker et eget filter for eksplisitte unntak.
-
-JaCoCo kobles til testkjøringen og genererer rapporter som brukes til
-å vurdere testdekningen i prosjektet.
-
-Konfigurasjonen skal bare endres når gruppen har vurdert hvorfor en
-regel eller innstilling ikke passer prosjektet.
+situasjonen. Unntak skal være så avgrensede som mulig slik at andre
+SpotBugs-funn fortsatt blir rapportert.
 
 ## Maven og automatisert kvalitetssikring
 
@@ -82,8 +85,9 @@ Den viktigste samlede kvalitetssjekken kjøres fra `bithub/` med:
 `mvn clean verify`
 
 Denne kommandoen bygger prosjektet, kjører testene og gjennomfører de
-konfigurerte kontrollene for kodekvalitet. JaCoCo genererer samtidig
-informasjon om testdekning.
+konfigurerte kontrollene for kodekvalitet. JaCoCo genererer rapport 
+om testdekning under testkjøringen, mens Checkstyle og SpotBugs 
+gjennomfører sine kontroller i `verify`-fasen.
 
 Ved å samle kontrollene i Maven reduseres risikoen for at forskjellige
 gruppemedlemmer bruker ulike metoder for å kontrollere prosjektet.
