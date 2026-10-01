@@ -109,12 +109,12 @@ Vi har valgt **implisitt lagring** fremfor en tradisjonell dokumentmetafor. Valg
 * **Sømløs navigasjon og brukeropplevelse:** Som vist på skjermbildene nedenfor (*Hjem skjerm* og *Velg fag*), er applikasjonen bygget opp som en navigasjonsbasert plattform. Brukeren navigerer via knapper som «LES ANMELDELSER» og «SKRIV ANMELDELSE». Å kreve at brukeren må åpne en `.json`-fil manuelt fra filsystemet for å lese eller skrive anmeldelser ville brutt med applikasjonens intenderte flyt.
 
 <figure>
-  <img src="../../ui/images/image-5.png" alt="Hjem skjerm" width="250">
+  <img src="../../bithub/ui/images/image-5.png" alt="Hjem skjerm" width="250">
   <figcaption><em>Figur 2.1: Hjem-skjerm med navigasjonsknapper for lesing, skriving og egne anmeldelser.</em></figcaption>
 </figure>
 
 <figure>
-  <img src="../../ui/images/image-6.png" alt="Velg fag skjerm" width="250">
+  <img src="../../bithub/ui/images/image-6.png" alt="Velg fag skjerm" width="250">
   <figcaption><em>Figur 2.2: Fagutvalg der data hentes og visning oppdateres automatisk.</em></figcaption>
 </figure>
 
@@ -122,7 +122,7 @@ Vi har valgt **implisitt lagring** fremfor en tradisjonell dokumentmetafor. Valg
 * **Skjulmating av filhåndtering:** I skjermbildet *Skrive anmeldelse* benyttes dedikerte knapper som `SEND INN`. Når brukeren trykker på denne, håndteres skriveoperasjonen automatisk mot filsystemet i bakgrunnen uten at brukeren blir spurt om filsti eller filnavn.
 
 <figure>
-  <img src="../../ui/images/image-8.png" alt="SkrivAnmeldelse skjerm" width="250">
+  <img src="../../bithub/ui/images/image-8.png" alt="SkrivAnmeldelse skjerm" width="250">
   <figcaption><em>Figur 2.3: Innsending av anmeldelse hvor data lagres i bakgrunnen ved trykk på «SEND INN».</em></figcaption>
 </figure>
 
@@ -131,7 +131,7 @@ Vi har valgt **implisitt lagring** fremfor en tradisjonell dokumentmetafor. Valg
 * **Bruker- og tilstandshåndtering:** Skjermbildene for innlogging, registrering og profil viser at brukeren forholder seg til sin egen konto og sine data. Persistenslaget håndterer automatisk opprettelse og oppdatering av brukerdata under `.bithub/users.json` i bakgrunnen.
 
 <figure>
-  <img src="../../ui/images/image.png" alt="Innloging skjerm" width="250">
+  <img src="../../bithub/ui/images/image.png" alt="Innloging skjerm" width="250">
   <figcaption><em>Figur 2.4: Brukergrensesnitt for innlogging.</em></figcaption>
 </figure>
 

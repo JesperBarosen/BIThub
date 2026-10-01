@@ -15,41 +15,80 @@ Det er mulig å se informasjon om appen om man klikker på linken som ligger ned
 ## Illustrerende skjermbilde - Figma
 
 Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal se ut og fungere når den er ferdig. 
+### Innlogging og registrering
 
-### Logg inn
-![alt text](images/image.png)
+<table>
+<tr>
+<td align="center">
+<b>Logg inn</b><br>
+<img src="ui/images/image.png" alt="Logg inn" height="300">
+</td>
+<td align="center">
+<b>Registrer ny bruker</b><br>
+<img src="ui/images/image-1.png" alt="Registrer ny bruker" height="300">
+</td>
+</tr>
+</table>
 
-### Registrer ny bruker
-![alt text](images/image-1.png)
+### Info og profil
 
-### Info om appen
-![alt text](images/image-2.png)
+<table>
+<tr>
+<td align="center">
+<b>Info om appen</b><br>
+<img src="ui/images/image-2.png" alt="Info om appen" height="300">
+</td>
+<td align="center">
+<b>Profil side</b><br>
+<img src="ui/images/image-3.png" alt="Profil side" height="300">
+</td>
+<td align="center">
+<b>Endre passord</b><br>
+<img src="ui/images/image-4.png" alt="Endre passord" height="300">
+</td>
+</tr>
+</table>
 
-### Profil side
-![alt text](images/image-3.png)
+### Hjem og fagvalg
 
-### Endre passord
-![alt text](images/image-4.png)
+<table>
+<tr>
+<td align="center">
+<b>Hjem skjerm</b><br>
+<img src="ui/images/image-5.png" alt="Hjem skjerm" height="300">
+</td>
+<td align="center">
+<b>Velg fag</b><br>
+<img src="ui/images/image-6.png" alt="Velg fag" height="300"><br>
+<!-- <sub>Denne siden vil bli brukt for å velge fag både når man skal skrive anmeldelser og lese anmeldelser.</sub> -->
+</td>
+</tr>
+</table>
 
-### Hjem skjerm
-![alt text](images/image-5.png)
+### Anmeldelser
 
-### Velg fag
-![alt text](images/image-6.png)
-Denne siden vil bli brukt for å velge fag både når man skal skrive anmeldelser og lese anmeldelser.
-
-### Lese anmeldelser - eksempel
-![alt text](images/image-7.png)
-
-### Skrive anmeldelse - eksempel
-![alt text](images/image-8.png)
-
-### Mine anmeldelser - eksempel
-![alt text](images/image-9.png)
-
-### Endre egen anmeldelse - eksempel
-![alt text](images/image-10.png)
-
+<table>
+<tr>
+<td align="center">
+<b>Lese anmeldelser - eksempel</b><br>
+<img src="ui/images/image-7.png" alt="Lese anmeldelser" height="300">
+</td>
+<td align="center">
+<b>Skrive anmeldelse - eksempel</b><br>
+<img src="ui/images/image-8.png" alt="Skrive anmeldelse" height="300">
+</td>
+</tr>
+<tr>
+<td align="center">
+<b>Mine anmeldelser - eksempel</b><br>
+<img src="ui/images/image-9.png" alt="Mine anmeldelser" height="300">
+</td>
+<td align="center">
+<b>Endre egen anmeldelse - eksempel</b><br>
+<img src="ui/images/image-10.png" alt="Endre egen anmeldelse" height="300">
+</td>
+</tr>
+</table>
 
 ## Brukerhistorier
 

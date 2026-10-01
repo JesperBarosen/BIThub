@@ -77,7 +77,7 @@ Maven brukes som felles verktøy for bygging, testing og kontroll av
 kodekvalitet. Dette gjør at de samme kontrollene kan kjøres uavhengig av
 hvilken IDE eller utviklingsplattform et gruppemedlem bruker.
 
-Den viktigste samlede kvalitetssjekken kjøres fra rotmappen med:
+Den viktigste samlede kvalitetssjekken kjøres fra `bithub/` med:
 
 `mvn clean verify`
 
