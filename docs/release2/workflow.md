@@ -253,9 +253,9 @@ Kort oppsummering av endringen i presens
 
 [Valgfri utdypende beskrivelse av hva som er gjort og hvorfor]
 
-[Co-authored-by: navn <mail>]
-
 [ref/closes/fixes] #<issue-nummer>
+
+[Co-authored-by: navn <mail>]
 ```
 
 ### Regler for nøkkelordene nederst
@@ -272,10 +272,10 @@ Endre farge og tekststørrelse på primærknapper
 Knappene hadde for lav kontrast i mørk modus. Har oppdatert
 designsystemet slik at UU-kravene for kontrast blir ivaretatt.
 
+fixes #108
+
 Co-authored-by: Ola Nordmann <ola.nordmann@stud.ntnu.no>
 Co-authored-by: Tobias Bernard <tob.bern@stud.ntnu.no>
-
-fixes #108
 ```
 
 ## <span style="color:#E2E8F0"><u>Kommandoer</u></span>
