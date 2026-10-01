@@ -33,11 +33,29 @@ Checkstyle brukes for å kontrollere at Java-koden følger en konsistent
 kodestil. Dette gjør koden lettere å lese og bidrar til at kode skrevet
 av forskjellige gruppemedlemmer følger de samme reglene.
 
-Checkstyle er integrert i Maven og bruker regelsettet `google_checks.xml`. 
-Dette gir prosjektet et etablert og konsistent sett med regler for Java-kode.
-Java-koden kontrolleres mot prosjektets valgte Checkstyle-regler. 
-Kontrollen kjøres i `verify`-fasen, og brudd på reglene fører til 
-at kvalitetssjekken mislykkes.
+Checkstyle er integrert i Maven og bruker prosjektets regelsett i
+`config/checkstyle/checkstyle.xml`. Regelsettet er basert på
+`google_checks.xml`, med innrykk tilpasset til fire mellomrom.
+
+VS Code bruker samme regelsett gjennom `java.checkstyle.configuration`,
+satt til `${workspaceFolder}/config/checkstyle/checkstyle.xml`.
+Repositoriets rotmappe må åpnes i VS Code for å bruke disse
+prosjektinnstillingene.
+
+Java-formatteringen styres av `.vscode/java-formatter.xml`.
+Formatteren bruker fire mellomrom, mellomrom fremfor tabulatorer og
+linjelengde på 100 tegn. Dette samkjører formatteringen med de valgte
+Checkstyle-reglene. Automatisk formatering retter mange stilbrudd,
+mens blant annet manglende JavaDoc må håndteres manuelt.
+
+Checkstyle kontrollerer produksjonskode og tester i `verify`-fasen.
+Kontrollen kan også kjøres separat fra `bithub/` med
+`mvn checkstyle:check`.
+
+Med dagens oppsett rapporteres regelbrudd på warning-nivå uten at
+bygget nødvendigvis feiler. `BUILD SUCCESS` betyr derfor ikke at
+koden er uten Checkstyle-warnings. Advarslene i rapporten må også
+kontrolleres og rettes.
 
 Eventuelle endringer i Checkstyle-konfigurasjonen skal gjøres bevisst
 og begrunnes dersom de valgte reglene ikke passer prosjektet.
