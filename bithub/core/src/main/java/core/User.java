@@ -1,11 +1,22 @@
 package core;
 
+/**
+ * Representerer en bruker med navn, e-postadresse og passord.
+ */
 public final class User {
 
     private String name;
     private String email;
     private String password;
 
+    /**
+     * Oppretter en bruker med validerte brukeropplysninger.
+     *
+     * @param name navn på 3 til 30 tegn med bokstaver og tillatte skilletegn
+     * @param email e-postadresse som oppfyller formatkravet
+     * @param password minst åtte tegn, kan ikke være null eller blankt
+     * @throws IllegalArgumentException hvis en brukeropplysning er ugyldig
+     */
     public User(String name, String email, String password) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Name cannot be null or empty.");

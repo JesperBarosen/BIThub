@@ -5,8 +5,7 @@ import java.util.Objects;
 /**
  * Håndterer innsending av anmeldelser.
  *
- * <p>
- * Klassen validerer det brukeren har skrevet inn og sender anmeldelsen videre
+ * <p>Klassen validerer det brukeren har skrevet inn og sender anmeldelsen videre
  * til lagring. Den kjenner bare grensesnittet {@link ReviewRepository}, slik at
  * core ikke blir avhengig av hvordan anmeldelsene lagres.
  */

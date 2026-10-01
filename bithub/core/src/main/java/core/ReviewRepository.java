@@ -4,8 +4,7 @@ package core;
  * Beskriver lagring av anmeldelser uten at domenelaget trenger å vite hvordan
  * eller hvor de lagres.
  *
- * <p>
- * Grensesnittet ligger i core slik at core ikke blir avhengig av file.
+ * <p>Grensesnittet ligger i core slik at core ikke blir avhengig av file.
  * File-modulen implementerer det, og App kobler implementasjonen til.
  */
 public interface ReviewRepository {
