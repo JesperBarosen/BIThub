@@ -7,11 +7,36 @@ Prosjektet bruker automatiserte tester og kodeanalyse gjennom Maven for
 ## Testing
 
 Tester brukes for å kontrollere at eksisterende funksjonalitet fortsetter
-å fungere når prosjektet endres. Domenelogikk testes med enhetstester,
-mens brukergrensesnittet testes med relevante JavaFX-tester.
+å fungere når prosjektet endres. Alle modulene har tester. Prosjektet
+bruker JUnit 5 i alle modulene, og TestFX for å teste
+brukergrensesnittet i `ui`.
 
-Alle modulene skal ha relevante tester. Persistenslaget testes blant
-annet for lesing, skriving og håndtering av feiltilfeller.
+Tilnærmingen er å teste hvert lag for seg, og i tillegg ha enkelte
+tester som kontrollerer at lagene fungerer sammen. I `core` testes
+domeneklassene og `ReviewService` med enhetstester. `ReviewServiceTest`
+bruker en egen testimplementasjon av `ReviewRepository` i stedet for
+ekte fillagring, slik at testene kun kontrollerer logikken i
+domenelaget.
+
+Persistenslaget i `file` testes for lesing, skriving og håndtering av
+feiltilfeller, som tomme filer, ugyldig JSON og feil ved skriving.
+For å teste feil ved lesing og skriving brukes Mockito til å simulere
+at `Files` kaster `IOException`, siden slike feil er vanskelige å
+fremprovosere med ekte filer. `ReviewStorageTest` kontrollerer at `ReviewService` og `ReviewHandler`
+fungerer sammen, og at en anmeldelse som sendes inn faktisk blir lagret
+til fil.
+
+Brukergrensesnittet testes med TestFX. Testene kontrollerer både
+enkeltkontrollere, som feilmeldinger og innsending i `EmneController`,
+og navigasjonen mellom de ulike sidene i appen.
+
+Tester som skriver til fil bruker `@TempDir` fra JUnit. Testene skriver
+dermed aldri til den faktiske `~/.bithub`-mappen, og testene påvirker
+ikke hverandre.
+
+Testene skal kontrollere forventet oppførsel, grenseverdier og
+feilsituasjoner. For vurderinger testes for eksempel både gyldige
+grenseverdier og verdier som 0 og 6, som skal avvises.
 
 Testene skal kunne kjøres gjennom Maven slik at kvalitetssikringen ikke
 er avhengig av hvilken IDE et gruppemedlem bruker.
@@ -26,9 +51,16 @@ Prosjektet bruker JaCoCo Maven Plugin versjon 0.8.12. `prepare-agent`
 kobler JaCoCo til testkjøringen, mens `report` kjøres i `test`-fasen og
 genererer rapporten over testdekning.
 
-Det er ikke konfigurert en fast minimumsgrense for testdekning. JaCoCo
-brukes derfor som et analyseverktøy for å vurdere om de ulike delene av
-prosjektet har rimelig testdekning.
+Rapportene genereres for hver modul i `core/target/site/jacoco/`,
+`file/target/site/jacoco/` og `ui/target/site/jacoco/`, og åpnes
+gjennom `index.html`. Testdekningen for release 2 er oppsummert i
+[release2.md](release2.md).
+
+Det er ikke konfigurert en fast minimumsgrense for testdekning. En fast
+grense kan føre til at det skrives tester bare for å øke prosenten, i
+stedet for tester som kontrollerer faktisk oppførsel. JaCoCo brukes
+derfor som et analyseverktøy, og testdekningen vurderes som en del av
+gjennomgangen av pull requests.
 
 Høy testdekning er ikke et mål i seg selv. Testene skal først og fremst
 kontrollere forventet oppførsel, grenseverdier og relevante
@@ -44,34 +76,43 @@ av forskjellige gruppemedlemmer følger de samme reglene.
 Checkstyle er integrert i Maven og bruker prosjektets regelsett i
 `config/checkstyle/checkstyle.xml`. Regelsettet er basert på
 `google_checks.xml`, med innrykk tilpasset til fire mellomrom.
+Gruppen valgte fire mellomrom fordi dette er innrykket alle
+gruppemedlemmene er vant til fra tidligere fag, og fordi det er
+standard innrykk for Java i VS Code. Utover innrykk følger prosjektet
+Googles regelsett, siden dette er et etablert og gjennomarbeidet
+utgangspunkt.
 
 Prosjektet bruker Maven Checkstyle Plugin versjon 3.6.0 med Checkstyle
-versjon 10.26.1. Både produksjonskode og testkode kontrolleres, og
-Checkstyle kjører målet `check` i `verify`-fasen.
+versjon 10.26.1. Både produksjonskode og testkode kontrolleres, slik at
+testene holder samme kvalitet som resten av koden. Checkstyle kjører
+målet `check` i `verify`-fasen.
 
 VS Code bruker samme regelsett gjennom `java.checkstyle.configuration`,
 satt til `${workspaceFolder}/config/checkstyle/checkstyle.xml`.
-Repositoriets rotmappe må åpnes i VS Code for å bruke disse
+Kodelagerets rotmappe må åpnes i VS Code for å bruke disse
 prosjektinnstillingene.
 
-Java-formatteringen styres av `.vscode/java-formatter.xml`.
-Formatteren bruker fire mellomrom, mellomrom fremfor tabulatorer og
-linjelengde på 100 tegn. Dette samkjører formatteringen med de valgte
+Java-formateringen styres av `.vscode/java-formatter.xml`.
+Formatet bruker fire mellomrom, mellomrom fremfor tabulatorer og
+linjelengde på 100 tegn. Dette samkjører formateringen med de valgte
 Checkstyle-reglene. Automatisk formatering retter mange stilbrudd,
-mens blant annet manglende JavaDoc må håndteres manuelt.
+mens blant annet manglende Javadoc må håndteres manuelt.
 
 VS Code bruker formatterprofilen `JavaConventions` fra formatterfila.
-HTML-formatering i JavaDoc er deaktivert slik at formatteren beholder
-`<p>` på samme linje som avsnittsteksten, i tråd med prosjektets
-Checkstyle-regler.
+HTML-formatering i Javadoc er deaktivert, fordi formatteren ellers
+flytter `<p>` til en egen linje. Checkstyle krever at `<p>` står rett
+foran teksten i avsnittet. Innstillingen påvirker kun hvordan
+kommentaren ser ut i kildekoden, ikke hvordan Javadoc vises.
 
 Checkstyle kan også kjøres separat fra `bithub/` med
 `mvn checkstyle:check`.
 
 Med dagens oppsett rapporteres regelbrudd på warning-nivå uten at
-bygget nødvendigvis feiler. `BUILD SUCCESS` betyr derfor ikke at
-koden er uten Checkstyle-warnings. Advarslene i rapporten må også
-kontrolleres og rettes.
+bygget feiler. `BUILD SUCCESS` betyr derfor ikke at koden er uten
+Checkstyle-warnings. Gruppen har derfor en egen regel om at en pull
+request ikke skal innføre nye Checkstyle-warnings. Den som oppretter
+pull requesten kontrollerer Checkstyle-rapporten før review, og
+reviewer kontrollerer at dette er gjort.
 
 Eventuelle endringer i Checkstyle-konfigurasjonen skal gjøres bevisst
 og begrunnes dersom de valgte reglene ikke passer prosjektet.
@@ -84,16 +125,29 @@ nødvendigvis blir oppdaget av kompilatoren eller testene.
 
 Prosjektet bruker SpotBugs Maven Plugin versjon 4.8.6.6. Målet `check`
 kjøres i `verify`-fasen og inngår dermed i den samlede
-kvalitetssjekken.
+kvalitetssjekken. I motsetning til Checkstyle feiler bygget dersom
+SpotBugs finner feil. Prosjektet bruker standardinnstillingene for
+analysenivå og terskel.
 
-SpotBugs er konfigurert til å generere HTML-rapport, mens XML-output er
-deaktivert. Prosjektet bruker `config/spotbugs/exclude.xml` som filter
-for eksplisitte unntak.
+SpotBugs er konfigurert til å generere HTML-rapport, siden denne er
+enklere å lese enn XML. XML-output er derfor deaktivert. Prosjektet
+bruker `config/spotbugs/exclude.xml` som filter for eksplisitte
+unntak.
+
+Prosjektet har i dag to unntak. Det første gjelder `EI_EXPOSE_REP2`
+for feltet `reviewRepository` i `ReviewService`. `ReviewService` skal
+bruke den samme lagringen som den får fra `App`, og ikke en kopi.
+Unntaket er definert i `exclude.xml` og gjelder kun dette feltet.
+
+Det andre unntaket gjelder `EI_EXPOSE_REP` for metoden `getReviews()`
+i `CourseDTO`. Jackson trenger direkte tilgang til listen for å lese og
+skrive JSON, og klassen er kun ment for lagring av data. Unntaket er lagt
+inn med `@SuppressFBWarnings` direkte på metoden, slik at det ikke
+gjelder resten av klassen.
 
 Slike unntak skal bare brukes når gruppen har vurdert advarselen og kan
 begrunne hvorfor den ikke representerer et problem i den aktuelle
-situasjonen. Unntak skal være så avgrensede som mulig slik at andre
-SpotBugs-funn fortsatt blir rapportert.
+situasjonen.
 
 ## Maven og automatisert kvalitetssikring
 
@@ -106,8 +160,8 @@ Den viktigste samlede kvalitetssjekken kjøres fra `bithub/` med:
 `mvn clean verify`
 
 Denne kommandoen bygger prosjektet, kjører testene og gjennomfører de
-konfigurerte kontrollene for kodekvalitet. JaCoCo genererer rapport 
-om testdekning under testkjøringen, mens Checkstyle og SpotBugs 
+konfigurerte kontrollene for kodekvalitet. JaCoCo genererer rapport
+om testdekning under testkjøringen, mens Checkstyle og SpotBugs
 gjennomfører sine kontroller i `verify`-fasen.
 
 Ved å samle kontrollene i Maven reduseres risikoen for at forskjellige
@@ -115,14 +169,15 @@ gruppemedlemmer bruker ulike metoder for å kontrollere prosjektet.
 
 ## Kvalitetskontroll før sammenslåing
 
-Før en Pull Request ferdigstilles, hentes siste versjon av `master` inn
+Før en pull request ferdigstilles, hentes siste versjon av `master` inn
 i branchen. Eventuelle konflikter løses før prosjektet kontrolleres på
 nytt.
 
 Deretter kjøres `mvn clean verify` for å kontrollere at endringene
-fungerer sammen med den nyeste versjonen av prosjektet. Nye og
-eksisterende tester skal bestå, og Checkstyle og SpotBugs skal ikke
-rapportere feil som hindrer bygget.
+fungerer sammen med den nyeste versjonen av prosjektet. Bygget skal
+fullføres uten feil, nye og eksisterende tester skal bestå, SpotBugs
+skal ikke rapportere feil, og endringen skal ikke føre til nye
+Checkstyle-warnings.
 
 Relevant dokumentasjon skal også oppdateres dersom endringen påvirker
 arkitektur, funksjonalitet eller arbeidsflyt.
