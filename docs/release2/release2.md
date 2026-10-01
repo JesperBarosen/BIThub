@@ -11,7 +11,6 @@ Denne filen forklarer hva vi har gjort i release 2, hvilke valg vi har tatt og h
 
 Beskrivelse av appen, Figma-skisser og brukerhistorier finnes i [bithub/README.md](/bithub/README.md).
 
-
 ## Mål for release 2
 
 I release 2 var hovedmålet å dele opp prosjektet i moduler og få på plass en tre-lags arkitektur, uten å miste noe av det vi hadde fra release 1. Vi ville heller ha en app der lagene fungerer godt sammen og alt er testet, enn mange nye funksjoner.
@@ -36,7 +35,6 @@ Målene våre var:
 
 Vi er fornøyde med at vi fikk til arkitekturen og kodekvaliteten. Innlogging og lesing av anmeldelser rakk vi ikke. Siden oppgaven sier at alt skal være på stell før man legger til nye funksjoner, valgte vi å bruke tiden på kvalitet i stedet. Disse funksjonene tar vi med til release 3.
 
-
 ## Funksjonalitet i release 2
 
 Dette fungerer i appen nå:
@@ -55,34 +53,37 @@ Knappene «Les anmeldelser», «Mine anmeldelser» og «Profil» åpner foreløp
 <!-- TODO: ta skjermbilder og legg dem i docs/release2/bilder_release2/ -->
 
 #### Hjemmeside
+
 ![Hjemmeside](bilder_release2/hjemmeside.png)
 
 #### Velg fag
+
 ![Velg fag](bilder_release2/velg-fag.png)
 
 #### Anmeldelsen er sendt inn
+
 ![Anmeldelse sendt inn](bilder_release2/anmeldelse-sendt.png)
 
 #### Feilmelding ved ugyldig vurdering
+
 Valideringen skjer i domenelaget, men feilmeldingen vises i appen.
 ![Feilmelding](bilder_release2/anmeldelse-feil.png)
 
 #### Side som ikke er laget ennå
-![Plassholder](bilder_release2/plassholder.png)
 
+![Plassholder](bilder_release2/plassholder.png)
 
 ## Arkitektur
 
 Prosjektet består av tre Maven-moduler, og hver av dem er også en Java-modul med egen `module-info.java`:
 
 | Maven-modul | Java-modul | Hva den inneholder |
-|---|---|---|
+| --- | --- | --- |
 | `core` | `bithub.core` | Domenelogikken: `Course`, `Review`, `User`, `ReviewService` og grensesnittet `ReviewRepository` |
 | `file` | `bithub.file` | Lagring til JSON med Jackson: `ReviewHandler`, `UserHandler` og DTO-klassene |
 | `ui` | `bithub.ui` | JavaFX-appen: `App`, kontrollerne, `Navigation` og FXML-filene |
 
 `ui` avhenger av `core` og `file`, og `file` avhenger av `core`. `core` avhenger ikke av noen av de andre modulene.
-
 
 ### Hvordan lagene henger sammen
 
@@ -92,7 +93,6 @@ Når brukeren trykker «SEND INN», kaller `EmneController` på `submitReview` i
 
 <!--Kanskje endre på?-->
 `ui` avhenger av `file` bare fordi `App` må opprette `ReviewHandler`. Resten av `ui` bruker bare `core`. Vi så på om vi kunne fjerne denne avhengigheten helt, men endte opp med å prioritere det for neste release
-
 
 ## Valg for release 2
 
@@ -104,34 +104,38 @@ I release 1 lå navigasjonen spredt rundt i kontrollerne. Nå har vi samlet den 
 
 Checkstyle og SpotBugs kjøres når man kjører `mvn verify`, og JaCoCo måler testdekningen for hver modul. Mer om innstillingene står i [code-quality.md](code-quality.md).
 
-
 ## Tester og testdekning
 
 Alle modulene har tester. Testene kjøres fra prosjektmappen `bithub` med `mvn test`, og `mvn verify` kjører i tillegg Checkstyle og SpotBugs. JaCoCo lager en rapport for hver modul i `<modul>/target/site/jacoco/index.html`. I `core` og `file` bruker vi JUnit 5, og i `ui` bruker vi TestFX.
 
-**core**
+#### core
+
 - [CourseTest](/bithub/core/src/test/java/core/CourseTest.java) og [ReviewTest](/bithub/core/src/test/java/core/ReviewTest.java) tester at emner og anmeldelser opprettes riktig og at ugyldige verdier blir avvist.
 - [UserTest](/bithub/core/src/test/java/core/UserTest.java) tester at navn, e-post og passord sjekkes riktig.
 - [ReviewServiceTest](/bithub/core/src/test/java/core/ReviewServiceTest.java) tester at gyldige anmeldelser blir lagret, at mellomrom fjernes fra input, og at tom, ugyldig eller for høy/lav vurdering blir avvist. Her bruker vi en falsk `ReviewRepository`, så testen bare tester logikken i `core`.
 
-**file**
+#### file
+
 - [ReviewHandlerTest](/bithub/file/src/test/java/file/ReviewHandlerTest.java) tester lesing og skriving av anmeldelser, at de havner på riktig emne, og hva som skjer med tomme filer og feil.
 - [ReviewStorageTest](/bithub/file/src/test/java/file/ReviewStorageTest.java) tester `ReviewService` og `ReviewHandler` sammen: at en anmeldelse som sendes inn faktisk havner i filen, og at ugyldige anmeldelser ikke blir lagret.
 - [UserHandlerTest](/bithub/file/src/test/java/file/UserHandlerTest.java) tester lagring og lesing av brukere, at mapper opprettes, og hva som skjer ved ødelagt JSON og feil ved lesing/skriving.
 
 Alle testene som skriver til fil bruker `@TempDir` fra JUnit, så de skriver aldri til den ekte `~/.bithub`-mappen.
 
-**ui**
+#### ui
+
 - [EmneControllerTest](/bithub/ui/src/test/java/ui/EmneControllerTest.java) tester skjemaet for å skrive anmeldelse: at riktig emne vises, at feilmeldinger kommer ved ugyldig vurdering, og at anmeldelsen lagres til fil både når man er anonym og ikke.
 - [NewNavigationTest](/bithub/ui/src/test/java/ui/NewNavigationTest.java) tester at man kan gå fra hjemmesiden, velge fag, komme til skjemaet og tilbake igjen, og at sidene som ikke er laget ennå vises.
 
-<!-- TODO: fyll inn tallene fra JaCoCo-rapportene etter `mvn clean verify` -->
 | Modul | Instruksjonsdekning | Grendekning |
-|---|---|---|
+| --- | --- | --- |
 | core | __ % | __ % |
 | file | __ % | __ % |
 | ui | __ % | __ % |
 
+Ved innlevering av release 2 gir `mvn clean verify` ingen
+Checkstyle-warnings og ingen SpotBugs-funn utover de dokumenterte
+unntakene i [code-quality.md](code-quality.md).
 
 ## Arbeidsflyt og samarbeid
 
@@ -145,20 +149,23 @@ I release 2 jobbet vi i par. Én skriver koden (driver), mens den andre følger 
 
 Parprogrammering var særlig nyttig på oppgaver som gikk på tvers av modulene. Da vi skulle finne ut hvordan `core` kunne lagre anmeldelser uten å bli avhengig av `file`, hjalp det mye å kunne diskutere det med noen før vi endte opp med grensesnittet `ReviewRepository`. Det samme gjaldt fillagringen i `file`. Der diskuterte vi ulike måter å lagre dataene på, å diskutere i parr gjorde det lettere å komme fram til en løsning som også fungerer når appen skal utvides senere.
 
+Mot slutten av release 2 oppdaget vi at `Co-authored-by` hadde
+stått over issue-referansen (`ref`/`closes`) i commit-meldingene.
+GitHub gjenkjenner bare medforfattere når linjen står helt nederst i
+meldingen, så parprogrammeringen vises ikke på GitHub, selv om
+medforfatterne står i commit-meldingene. Vi har rettet malen i
+[workflow.md](workflow.md) og bruker riktig rekkefølge fra release 3.
+
 Vi passet på at alle fikk jobbe sammen med alle på minst én oppgave. Det gjorde samarbeidet mye bedre i release 2.
 
 ### Møter og planlegging
 
 Som i release 1 hadde vi møte én gang i uken, på tirsdager kl. 13:30. Der gikk vi gjennom hva hver enkelt hadde gjort, hva som gjensto og om noen satt fast. Vi fordelte issues for uken og bestemte hvem som skulle jobbe sammen på hva. Mer om hvordan samarbeidet fungerte står i [teamwork.md](teamwork.md).
 
-
 ## Utfordringer i release 2
-
-<!-- TODO: bytt ut eller legg til egne erfaringer – hva slet dere faktisk med? -->
 
 Det tok en del tid å gå fra CSV til JSON. All fillagringen fra release 1 måtte skrives om og flyttes ut av `core`. Jackson trenger en tom konstruktør og settere for å lage objekter fra JSON, så vi måtte legge det til i `Review`. Vi lagde også egne DTO-klasser (`CourseDTO` og `UserDTO`) for hvordan dataene ser ut i filene.
 
 Det var fristende å bare la `core` bruke `ReviewHandler` direkte, men da ville domenelaget blitt avhengig av lagringen. Løsningen ble å lage grensesnittet `ReviewRepository`.
 
 Når forskjellige par jobbet på domenelaget, lagringen og brukergrensesnittet samtidig, måtte vi bli enige tidlig om hvordan delene skulle snakke sammen. Noen oppgaver ble forsinket fordi de var avhengige av noe som ikke var ferdig ennå, og vi ble etter hvert flinkere til å avklare dette før vi begynte å kode.
-
