@@ -8,14 +8,15 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Testklasse for {@link Review}-klassen.
- * 
- * Verifiserer at vurderinger opprettes og endres korrekt,
- * samt at validering av navn og rating avviser ugyldige verdier.
+ *
+ * Verifiserer at vurderinger opprettes og endres korrekt, samt at validering av
+ * navn og rating avviser ugyldige verdier.
  */
 class ReviewTest {
 
     /**
-     * Verifiserer at den tomme konstruktøren oppretter et objekt med tomme/standard verdier.
+     * Verifiserer at den tomme konstruktøren oppretter et objekt med
+     * tomme/standard verdier.
      */
     @Test
     @DisplayName("Skal opprette tomt Review-objekt ved bruk av tom konstruktør")
@@ -61,7 +62,8 @@ class ReviewTest {
     }
 
     /**
-     * Verifiserer at en vurdering under minimumsverdien kaster IllegalArgumentException.
+     * Verifiserer at en vurdering under minimumsverdien kaster
+     * IllegalArgumentException.
      */
     @Test
     @DisplayName("Skal kaste unntak når rating er under 1")
@@ -70,7 +72,8 @@ class ReviewTest {
     }
 
     /**
-     * Verifiserer at en vurdering over maksimumsverdien kaster IllegalArgumentException.
+     * Verifiserer at en vurdering over maksimumsverdien kaster
+     * IllegalArgumentException.
      */
     @Test
     @DisplayName("Skal kaste unntak når rating er over 5")
@@ -79,7 +82,8 @@ class ReviewTest {
     }
 
     /**
-     * Verifiserer at null som navn på anmelderen kaster IllegalArgumentException.
+     * Verifiserer at null som navn på anmelderen kaster
+     * IllegalArgumentException.
      */
     @Test
     @DisplayName("Skal kaste unntak når anmelders navn er null")
@@ -88,7 +92,8 @@ class ReviewTest {
     }
 
     /**
-     * Verifiserer at et blankt navn på anmelderen kaster IllegalArgumentException.
+     * Verifiserer at et blankt navn på anmelderen kaster
+     * IllegalArgumentException.
      */
     @Test
     @DisplayName("Skal kaste unntak når anmelders navn er blankt")
@@ -97,7 +102,8 @@ class ReviewTest {
     }
 
     /**
-     * Verifiserer at et tomt navn på anmelderen kaster IllegalArgumentException.
+     * Verifiserer at et tomt navn på anmelderen kaster
+     * IllegalArgumentException.
      */
     @Test
     @DisplayName("Skal kaste unntak når anmelders navn er tomt")
@@ -106,7 +112,8 @@ class ReviewTest {
     }
 
     /**
-     * Verifiserer at alle setter-metodene oppdaterer feltene i objektet korrekt.
+     * Verifiserer at alle setter-metodene oppdaterer feltene i objektet
+     * korrekt.
      */
     @Test
     @DisplayName("Skal oppdatere felter korrekt ved bruk av settere")

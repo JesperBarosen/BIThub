@@ -124,8 +124,8 @@ class CourseTest {
     }
 
     /**
-     * Verifiserer at gjennomsnittlig vurdering er lik vurderingen når faget kun har
-     * én vurdering.
+     * Verifiserer at gjennomsnittlig vurdering er lik vurderingen når faget kun
+     * har én vurdering.
      */
     @Test
     void averageRatingEqualsSingleReviewRating() {
@@ -135,8 +135,8 @@ class CourseTest {
     }
 
     /**
-     * Verifiserer at gjennomsnittlig vurdering beregnes korrekt når faget har flere
-     * vurderinger.
+     * Verifiserer at gjennomsnittlig vurdering beregnes korrekt når faget har
+     * flere vurderinger.
      */
     @Test
     void averageRatingIsCalculatedCorrectly() {
@@ -147,8 +147,8 @@ class CourseTest {
     }
 
     /**
-     * Verifiserer at gjennomsnittlig vurdering beregnes korrekt når resultatet ikke
-     * er et helt tall.
+     * Verifiserer at gjennomsnittlig vurdering beregnes korrekt når resultatet
+     * ikke er et helt tall.
      */
     @Test
     void averageRatingHandlesNonExactDivision() {

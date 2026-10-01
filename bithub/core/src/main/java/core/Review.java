@@ -1,53 +1,54 @@
 package core;
 
 public final class Review {
-  private String reviewerName;
-  private int rating;
-  private String comment;
 
-  // Tom konstruktør for Jackson
-  public Review() {
-  }
+    private String reviewerName;
+    private int rating;
+    private String comment;
 
-  public Review(String reviewerName, int rating, String comment) {
-    if (rating < 1 || rating > 5) {
-      throw new IllegalArgumentException("Rating must be between 1 and 5.");
+    // Tom konstruktør for Jackson
+    public Review() {
     }
 
-    if (reviewerName == null || reviewerName.isBlank()) {
-      throw new IllegalArgumentException("Reviewer name cannot be null or empty.");
+    public Review(String reviewerName, int rating, String comment) {
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5.");
+        }
+
+        if (reviewerName == null || reviewerName.isBlank()) {
+            throw new IllegalArgumentException("Reviewer name cannot be null or empty.");
+        }
+
+        if (comment == null) {
+            comment = "";
+        }
+
+        this.reviewerName = reviewerName;
+        this.rating = rating;
+        this.comment = comment;
     }
 
-    if (comment == null) {
-      comment = "";
+    public String getReviewerName() {
+        return reviewerName;
     }
 
-    this.reviewerName = reviewerName;
-    this.rating = rating;
-    this.comment = comment;
-  }
+    public void setReviewerName(String reviewerName) {
+        this.reviewerName = reviewerName;
+    }
 
-  public String getReviewerName() {
-    return reviewerName;
-  }
+    public int getRating() {
+        return rating;
+    }
 
-  public void setReviewerName(String reviewerName) {
-    this.reviewerName = reviewerName;
-  }
+    public void setRating(int rating) {
+        this.rating = rating;
+    }
 
-  public int getRating() {
-    return rating;
-  }
+    public String getComment() {
+        return comment;
+    }
 
-  public void setRating(int rating) {
-    this.rating = rating;
-  }
-
-  public String getComment() {
-    return comment;
-  }
-
-  public void setComment(String comment) {
-    this.comment = comment;
-  }
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 }

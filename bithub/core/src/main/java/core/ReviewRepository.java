@@ -1,20 +1,21 @@
 package core;
 
 /**
- * Beskriver lagring av anmeldelser uten at domenelaget trenger å vite
- * hvordan eller hvor de lagres.
+ * Beskriver lagring av anmeldelser uten at domenelaget trenger å vite hvordan
+ * eller hvor de lagres.
  *
- * <p>Grensesnittet ligger i core slik at core ikke blir avhengig av file.
+ * <p>
+ * Grensesnittet ligger i core slik at core ikke blir avhengig av file.
  * File-modulen implementerer det, og App kobler implementasjonen til.
  */
 public interface ReviewRepository {
 
-  /**
-   * Lagrer en anmeldelse knyttet til et emne.
-   *
-   * @param courseCode emnekoden til emnet
-   * @param courseName navnet på emnet
-   * @param review anmeldelsen som skal lagres
-   */
-  void addReview(String courseCode, String courseName, Review review);
+    /**
+     * Lagrer en anmeldelse knyttet til et emne.
+     *
+     * @param courseCode emnekoden til emnet
+     * @param courseName navnet på emnet
+     * @param review anmeldelsen som skal lagres
+     */
+    void addReview(String courseCode, String courseName, Review review);
 }
