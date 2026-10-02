@@ -82,12 +82,13 @@ flowchart TD
 
 - **Java 17** eller nyere
 - **Maven 3.9** eller nyere
-- **JavaFX 21** 
+- **JavaFX 21**
 - **JUnit 5**
-- **JaCoCo** 
+- **JaCoCo**
 - **Checkstyle** og **SpotBugs** for kodekvalitet
 - **Jackson**
 - **TestFX**
+- **Mockito**
 
 Alle avhengigheter bortsett fra Java og Maven lastes ned automatisk av Maven ved bygging.
 
