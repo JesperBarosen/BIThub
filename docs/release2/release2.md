@@ -48,30 +48,89 @@ Dette fungerer i appen nå:
 
 Knappene «Les anmeldelser», «Mine anmeldelser» og «Profil» åpner foreløpig bare en side der det står «Denne siden er ikke laget ennå». Brukere kan lagres til fil, men det er ikke koblet til appen ennå.
 
-### Skjermbilder av appen
 
-<!-- TODO: ta skjermbilder og legg dem i docs/release2/bilder_release2/ -->
+## Bilder fra appen
 
-#### Hjemmeside
+### Sider i bruk
 
-![Hjemmeside](bilder_release2/hjemmeside.png)
+Disse sidene er koblet sammen i appen. Man starter på hjemskjermen, velger fag via «Skriv anmeldelse» og kommer videre til siden for å skrive en anmeldelse.
 
-#### Velg fag
+<table> <tr> <td align="center"> <b>Hjem skjerm</b><br> <img src="bilder_release2/Hjemmeside.png" alt="Hjem skjerm" height="300"> </td> <td align="center"> <b>Velg fag</b><br> <img src="bilder_release2/VelgFag.png" alt="Velg fag" height="300"> </td> <td align="center"> <b>Skrive anmeldelse</b><br> <img src="bilder_release2/EmneView.png" alt="Skrive anmeldelse" height="300"> </td> </tr> </table>
 
-![Velg fag](bilder_release2/velg-fag.png)
 
-#### Anmeldelsen er sendt inn
+### Sider som ikke er i bruk ennå
 
-![Anmeldelse sendt inn](bilder_release2/anmeldelse-sendt.png)
+Disse sidene er laget i FXML, men er ennå ikke koblet til navigasjonen i appen.
 
-#### Feilmelding ved ugyldig vurdering
+<table>
+  <tr>
+    <td align="center">
+      <b>Hjem skjerm</b><br>
+      <img src="bilder_release2/Hjemmeside.png" alt="Hjem skjerm" height="300">
+    </td>
+    <td align="center">
+      <b>Velg fag</b><br>
+      <img src="bilder_release2/VelgFag.png" alt="Velg fag" height="300">
+    </td>
+    <td align="center">
+      <b>Skrive anmeldelse</b><br>
+      <img src="bilder_release2/EmneView.png" alt="Skrive anmeldelse" height="300">
+    </td>
+  </tr>
+</table>
 
-Valideringen skjer i domenelaget, men feilmeldingen vises i appen.
-![Feilmelding](bilder_release2/anmeldelse-feil.png)
 
-#### Side som ikke er laget ennå
+### Sider som ikke er i bruk ennå
 
-![Plassholder](bilder_release2/plassholder.png)
+Disse sidene er laget i FXML, men er ennå ikke koblet til navigasjonen i appen.
+
+<table>
+  <tr>
+    <td align="center">
+      <b>Logg inn</b><br>
+      <img src="bilder_release2/LoggInn.png" alt="Logg inn" height="300">
+    </td>
+    <td align="center">
+      <b>Registrer ny bruker</b><br>
+      <img src="bilder_release2/RegistrerBruker.png" alt="Registrer ny bruker" height="300">
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center">
+      <b>Info om appen</b><br>
+      <img src="bilder_release2/InfoOmBIThub.png" alt="Info om appen" height="300">
+    </td>
+    <td align="center">
+      <b>Profil side</b><br>
+      <img src="bilder_release2/Profil.png" alt="Profil side" height="300">
+    </td>
+    <td align="center">
+      <b>Endre passord</b><br>
+      <img src="bilder_release2/EndrePassord.png" alt="Endre passord" height="300">
+    </td>
+  </tr>
+</table>
+
+
+<table>
+  <tr>
+    <td align="center">
+      <b>Lese anmeldelser</b><br>
+      <img src="bilder_release2/LeseAnmeldelser.png" alt="Lese anmeldelser" height="300">
+    </td>
+    <td align="center">
+      <b>Mine anmeldelser</b><br>
+      <img src="bilder_release2/MineAnmeldelser.png" alt="Mine anmeldelser" height="300">
+    </td>
+    <td align="center">
+      <b>Endre egen anmeldelse</b><br>
+      <img src="bilder_release2/EndreEgenAnmeldelse.png" alt="Endre egen anmeldelse" height="300">
+    </td>
+  </tr>
+</table>
 
 ## Arkitektur
 
