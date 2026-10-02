@@ -1,16 +1,19 @@
 package file;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
+import core.Course;
 import core.Review;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
@@ -221,5 +224,56 @@ class ReviewHandlerTest {
         List<CourseDTO> courses = handler.readFromFile();
 
         assertEquals(2, courses.size());
+    }
+
+    /**
+     * Verifiserer at et lagret emne leses tilbake som domeneklassen Course, med
+     * alle anmeldelsene og riktig gjennomsnitt.
+     */
+    @Test
+    void findCourseReturnsCourseWithReviews() {
+        Path file = tempDir.resolve("courses.json");
+        ReviewHandler handler = new ReviewHandler(file);
+        handler.addReview("IT1901", "Prosjektarbeid", new Review("Ola", 5, "Bra"));
+        handler.addReview("IT1901", "Prosjektarbeid", new Review("Anonym", 2, "Mye jobb"));
+        handler.addReview("TDT4100", "Objektorientert", new Review("Kari", 1, ""));
+
+        Optional<Course> course = new ReviewHandler(file).findCourse("IT1901");
+
+        assertTrue(course.isPresent());
+        assertEquals("IT1901", course.get().getCourseCode());
+        assertEquals("Prosjektarbeid", course.get().getCourseName());
+        assertEquals(2, course.get().getReviews().size());
+        assertEquals("Ola", course.get().getReviews().get(0).getReviewerName());
+        assertEquals(3.5, course.get().getAverageRating());
+    }
+
+    /**
+     * Verifiserer at oppslaget ikke skiller mellom store og små bokstaver, slik
+     * som addReview.
+     */
+    @Test
+    void findCourseIgnoresCase() {
+        Path file = tempDir.resolve("courses.json");
+        ReviewHandler handler = new ReviewHandler(file);
+        handler.addReview("IT1901", "Prosjektarbeid", new Review("Ola", 4, "Bra"));
+
+        assertTrue(handler.findCourse("it1901").isPresent());
+    }
+
+    /**
+     * Verifiserer at emner som ikke finnes, manglende fil og null gir tomt
+     * resultat i stedet for feil.
+     */
+    @Test
+    void findCourseReturnsEmptyWhenNotFound() {
+        Path file = tempDir.resolve("courses.json");
+        ReviewHandler handler = new ReviewHandler(file);
+
+        assertFalse(handler.findCourse("IT1901").isPresent());
+
+        handler.addReview("IT1901", "Prosjektarbeid", new Review("Ola", 4, "Bra"));
+        assertFalse(handler.findCourse("TDT4100").isPresent());
+        assertFalse(handler.findCourse(null).isPresent());
     }
 }
