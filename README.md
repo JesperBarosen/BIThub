@@ -92,18 +92,17 @@ flowchart TD
 
 Alle avhengigheter bortsett fra Java og Maven lastes ned automatisk av Maven ved bygging.
 
-
 ## Bygge, teste og kjøre
 
-Kommandoene kjøres fra rota av kodelageret:
+Kommandoene kjøres fra `bithub/`-mappen:
 
 - `mvn clean install` - bygger alle moduler
 - `mvn test` - kjører testene
 - `mvn verify` - kjører tester, kodekvalitetssjekker og genererer testdekningsrapport
 
-Testdekningsrapporten fra JaCoCo finnes etterpå i `core/target/site/jacoco/index.html`, `file/target/site/jacoco/index.html` og `ui/target/site/jacoco/index.html`.
+Testdekningsrapporten fra JaCoCo finnes etterpå i `bithub/core/target/site/jacoco/index.html`, `bithub/file/target/site/jacoco/index.html` og `bithub/ui/target/site/jacoco/index.html`.
 
-Appen startes fra roten:
+Appen startes fra `bithub/`:
 ```
 mvn clean install
 mvn javafx:run
