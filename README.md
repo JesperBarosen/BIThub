@@ -24,7 +24,7 @@ flowchart TD
     file -.-> jackson["Jackson"]
 ```
 
-## Mappestruktur
+## Mappestruktur i kodingsprosjektet
 
 ```
 └───bithub
