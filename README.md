@@ -15,7 +15,7 @@ Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og er bygget med tre-lags
 
 - **core** (`bithub.core`) er domenelaget og er ikke avhengig av noen av de andre modulene.
 - **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core`, implementerer `ReviewRepository` og gjør dataene om til og fra JSON med Jackson.
-- **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene.
+- **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene og `ReviewService`. `file` brukes bare i `App`, som kobler `ReviewHandler` til `ReviewService` ved oppstart.
 
 ```mermaid
 flowchart TD
