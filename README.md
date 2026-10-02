@@ -5,7 +5,7 @@
 Dette er kodelageret til gruppe 2610 i faget IT1901 ved NTNU. Vi lager appen BIThub, der studenter kan anmelde emner
 med terningkast 1-5 og kommentar.
 
-I nåværende versjon kan man velge emne og sende inn en anmeldelse, eventuelt anonymt. Anmeldelsene lagres automatisk i en JSON-fil.
+I nåværende versjon kan man velge emne og sende inn en anmeldelse, eventuelt anonymt, og lese anmeldelsene for et emne. Anmeldelsene lagres automatisk i en JSON-fil.
 
 Se [bithub/README.md](bithub/README.md) for beskrivelse av appen og dens funksjonalitet, skisser fra Figma og brukerhistorier.
 
