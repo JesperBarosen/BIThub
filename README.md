@@ -11,11 +11,10 @@ Se [bithub/README.md](bithub/README.md) for beskrivelse av appen og dens funksjo
 
 ## Arkitektur
 
-Appen er bygget med tre-lags arkitektur. Hvert lag er både en egen Maven-modul og en egen Java-modul (`module-info.java`), slik at avhengighetene mellom lagene er eksplisitte.
-
+Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og er bygget med tre-lags arkitektur. Hvert lag er både en egen Maven-modul og en egen Java-modul (`module-info.java`), slik at avhengighetene mellom lagene er eksplisitte.
 
 - **core** (`bithub.core`) er domenelaget og er ikke avhengig av noen av de andre modulene.
-- **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core` og gjør dem om til og fra JSON med Jackson.
+- **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core`, implementerer `ReviewRepository` og gjør dataene om til og fra JSON med Jackson.
 - **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene.
 
 ```mermaid
