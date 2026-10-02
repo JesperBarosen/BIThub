@@ -15,116 +15,126 @@ import org.junit.jupiter.api.Test;
  */
 class ReviewServiceTest {
 
-  private final List<String> savedCourses = new ArrayList<>();
-  private final List<Review> savedReviews = new ArrayList<>();
+    private final List<String> savedCourses = new ArrayList<>();
+    private final List<Review> savedReviews = new ArrayList<>();
 
-  /** Falsk lagring som bare husker hva den har fått. */
-  private final ReviewRepository fakeRepository = (courseCode, courseName, review) -> {
-    savedCourses.add(courseCode + " - " + courseName);
-    savedReviews.add(review);
-  };
+    /**
+     * Falsk lagring som bare husker hva den har fått.
+     */
+    private final ReviewRepository fakeRepository = (courseCode, courseName, review) -> {
+        savedCourses.add(courseCode + " - " + courseName);
+        savedReviews.add(review);
+    };
 
-  private final ReviewService service = new ReviewService(fakeRepository);
+    private final ReviewService service = new ReviewService(fakeRepository);
 
-  /**
-   * Verifiserer at en gyldig anmeldelse sendes videre til lagringen med riktig
-   * emne og riktige verdier.
-   */
-  @Test
-  void submitReviewSavesValidReview() {
-    service.submitReview("IT1901", "Informatikk prosjektarbeid", "Anonym", "4", "Bra fag");
+    /**
+     * Verifiserer at en gyldig anmeldelse sendes videre til lagringen med
+     * riktig emne og riktige verdier.
+     */
+    @Test
+    void submitReviewSavesValidReview() {
+        service.submitReview("IT1901", "Informatikk prosjektarbeid", "Anonym", "4", "Bra fag");
 
-    assertEquals(List.of("IT1901 - Informatikk prosjektarbeid"), savedCourses);
-    assertEquals(1, savedReviews.size());
-    Review review = savedReviews.get(0);
-    assertEquals("Anonym", review.getReviewerName());
-    assertEquals(4, review.getRating());
-    assertEquals("Bra fag", review.getComment());
-  }
-
-  /**
-   * Verifiserer at mellomrom rundt vurdering og kommentar fjernes, og at
-   * manglende kommentar blir en tom streng.
-   */
-  @Test
-  void submitReviewTrimsInput() {
-    service.submitReview("IT1901", "Prosjektarbeid", "Student", " 5 ", "  Lærerikt  ");
-    service.submitReview("IT1901", "Prosjektarbeid", "Student", "3", null);
-
-    assertEquals(5, savedReviews.get(0).getRating());
-    assertEquals("Lærerikt", savedReviews.get(0).getComment());
-    assertEquals("", savedReviews.get(1).getComment());
-  }
-
-  /**
-   * Verifiserer at tom vurdering avvises med riktig melding og ikke lagres.
-   */
-  @Test
-  void submitReviewRejectsMissingRating() {
-    for (String rating : new String[] { null, "", "   " }) {
-      IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-          () -> service.submitReview("IT1901", "Prosjektarbeid", "Student", rating, ""));
-      assertEquals("Vurdering må fylles ut.", e.getMessage());
+        assertEquals(List.of("IT1901 - Informatikk prosjektarbeid"), savedCourses);
+        assertEquals(1, savedReviews.size());
+        Review review = savedReviews.get(0);
+        assertEquals("Anonym", review.getReviewerName());
+        assertEquals(4, review.getRating());
+        assertEquals("Bra fag", review.getComment());
     }
-    assertTrue(savedReviews.isEmpty());
-  }
 
-  /**
-   * Verifiserer at vurdering som ikke er et tall avvises og ikke lagres.
-   */
-  @Test
-  void submitReviewRejectsNonNumericRating() {
-    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-        () -> service.submitReview("IT1901", "Prosjektarbeid", "Student", "fire", ""));
-    assertEquals("Vurdering må være et gyldig tall.", e.getMessage());
-    assertTrue(savedReviews.isEmpty());
-  }
+    /**
+     * Verifiserer at mellomrom rundt vurdering og kommentar fjernes, og at
+     * manglende kommentar blir en tom streng.
+     */
+    @Test
+    void submitReviewTrimsInput() {
+        service.submitReview("IT1901", "Prosjektarbeid", "Student", " 5 ", "  Lærerikt  ");
+        service.submitReview("IT1901", "Prosjektarbeid", "Student", "3", null);
 
-  /**
-   * Verifiserer at vurderinger utenfor 1 til 5 avvises og ikke lagres.
-   */
-  @Test
-  void submitReviewRejectsRatingOutsideRange() {
-    for (String rating : new String[] { "0", "6", "-1" }) {
-      IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-          () -> service.submitReview("IT1901", "Prosjektarbeid", "Student", rating, ""));
-      assertEquals("Vurdering må være et tall fra 1 til 5.", e.getMessage());
+        assertEquals(5, savedReviews.get(0).getRating());
+        assertEquals("Lærerikt", savedReviews.get(0).getComment());
+        assertEquals("", savedReviews.get(1).getComment());
     }
-    assertTrue(savedReviews.isEmpty());
-  }
 
-  /**
-   * Verifiserer at manglende emne eller forfatter avvises og ikke lagres.
-   */
-  @Test
-  void submitReviewRejectsMissingCourseOrReviewer() {
-    assertThrows(IllegalArgumentException.class, () -> service.submitReview("", "Prosjektarbeid", "Student", "4", ""));
-    assertThrows(IllegalArgumentException.class, () -> service.submitReview("IT1901", "", "Student", "4", ""));
-    assertThrows(IllegalArgumentException.class, () -> service.submitReview("IT1901", "Prosjektarbeid", "", "4", ""));
-    assertTrue(savedReviews.isEmpty());
-  }
+    /**
+     * Verifiserer at tom vurdering avvises med riktig melding og ikke lagres.
+     */
+    @Test
+    void submitReviewRejectsMissingRating() {
+        for (String rating : new String[]{null, "", "   "}) {
+            IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                    () -> service.submitReview("IT1901", "Prosjektarbeid", "Student", rating, ""));
+            assertEquals("Vurdering må fylles ut.", e.getMessage());
+        }
+        assertTrue(savedReviews.isEmpty());
+    }
 
-  /**
-   * Verifiserer at feil fra lagringen sendes videre til den som kaller, slik at
-   * brukergrensesnittet kan vise en feilmelding.
-   */
-  @Test
-  void submitReviewPassesOnStorageFailure() {
-    RuntimeException failure = new RuntimeException("Lagring feilet");
-    ReviewService failingService = new ReviewService((code, name, review) -> {
-      throw failure;
-    });
+    /**
+     * Verifiserer at vurdering som ikke er et tall avvises og ikke lagres.
+     */
+    @Test
+    void submitReviewRejectsNonNumericRating() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> service.submitReview("IT1901", "Prosjektarbeid", "Student", "fire", ""));
+        assertEquals("Vurdering må være et gyldig tall.", e.getMessage());
+        assertTrue(savedReviews.isEmpty());
+    }
 
-    RuntimeException actual = assertThrows(RuntimeException.class,
-        () -> failingService.submitReview("IT1901", "Prosjektarbeid", "Student", "4", ""));
-    assertSame(failure, actual);
-  }
+    /**
+     * Verifiserer at vurderinger utenfor 1 til 5 avvises og ikke lagres.
+     */
+    @Test
+    void submitReviewRejectsRatingOutsideRange() {
+        for (String rating : new String[]{"0", "6", "-1"}) {
+            IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                    () -> service.submitReview("IT1901", "Prosjektarbeid", "Student", rating, ""));
+            assertEquals("Vurdering må være et tall fra 1 til 5.", e.getMessage());
+        }
+        assertTrue(savedReviews.isEmpty());
+    }
 
-  /**
-   * Verifiserer at tjenesten ikke kan opprettes uten lagring.
-   */
-  @Test
-  void constructorRejectsNullRepository() {
-    assertThrows(NullPointerException.class, () -> new ReviewService(null));
-  }
+    /**
+     * Verifiserer at manglende emne eller forfatter avvises og ikke lagres.
+     */
+    @Test
+    void submitReviewRejectsMissingCourseOrReviewer() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.submitReview("", "Prosjektarbeid", "Student", "4", ""));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.submitReview("IT1901", "", "Student", "4", ""));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.submitReview("IT1901", "Prosjektarbeid", "", "4", ""));
+        assertTrue(savedReviews.isEmpty());
+    }
+
+    /**
+     * Verifiserer at feil fra lagringen sendes videre til den som kaller, slik
+     * at brukergrensesnittet kan vise en feilmelding.
+     */
+    @Test
+    void submitReviewPassesOnStorageFailure() {
+        RuntimeException failure = new RuntimeException("Lagring feilet");
+        ReviewService failingService = new ReviewService((code, name, review) -> {
+            throw failure;
+        });
+
+        RuntimeException actual = assertThrows(RuntimeException.class,
+                () -> failingService.submitReview("IT1901", "Prosjektarbeid", "Student", "4", ""));
+        assertSame(failure, actual);
+    }
+
+    /**
+     * Verifiserer at tjenesten ikke kan opprettes uten lagring.
+     */
+    @Test
+    void constructorRejectsNullRepository() {
+        assertThrows(NullPointerException.class, () -> new ReviewService(null));
+    }
 }

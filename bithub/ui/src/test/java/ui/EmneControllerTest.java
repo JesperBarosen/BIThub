@@ -25,9 +25,9 @@ import org.testfx.framework.junit5.ApplicationTest;
 
 /**
  * Enhetstester og UI-tester for {@link EmneController} ved bruk av TestFX.
- * 
- * Sjekker at data blir satt og oppdelt korrekt, at validering av innsending
- * gir riktige feil- og suksessmeldinger, og at skjemaet nullstilles ved suksess.
+ *
+ * <p>Sjekker at data blir satt og oppdelt korrekt, at validering av innsending gir
+ * riktige feil- og suksessmeldinger, og at skjemaet nullstilles ved suksess.
  */
 public class EmneControllerTest extends ApplicationTest {
 
@@ -39,8 +39,8 @@ public class EmneControllerTest extends ApplicationTest {
     private Path testFilePath;
 
     /**
-     * Klargjør og viser grensesnittet EmneView.fxml før hver test.
-     * Sett opp en midlertidig filsti for lagring slik at I/O ikke feiler under testkjøring.
+     * Klargjør og viser grensesnittet EmneView.fxml før hver test. Sett opp en
+     * midlertidig filsti for lagring slik at I/O ikke feiler under testkjøring.
      *
      * @param stage Hovedscenen for TestFX
      * @throws IOException dersom FXML-filen ikke kan lastes
@@ -54,7 +54,7 @@ public class EmneControllerTest extends ApplicationTest {
         // Oppretter en isolert filbane i JUnit sin midlertidige testmappe
         testFilePath = tempDir.resolve("test-reviews.json");
         ReviewHandler testHandler = new ReviewHandler(testFilePath);
-        
+
         // MÅTE 2: Injiserer via eksisterende Service/Handler-setter i EmneController
         // (Bytt ut setReviewService med setStorage / setFileHandler dersom navnet avviker)
         controller.setReviewService(new ReviewService(testHandler));
@@ -64,7 +64,8 @@ public class EmneControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester at {@link EmneController#setEmneData(String)} håndterer null og blanke strenger uten feil.
+     * Tester at {@link EmneController#setEmneData(String)} håndterer null og
+     * blanke strenger uten feil.
      */
     @Test
     @DisplayName("Skal ignorere null og blank emneData")
@@ -79,7 +80,8 @@ public class EmneControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester at {@link EmneController#setEmneData(String)} deler opp emnekode og emnenavn korrekt ved formatet "KODE - NAVN".
+     * Tester at {@link EmneController#setEmneData(String)} deler opp emnekode
+     * og emnenavn korrekt ved formatet "KODE - NAVN".
      */
     @Test
     @DisplayName("Skal splitte emnekode og emnenavn når formatet inneholder bindestrek")
@@ -89,14 +91,16 @@ public class EmneControllerTest extends ApplicationTest {
         interact(() -> controller.setEmneData(testData));
 
         Label emneTittelLabel = (Label) root.lookup("#emneTittelLabel");
-        Assertions.assertNotNull(emneTittelLabel, "emneTittelLabel ble ikke funnet i EmneView.fxml");
+        Assertions.assertNotNull(
+                emneTittelLabel, "emneTittelLabel ble ikke funnet i EmneView.fxml");
         Assertions.assertEquals(testData, emneTittelLabel.getText());
         Assertions.assertEquals("TDT4100", controller.getCourseCode());
         Assertions.assertEquals("Objektorientert programmering", controller.getCourseName());
     }
 
     /**
-     * Tester at {@link EmneController#setEmneData(String)} setter emnenavn når formatet ikke har bindestrek.
+     * Tester at {@link EmneController#setEmneData(String)} setter emnenavn når
+     * formatet ikke har bindestrek.
      */
     @Test
     @DisplayName("Skal sette kun emnenavn dersom formatet mangler bindestrek")
@@ -110,7 +114,8 @@ public class EmneControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester at innsending av ugyldig rating (ikke-tall) viser feilmelding i status-labelen.
+     * Tester at innsending av ugyldig rating (ikke-tall) viser feilmelding i
+     * status-labelen.
      */
     @Test
     @DisplayName("Skal vise feilmelding dersom rating ikke er et gyldig tall")
@@ -149,7 +154,8 @@ public class EmneControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester en vellykket innsending med anonym vurdering, og at feltene tømmes.
+     * Tester en vellykket innsending med anonym vurdering, og at feltene
+     * tømmes.
      */
     @Test
     @DisplayName("Skal lagre vurdering vellykket med anonym avhuking og nullstille felter")

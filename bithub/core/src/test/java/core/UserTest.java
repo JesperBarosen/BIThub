@@ -1,26 +1,25 @@
 package core;
 
-import core.User;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 /**
  * Enhetstester for {@link User}-klassen.
- * 
- * Verifiserer at valideringslogikken for navn, e-post og passord fungerer som forventet,
- * samt at tilstandshenting via gettere returnerer korrekte verdier.
+ *
+ * <p>Verifiserer at valideringslogikken for navn, e-post og passord fungerer som
+ * forventet, samt at tilstandshenting via gettere returnerer korrekte verdier.
  */
 class UserTest {
 
     /**
-     * Verifiserer at en opprettelse med gyldige feltverdier lykkes,
-     * og at gettere returnerer de innlagte verdiene.
+     * Verifiserer at en opprettelse med gyldige feltverdier lykkes, og at
+     * gettere returnerer de innlagte verdiene.
      */
     @Test
     @DisplayName("Skal opprette User ved gyldige feltverdier")
@@ -38,7 +37,8 @@ class UserTest {
     }
 
     /**
-     * Verifiserer at navnelengder på akkurat 3 og 30 tegn godkjennes (grenseverdier).
+     * Verifiserer at navnelengder på akkurat 3 og 30 tegn godkjennes
+     * (grenseverdier).
      */
     @Test
     @DisplayName("Skal godkjenne navn på akkurat minste og største tillatte lengde")
@@ -54,16 +54,20 @@ class UserTest {
     }
 
     /**
-     * Verifiserer at ugyldige navn (null, blank, for kort, for lang, ugyldige tegn) kaster IllegalArgumentException.
+     * Verifiserer at ugyldige navn (null, blank, for kort, for lang, ugyldige
+     * tegn) kaster IllegalArgumentException.
      *
      * @param invalidName Ugyldig navnestreng som skal testes
      */
     @ParameterizedTest
-    @ValueSource(strings = {"", "   ", "A", "AB", "DetteNavnetErAltforLangtOgOverstiger30Tegn", "Ola123", "Kari!"})
+    @ValueSource(strings = {
+        "", "   ", "A", "AB", "DetteNavnetErAltforLangtOgOverstiger30Tegn",
+        "Ola123", "Kari!"
+    })
     @DisplayName("Skal kaste unntak for ugyldige navn")
     void testInvalidNames(String invalidName) {
-        assertThrows(IllegalArgumentException.class, () -> 
-            new User(invalidName, "test@example.com", "password123")
+        assertThrows(IllegalArgumentException.class, ()
+                -> new User(invalidName, "test@example.com", "password123")
         );
     }
 
@@ -73,8 +77,8 @@ class UserTest {
     @Test
     @DisplayName("Skal kaste unntak når navn er null")
     void testNullName() {
-        assertThrows(IllegalArgumentException.class, () -> 
-            new User(null, "test@example.com", "password123")
+        assertThrows(IllegalArgumentException.class, ()
+                -> new User(null, "test@example.com", "password123")
         );
     }
 
@@ -95,8 +99,8 @@ class UserTest {
     @Test
     @DisplayName("Skal kaste unntak når e-post er null")
     void testNullEmail() {
-        assertThrows(IllegalArgumentException.class, () -> 
-            new User("Ola Nordmann", null, "password123")
+        assertThrows(IllegalArgumentException.class, ()
+                -> new User("Ola Nordmann", null, "password123")
         );
     }
 
@@ -106,11 +110,14 @@ class UserTest {
      * @param invalidEmail Ugyldig e-poststreng som skal testes
      */
     @ParameterizedTest
-    @ValueSource(strings = {"", "   ", "uten-at-tegn", "mangler-domene@", "@mangler-bruker.no", "test@domain"})
+    @ValueSource(strings = {
+        "", "   ", "uten-at-tegn", "mangler-domene@", "@mangler-bruker.no",
+        "test@domain"
+    })
     @DisplayName("Skal kaste unntak for ugyldig e-postformat")
     void testInvalidEmail(String invalidEmail) {
-        assertThrows(IllegalArgumentException.class, () -> 
-            new User("Ola Nordmann", invalidEmail, "password123")
+        assertThrows(IllegalArgumentException.class, ()
+                -> new User("Ola Nordmann", invalidEmail, "password123")
         );
     }
 
@@ -131,13 +138,14 @@ class UserTest {
     @Test
     @DisplayName("Skal kaste unntak når passord er null")
     void testNullPassword() {
-        assertThrows(IllegalArgumentException.class, () -> 
-            new User("Ola Nordmann", "test@example.com", null)
+        assertThrows(IllegalArgumentException.class, ()
+                -> new User("Ola Nordmann", "test@example.com", null)
         );
     }
 
     /**
-     * Verifiserer at for korte eller tomme passord kaster IllegalArgumentException.
+     * Verifiserer at for korte eller tomme passord kaster
+     * IllegalArgumentException.
      *
      * @param invalidPassword Ugyldig passordstreng som skal testes
      */
@@ -145,8 +153,8 @@ class UserTest {
     @ValueSource(strings = {"", "   ", "1234567"})
     @DisplayName("Skal kaste unntak for for kort eller tomt passord")
     void testInvalidPassword(String invalidPassword) {
-        assertThrows(IllegalArgumentException.class, () -> 
-            new User("Ola Nordmann", "test@example.com", invalidPassword)
+        assertThrows(IllegalArgumentException.class, ()
+                -> new User("Ola Nordmann", "test@example.com", invalidPassword)
         );
     }
 }
