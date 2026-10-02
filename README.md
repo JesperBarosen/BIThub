@@ -19,8 +19,12 @@ Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og er bygget med tre-lags
 
 ```mermaid
 flowchart TD
-    ui["<b>ui</b><br/>brukergrensesnitt"] --> core["<b>core</b><br/>domenelogikk"]
-    file["<b>file</b><br/>persistens"]  --> core
+    ui["`**ui**
+    brukergrensesnitt`"] --> core["`**core**
+    domenelogikk`"]
+    file["`**file**
+    persistens`"] --> core
+    ui --> file
     ui -.-> javafx["JavaFX"]
     file -.-> jackson["Jackson"]
 ```
