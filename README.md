@@ -29,13 +29,18 @@ flowchart TD
 
 ```
 └───bithub
+    ├───pom.xml
+    │    -- Foreldre-POM som samler modulene core, file og ui.
+    ├───README.md
+    │    -- Beskrivelse av appen, skisser fra Figma og brukerhistorier.
+    │
     ├───core
     │   └───src
     │       ├───main
     │       │   └───java
     │       │       └───core
-    │       │           -- Course, Review og User ligger her.
-    │       │           -- De står for domenelogikken og validering i appen.
+    │       │           -- Course, Review og User står for domenelogikken og validering.
+    │       │           -- ReviewService og ReviewRepository håndterer innsending og lagring.
     │       └───test
     │           └───java
     │               └───core
@@ -47,6 +52,7 @@ flowchart TD
     │       │   └───java
     │       │       └───file
     │       │           -- ReviewHandler og UserHandler leser og skriver JSON med Jackson.
+    │       │           -- DataHandler er grensesnittet de to handlerne implementerer.
     │       │           -- CourseDTO og UserDTO er objektene som lagres til fil.
     │       └───test
     │           └───java
@@ -55,17 +61,17 @@ flowchart TD
     │
     └───ui
         ├───images
-        │    -- Skisser fra Figma som brukes i ui/README.md.
+        │    -- Skisser fra Figma som brukes i bithub/README.md.
         │
         └───src
             ├───main
             │   ├───java
             │   │   └───ui
-            │   │       -- App og kontrollerne AppController og EmneController ligger her.
+            │   │       -- App, Navigation, CourseOptions og kontrollerne ligger her.
             │   └───resources
             │       └───ui
             │           -- FXML-filene og Style.css for brukergrensesnittet ligger her.
-            │                  
+            │
             └───test
                 └───java
                     └───ui
