@@ -24,8 +24,7 @@ public interface ReviewRepository {
      * Henter et lagret emne med alle anmeldelsene som er skrevet om det.
      *
      * @param courseCode emnekoden til emnet, store og små bokstaver skilles ikke
-     * @return emnet med anmeldelser, eller tom dersom emnet ikke har noen lagrede
-     * anmeldelser
+     * @return emnet med anmeldelser, eller tom dersom emnet ikke har noen lagred anmeldelser
      */
     Optional<Course> findCourse(String courseCode);
 }
