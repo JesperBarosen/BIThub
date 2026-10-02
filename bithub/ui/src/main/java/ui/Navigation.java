@@ -4,6 +4,7 @@ import core.Course;
 import core.ReviewService;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -48,13 +49,45 @@ public final class Navigation {
     }
 
     /**
-     * Åpner fagvelgeren i det samme vinduet.
+     * Åpner fagvelgeren for å skrive en anmeldelse. Når et emne er valgt, åpnes
+     * anmeldelsesskjemaet.
      *
      * @param source et element i skjermbildet som er åpent nå
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     public static void showCourseSelection(Node source) {
-        showFxml(source, "VelgFag.fxml");
+        openCourseSelection(source, Navigation::showReviewForm);
+    }
+
+    /**
+     * Åpner fagvelgeren for å lese anmeldelser. Når et emne er valgt, vises
+     * anmeldelsene for emnet.
+     *
+     * @param source et element i skjermbildet som er åpent nå
+     * @throws IllegalStateException hvis FXML-filen ikke kan lastes
+     */
+    public static void showCourseSelectionForReading(Node source) {
+        openCourseSelection(source, Navigation::showReviews);
+    }
+
+    /**
+     * Åpner siden som viser anmeldelsene og gjennomsnittet for et emne.
+     *
+     * @param source et element i skjermbildet som er åpent nå
+     * @param course emnet brukeren har valgt
+     * @throws IllegalStateException hvis FXML-filen ikke kan lastes
+     */
+    public static void showReviews(Node source, Course course) {
+        FXMLLoader loader = new FXMLLoader(Navigation.class.getResource("LeseAnmeldelser.fxml"));
+        try {
+            Parent root = loader.load();
+            LeseAnmeldelserController controller = loader.getController();
+            controller.setReviewService(reviewService);
+            controller.setCourse(course);
+            stageOf(source).setScene(new Scene(root));
+        } catch (IOException e) {
+            throw new IllegalStateException("Kunne ikke åpne siden med anmeldelser", e);
+        }
     }
 
     /**
@@ -92,6 +125,26 @@ public final class Navigation {
         root.setStyle("-fx-alignment: center; -fx-padding: 30;");
         homeButton.setOnAction(event -> showHome(homeButton));
         stageOf(source).setScene(new Scene(root, 400, 600));
+    }
+
+    /**
+     * Åpner fagvelgeren og bestemmer hva som skjer når et emne er valgt.
+     *
+     * @param source et element i skjermbildet som er åpent nå
+     * @param onCourseSelected handlingen som får knappen og det valgte emnet
+     * @throws IllegalStateException hvis FXML-filen ikke kan lastes
+     */
+    private static void openCourseSelection(
+            Node source, BiConsumer<Node, Course> onCourseSelected) {
+        FXMLLoader loader = new FXMLLoader(Navigation.class.getResource("VelgFag.fxml"));
+        try {
+            Parent root = loader.load();
+            VelgFagController controller = loader.getController();
+            controller.setOnCourseSelected(onCourseSelected);
+            stageOf(source).setScene(new Scene(root));
+        } catch (IOException e) {
+            throw new IllegalStateException("Kunne ikke åpne VelgFag.fxml", e);
+        }
     }
 
     private static void showFxml(Node source, String fileName) {
