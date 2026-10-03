@@ -1,66 +1,42 @@
-@startuml brukerhistorie1_lagre_oppskrift
+@startuml brukerhistorie1_skrive_anmeldelse
 
-title Brukerhistorie 1 - Lagre en ny oppskrift
+title Brukerhistorie 1 - Skrive anmeldelse av fag
 
-actor "Hjemmekokk" as User
-participant "LoggInnController\n(ui)" as LoginC
-participant "SkrivOppskriftController\n(ui)" as WriteC
-participant "UserService\n(core)" as UserS
-participant "RecipeService\n(core)" as RecipeS
-participant "UserRepository\n(interface, core)" as UserRepo
-participant "RecipeRepository\n(interface, core)" as RecipeRepo
-participant "UserHandler\n(file)" as UserH
-participant "RecipeHandler\n(file)" as RecipeH
-database "users.json" as UserFile
-database "recipes.json" as RecipeFile
+actor "Student" as User
+participant "VelgFagController\n(ui)" as SelectC
+participant "Navigation\n(ui)" as Nav
+participant "EmneController\n(ui)" as EmneC
+participant "ReviewService\n(core)" as Service
+participant "ReviewRepository\n(interface, core)" as Repo
+participant "ReviewHandler\n(file)" as Handler
+database "courses.json" as File
 
-== Registrering / innlogging ==
+User -> SelectC : velger fag i nedtrekksliste\nog trykker "Neste"
+SelectC -> Nav : showReviewForm(source, course)
+Nav -> EmneC : setReviewService(reviewService)
+Nav -> EmneC : setCourse(course)
+Nav --> User : viser EmneView\n(anmeldelsesskjema)
 
-User -> LoginC : skriver inn brukernavn og passord
-LoginC -> UserS : login(username, password)
-UserS -> UserRepo : findUser(username)
-note right of UserRepo : implementeres av UserH
-UserRepo -> UserH : findUser(username)
-UserH -> UserFile : readFromFile()
-UserFile --> UserH : liste med UserDTO
-UserH --> UserS : User (eller null)
+User -> EmneC : fyller ut vurdering (1-5),\nkommentar og anonym-avkrysning,\ntrykker "Send inn"
+EmneC -> Service : submitReview(courseCode, courseName,\nreviewerName, ratingText, comment)
+Service -> Service : parseRating(ratingText)
 
-alt bruker finnes ikke / feil passord
-    UserS --> LoginC : kaster IllegalArgumentException
-    LoginC --> User : viser feilmelding
-else innlogging ok
-    UserS --> LoginC : innlogget User
-    LoginC --> User : viser hjemmeskjerm
-end
-
-== Skrive og lagre ny oppskrift ==
-
-User -> WriteC : åpner "Skriv ny oppskrift"
-WriteC --> User : viser tomt oppskriftsskjema
-
-User -> WriteC : fyller inn navn, beskrivelse,\ningredienser med mengder, steg,\nantall porsjoner
-WriteC --> User : oppdaterer forhåndsvisning\n(lokal UI-tilstand, ingen kall til core)
-
-User -> WriteC : trykker "Lagre oppskrift"
-WriteC -> RecipeS : saveRecipe(currentUser, name, description,\ningredients, steps, portions)
-
-RecipeS -> RecipeS : valider felter\n(navn ikke tomt, minst én ingrediens,\nminst ett steg, porsjoner > 0)
-
-alt ugyldig oppskrift
-    RecipeS --> WriteC : kaster IllegalArgumentException
-    WriteC --> User : viser feilmelding i skjemaet
-else gyldig oppskrift
-    RecipeS -> RecipeS : new Recipe(name, description,\ningredients, steps, portions)
-    RecipeS -> RecipeRepo : addRecipe(userId, recipe)
-    note right of RecipeRepo : implementeres av RecipeH
-    RecipeRepo -> RecipeH : addRecipe(userId, recipe)
-    RecipeH -> RecipeFile : readFromFile()
-    RecipeFile --> RecipeH : liste med RecipeDTO
-    RecipeH -> RecipeH : legg oppskriften til\nunder riktig bruker
-    RecipeH -> RecipeFile : writeToFile(recipes)
-    RecipeH --> RecipeS : (void)
-    RecipeS --> WriteC : (void)
-    WriteC --> User : viser lagret oppskrift i\ntypisk oppskriftsformat
+alt ugyldig vurdering (ikke tall / utenfor 1-5)
+    Service --> EmneC : kaster IllegalArgumentException
+    EmneC --> User : viser feilmelding\n(rødt statusfelt)
+else gyldig vurdering
+    Service -> Service : new Course(courseCode, courseName)
+    Service -> Service : new Review(reviewerName, rating, comment)
+    Service -> Repo : addReview(courseCode, courseName, review)
+    note right of Repo : implementeres av ReviewHandler
+    Repo -> Handler : addReview(courseCode, courseName, review)
+    Handler -> File : readFromFile()
+    File --> Handler : liste med CourseDTO
+    Handler -> Handler : finn/opprett CourseDTO\nfor faget, legg review til
+    Handler -> File : writeToFile(courses)
+    Handler --> Service : (void)
+    Service --> EmneC : (void)
+    EmneC --> User : viser "Vurderingen ble sendt inn!"\n(grønt statusfelt), tømmer felter
 end
 
 @enduml
