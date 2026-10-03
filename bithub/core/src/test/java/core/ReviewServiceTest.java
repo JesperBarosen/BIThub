@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -19,11 +20,27 @@ class ReviewServiceTest {
     private final List<Review> savedReviews = new ArrayList<>();
 
     /**
-     * Falsk lagring som bare husker hva den har fått.
+     * Emnet den falske lagringen returnerer ved oppslag, eller null for ingen
+     * treff.
      */
-    private final ReviewRepository fakeRepository = (courseCode, courseName, review) -> {
-        savedCourses.add(courseCode + " - " + courseName);
-        savedReviews.add(review);
+    private Course storedCourse;
+
+    /**
+     * Falsk lagring som bare husker hva den har fått, og som returnerer
+     * {@link #storedCourse} ved oppslag.
+     */
+    private final ReviewRepository fakeRepository = new ReviewRepository() {
+        @Override
+        public void addReview(String courseCode, String courseName, Review review) {
+            savedCourses.add(courseCode + " - " + courseName);
+            savedReviews.add(review);
+        }
+
+        @Override
+        public Optional<Course> findCourse(String courseCode) {
+            return Optional.ofNullable(storedCourse)
+                    .filter(course -> course.getCourseCode().equals(courseCode));
+        }
     };
 
     private final ReviewService service = new ReviewService(fakeRepository);
@@ -121,13 +138,59 @@ class ReviewServiceTest {
     @Test
     void submitReviewPassesOnStorageFailure() {
         RuntimeException failure = new RuntimeException("Lagring feilet");
-        ReviewService failingService = new ReviewService((code, name, review) -> {
-            throw failure;
+        ReviewService failingService = new ReviewService(new ReviewRepository() {
+            @Override
+            public void addReview(String courseCode, String courseName, Review review) {
+                throw failure;
+            }
+
+            @Override
+            public Optional<Course> findCourse(String courseCode) {
+                return Optional.empty();
+            }
         });
 
         RuntimeException actual = assertThrows(RuntimeException.class,
                 () -> failingService.submitReview("IT1901", "Prosjektarbeid", "Student", "4", ""));
         assertSame(failure, actual);
+    }
+
+    /**
+     * Verifiserer at et lagret emne hentes med alle anmeldelsene.
+     */
+    @Test
+    void getCourseWithReviewsReturnsStoredCourse() {
+        storedCourse = new Course("IT1901", "Prosjektarbeid");
+        storedCourse.addReview(new Review("Ola", 4, "Bra"));
+        storedCourse.addReview(new Review("Anonym", 2, ""));
+
+        Course course = service.getCourseWithReviews(new Course("IT1901", "Prosjektarbeid"));
+
+        assertSame(storedCourse, course);
+        assertEquals(2, course.getReviews().size());
+        assertEquals(3.0, course.getAverageRating());
+    }
+
+    /**
+     * Verifiserer at et emne uten lagrede anmeldelser gir et tomt emne med
+     * samme kode og navn, i stedet for en feil.
+     */
+    @Test
+    void getCourseWithReviewsReturnsEmptyCourseWhenNotStored() {
+        Course course = service.getCourseWithReviews(new Course("TDT4100", "Objektorientert"));
+
+        assertEquals("TDT4100", course.getCourseCode());
+        assertEquals("Objektorientert", course.getCourseName());
+        assertTrue(course.getReviews().isEmpty());
+        assertEquals(0.0, course.getAverageRating());
+    }
+
+    /**
+     * Verifiserer at oppslag uten emne avvises.
+     */
+    @Test
+    void getCourseWithReviewsRejectsNullCourse() {
+        assertThrows(IllegalArgumentException.class, () -> service.getCourseWithReviews(null));
     }
 
     /**

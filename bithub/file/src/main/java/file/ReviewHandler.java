@@ -2,6 +2,7 @@ package file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import core.Course;
 import core.Review;
 import core.ReviewRepository;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Håndterer persistering av anmeldelser organisert per emne til og fra JSON.
@@ -107,6 +109,38 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
         targetCourse.getReviews().add(review);
 
         writeToFile(courses);
+    }
+
+    /**
+     * Henter et lagret emne med anmeldelser fra JSON-filen og gjør det om til
+     * domeneklassen {@link Course}.
+     *
+     * @param courseCode emnekoden til emnet, store og små bokstaver skilles ikke
+     * @return emnet med anmeldelser, eller tom dersom emnet ikke finnes i filen
+     */
+    @Override
+    public Optional<Course> findCourse(String courseCode) {
+        if (courseCode == null) {
+            return Optional.empty();
+        }
+        return readFromFile().stream()
+                .filter(c -> courseCode.equalsIgnoreCase(c.getCourseCode()))
+                .findFirst()
+                .map(ReviewHandler::toCourse);
+    }
+
+    /**
+     * Gjør om et lagret emne til domeneklassen, med alle anmeldelsene.
+     *
+     * @param courseDto emnet slik det er lagret i filen
+     * @return emnet som domeneobjekt
+     */
+    private static Course toCourse(CourseDTO courseDto) {
+        Course course = new Course(courseDto.getCourseCode(), courseDto.getCourseName());
+        for (Review review : courseDto.getReviews()) {
+            course.addReview(review);
+        }
+        return course;
     }
 
     /**
