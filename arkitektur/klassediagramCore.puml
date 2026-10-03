@@ -1,38 +1,67 @@
 @startuml klassediagramCore
 
 package core {
+
     class Course {
         - courseCode: String
-        - courseName: String 
+        - courseName: String
         - reviews: List<Review>
         + Course(courseCode: String, courseName: String)
-        + getCourseCode(): String 
-        + getCourseName(): String
-        + addReview(review: Review): void
-        + getReviews(): List<Review>
-        + getAverageRating(): double
-
+        + String getCourseCode()
+        + String getCourseName()
+        + void addReview(review: Review)
+        + List<Review> getReviews()
+        + double getAverageRating()
     }
 
     class Review {
-        - reviewerName: String 
-        - rating: int 
-        - comment: String 
+        - reviewerName: String
+        - rating: int
+        - comment: String
+        + Review()
         + Review(reviewerName: String, rating: int, comment: String)
-        + getReviewerName(): String 
-        + getRating(): int
-        + getComment(): String
+        + String getReviewerName()
+        + void setReviewerName(reviewerName: String)
+        + int getRating()
+        + void setRating(rating: int)
+        + String getComment()
+        + void setComment(comment: String)
     }
 
-    class FileHandler {
-        - path: Path 
-        + FileHandler(path: String)
-        + isEmpty(): boolean
-        + readFile(): List<String[]>
-        + addToFile(line: String[]): void
+    class User {
+        - name: String
+        - email: String
+        - password: String
+        + User(name: String, email: String, password: String)
+        + String getName()
+        + String getEmail()
+        + String getPassword()
     }
 
-    Course -right-> "reviews: 0..*" Review
+    interface ReviewRepository {
+        + void addReview(courseCode: String, courseName: String, review: Review)
+        + Optional<Course> findCourse(courseCode: String)
+    }
+
+    class ReviewService {
+        - reviewRepository: ReviewRepository {readOnly}
+        + ReviewService(reviewRepository: ReviewRepository)
+        + void submitReview(courseCode: String, courseName: String, reviewerName: String, ratingText: String, comment: String)
+        + Course getCourseWithReviews(course: Course)
+        - {static} int parseRating(ratingText: String)
+    }
+
+    Course --> "reviews: *" Review
+    ReviewService --> "reviewRepository: 1" ReviewRepository
+    ReviewService ..> Course : henter via ReviewRepository.findCourse(String)
+    ReviewService ..> Review : oppretter i submitReview(...)
+    ReviewRepository ..> Course
+    ReviewRepository ..> Review
 }
+
+note bottom of ReviewRepository
+  Implementeres av ReviewHandler i file-modulen,
+  så core ikke er avhengig av hvordan data lagres.
+end note
 
 @enduml
