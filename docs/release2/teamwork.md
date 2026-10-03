@@ -5,7 +5,7 @@ Gjennom prosjektet har vi fått god erfaring med hvordan planlegging og organise
 påvirker effektiviteten og samarbeidet i gruppen. For å koordinere arbeidsoppgavene har
 teamet opprettet og fordelt issues på GitHub. Hvert issue har blitt tildelt minst to
 gruppemedlemmer, slik at parprogrammering har blitt en sentral del av arbeidsprosessen.
-I tillegg har pull requests blitt tildelt andre gruppemedlemmer for å sikre at flest mulig
+I tillegg har pull requests blitt tildelt andre gruppemedlemmer, slik at flest mulig
 får innsikt i endringene og funksjonalitet som blir lagt til i prosjektet.
 
 For å legge til rette for et godt samarbeid har teamet satt et fast ukentlig møtetidspunkt for å
