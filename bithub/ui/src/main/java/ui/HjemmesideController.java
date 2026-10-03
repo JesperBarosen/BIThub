@@ -22,7 +22,7 @@ public class HjemmesideController {
 
     @FXML
     private void handleReadReviews() {
-        Navigation.showComingSoon(readReviewsButton, "Les anmeldelser");
+        Navigation.showCourseSelectionForReading(readReviewsButton);
     }
 
     @FXML

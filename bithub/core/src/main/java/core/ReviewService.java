@@ -42,6 +42,24 @@ public final class ReviewService {
     }
 
     /**
+     * Henter emnet med alle lagrede anmeldelser, slik at de kan vises.
+     *
+     * <p>Dersom ingen har anmeldt emnet ennå, returneres et emne uten
+     * anmeldelser, slik at brukergrensesnittet alltid har noe å vise.
+     *
+     * @param course emnet som skal vises
+     * @return emnet med lagrede anmeldelser, eller et emne uten anmeldelser
+     * @throws IllegalArgumentException hvis emnet er null
+     */
+    public Course getCourseWithReviews(Course course) {
+        if (course == null) {
+            throw new IllegalArgumentException("Course cannot be null.");
+        }
+        return reviewRepository.findCourse(course.getCourseCode())
+                .orElseGet(() -> new Course(course.getCourseCode(), course.getCourseName()));
+    }
+
+    /**
      * Gjør om vurderingen fra tekst til et tall fra 1 til 5.
      *
      * @param ratingText vurderingen slik brukeren skrev den inn
