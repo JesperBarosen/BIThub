@@ -8,38 +8,38 @@ med terningkast 1-5 og kommentar, og viser gjennomsnittlig vurdering per emne.
 
 ## Innhold i repoet
 
-Kodingsprosjektet ligger i rota av kodelageret og består av `pom.xml`, `core/` og `ui/`.
+Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og består av tre moduler:
 
-- `core/src/main/java/core` - domenelogikk (`Course`, `Review`) og persistens
-- `docs/` - dokumentasjon per release 
-- `ui/src/main/java/ui` - brukergrensesnitt i JavaFX (`App`, `AppController`, `App.fxml`)
-- `config/` - konfigurasjon for kodekvalitetsverktøy (Checkstyle og SpotBugs)
+- **`core/`** – domenelogikk
+- **`file/`** – persistens (lagring til JSON)
+- **`ui/`** – brukergrensesnitt i JavaFX
 
-Se [denne filen](ui/README.md) for beskrivelse av appen og dens funksjonalitet, skjermbilder og brukerhistorier.
+`ui` og `file` avhenger av `core`, men `core` avhenger ikke av noen av dem
+
+Se [denne filen](bithub/ui/README.md) for beskrivelse av appen og dens funksjonalitet,
+skjermbilder og brukerhistorier.
 
 ## Nødvendige verktøy og avhengigheter
 
 - **Java 17** eller nyere
 - **Maven 3.9** eller nyere
-- **JavaFX 21** 
+- **JavaFX 21**
 - **JUnit 5**
-- **JaCoCo** 
+- **JaCoCo**
 
 Alle avhengigheter lastes ned automatisk av Maven ved bygging.
 
-
 ## Bygge, teste og kjøre
 
-Kommandoene kjøres fra rota av kodelageret:
+Kommandoene kjøres fra `bithub/`-mappa:
 
-- `mvn clean install` - bygger alle moduler
-- `mvn test` - kjører testene
-- `mvn verify` - kjører tester, kodekvalitetssjekker og genererer testdekningsrapport
+```python 
+cd bithub
+mvn clean install   # bygger alle moduler
+mvn test             # kjører testene
+mvn verify            # kjører tester, kodekvalitetssjekker, genererer testdekningsrapport
+mvn javafx:run       # starter appen
+```
 
-Testdekningsrapporten fra JaCoCo finnes etterpå i `core/target/site/jacoco/index.html` 
-og `ui/target/site/jacoco/index.html`.
-
-Appen startes fra roten:
-
-    mvn javafx:run
-
+Testdekningsrapporten fra JaCoCo finnes etterpå i `bithub/core/target/site/jacoco/index.html`,
+`bithub/file/target/site/jacoco/index.html` og `bithub/ui/target/site/jacoco/index.html`.

@@ -15,7 +15,7 @@
       "name": "Launch BIThub ",
       "request": "launch",
       "mainClass": "bithub.ui/ui.App",
-      "projectName": "modules-ui",
+      "projectName": "ui",
       "vmArgs": [
         "--add-opens",
         "bithub.ui/ui=ALL-UNNAMED",
