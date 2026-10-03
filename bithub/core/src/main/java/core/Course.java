@@ -31,10 +31,20 @@ public final class Course {
         this.reviews = new ArrayList<>();
     }
 
+    /**
+     * Henter emnekoden, for eksempel "IT1901".
+     *
+     * @return emnekoden
+     */
     public String getCourseCode() {
         return courseCode;
     }
 
+    /**
+     * Henter navnet på emnet.
+     *
+     * @return emnenavnet
+     */
     public String getCourseName() {
         return courseName;
     }
@@ -52,6 +62,14 @@ public final class Course {
         reviews.add(review);
     }
 
+    /**
+     * Henter anmeldelsene av emnet.
+     *
+     * <p>Listen er en kopi som ikke kan endres. Bruk {@link #addReview(Review)}
+     * for å legge til en anmeldelse.
+     *
+     * @return anmeldelsene av emnet
+     */
     public List<Review> getReviews() {
         return List.copyOf(reviews);
     }
