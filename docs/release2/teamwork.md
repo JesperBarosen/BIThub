@@ -1,7 +1,7 @@
 
 # Teamrefleksjon om samarbeid og organisering
 
-Gjennom prosjektet har teamet fått god erfaring med hvordan planlegging og organisering
+Gjennom prosjektet har vi fått god erfaring med hvordan planlegging og organisering
 påvirker effektiviteten og samarbeidet i gruppen. For å koordinere arbeidsoppgavene har
 teamet opprettet og fordelt issues på GitHub. Hvert issue har blitt tildelt minst to
 gruppemedlemmer, slik at parprogrammering har blitt en sentral del av arbeidsprosessen.
