@@ -26,41 +26,34 @@ Målene våre var:
 - [x] Koble logikk til «Velg fag»-siden og hjemmesiden
 - [x] Samle navigasjonen mellom sidene i én klasse
 - [x] Lage en klasse for brukere og lagre dem til fil
+- [x] Lese anmeldelser for et emne, med gjennomsnittlig vurdering og antall anmeldelser
 - [x] Tester i alle modulene, med høy testdekning fra JaCoCo
 - [x] Checkstyle og SpotBugs som kjøres av Maven
 - [x] Skrive ned arbeidsflyt, arbeidsvaner og valg for kodekvalitet
 - [x] Dokumentere arkitekturen med et diagram
 - [ ] Innlogging og registrering i appen
-- [ ] Lese anmeldelser for et emne
 
-Vi er fornøyde med at vi fikk til arkitekturen og kodekvaliteten. Innlogging og lesing av anmeldelser rakk vi ikke. Siden oppgaven sier at alt skal være på stell før man legger til nye funksjoner, valgte vi å bruke tiden på kvalitet i stedet. Disse funksjonene tar vi med til release 3.
+Vi er fornøyde med arkitekturen og kodekvaliteten. Med lesing og skriving av anmeldelser går data nå begge veier gjennom alle tre lagene. Innlogging prioriterte vi ned, ettersom hovedmålet var å opprettholde kvalitet før eventuelt nye funksjoner legges til. 
 
 ## Funksjonalitet i release 2
 
 Dette fungerer i appen nå:
 
 - [Hjemmeside](/bithub/ui/src/main/resources/ui/Hjemmeside.fxml) med knapper til de ulike delene av appen
-- [Velg fag](/bithub/ui/src/main/resources/ui/VelgFag.fxml) med en nedtrekksliste over emner
+- [Velg fag](/bithub/ui/src/main/resources/ui/VelgFag.fxml) med en nedtrekksliste over emner. Den samme siden brukes både når man skal skrive og lese anmeldelser.
 - [Skrive anmeldelse](/bithub/ui/src/main/resources/ui/EmneView.fxml) med vurdering fra 1–5, kommentar og mulighet til å være anonym
+- [Lese anmeldelser](/bithub/ui/src/main/resources/ui/LeseAnmeldelser.fxml) for et emne, med alle anmeldelsene, gjennomsnittlig vurdering og antall anmeldelser
 - Validering i [ReviewService](/bithub/core/src/main/java/core/ReviewService.java) i domenelaget, med feilmeldinger som vises i appen
 - Anmeldelser lagres automatisk til en JSON-fil, sortert per emne
 - En [User](/bithub/core/src/main/java/core/User.java)-klasse som sjekker navn, e-post og passord, og som lagres med [UserHandler](/bithub/file/src/main/java/file/UserHandler.java)
 
-Knappene «Les anmeldelser», «Mine anmeldelser» og «Profil» åpner foreløpig bare en side der det står «Denne siden er ikke laget ennå». Brukere kan lagres til fil, men det er ikke koblet til appen ennå.
-
+Knappene «Mine anmeldelser» og «Profil» åpner foreløpig bare en side der det står «Denne siden er ikke laget ennå». Brukere kan lagres til fil, men det er ikke koblet til appen ennå.
 
 ## Bilder fra appen
 
 ### Sider i bruk
 
-Disse sidene er koblet sammen i appen. Man starter på hjemskjermen, velger fag via «Skriv anmeldelse» og kommer videre til siden for å skrive en anmeldelse.
-
-<table> <tr> <td align="center"> <b>Hjem skjerm</b><br> <img src="bilder_release2/Hjemmeside.png" alt="Hjem skjerm" height="300"> </td> <td align="center"> <b>Velg fag</b><br> <img src="bilder_release2/VelgFag.png" alt="Velg fag" height="300"> </td> <td align="center"> <b>Skrive anmeldelse</b><br> <img src="bilder_release2/EmneView.png" alt="Skrive anmeldelse" height="300"> </td> </tr> </table>
-
-
-### Sider som ikke er i bruk ennå
-
-Disse sidene er laget i FXML, men er ennå ikke koblet til navigasjonen i appen.
+Disse sidene er koblet sammen i appen. Man starter på hjemskjermen og velger fag. Via «Skriv anmeldelse» kommer man til skjemaet, og via «Les anmeldelser» kommer man til anmeldelsene for faget.
 
 <table>
   <tr>
@@ -70,15 +63,31 @@ Disse sidene er laget i FXML, men er ennå ikke koblet til navigasjonen i appen.
     </td>
     <td align="center">
       <b>Velg fag</b><br>
-      <img src="bilder_release2/VelgFag.png" alt="Velg fag" height="300">
+      <img src="bilder_release2/VelgFag.png" alt="Velg fag med IT1901 valgt" height="300">
     </td>
     <td align="center">
       <b>Skrive anmeldelse</b><br>
-      <img src="bilder_release2/EmneView.png" alt="Skrive anmeldelse" height="300">
+      <img src="bilder_release2/EmneView.png" alt="Skrive anmeldelse av IT1901" height="300">
     </td>
   </tr>
 </table>
 
+<table>
+  <tr>
+    <td align="center">
+      <b>Anmeldelsen er sendt inn</b><br>
+      <img src="bilder_release2/AnmeldelseSendt.png" alt="Anmeldelsen er sendt inn" height="300">
+    </td>
+    <td align="center">
+      <b>Lese anmeldelser</b><br>
+      <img src="bilder_release2/LeseAnmeldelser.png" alt="Anmeldelser av IT1901" height="300">
+    </td>
+    <td align="center">
+      <b>Emne uten anmeldelser</b><br>
+      <img src="bilder_release2/EmneUtenAnmeldelse.png" alt="BI2081 uten anmeldelser" height="300">
+    </td>
+  </tr>
+</table>
 
 ### Sider som ikke er i bruk ennå
 
@@ -114,13 +123,8 @@ Disse sidene er laget i FXML, men er ennå ikke koblet til navigasjonen i appen.
   </tr>
 </table>
 
-
 <table>
   <tr>
-    <td align="center">
-      <b>Lese anmeldelser</b><br>
-      <img src="bilder_release2/LeseAnmeldelser.png" alt="Lese anmeldelser" height="300">
-    </td>
     <td align="center">
       <b>Mine anmeldelser</b><br>
       <img src="bilder_release2/MineAnmeldelser.png" alt="Mine anmeldelser" height="300">
@@ -148,10 +152,11 @@ Prosjektet består av tre Maven-moduler, og hver av dem er også en Java-modul m
 
 Når brukeren trykker «SEND INN», kaller `EmneController` på `submitReview` i `ReviewService`. Der sjekkes det at det som er skrevet inn er gyldig, for eksempel at vurderingen er et tall fra 1 til 5. Er alt riktig, sendes anmeldelsen videre til et `ReviewRepository`.
 
+Når brukeren skal lese anmeldelser, går det motsatt vei. `LeseAnmeldelserController` kaller på `getCourseWithReviews` i `ReviewService`, som henter emnet med `findCourse` i `ReviewRepository`. `ReviewHandler` leser JSON-filen og gjør `CourseDTO` om til et `Course`-objekt med anmeldelsene. Har ingen anmeldt emnet ennå, får kontrolleren et tomt emne tilbake. Gjennomsnittet regnes ut av `Course` i domenelaget.
+
 `ReviewRepository` er et grensesnitt som ligger i `core`, men det er `ReviewHandler` i `file` som implementerer det. Da trenger ikke `core` å vite noe om JSON eller filer, og `core` blir ikke avhengig av `file`. Det er bare `App` som vet at vi bruker `ReviewHandler`, og den kobler det sammen når appen starter. Dette gjør det også lett å teste `ReviewService` uten ekte fillagring, og vi kan bytte ut lagringen senere, for eksempel med et REST-API.
 
-<!--Kanskje endre på?-->
-`ui` avhenger av `file` bare fordi `App` må opprette `ReviewHandler`. Resten av `ui` bruker bare `core`. Vi så på om vi kunne fjerne denne avhengigheten helt, men endte opp med å prioritere det for neste release
+`ui` avhenger av `file` bare fordi `App` må opprette `ReviewHandler`. Resten av `ui` bruker bare `core`. Vi så på om vi kunne fjerne denne avhengigheten helt, men valgte å prioritere det i neste release.
 
 ## Valg for release 2
 
@@ -160,6 +165,8 @@ I release 1 lagret vi anmeldelser i CSV med en `FileHandler` som lå i `core`. N
 Vi la grensesnittet `ReviewRepository` i `core` for at domenelaget ikke skal være avhengig av lagringen.
 
 I release 1 lå navigasjonen spredt rundt i kontrollerne. Nå har vi samlet den i klassen `Navigation`, som også sender `ReviewService` videre til sidene som trenger den.
+
+Da vi la til lesing av anmeldelser, valgte vi å bruke samme «Velg fag»-side som når man skriver. `Navigation` forteller fagvelgeren hva som skal skje når et fag er valgt: enten åpnes skjemaet for å skrive, eller siden for å lese. Slik slapp vi å lage en kopi av siden og kontrolleren.
 
 Checkstyle og SpotBugs kjøres når man kjører `mvn verify`, og JaCoCo måler testdekningen for hver modul. Mer om innstillingene står i [code-quality.md](code-quality.md).
 
@@ -171,26 +178,27 @@ Alle modulene har tester. Testene kjøres fra prosjektmappen `bithub` med `mvn t
 
 - [CourseTest](/bithub/core/src/test/java/core/CourseTest.java) og [ReviewTest](/bithub/core/src/test/java/core/ReviewTest.java) tester at emner og anmeldelser opprettes riktig og at ugyldige verdier blir avvist.
 - [UserTest](/bithub/core/src/test/java/core/UserTest.java) tester at navn, e-post og passord sjekkes riktig.
-- [ReviewServiceTest](/bithub/core/src/test/java/core/ReviewServiceTest.java) tester at gyldige anmeldelser blir lagret, at mellomrom fjernes fra input, og at tom, ugyldig eller for høy/lav vurdering blir avvist. Her bruker vi en falsk `ReviewRepository`, så testen bare tester logikken i `core`.
+- [ReviewServiceTest](/bithub/core/src/test/java/core/ReviewServiceTest.java) tester at gyldige anmeldelser blir lagret, at mellomrom fjernes fra input, og at tom, ugyldig eller for høy/lav vurdering blir avvist. Den tester også at `getCourseWithReviews` henter et emne med anmeldelser, og gir et tomt emne når ingen har anmeldt det. Her bruker vi en falsk `ReviewRepository`, så testen bare tester logikken i `core`.
 
 #### file
 
-- [ReviewHandlerTest](/bithub/file/src/test/java/file/ReviewHandlerTest.java) tester lesing og skriving av anmeldelser, at de havner på riktig emne, og hva som skjer med tomme filer og feil.
+- [ReviewHandlerTest](/bithub/file/src/test/java/file/ReviewHandlerTest.java) tester lesing og skriving av anmeldelser, at de havner på riktig emne, og hva som skjer med tomme filer og feil. Den tester også at `findCourse` finner riktig emne uansett store og små bokstaver, og gir et tomt svar for ukjente emner og når filen mangler.
 - [ReviewStorageTest](/bithub/file/src/test/java/file/ReviewStorageTest.java) tester `ReviewService` og `ReviewHandler` sammen: at en anmeldelse som sendes inn faktisk havner i filen, og at ugyldige anmeldelser ikke blir lagret.
 - [UserHandlerTest](/bithub/file/src/test/java/file/UserHandlerTest.java) tester lagring og lesing av brukere, at mapper opprettes, og hva som skjer ved ødelagt JSON og feil ved lesing/skriving.
-
-Alle testene som skriver til fil bruker `@TempDir` fra JUnit, så de skriver aldri til den ekte `~/.bithub`-mappen.
 
 #### ui
 
 - [EmneControllerTest](/bithub/ui/src/test/java/ui/EmneControllerTest.java) tester skjemaet for å skrive anmeldelse: at riktig emne vises, at feilmeldinger kommer ved ugyldig vurdering, og at anmeldelsen lagres til fil både når man er anonym og ikke.
-- [NewNavigationTest](/bithub/ui/src/test/java/ui/NewNavigationTest.java) tester at man kan gå fra hjemmesiden, velge fag, komme til skjemaet og tilbake igjen, og at sidene som ikke er laget ennå vises.
+- [LeseAnmeldelserControllerTest](/bithub/ui/src/test/java/ui/LeseAnmeldelserControllerTest.java) tester siden for å lese anmeldelser: at anmeldelsene, gjennomsnittet og antallet vises riktig, at et emne uten anmeldelser viser «Ingen anmeldelser ennå.», og at TILBAKE og HJEM går til riktig side.
+- [NewNavigationTest](/bithub/ui/src/test/java/ui/NewNavigationTest.java) tester at man kan gå fra hjemmesiden, velge fag, komme til skjemaet og tilbake igjen, og at sidene som ikke er laget ennå vises. Den har også en ende-til-ende-test som skriver en anmeldelse i appen og leser den tilbake på «Les anmeldelser»-siden, slik at alle tre lagene testes sammen.
+
+Alle testene som skriver til fil, også UI-testene, bruker `@TempDir` fra JUnit, så de skriver aldri til den ekte `~/.bithub`-mappen.
 
 | Modul | Instruksjonsdekning | Grendekning |
 | --- | --- | --- |
-| core | __ % | __ % |
-| file | __ % | __ % |
-| ui | __ % | __ % |
+| core | 100 % | 100 % |
+| file | 99 % | 92 % |
+| ui | 91 % | 81 % |
 
 Ved innlevering av release 2 gir `mvn clean verify` ingen
 Checkstyle-warnings og ingen SpotBugs-funn utover de dokumenterte
@@ -206,12 +214,12 @@ Vi har fortsatt med samme arbeidsflyt som i release 1, men denne gangen skrev vi
 
 I release 2 jobbet vi i par. Én skriver koden (driver), mens den andre følger med og kommer med innspill (navigator), og vi bytter roller underveis. Når vi har jobbet i par, skriver vi det i commit-meldingen med `Co-authored-by:`.
 
-Parprogrammering var særlig nyttig på oppgaver som gikk på tvers av modulene. Da vi skulle finne ut hvordan `core` kunne lagre anmeldelser uten å bli avhengig av `file`, hjalp det mye å kunne diskutere det med noen før vi endte opp med grensesnittet `ReviewRepository`. Det samme gjaldt fillagringen i `file`. Der diskuterte vi ulike måter å lagre dataene på, å diskutere i parr gjorde det lettere å komme fram til en løsning som også fungerer når appen skal utvides senere.
+Parprogrammering var særlig nyttig på oppgaver som gikk på tvers av modulene. Da vi skulle finne ut hvordan `core` kunne lagre anmeldelser uten å bli avhengig av `file`, hjalp det mye å kunne diskutere det med noen før vi endte opp med grensesnittet `ReviewRepository`. Det samme gjaldt fillagringen i `file`. Der diskuterte vi ulike måter å lagre dataene på, og det å jobbe i par gjorde det lettere å komme fram til en løsning som også fungerer når appen skal utvides senere.
 
 Mot slutten av release 2 oppdaget vi at `Co-authored-by` hadde
 stått over issue-referansen (`ref`/`closes`) i commit-meldingene.
-GitHub gjenkjenner bare medforfattere når linjen står helt nederst i
-meldingen, så parprogrammeringen vises ikke på GitHub, selv om
+GitLab gjenkjenner bare medforfattere når linjen står helt nederst i
+meldingen, så parprogrammeringen vises ikke på GitLab, selv om
 medforfatterne står i commit-meldingene. Vi har rettet malen i
 [workflow.md](workflow.md) og bruker riktig rekkefølge fra release 3.
 
@@ -228,3 +236,39 @@ Det tok en del tid å gå fra CSV til JSON. All fillagringen fra release 1 mått
 Det var fristende å bare la `core` bruke `ReviewHandler` direkte, men da ville domenelaget blitt avhengig av lagringen. Løsningen ble å lage grensesnittet `ReviewRepository`.
 
 Når forskjellige par jobbet på domenelaget, lagringen og brukergrensesnittet samtidig, måtte vi bli enige tidlig om hvordan delene skulle snakke sammen. Noen oppgaver ble forsinket fordi de var avhengige av noe som ikke var ferdig ennå, og vi ble etter hvert flinkere til å avklare dette før vi begynte å kode.
+
+
+## Eksempeldata
+
+I [eksempeldata/courses.json](eksempeldata/courses.json) ligger en fil med anmeldelser av tre emner. Den kan brukes til å prøve appen uten å skrive inn alt selv:
+
+| Emne | Anmeldelser | Gjennomsnitt |
+| --- | --- | --- |
+| IT1901 Informatikk prosjektarbeid I | 3 | 4.00 |
+| IT1604 Digitalt samfunn | 2 | 3.50 |
+| EXPH0300 Examen philosophicum | 1 | 2.00 |
+| BI2081 og HMS0002 | 0 | – |
+
+Appen leser og skriver alltid til `courses.json` i mappen `.bithub` i hjemmemappen din. For å bruke eksempeldataene kopierer du filen dit før du starter appen. Har du allerede en `courses.json` der, ta en kopi av den først, for den blir overskrevet.
+
+Fra rotmappen i repoet, på macOS og Linux:
+
+```bash
+mkdir -p ~/.bithub
+cp docs/release2/eksempeldata/courses.json ~/.bithub/courses.json
+```
+
+På Windows (PowerShell):
+
+```powershell
+cd C:\sti\til\gr2610
+New-Item -ItemType Directory -Force "$HOME\.bithub"
+Copy-Item docs\release2\eksempeldata\courses.json "$HOME\.bithub\courses.json"
+```
+
+Start så appen som beskrevet i [README](/README.md). Bildene under er tatt med disse dataene, og du kan gjenskape dem slik:
+
+1. Trykk «SKRIV ANMELDELSE», velg IT1901 og trykk «GÅ VIDERE».
+2. Gi vurdering 4, skriv «Gode tilbakemeldinger fra læringsassistentene.», kryss av for anonym og trykk «SEND INN».
+3. Trykk «HJEM», så «LES ANMELDELSER», og velg IT1901. Nå vises fire anmeldelser med gjennomsnitt 4.00.
+4. Trykk «TILBAKE» og velg BI2081. Den har ingen anmeldelser ennå.
