@@ -5,22 +5,16 @@ package core;
  */
 public final class Review {
 
-    private String reviewerName;
-    private int rating;
-    private String comment;
-
-    /**
-     * Oppretter en tom anmeldelse som Jackson kan fylle med lagrede data.
-     */
-    public Review() {
-    }
+    private final String reviewerName;
+    private final int rating;
+    private final String comment;
 
     /**
      * Oppretter en anmeldelse med navn, vurdering og kommentar.
      *
      * @param reviewerName navnet på anmelderen, kan ikke være null eller blankt
-     * @param rating vurderingen fra 1 til 5
-     * @param comment kommentaren, null behandles som en tom tekst
+     * @param rating       vurderingen fra 1 til 5
+     * @param comment      kommentaren, null behandles som en tom tekst
      * @throws IllegalArgumentException hvis navnet eller vurderingen er ugyldig
      */
     public Review(String reviewerName, int rating, String comment) {
@@ -46,23 +40,11 @@ public final class Review {
         return reviewerName;
     }
 
-    public void setReviewerName(String reviewerName) {
-        this.reviewerName = reviewerName;
-    }
-
     public int getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
-
     public String getComment() {
         return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 }
