@@ -1,8 +1,8 @@
 package ui;
 
-import core.Review;
 import core.ReviewService;
 import file.CourseDTO;
+import file.ReviewDTO;
 import file.ReviewHandler;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -188,7 +188,7 @@ public class EmneControllerTest extends ApplicationTest {
         Assertions.assertEquals("TDT4120", course.getCourseCode());
         Assertions.assertEquals("Algoritmer og datastrukturer", course.getCourseName());
         Assertions.assertEquals(1, course.getReviews().size());
-        Review review = course.getReviews().get(0);
+        ReviewDTO review = course.getReviews().get(0);
         Assertions.assertEquals("Anonym", review.getReviewerName());
         Assertions.assertEquals(5, review.getRating());
         Assertions.assertEquals("Veldig bra emne!", review.getComment());
@@ -225,7 +225,7 @@ public class EmneControllerTest extends ApplicationTest {
         Assertions.assertEquals("TDT4100", course.getCourseCode());
         Assertions.assertEquals("Objektorientert programmering", course.getCourseName());
         Assertions.assertEquals(1, course.getReviews().size());
-        Review review = course.getReviews().get(0);
+        ReviewDTO review = course.getReviews().get(0);
         Assertions.assertEquals("Student", review.getReviewerName());
         Assertions.assertEquals(4, review.getRating());
         Assertions.assertEquals("Moro prosjekt.", review.getComment());

@@ -15,17 +15,13 @@ package core {
     }
 
     class Review {
-        - reviewerName: String
-        - rating: int
-        - comment: String
-        + Review()
+        - reviewerName: String {readOnly}
+        - rating: int {readOnly}
+        - comment: String {readOnly}
         + Review(reviewerName: String, rating: int, comment: String)
         + String getReviewerName()
-        + void setReviewerName(reviewerName: String)
         + int getRating()
-        + void setRating(rating: int)
         + String getComment()
-        + void setComment(comment: String)
     }
 
     class User {

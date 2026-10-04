@@ -48,15 +48,29 @@ package file {
     class CourseDTO {
         - courseCode: String
         - courseName: String
-        - reviews: List<Review>
+        - reviews: List<ReviewDTO>
         + CourseDTO()
         + CourseDTO(courseCode: String, courseName: String)
         + String getCourseCode()
         + void setCourseCode(courseCode: String)
         + String getCourseName()
         + void setCourseName(courseName: String)
-        + List<Review> getReviews()
-        + void setReviews(reviews: List<Review>)
+        + List<ReviewDTO> getReviews()
+        + void setReviews(reviews: List<ReviewDTO>)
+    }
+
+    class ReviewDTO {
+        - reviewerName: String
+        - rating: int
+        - comment: String
+        + ReviewDTO()
+        + ReviewDTO(reviewerName: String, rating: int, comment: String)
+        + String getReviewerName()
+        + void setReviewerName(reviewerName: String)
+        + int getRating()
+        + void setRating(rating: int)
+        + String getComment()
+        + void setComment(comment: String)
     }
 
     class UserDTO {
@@ -76,13 +90,14 @@ package file {
     ReviewHandler ..|> DataHandler
     UserHandler ..|> DataHandler
     ReviewHandler ..> CourseDTO : leser/skriver List<CourseDTO>
+    CourseDTO --> "reviews: *" ReviewDTO
+    ReviewHandler ..> ReviewDTO : gjør om til og fra Review
     UserHandler ..> UserDTO : leser/skriver List<UserDTO>
 }
 
 ReviewHandler ..|> ReviewRepository
-CourseDTO --> "reviews: *" Review
 ReviewHandler ..> Course : oppretter i toCourse(CourseDTO)
-ReviewHandler ..> Review : legger til i addReview(...)
+ReviewHandler ..> Review : leser i addReview(...), oppretter i toCourse(...)
 UserHandler ..> User : bruker i addUser(User)
 
 @enduml

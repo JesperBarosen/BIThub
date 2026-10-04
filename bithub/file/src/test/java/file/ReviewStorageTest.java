@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import core.Review;
 import core.ReviewService;
 import java.nio.file.Path;
 import java.util.List;
@@ -46,7 +45,7 @@ class ReviewStorageTest {
         assertEquals("Informatikk prosjektarbeid", course.getCourseName());
         assertEquals(1, course.getReviews().size());
 
-        Review review = course.getReviews().get(0);
+        ReviewDTO review = course.getReviews().get(0);
         assertEquals("Anonym", review.getReviewerName());
         assertEquals(4, review.getRating());
         assertEquals("Bra fag", review.getComment());
