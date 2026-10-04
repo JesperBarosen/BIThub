@@ -24,22 +24,22 @@ import org.junit.jupiter.api.io.TempDir;
 import org.testfx.framework.junit5.ApplicationTest;
 
 /**
- * Enhetstester og UI-tester for {@link EmneController} ved bruk av TestFX.
+ * Enhetstester og UI-tester for {@link SkrivAnmeldelseController} ved bruk av TestFX.
  *
  * <p>Sjekker at data blir satt og oppdelt korrekt, at validering av innsending gir
  * riktige feil- og suksessmeldinger, og at skjemaet nullstilles ved suksess.
  */
-public class EmneControllerTest extends ApplicationTest {
+public class SkrivAnmeldelseControllerTest extends ApplicationTest {
 
     @TempDir
     Path tempDir;
 
-    private EmneController controller;
+    private SkrivAnmeldelseController controller;
     private Parent root;
     private Path testFilePath;
 
     /**
-     * Klargjør og viser grensesnittet EmneView.fxml før hver test. Sett opp en
+     * Klargjør og viser grensesnittet SkrivAnmeldelse.fxml før hver test. Sett opp en
      * midlertidig filsti for lagring slik at I/O ikke feiler under testkjøring.
      *
      * @param stage Hovedscenen for TestFX
@@ -47,7 +47,7 @@ public class EmneControllerTest extends ApplicationTest {
      */
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("EmneView.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("SkrivAnmeldelse.fxml"));
         root = loader.load();
         controller = loader.getController();
 
@@ -62,7 +62,7 @@ public class EmneControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester at {@link EmneController#setEmneData(String)} håndterer null og
+     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} håndterer null og
      * blanke strenger uten feil.
      */
     @Test
@@ -78,7 +78,7 @@ public class EmneControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester at {@link EmneController#setEmneData(String)} deler opp emnekode
+     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} deler opp emnekode
      * og emnenavn korrekt ved formatet "KODE - NAVN".
      */
     @Test
@@ -90,14 +90,14 @@ public class EmneControllerTest extends ApplicationTest {
 
         Label emneTittelLabel = (Label) root.lookup("#emneTittelLabel");
         Assertions.assertNotNull(
-                emneTittelLabel, "emneTittelLabel ble ikke funnet i EmneView.fxml");
+                emneTittelLabel, "emneTittelLabel ble ikke funnet i SkrivAnmeldelse.fxml");
         Assertions.assertEquals(testData, emneTittelLabel.getText());
         Assertions.assertEquals("TDT4100", controller.getCourseCode());
         Assertions.assertEquals("Objektorientert programmering", controller.getCourseName());
     }
 
     /**
-     * Tester at {@link EmneController#setEmneData(String)} setter emnenavn når
+     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} setter emnenavn når
      * formatet ikke har bindestrek.
      */
     @Test
