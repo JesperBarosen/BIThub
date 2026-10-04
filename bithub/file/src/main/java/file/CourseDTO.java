@@ -1,7 +1,6 @@
 package file;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import core.Review;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ public class CourseDTO {
 
     private String courseCode;
     private String courseName;
-    private List<Review> reviews = new ArrayList<>();
+    private List<ReviewDTO> reviews = new ArrayList<>();
 
     /**
      * Oppretter et tomt CourseDTO-objekt.
@@ -86,7 +85,7 @@ public class CourseDTO {
             justification =
                     "DTO trenger direkte tilgang til listen for "
                             + "serialisering og deserialisering med Jackson.")
-    public List<Review> getReviews() {
+    public List<ReviewDTO> getReviews() {
         return reviews;
     }
 
@@ -98,7 +97,7 @@ public class CourseDTO {
      *
      * @param reviews listen med anmeldelser som skal settes
      */
-    public void setReviews(List<Review> reviews) {
+    public void setReviews(List<ReviewDTO> reviews) {
         this.reviews = reviews != null ? reviews : new ArrayList<>();
     }
 }
