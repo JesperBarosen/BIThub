@@ -36,14 +36,29 @@ public final class Review {
         this.comment = comment;
     }
 
+    /**
+     * Henter navnet på den som skrev anmeldelsen.
+     *
+     * @return navnet på anmelderen
+     */
     public String getReviewerName() {
         return reviewerName;
     }
 
+    /**
+     * Henter vurderingen av emnet.
+     *
+     * @return vurderingen fra 1 til 5
+     */
     public int getRating() {
         return rating;
     }
 
+    /**
+     * Henter kommentaren i anmeldelsen.
+     *
+     * @return kommentaren, eller en tom streng hvis det ikke er skrevet noen
+     */
     public String getComment() {
         return comment;
     }

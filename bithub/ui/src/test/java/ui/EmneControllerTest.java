@@ -55,8 +55,6 @@ public class EmneControllerTest extends ApplicationTest {
         testFilePath = tempDir.resolve("test-reviews.json");
         ReviewHandler testHandler = new ReviewHandler(testFilePath);
 
-        // MÅTE 2: Injiserer via eksisterende Service/Handler-setter i EmneController
-        // (Bytt ut setReviewService med setStorage / setFileHandler dersom navnet avviker)
         controller.setReviewService(new ReviewService(testHandler));
 
         stage.setScene(new Scene(root));
