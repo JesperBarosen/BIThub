@@ -41,7 +41,7 @@ Dette fungerer i appen nå:
 
 - [Hjemmeside](/bithub/ui/src/main/resources/ui/Hjemmeside.fxml) med knapper til de ulike delene av appen
 - [Velg fag](/bithub/ui/src/main/resources/ui/VelgFag.fxml) med en nedtrekksliste over emner. Den samme siden brukes både når man skal skrive og lese anmeldelser.
-- [Skrive anmeldelse](/bithub/ui/src/main/resources/ui/EmneView.fxml) med vurdering fra 1–5, kommentar og mulighet til å være anonym
+- [Skrive anmeldelse](/bithub/ui/src/main/resources/ui/SkrivAnmeldelse.fxml) med vurdering fra 1–5, kommentar og mulighet til å være anonym
 - [Lese anmeldelser](/bithub/ui/src/main/resources/ui/LeseAnmeldelser.fxml) for et emne, med alle anmeldelsene, gjennomsnittlig vurdering og antall anmeldelser
 - Validering i [ReviewService](/bithub/core/src/main/java/core/ReviewService.java) i domenelaget, med feilmeldinger som vises i appen
 - Anmeldelser lagres automatisk til en JSON-fil, sortert per emne
@@ -73,8 +73,8 @@ Disse sidene er koblet sammen i appen. Man starter på hjemskjermen og velger fa
     </td>
     <td align="center">
       <b>Skrive anmeldelse</b><br>
-      <a href="bilder_release2/EmneView.png">
-        <img src="bilder_release2/EmneView.png" alt="Skrive anmeldelse av IT1901" height="300">
+      <a href="bilder_release2/SkrivAnmeldelse.png">
+        <img src="bilder_release2/SkrivAnmeldelse.png" alt="Skrive anmeldelse av IT1901" height="300">
       </a>
     </td>
   </tr>
@@ -178,7 +178,7 @@ Prosjektet består av tre Maven-moduler, og hver av dem er også en Java-modul m
 
 ### Hvordan lagene henger sammen
 
-Når brukeren trykker «SEND INN», kaller `EmneController` på `submitReview` i `ReviewService`. Der sjekkes det at det som er skrevet inn er gyldig, for eksempel at vurderingen er et tall fra 1 til 5. Er alt riktig, sendes anmeldelsen videre til et `ReviewRepository`.
+Når brukeren trykker «SEND INN», kaller `SkrivAnmeldelseController` på `submitReview` i `ReviewService`. Der sjekkes det at det som er skrevet inn er gyldig, for eksempel at vurderingen er et tall fra 1 til 5. Er alt riktig, sendes anmeldelsen videre til et `ReviewRepository`.
 
 Når brukeren skal lese anmeldelser, går det motsatt vei. `LeseAnmeldelserController` kaller på `getCourseWithReviews` i `ReviewService`, som henter emnet med `findCourse` i `ReviewRepository`. `ReviewHandler` leser JSON-filen og gjør `CourseDTO` om til et `Course`-objekt med anmeldelsene. Har ingen anmeldt emnet ennå, får kontrolleren et tomt emne tilbake. Gjennomsnittet regnes ut av `Course` i domenelaget.
 
@@ -216,7 +216,7 @@ Alle modulene har tester. Testene kjøres fra prosjektmappen `bithub` med `mvn t
 
 #### ui
 
-- [EmneControllerTest](/bithub/ui/src/test/java/ui/EmneControllerTest.java) tester skjemaet for å skrive anmeldelse: at riktig emne vises, at feilmeldinger kommer ved ugyldig vurdering, og at anmeldelsen lagres til fil både når man er anonym og ikke.
+- [SkrivAnmeldelseControllerTest](/bithub/ui/src/test/java/ui/SkrivAnmeldelseControllerTest.java) tester skjemaet for å skrive anmeldelse: at riktig emne vises, at feilmeldinger kommer ved ugyldig vurdering, og at anmeldelsen lagres til fil både når man er anonym og ikke.
 - [LeseAnmeldelserControllerTest](/bithub/ui/src/test/java/ui/LeseAnmeldelserControllerTest.java) tester siden for å lese anmeldelser: at anmeldelsene, gjennomsnittet og antallet vises riktig, at et emne uten anmeldelser viser «Ingen anmeldelser ennå.», og at TILBAKE og HJEM går til riktig side.
 - [NewNavigationTest](/bithub/ui/src/test/java/ui/NewNavigationTest.java) tester at man kan gå fra hjemmesiden, velge fag, komme til skjemaet og tilbake igjen, og at sidene som ikke er laget ennå vises. Den har også en ende-til-ende-test som skriver en anmeldelse i appen og leser den tilbake på «Les anmeldelser»-siden, slik at alle tre lagene testes sammen.
 
