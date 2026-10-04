@@ -36,26 +36,56 @@ public class UserDTO {
         this.password = password;
     }
 
+    /**
+     * Henter navnet til brukeren.
+     *
+     * @return navnet
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Setter navnet til brukeren.
+     *
+     * @param name navnet
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Henter e-postadressen til brukeren.
+     *
+     * @return e-postadressen
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Setter e-postadressen til brukeren.
+     *
+     * @param email e-postadressen
+     */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     * Henter passordet til brukeren.
+     *
+     * @return passordet
+     */
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Setter passordet til brukeren.
+     *
+     * @param password passordet
+     */
     public void setPassword(String password) {
         this.password = password;
     }
