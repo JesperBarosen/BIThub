@@ -14,7 +14,7 @@ import javafx.scene.paint.Color;
 /**
  * Kontroller for skjemaet der brukeren skriver og sender inn en anmeldelse.
  */
-public class EmneController {
+public class SkrivAnmeldelseController {
 
     @FXML
     private Label emneTittelLabel;
