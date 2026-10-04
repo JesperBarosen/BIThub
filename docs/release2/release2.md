@@ -51,6 +51,8 @@ Knappene «Mine anmeldelser» og «Profil» åpner foreløpig bare en side der d
 
 ## Bilder fra appen
 
+Trykk på et bilde for å åpne det i full størrelse i mappen [bilder_release2](bilder_release2/).
+
 ### Sider i bruk
 
 Disse sidene er koblet sammen i appen. Man starter på hjemskjermen og velger fag. Via «Skriv anmeldelse» kommer man til skjemaet, og via «Les anmeldelser» kommer man til anmeldelsene for faget.
@@ -59,15 +61,21 @@ Disse sidene er koblet sammen i appen. Man starter på hjemskjermen og velger fa
   <tr>
     <td align="center">
       <b>Hjem skjerm</b><br>
-      <img src="bilder_release2/Hjemmeside.png" alt="Hjem skjerm" height="300">
+      <a href="bilder_release2/Hjemmeside.png">
+        <img src="bilder_release2/Hjemmeside.png" alt="Hjem skjerm" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Velg fag</b><br>
-      <img src="bilder_release2/VelgFag.png" alt="Velg fag med IT1901 valgt" height="300">
+      <a href="bilder_release2/VelgFag.png">
+        <img src="bilder_release2/VelgFag.png" alt="Velg fag med IT1901 valgt" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Skrive anmeldelse</b><br>
-      <img src="bilder_release2/EmneView.png" alt="Skrive anmeldelse av IT1901" height="300">
+      <a href="bilder_release2/EmneView.png">
+        <img src="bilder_release2/EmneView.png" alt="Skrive anmeldelse av IT1901" height="300">
+      </a>
     </td>
   </tr>
 </table>
@@ -76,15 +84,21 @@ Disse sidene er koblet sammen i appen. Man starter på hjemskjermen og velger fa
   <tr>
     <td align="center">
       <b>Anmeldelsen er sendt inn</b><br>
-      <img src="bilder_release2/AnmeldelseSendt.png" alt="Anmeldelsen er sendt inn" height="300">
+      <a href="bilder_release2/AnmeldelseSendt.png">
+        <img src="bilder_release2/AnmeldelseSendt.png" alt="Anmeldelsen er sendt inn" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Lese anmeldelser</b><br>
-      <img src="bilder_release2/LeseAnmeldelser.png" alt="Anmeldelser av IT1901" height="300">
+      <a href="bilder_release2/LeseAnmeldelser.png">
+        <img src="bilder_release2/LeseAnmeldelser.png" alt="Anmeldelser av IT1901" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Emne uten anmeldelser</b><br>
-      <img src="bilder_release2/EmneUtenAnmeldelse.png" alt="BI2081 uten anmeldelser" height="300">
+      <a href="bilder_release2/EmneUtenAnmeldelse.png">
+        <img src="bilder_release2/EmneUtenAnmeldelse.png" alt="BI2081 uten anmeldelser" height="300">
+      </a>
     </td>
   </tr>
 </table>
@@ -97,11 +111,15 @@ Disse sidene er laget i FXML, men er ennå ikke koblet til navigasjonen i appen.
   <tr>
     <td align="center">
       <b>Logg inn</b><br>
-      <img src="bilder_release2/LoggInn.png" alt="Logg inn" height="300">
+      <a href="bilder_release2/LoggInn.png">
+        <img src="bilder_release2/LoggInn.png" alt="Logg inn" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Registrer ny bruker</b><br>
-      <img src="bilder_release2/RegistrerBruker.png" alt="Registrer ny bruker" height="300">
+      <a href="bilder_release2/RegistrerBruker.png">
+        <img src="bilder_release2/RegistrerBruker.png" alt="Registrer ny bruker" height="300">
+      </a>
     </td>
   </tr>
 </table>
@@ -110,15 +128,21 @@ Disse sidene er laget i FXML, men er ennå ikke koblet til navigasjonen i appen.
   <tr>
     <td align="center">
       <b>Info om appen</b><br>
-      <img src="bilder_release2/InfoOmBIThub.png" alt="Info om appen" height="300">
+      <a href="bilder_release2/InfoOmBIThub.png">
+        <img src="bilder_release2/InfoOmBIThub.png" alt="Info om appen" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Profil side</b><br>
-      <img src="bilder_release2/Profil.png" alt="Profil side" height="300">
+      <a href="bilder_release2/Profil.png">
+        <img src="bilder_release2/Profil.png" alt="Profil side" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Endre passord</b><br>
-      <img src="bilder_release2/EndrePassord.png" alt="Endre passord" height="300">
+      <a href="bilder_release2/EndrePassord.png">
+        <img src="bilder_release2/EndrePassord.png" alt="Endre passord" height="300">
+      </a>
     </td>
   </tr>
 </table>
@@ -127,11 +151,15 @@ Disse sidene er laget i FXML, men er ennå ikke koblet til navigasjonen i appen.
   <tr>
     <td align="center">
       <b>Mine anmeldelser</b><br>
-      <img src="bilder_release2/MineAnmeldelser.png" alt="Mine anmeldelser" height="300">
+      <a href="bilder_release2/MineAnmeldelser.png">
+        <img src="bilder_release2/MineAnmeldelser.png" alt="Mine anmeldelser" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Endre egen anmeldelse</b><br>
-      <img src="bilder_release2/EndreEgenAnmeldelse.png" alt="Endre egen anmeldelse" height="300">
+      <a href="bilder_release2/EndreEgenAnmeldelse.png">
+        <img src="bilder_release2/EndreEgenAnmeldelse.png" alt="Endre egen anmeldelse" height="300">
+      </a>
     </td>
   </tr>
 </table>
@@ -231,7 +259,7 @@ Som i release 1 hadde vi møte én gang i uken, på tirsdager kl. 13:30. Der gik
 
 ## Utfordringer i release 2
 
-Det tok en del tid å gå fra CSV til JSON. All fillagringen fra release 1 måtte skrives om og flyttes ut av `core`. Jackson trenger en tom konstruktør og settere for å lage objekter fra JSON, så vi måtte legge det til i `Review`. Vi lagde også egne DTO-klasser (`CourseDTO` og `UserDTO`) for hvordan dataene ser ut i filene.
+Det tok en del tid å gå fra CSV til JSON. All fillagringen fra release 1 måtte skrives om og flyttes ut av `core`. Jackson trenger en tom konstruktør og settere for å lage objekter fra JSON. Først la vi det til i `Review`, men da kunne valideringen omgås. Vi lagde derfor egne DTO-klasser (`CourseDTO`, `ReviewDTO` og `UserDTO`) for hvordan dataene ser ut i filene, slik at `Review` kunne være uforanderlig.
 
 Det var fristende å bare la `core` bruke `ReviewHandler` direkte, men da ville domenelaget blitt avhengig av lagringen. Løsningen ble å lage grensesnittet `ReviewRepository`.
 
