@@ -1,0 +1,42 @@
+@startuml brukerhistorie1_skrive_anmeldelse
+
+title Brukerhistorie 1 - Skrive anmeldelse av fag
+
+actor "Student" as User
+participant "VelgFagController\n(ui)" as SelectC
+participant "Navigation\n(ui)" as Nav
+participant "EmneController\n(ui)" as EmneC
+participant "ReviewService\n(core)" as Service
+participant "ReviewRepository\n(interface, core)" as Repo
+participant "ReviewHandler\n(file)" as Handler
+database "courses.json" as File
+
+User -> SelectC : velger fag i nedtrekksliste\nog trykker "Neste"
+SelectC -> Nav : showReviewForm(source, course)
+Nav -> EmneC : setReviewService(reviewService)
+Nav -> EmneC : setCourse(course)
+Nav --> User : viser EmneView\n(anmeldelsesskjema)
+
+User -> EmneC : fyller ut vurdering (1-5),\nkommentar og anonym-avkrysning,\ntrykker "Send inn"
+EmneC -> Service : submitReview(courseCode, courseName,\nreviewerName, ratingText, comment)
+Service -> Service : parseRating(ratingText)
+
+alt ugyldig vurdering (ikke tall / utenfor 1-5)
+    Service --> EmneC : kaster IllegalArgumentException
+    EmneC --> User : viser feilmelding\n(rødt statusfelt)
+else gyldig vurdering
+    Service -> Service : new Course(courseCode, courseName)
+    Service -> Service : new Review(reviewerName, rating, comment)
+    Service -> Repo : addReview(courseCode, courseName, review)
+    note right of Repo : implementeres av ReviewHandler
+    Repo -> Handler : addReview(courseCode, courseName, review)
+    Handler -> File : readFromFile()
+    File --> Handler : liste med CourseDTO
+    Handler -> Handler : finn/opprett CourseDTO\nfor faget, legg review til
+    Handler -> File : writeToFile(courses)
+    Handler --> Service : (void)
+    Service --> EmneC : (void)
+    EmneC --> User : viser "Vurderingen ble sendt inn!"\n(grønt statusfelt), tømmer felter
+end
+
+@enduml
