@@ -56,14 +56,29 @@ public final class User {
         this.password = password;
     }
 
+    /**
+     * Henter navnet til brukeren.
+     *
+     * @return navnet
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Henter e-postadressen til brukeren.
+     *
+     * @return e-postadressen
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Henter passordet til brukeren.
+     *
+     * @return passordet
+     */
     public String getPassword() {
         return password;
     }
