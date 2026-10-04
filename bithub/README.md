@@ -112,7 +112,7 @@ lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
 
 ### Kommentarer til diagrammet
 
-- **`ui → core`:** `EmneController` kjenner kun `core.ReviewService`. Den vet ingenting om
+- **`ui → core`:** `SkrivAnmeldelseController` kjenner kun `core.ReviewService`. Den vet ingenting om
   at anmeldelsen til slutt havner i en JSON-fil.
 - **`core → file` (via grensesnitt):** `ReviewService` kjenner kun `core.ReviewRepository`.
   `ReviewHandler` i `file`-modulen implementerer dette grensesnittet, så `core` er ikke

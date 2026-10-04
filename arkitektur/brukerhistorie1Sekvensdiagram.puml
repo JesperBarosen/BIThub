@@ -5,7 +5,7 @@ title Brukerhistorie 1 - Skrive anmeldelse av fag
 actor "Student" as User
 participant "VelgFagController\n(ui)" as SelectC
 participant "Navigation\n(ui)" as Nav
-participant "EmneController\n(ui)" as EmneC
+participant "SkrivAnmeldelseController\n(ui)" as SkrivC
 participant "ReviewService\n(core)" as Service
 participant "ReviewRepository\n(interface, core)" as Repo
 participant "ReviewHandler\n(file)" as Handler
@@ -13,17 +13,17 @@ database "courses.json" as File
 
 User -> SelectC : velger fag i nedtrekksliste\nog trykker "Neste"
 SelectC -> Nav : showReviewForm(source, course)
-Nav -> EmneC : setReviewService(reviewService)
-Nav -> EmneC : setCourse(course)
-Nav --> User : viser EmneView\n(anmeldelsesskjema)
+Nav -> SkrivC : setReviewService(reviewService)
+Nav -> SkrivC : setCourse(course)
+Nav --> User : viser SkrivAnmeldelse\n(anmeldelsesskjema)
 
-User -> EmneC : fyller ut vurdering (1-5),\nkommentar og anonym-avkrysning,\ntrykker "Send inn"
-EmneC -> Service : submitReview(courseCode, courseName,\nreviewerName, ratingText, comment)
+User -> SkrivC : fyller ut vurdering (1-5),\nkommentar og anonym-avkrysning,\ntrykker "Send inn"
+SkrivC -> Service : submitReview(courseCode, courseName,\nreviewerName, ratingText, comment)
 Service -> Service : parseRating(ratingText)
 
 alt ugyldig vurdering (ikke tall / utenfor 1-5)
-    Service --> EmneC : kaster IllegalArgumentException
-    EmneC --> User : viser feilmelding\n(rødt statusfelt)
+    Service --> SkrivC : kaster IllegalArgumentException
+    SkrivC --> User : viser feilmelding\n(rødt statusfelt)
 else gyldig vurdering
     Service -> Service : new Course(courseCode, courseName)
     Service -> Service : new Review(reviewerName, rating, comment)
@@ -32,11 +32,11 @@ else gyldig vurdering
     Repo -> Handler : addReview(courseCode, courseName, review)
     Handler -> File : readFromFile()
     File --> Handler : liste med CourseDTO
-    Handler -> Handler : finn/opprett CourseDTO\nfor faget, legg review til
+    Handler -> Handler : finn/opprett CourseDTO\nfor faget, legg til ReviewDTO
     Handler -> File : writeToFile(courses)
     Handler --> Service : (void)
-    Service --> EmneC : (void)
-    EmneC --> User : viser "Vurderingen ble sendt inn!"\n(grønt statusfelt), tømmer felter
+    Service --> SkrivC : (void)
+    SkrivC --> User : viser "Vurderingen ble sendt inn!"\n(grønt statusfelt), tømmer felter
 end
 
 @enduml
