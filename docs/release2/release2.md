@@ -5,7 +5,7 @@ Denne filen forklarer hva vi har gjort i release 2, hvilke valg vi har tatt og h
 - [persistence.md](persistence.md) – filformat og valget mellom dokumentmetafor og implisitt lagring
 - [code-quality.md](code-quality.md) – testing, JaCoCo, Checkstyle og SpotBugs
 - [work-practices.md](work-practices.md) – arbeidsvaner og parprogrammering
-- [workflow.md](workflow.md) – issues, brancher, commit-meldinger, merge requests og code review
+- [workflow.md](workflow.md) – issues, brancher, commit-meldinger, pull requests og code review
 - [ai-tools.md](ai-tools.md) – bruk av KI i release 2
 - [teamwork.md](teamwork.md) – refleksjon rundt samarbeidet i gruppen
 
@@ -208,7 +208,7 @@ unntakene i [code-quality.md](code-quality.md).
 
 ### Arbeidsflyt med Git
 
-Vi har fortsatt med samme arbeidsflyt som i release 1, men denne gangen skrev vi den ned i [workflow.md](workflow.md), med maler for issues, branch-navn, commit-meldinger og merge requests. Alt arbeid starter med et issue som er knyttet til milepælen for release 2, og hvert issue får sin egen branch. Før vi lager en merge request, henter vi inn siste versjon av `master`, løser eventuelle konflikter lokalt og kjører `mvn clean verify`. Minst én annen på gruppen ser over endringene før de blir merget.
+Vi har fortsatt med samme arbeidsflyt som i release 1, men denne gangen skrev vi den ned i [workflow.md](workflow.md), med maler for issues, branch-navn, commit-meldinger og pull requests. Alt arbeid starter med et issue som er knyttet til milepælen for release 2, og hvert issue får sin egen branch. Før vi lager en pull request, henter vi inn siste versjon av `master`, løser eventuelle konflikter lokalt og kjører `mvn clean verify`. Minst én annen på gruppen ser over endringene før de blir merget.
 
 ### Parprogrammering
 
@@ -218,8 +218,8 @@ Parprogrammering var særlig nyttig på oppgaver som gikk på tvers av modulene.
 
 Mot slutten av release 2 oppdaget vi at `Co-authored-by` hadde
 stått over issue-referansen (`ref`/`closes`) i commit-meldingene.
-GitLab gjenkjenner bare medforfattere når linjen står helt nederst i
-meldingen, så parprogrammeringen vises ikke på GitLab, selv om
+GitHub gjenkjenner bare medforfattere når linjen står helt nederst i
+meldingen, så parprogrammeringen vises ikke på GitHub, selv om
 medforfatterne står i commit-meldingene. Vi har rettet malen i
 [workflow.md](workflow.md) og bruker riktig rekkefølge fra release 3.
 
@@ -266,7 +266,7 @@ New-Item -ItemType Directory -Force "$HOME\.bithub"
 Copy-Item docs\release2\eksempeldata\courses.json "$HOME\.bithub\courses.json"
 ```
 
-Start så appen som beskrevet i [README](/README.md). Bildene under er tatt med disse dataene, og du kan gjenskape dem slik:
+Start så appen som beskrevet i [README](/README.md). Bildene over er tatt med disse dataene, og du kan gjenskape dem slik:
 
 1. Trykk «SKRIV ANMELDELSE», velg IT1901 og trykk «GÅ VIDERE».
 2. Gi vurdering 4, skriv «Gode tilbakemeldinger fra læringsassistentene.», kryss av for anonym og trykk «SEND INN».
