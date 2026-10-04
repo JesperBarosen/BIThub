@@ -59,8 +59,6 @@ Hver anmeldelse inneholder informasjon om hvem som har skrevet den
 ]
  
 ```
-_Passordene vises i klartekst fordi det er slik formatet er i dag. Se begrensningene i [avsnitt 2.3](#23-egenrefleksjon-og-begrensninger-ved-valgt-modell)._
-
 
 `ReviewHandler` håndterer lesing og skriving av kurs og anmeldelser.
 Standard lagringsplassering er `.bithub/courses.json` i brukerens
@@ -100,6 +98,8 @@ brukerens hjemmemappe.
 ]
  
 ```
+
+_Passordene vises i klartekst fordi det er slik formatet er i dag. Se begrensningene i [avsnitt 2.3](#23-egenrefleksjon-og-begrensninger-ved-valgt-modell)._
 
 ## 2. Lagringsmodell: Dokumentmetafor vs. implisitt lagring
 
@@ -146,4 +146,4 @@ Selv om implisitt lagring er det mest hensiktsmessige valget for applikasjonens 
 
 * **Handlingstrigget lagring fremfor kontinuerlig auto-lagring:** Lagringen i grensesnittet er «handlingstrigget implisitt». Filbehandlingen skjules helt for brukeren, men selve skriveoperasjonen utløses eksplisitt ved trykk på `SEND INN` (*Skrive anmeldelse*). Det samme er planlagt for `LAG NY BRUKER` (*Registrer ny bruker*).
 * **Lokal JSON-persistens vs. sky-basert brukermodell:** Grensesnittet på *Logg inn side* og *Profil* gir brukeren en mental modell av en sentralisert sky-tjeneste der man kan logge inn fra hvilken som helst enhet. Siden nåværende persistenslag lagrer data i lokale JSON-filer under `.bithub/` i brukerens hjemmemappe, er dataene avgrenset til den enkelte datamaskinen. Dette er en kjent begrensning ved lokal fil-persistens som ville krevd en ekstern database/REST-API for fullstendig å matche brukermodellen i Figma.
-* * **Passord i klartekst:** `users.json` lagrer i dag passordet slik brukeren skrev det. Det er greit så lenge brukerdelen ikke er i bruk, men det er ikke trygt. Før innlogging tas i bruk, skal passord hashes med salt (for eksempel SHA-256 eller bcrypt) før de lagres, slik at filen aldri inneholder selve passordet.
+*  **Passord i klartekst:** `users.json` lagrer i dag passordet slik brukeren skrev det. Det er greit så lenge brukerdelen ikke er i bruk, men det er ikke trygt. Før innlogging tas i bruk, skal passord hashes med salt (for eksempel PBKDF2 eller bcrypt) før de lagres, slik at filen aldri inneholder selve passordet.
