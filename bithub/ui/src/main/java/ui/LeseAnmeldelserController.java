@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
 
 /**
  * Kontroller for siden som viser anmeldelsene og gjennomsnittlig vurdering for
@@ -40,15 +41,33 @@ public class LeseAnmeldelserController {
 
     private ReviewService reviewService;
 
+    /**
+     * Setter opp lista slik at hver anmeldelse vises som et kort, og viser en
+     * melding når emnet ikke har anmeldelser.
+     */
     @FXML
     private void initialize() {
         reviewList.setPlaceholder(new Label("Ingen anmeldelser ennå."));
         reviewList.setCellFactory(listView -> new ListCell<>() {
+            /**
+             * Viser kortet for anmeldelsen i cellen, eller ingenting hvis
+             * cellen er tom.
+             *
+             * @param review anmeldelsen cellen skal vise
+             * @param empty {@code true} hvis cellen ikke har innhold
+             */
             @Override
             protected void updateItem(Review review, boolean empty) {
                 super.updateItem(review, empty);
-                setWrapText(true);
-                setText(empty || review == null ? null : formatReview(review));
+                setText(null);
+                if (empty || review == null) {
+                    setGraphic(null);
+                } else {
+                    VBox card = createReviewCard(review);
+                    // Trekker fra plass til rullefeltet, slik at kommentaren brytes riktig.
+                    card.maxWidthProperty().bind(listView.widthProperty().subtract(40));
+                    setGraphic(card);
+                }
             }
         });
     }
@@ -85,15 +104,28 @@ public class LeseAnmeldelserController {
     }
 
     /**
-     * Lager teksten som vises for én anmeldelse i listen.
+     * Lager visningen av én anmeldelse i listen: navnet, vurderingen og
+     * kommentaren under hverandre.
      *
      * @param review anmeldelsen som skal vises
-     * @return vurdering og navn på første linje, kommentaren på neste
+     * @return en boks med navn, vurdering og eventuelt kommentar
      */
-    static String formatReview(Review review) {
-        String heading = review.getRating() + "/5 - " + review.getReviewerName();
+    static VBox createReviewCard(Review review) {
+        Label name = new Label(review.getReviewerName().toUpperCase(Locale.ROOT));
+        name.getStyleClass().add("anmeldelse-navn");
+
+        Label rating = new Label("VURDERING: " + review.getRating() + "/5");
+
+        VBox card = new VBox(4, name, rating);
+        card.getStyleClass().add("anmeldelse-kort");
+
         String comment = review.getComment();
-        return comment == null || comment.isBlank() ? heading : heading + "\n" + comment;
+        if (comment != null && !comment.isBlank()) {
+            Label commentText = new Label(comment);
+            commentText.setWrapText(true);
+            card.getChildren().addAll(new Label("KOMMENTAR:"), commentText);
+        }
+        return card;
     }
 
     @FXML

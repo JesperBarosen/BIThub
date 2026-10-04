@@ -11,12 +11,14 @@ import core.ReviewService;
 import file.ReviewHandler;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -91,14 +93,29 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
     }
 
     /**
-     * Verifiserer teksten som vises for en anmeldelse, med og uten kommentar.
+     * Verifiserer at en anmeldelse vises med navn, vurdering og kommentar, og
+     * at kommentaren utelates når den er tom.
      */
     @Test
-    void formatReviewShowsRatingNameAndComment() {
-        assertEquals("4/5 - Ola\nBra fag",
-                LeseAnmeldelserController.formatReview(new Review("Ola", 4, "Bra fag")));
-        assertEquals("2/5 - Anonym",
-                LeseAnmeldelserController.formatReview(new Review("Anonym", 2, "")));
+    void reviewCardShowsNameRatingAndComment() {
+        assertEquals(List.of("OLA", "VURDERING: 4/5", "KOMMENTAR:", "Bra fag"),
+                labelTexts(LeseAnmeldelserController.createReviewCard(
+                        new Review("Ola", 4, "Bra fag"))));
+        assertEquals(List.of("ANONYM", "VURDERING: 2/5"),
+                labelTexts(LeseAnmeldelserController.createReviewCard(
+                        new Review("Anonym", 2, ""))));
+    }
+
+    /**
+     * Henter teksten fra hver etikett i kortet, i samme rekkefølge som de vises.
+     *
+     * @param card kortet som skal leses
+     * @return teksten i etikettene, ovenfra og ned
+     */
+    private static List<String> labelTexts(VBox card) {
+        return card.getChildren().stream()
+                .map(node -> ((Label) node).getText())
+                .toList();
     }
 
     /**

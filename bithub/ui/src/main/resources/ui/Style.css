@@ -114,3 +114,23 @@
     -fx-background-color: white;
     -fx-background-insets: 0;
 }
+.anmeldelse-liste {
+    -fx-background-color: #DCEBF7;
+    -fx-border-color: #333333;
+    -fx-border-width: 1;
+}
+
+.anmeldelse-liste .list-cell {
+    -fx-background-color: #DCEBF7;
+    -fx-border-color: transparent transparent #333333 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 8 10 10 10;
+}
+
+.anmeldelse-liste .list-cell:empty {
+    -fx-border-color: transparent;
+}
+
+.anmeldelse-navn {
+    -fx-font-weight: bold;
+}
