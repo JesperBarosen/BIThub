@@ -75,7 +75,7 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Label>
-            <ListView fx:id="reviewList" prefHeight="286.0" prefWidth="370.0" VBox.vgrow="ALWAYS" />
+            <ListView fx:id="reviewList" prefHeight="286.0" prefWidth="370.0" styleClass="anmeldelse-liste" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
       <HBox alignment="CENTER" prefHeight="70.0" prefWidth="200.0" styleClass="header-bar">
