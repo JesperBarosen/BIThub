@@ -18,7 +18,4 @@ Samarbeidet var derimot ikke perfekt til å begynne med. Siden flere par jobbet 
 Mot slutten av release 2 oppdaget vi også at `Co-authored-by` sto feil i commit-meldingene, slik at GitHub ikke registrerte parprogrammeringen. Feilen kom fra malen vi alle fulgte, og viste oss at en felles mal også sprer feil til alle.
 
 Vi har fått en mye bedre forståelse av hvordan diverse Git-verktøy  kan brukes til å organisere samarbeid.
-hvordan man kan bruke verktøyene mest mulig effektivt, særlig i forbindelse med parprogrammeringen.
-Arbeidsprosessen har også blitt betydelig forbedret ved hjelp av Workflow.md. Denne filen gir
-gruppemedlemmene en felles mal å følge, noe som bidrar til en mer strukturert og oversiktlig
-arbeidsprosess. På denne måten sikrer man at alle gruppemedlemmene følger de samme retningslinjene.
+Kombinert med at `workflow.md` har gitt oss en felles mal å følge, noe som har gjort arbeidsprosessen mer strukturert og sikrer at alle følger de samme retningslinjene, har vi etablert en veldig god arbeidsflyt på tvers av alle gruppemedlemmene.
