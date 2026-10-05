@@ -28,7 +28,11 @@ resultatene fra Checkstyle og SpotBugs.
 
 ## Dokumentasjon 
 
- 
+Vi oppdaterte filstier og lenker underveis i prosjektet etter hvert som
+strukturen endret seg. Mot slutten brukte vi KI til å sammenligne
+dokumentasjonen med koden for å fange opp feil vi kunne ha oversett.
+Et eksempel var en død lenke til README-filen i `ui`-mappen, som skulle
+peke til `bithub/README.md`.
 
 ## Erfaringer og kritisk vurdering 
 
