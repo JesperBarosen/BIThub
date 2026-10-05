@@ -10,16 +10,23 @@ for videre vurdering og testing i prosjektet.
 
 ## Feilsøking og tester
 
-Vi har brukt KI til å tolke feilmeldinger i terminalen og få forklart hva som
-kunne være årsaken, og hvordan feilene kunne rettes. Et eksempel var filtester
+Vi har brukt KI til å tolke feilmeldinger og advarsler fra Maven, Checkstyle
+og SpotBugs i terminalen. Vi har også fått forslag til årsaker til testfeil
+og til tester som kunne undersøke bestemte feilsituasjoner. Et eksempel var filtester
 som feilet på Mac fordi de forventet at lesing av filstørrelsen til en mappe
 skulle gi et unntak. KI hjalp oss å forstå hvorfor dette ikke skjedde, og
 forklarte hvordan Mockito kunne brukes til å simulere unntaket i stedet.
-Forklaringen gjorde det lettere å rette feilene. Etter
-endringene kjørte vi testene på nytt for å kontrollere at de besto.
+Forklaringen gjorde det lettere å rette feilene.
+
+Forslagene ble kontrollert ved å kjøre relevante tester underveis og
+`mvn test` for å sjekke testene samlet. Med `mvn verify` kontrollerte vi også
+resultatene fra Checkstyle og SpotBugs. 
 
  
-## Kodegjennomgang og dokumentasjon 
+## Kode og kodegjennomgang 
+
+
+## Dokumentasjon 
 
  
 
@@ -27,7 +34,6 @@ endringene kjørte vi testene på nytt for å kontrollere at de besto.
 
  
 
- 
 
 ## Hva vi lærte 
 
