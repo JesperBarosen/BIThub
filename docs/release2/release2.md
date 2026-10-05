@@ -59,13 +59,13 @@ Disse sidene er koblet sammen i appen. Man starter på hjemskjermen og velger fa
     <td align="center">
       <b>Velg fag</b><br>
       <a href="bilder_release2/VelgFag.png">
-        <img src="bilder_release2/VelgFag.png" alt="Velg fag med IT1901 valgt" height="300">
+        <img src="bilder_release2/VelgFag.png" alt="Velg fag" height="300">
       </a>
     </td>
     <td align="center">
       <b>Skrive anmeldelse</b><br>
       <a href="bilder_release2/SkrivAnmeldelse.png">
-        <img src="bilder_release2/SkrivAnmeldelse.png" alt="Skrive anmeldelse av IT1901" height="300">
+        <img src="bilder_release2/SkrivAnmeldelse.png" alt="Skjema for å skrive anmeldelse" height="300">
       </a>
     </td>
   </tr>
@@ -250,7 +250,7 @@ Som i release 1 hadde vi møte én gang i uken, på tirsdager kl. 13:30. Der gik
 
 ## Utfordringer i release 2
 
-Det tok en del tid å gå fra CSV til JSON. All fillagringen fra release 1 måtte skrives om og flyttes ut av `core`. Jackson trenger en tom konstruktør og settere for å lage objekter fra JSON. Først la vi det til i `Review`, men da kunne valideringen omgås. Vi lagde derfor egne DTO-klasser (`CourseDTO`, `ReviewDTO` og `UserDTO`) for hvordan dataene ser ut i filene, slik at `Review` kunne være uforanderlig.
+Det tok en del tid å gå fra CSV til JSON. All fillagringen fra release 1 måtte skrives om og flyttes ut av `core`. Som standard lager Jackson objekter med en tom konstruktør og settere. Først la vi det til i `Review`, men da kunne valideringen omgås. Jackson kan også bruke en konstruktør med annotasjoner, men da måtte `core` avhenge av Jackson. Vi lagde derfor egne DTO-klasser (`CourseDTO`, `ReviewDTO` og `UserDTO`) for hvordan dataene ser ut i filene, slik at `Review` kunne være uforanderlig og `core` uavhengig av lagringen.
 
 Det var fristende å bare la `core` bruke `ReviewHandler` direkte, men da ville domenelaget blitt avhengig av lagringen. Løsningen ble å lage grensesnittet `ReviewRepository`.
 
