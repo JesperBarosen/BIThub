@@ -48,7 +48,7 @@ Kildefilen til diagrammet ligger i [`arkitektur/klassediagramFile.puml`](arkitek
 
 ## Mappestruktur i kodingsprosjektet
 
-```
+```text
 └───bithub
     ├───pom.xml
     │    -- Foreldre-POM som samler modulene core, file og ui.
