@@ -112,3 +112,5 @@ mvn clean install
 mvn javafx:run
 ```
 
+Testdekningsrapporten fra JaCoCo finnes etterpå i `bithub/core/target/site/jacoco/index.html`,
+`bithub/file/target/site/jacoco/index.html` og `bithub/ui/target/site/jacoco/index.html`.
