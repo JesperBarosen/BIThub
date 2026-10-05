@@ -17,11 +17,13 @@ Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og er bygget med tre-lags
 - **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core`, implementerer `ReviewRepository` og gjør dataene om til og fra JSON med Jackson.
 - **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene og `ReviewService`. `file` brukes bare i `App`, som kobler `ReviewHandler` til `ReviewService` ved oppstart.
 
+### Pakkediagram
+
 ![Pakkediagram for BIThub](arkitektur/png/pakkeDiagram.png)
 
-Kildefilen til diagrammet ligger i [`arkitektur/pakkeDiagram.puml`](arkitektur/pakkeDiagram.puml)
+Kildefilen til diagrammet ligger i [`arkitektur/pakkeDiagram.puml`](arkitektur/pakkeDiagram.puml).
 
-Filene viser avhengighetene mellom modulene: `ui`  er avhengig av `core` og `file`, `file` er
+Pilene viser avhengighetene mellom modulene: `ui` er avhengig av `core` og `file`, `file` er
 avhengig av `core` og Jackson, og `core` er ikke avhengig av noen av de andre modulene.
 
 ### Klassediagram for core
@@ -72,7 +74,7 @@ Kildefilen til diagrammet ligger i [`arkitektur/klassediagramFile.puml`](arkitek
     │       │       └───file
     │       │           -- ReviewHandler og UserHandler leser og skriver JSON med Jackson.
     │       │           -- DataHandler er grensesnittet de to handlerne implementerer.
-    │       │           -- CourseDTO og UserDTO er objektene som lagres til fil.
+    │       │           -- CourseDTO, ReviewDTO og UserDTO er objektene som lagres til fil.
     │       └───test
     │           └───java
     │               └───file
@@ -118,8 +120,6 @@ Kommandoene kjøres fra `bithub/`-mappen:
 - `mvn clean install` - bygger alle moduler
 - `mvn test` - kjører testene
 - `mvn verify` - kjører tester, kodekvalitetssjekker og genererer testdekningsrapport
-
-Testdekningsrapporten fra JaCoCo finnes etterpå i `bithub/core/target/site/jacoco/index.html`, `bithub/file/target/site/jacoco/index.html` og `bithub/ui/target/site/jacoco/index.html`.
 
 Appen startes fra `bithub/`:
 ```
