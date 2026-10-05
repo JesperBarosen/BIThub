@@ -32,7 +32,11 @@ Vi oppdaterte filstier og lenker underveis i prosjektet etter hvert som
 strukturen endret seg. Mot slutten brukte vi KI til å sammenligne
 dokumentasjonen med koden for å fange opp feil vi kunne ha oversett.
 Et eksempel var en død lenke til README-filen i `ui`-mappen, som skulle
-peke til `bithub/README.md`.
+peke til `bithub/README.md`. 
+KI fant også at README-en nevnte en kontroller som ikke lenger fantes. 
+Vi sjekket hvert punkt mot koden før vi rettet det.
+På samme måte brukte vi KI til å kontrollere at klassediagrammene og
+pakkediagrammet i `arkitektur/` stemte med koden.
 
 ## Erfaringer og kritisk vurdering 
 
