@@ -34,6 +34,16 @@ Kildefilen til diagrammet ligger i [`arkitektur/klassediagramCore.puml`](arkitek
 - `ReviewService` validerer og sender anmeldelser videre, men kjenner bare til grensesnittet
   `ReviewRepository`. Slik er ikke `core` avhengig av hvordan dataene lagres.
 
+### Klassediagram for file
+
+![Klassediagram for file](arkitektur/png/klassediagramFile.png)
+
+Kildefilen til diagrammet ligger i [`arkitektur/klassediagramFile.puml`](arkitektur/klassediagramFile.puml).
+
+- `ReviewHandler` og `UserHandler` implementerer `DataHandler` og leser og skriver JSON med Jackson.
+- `ReviewHandler` implementerer også `ReviewRepository` fra `core`, og gjør om mellom
+  domeneklassene (`Course`, `Review`) og objektene som lagres i filen (`CourseDTO`, `ReviewDTO`).
+
 ## Mappestruktur i kodingsprosjektet
 
 ```
