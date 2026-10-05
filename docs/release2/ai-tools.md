@@ -17,3 +17,20 @@ skulle gi et unntak. KI hjalp oss å forstå hvorfor dette ikke skjedde, og
 forklarte hvordan Mockito kunne brukes til å simulere unntaket i stedet.
 Forklaringen gjorde det lettere å rette feilene. Etter
 endringene kjørte vi testene på nytt for å kontrollere at de besto.
+
+ 
+## Kodegjennomgang og dokumentasjon 
+
+ 
+
+## Erfaringer og kritisk vurdering 
+
+ 
+
+ 
+
+## Hva vi lærte 
+
+ 
+
+## Refleksjon 
