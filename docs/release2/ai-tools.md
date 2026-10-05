@@ -47,3 +47,27 @@ På samme måte brukte vi KI til å kontrollere at klassediagrammene og
 pakkediagrammet i `arkitektur/` stemte med koden.
 
 ## Erfaringer, kritisk vurdering og læring
+
+KI har vært nyttig som støtte gjennom release 2, men forslagene har ikke 
+alltid vært riktige eller relevante for prosjektet. Vi erfarte at KI ofte 
+manglet nødvendig kontekst om kodebasen og derfor kunne foreslå endringer 
+som virket fornuftige isolert, men som ikke passet med eksisterende kode 
+eller arkitektur. Dette gjorde det viktig å kontrollere forslagene mot 
+prosjektet før de ble brukt.
+
+Et eksempel var når KI foreslo endringer som gikk utenfor omfanget til 
+issuet vi jobbet med, selv om løsningen kunne vært relevant for prosjektet 
+generelt. Slike forslag ble derfor vurdert opp mot issuets acceptance 
+criteria før vi gjorde endringer.
+
+Vi erfarte også at kvaliteten på svarene ble bedre når KI fikk konkrete 
+feilmeldinger, relevante kodefiler og informasjon om hvordan prosjektet 
+var bygget opp. KI fungerte spesielt godt til å forklare feil, foreslå 
+mulige årsaker og peke på områder som burde undersøkes nærmere. Samtidig 
+måtte kodeendringer og andre forslag fortsatt vurderes av gruppen og 
+kontrolleres gjennom tester og kvalitetsverktøy.
+
+Gjennom arbeidet har vi derfor blitt mer bevisste på å bruke KI som et 
+støtteverktøy fremfor som en fasit. Det har vært mest nyttig når 
+forslagene har blitt brukt som utgangspunkt for videre undersøkelse, 
+testing og diskusjon i gruppen.
