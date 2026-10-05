@@ -58,7 +58,7 @@ Disse sidene er koblet sammen i appen. Man starter på hjemskjermen og velger fa
 <table>
   <tr>
     <td align="center">
-      <b>Hjem skjerm</b><br>
+      <b>Hjemmeside</b><br>
       <img src="bilder_release2/Hjemmeside.png" alt="Hjem skjerm" height="300">
     </td>
     <td align="center">
