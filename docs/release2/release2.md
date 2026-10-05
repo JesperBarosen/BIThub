@@ -5,7 +5,7 @@ Denne filen forklarer hva vi har gjort i release 2, hvilke valg vi har tatt og h
 - [persistence.md](persistence.md) – filformat og valget mellom dokumentmetafor og implisitt lagring
 - [code-quality.md](code-quality.md) – testing, JaCoCo, Checkstyle og SpotBugs
 - [work-practices.md](work-practices.md) – arbeidsvaner og parprogrammering
-- [workflow.md](workflow.md) – issues, brancher, commit-meldinger, merge requests og code review
+- [workflow.md](workflow.md) – issues, brancher, commit-meldinger, pull requests og code review
 - [ai-tools.md](ai-tools.md) – bruk av KI i release 2
 - [teamwork.md](teamwork.md) – refleksjon rundt samarbeidet i gruppen
 
@@ -15,25 +15,16 @@ Beskrivelse av appen, Figma-skisser og brukerhistorier finnes i [bithub/README.m
 
 I release 2 var hovedmålet å dele opp prosjektet i moduler og få på plass en tre-lags arkitektur, uten å miste noe av det vi hadde fra release 1. Vi ville heller ha en app der lagene fungerer godt sammen og alt er testet, enn mange nye funksjoner.
 
-Målene våre var:
+- [x] **Modulær struktur:** Prosjektet er delt i modulene core, file og ui, som bygges samlet med Maven.
+- [x] **Tydelig ansvarsdeling:** Domenet er uavhengig av lagring og brukergrensesnitt, og logikk og validering ligger i riktig lag.
+- [x] **Varig lagring:** Data lagres som JSON i en egen modul, og valg av filformat og lagringsmodell er begrunnet.
+- [x] **Data begge veier:** Brukeren kan både skrive og lese anmeldelser, og dataene går gjennom alle tre lagene.
+- [x] **Automatisk kvalitetssikring:** Alle moduler er testet, og testdekning og kodekvalitet sjekkes i bygget.
+- [x] **Dokumentert arbeid:** Arkitektur, arbeidsflyt og kodekvalitet er beskrevet med tekst og diagrammer.
+- [x] **Gode arbeidsvaner:** Alt arbeid er knyttet til issues og en milepæl, gjøres i egne brancher og blir reviewet i pull requests før merge.
+- [ ] **Brukerkontoer:** Innlogging og registrering er utsatt til release 3.
 
-- [x] Dele opp prosjektet i modulene `core`, `file` og `ui`, med egen `pom.xml` og `module-info.java` for hver modul
-- [x] Samle felles versjoner og plugins i rot-`pom.xml`
-- [x] Bytte fra CSV til JSON med Jackson, i en egen modul for lagring
-- [x] Dokumentere filformatet og velge mellom dokumentmetafor og implisitt lagring
-- [x] Holde domenelaget uavhengig av lagringen
-- [x] Flytte validering av anmeldelser fra kontrolleren til domenelaget
-- [x] Koble logikk til «Velg fag»-siden og hjemmesiden
-- [x] Samle navigasjonen mellom sidene i én klasse
-- [x] Lage en klasse for brukere og lagre dem til fil
-- [x] Lese anmeldelser for et emne, med gjennomsnittlig vurdering og antall anmeldelser
-- [x] Tester i alle modulene, med høy testdekning fra JaCoCo
-- [x] Checkstyle og SpotBugs som kjøres av Maven
-- [x] Skrive ned arbeidsflyt, arbeidsvaner og valg for kodekvalitet
-- [x] Dokumentere arkitekturen med et diagram
-- [ ] Innlogging og registrering i appen
-
-Vi er fornøyde med arkitekturen og kodekvaliteten. Med lesing og skriving av anmeldelser går data nå begge veier gjennom alle tre lagene. Innlogging prioriterte vi ned, ettersom hovedmålet var å opprettholde kvalitet før eventuelt nye funksjoner legges til. 
+Vi er fornøyde med arkitekturen og kodekvaliteten. Med lesing og skriving av anmeldelser går data nå begge veier gjennom alle tre lagene. Innlogging prioriterte vi ned, ettersom hovedmålet var å opprettholde kvalitet før eventuelt nye funksjoner legges til.
 
 ## Funksjonalitet i release 2
 
@@ -41,7 +32,7 @@ Dette fungerer i appen nå:
 
 - [Hjemmeside](/bithub/ui/src/main/resources/ui/Hjemmeside.fxml) med knapper til de ulike delene av appen
 - [Velg fag](/bithub/ui/src/main/resources/ui/VelgFag.fxml) med en nedtrekksliste over emner. Den samme siden brukes både når man skal skrive og lese anmeldelser.
-- [Skrive anmeldelse](/bithub/ui/src/main/resources/ui/EmneView.fxml) med vurdering fra 1–5, kommentar og mulighet til å være anonym
+- [Skrive anmeldelse](/bithub/ui/src/main/resources/ui/SkrivAnmeldelse.fxml) med vurdering fra 1–5, kommentar og mulighet til å være anonym
 - [Lese anmeldelser](/bithub/ui/src/main/resources/ui/LeseAnmeldelser.fxml) for et emne, med alle anmeldelsene, gjennomsnittlig vurdering og antall anmeldelser
 - Validering i [ReviewService](/bithub/core/src/main/java/core/ReviewService.java) i domenelaget, med feilmeldinger som vises i appen
 - Anmeldelser lagres automatisk til en JSON-fil, sortert per emne
@@ -51,6 +42,8 @@ Knappene «Mine anmeldelser» og «Profil» åpner foreløpig bare en side der d
 
 ## Bilder fra appen
 
+Trykk på et bilde for å åpne det i full størrelse i mappen [bilder_release2](bilder_release2/).
+
 ### Sider i bruk
 
 Disse sidene er koblet sammen i appen. Man starter på hjemskjermen og velger fag. Via «Skriv anmeldelse» kommer man til skjemaet, og via «Les anmeldelser» kommer man til anmeldelsene for faget.
@@ -59,15 +52,21 @@ Disse sidene er koblet sammen i appen. Man starter på hjemskjermen og velger fa
   <tr>
     <td align="center">
       <b>Hjemmeside</b><br>
-      <img src="bilder_release2/Hjemmeside.png" alt="Hjem skjerm" height="300">
+      <a href="bilder_release2/Hjemmeside.png">
+        <img src="bilder_release2/Hjemmeside.png" alt="Hjem skjerm" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Velg fag</b><br>
-      <img src="bilder_release2/VelgFag.png" alt="Velg fag med IT1901 valgt" height="300">
+      <a href="bilder_release2/VelgFag.png">
+        <img src="bilder_release2/VelgFag.png" alt="Velg fag" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Skrive anmeldelse</b><br>
-      <img src="bilder_release2/EmneView.png" alt="Skrive anmeldelse av IT1901" height="300">
+      <a href="bilder_release2/SkrivAnmeldelse.png">
+        <img src="bilder_release2/SkrivAnmeldelse.png" alt="Skjema for å skrive anmeldelse" height="300">
+      </a>
     </td>
   </tr>
 </table>
@@ -76,15 +75,21 @@ Disse sidene er koblet sammen i appen. Man starter på hjemskjermen og velger fa
   <tr>
     <td align="center">
       <b>Anmeldelsen er sendt inn</b><br>
-      <img src="bilder_release2/AnmeldelseSendt.png" alt="Anmeldelsen er sendt inn" height="300">
+      <a href="bilder_release2/AnmeldelseSendt.png">
+        <img src="bilder_release2/AnmeldelseSendt.png" alt="Anmeldelsen er sendt inn" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Lese anmeldelser</b><br>
-      <img src="bilder_release2/LeseAnmeldelser.png" alt="Anmeldelser av IT1901" height="300">
+      <a href="bilder_release2/LeseAnmeldelser.png">
+        <img src="bilder_release2/LeseAnmeldelser.png" alt="Anmeldelser av IT1901" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Emne uten anmeldelser</b><br>
-      <img src="bilder_release2/EmneUtenAnmeldelse.png" alt="BI2081 uten anmeldelser" height="300">
+      <a href="bilder_release2/EmneUtenAnmeldelse.png">
+        <img src="bilder_release2/EmneUtenAnmeldelse.png" alt="BI2081 uten anmeldelser" height="300">
+      </a>
     </td>
   </tr>
 </table>
@@ -97,11 +102,15 @@ Disse sidene er laget i FXML, men er ennå ikke koblet til navigasjonen i appen.
   <tr>
     <td align="center">
       <b>Logg inn</b><br>
-      <img src="bilder_release2/LoggInn.png" alt="Logg inn" height="300">
+      <a href="bilder_release2/LoggInn.png">
+        <img src="bilder_release2/LoggInn.png" alt="Logg inn" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Registrer ny bruker</b><br>
-      <img src="bilder_release2/RegistrerBruker.png" alt="Registrer ny bruker" height="300">
+      <a href="bilder_release2/RegistrerBruker.png">
+        <img src="bilder_release2/RegistrerBruker.png" alt="Registrer ny bruker" height="300">
+      </a>
     </td>
   </tr>
 </table>
@@ -110,15 +119,21 @@ Disse sidene er laget i FXML, men er ennå ikke koblet til navigasjonen i appen.
   <tr>
     <td align="center">
       <b>Info om appen</b><br>
-      <img src="bilder_release2/InfoOmBIThub.png" alt="Info om appen" height="300">
+      <a href="bilder_release2/InfoOmBIThub.png">
+        <img src="bilder_release2/InfoOmBIThub.png" alt="Info om appen" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Profil side</b><br>
-      <img src="bilder_release2/Profil.png" alt="Profil side" height="300">
+      <a href="bilder_release2/Profil.png">
+        <img src="bilder_release2/Profil.png" alt="Profil side" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Endre passord</b><br>
-      <img src="bilder_release2/EndrePassord.png" alt="Endre passord" height="300">
+      <a href="bilder_release2/EndrePassord.png">
+        <img src="bilder_release2/EndrePassord.png" alt="Endre passord" height="300">
+      </a>
     </td>
   </tr>
 </table>
@@ -127,11 +142,15 @@ Disse sidene er laget i FXML, men er ennå ikke koblet til navigasjonen i appen.
   <tr>
     <td align="center">
       <b>Mine anmeldelser</b><br>
-      <img src="bilder_release2/MineAnmeldelser.png" alt="Mine anmeldelser" height="300">
+      <a href="bilder_release2/MineAnmeldelser.png">
+        <img src="bilder_release2/MineAnmeldelser.png" alt="Mine anmeldelser" height="300">
+      </a>
     </td>
     <td align="center">
       <b>Endre egen anmeldelse</b><br>
-      <img src="bilder_release2/EndreEgenAnmeldelse.png" alt="Endre egen anmeldelse" height="300">
+      <a href="bilder_release2/EndreEgenAnmeldelse.png">
+        <img src="bilder_release2/EndreEgenAnmeldelse.png" alt="Endre egen anmeldelse" height="300">
+      </a>
     </td>
   </tr>
 </table>
@@ -150,7 +169,7 @@ Prosjektet består av tre Maven-moduler, og hver av dem er også en Java-modul m
 
 ### Hvordan lagene henger sammen
 
-Når brukeren trykker «SEND INN», kaller `EmneController` på `submitReview` i `ReviewService`. Der sjekkes det at det som er skrevet inn er gyldig, for eksempel at vurderingen er et tall fra 1 til 5. Er alt riktig, sendes anmeldelsen videre til et `ReviewRepository`.
+Når brukeren trykker «SEND INN», kaller `SkrivAnmeldelseController` på `submitReview` i `ReviewService`. Der sjekkes det at det som er skrevet inn er gyldig, for eksempel at vurderingen er et tall fra 1 til 5. Er alt riktig, sendes anmeldelsen videre til et `ReviewRepository`.
 
 Når brukeren skal lese anmeldelser, går det motsatt vei. `LeseAnmeldelserController` kaller på `getCourseWithReviews` i `ReviewService`, som henter emnet med `findCourse` i `ReviewRepository`. `ReviewHandler` leser JSON-filen og gjør `CourseDTO` om til et `Course`-objekt med anmeldelsene. Har ingen anmeldt emnet ennå, får kontrolleren et tomt emne tilbake. Gjennomsnittet regnes ut av `Course` i domenelaget.
 
@@ -188,7 +207,7 @@ Alle modulene har tester. Testene kjøres fra prosjektmappen `bithub` med `mvn t
 
 #### ui
 
-- [EmneControllerTest](/bithub/ui/src/test/java/ui/EmneControllerTest.java) tester skjemaet for å skrive anmeldelse: at riktig emne vises, at feilmeldinger kommer ved ugyldig vurdering, og at anmeldelsen lagres til fil både når man er anonym og ikke.
+- [SkrivAnmeldelseControllerTest](/bithub/ui/src/test/java/ui/SkrivAnmeldelseControllerTest.java) tester skjemaet for å skrive anmeldelse: at riktig emne vises, at feilmeldinger kommer ved ugyldig vurdering, og at anmeldelsen lagres til fil både når man er anonym og ikke.
 - [LeseAnmeldelserControllerTest](/bithub/ui/src/test/java/ui/LeseAnmeldelserControllerTest.java) tester siden for å lese anmeldelser: at anmeldelsene, gjennomsnittet og antallet vises riktig, at et emne uten anmeldelser viser «Ingen anmeldelser ennå.», og at TILBAKE og HJEM går til riktig side.
 - [NewNavigationTest](/bithub/ui/src/test/java/ui/NewNavigationTest.java) tester at man kan gå fra hjemmesiden, velge fag, komme til skjemaet og tilbake igjen, og at sidene som ikke er laget ennå vises. Den har også en ende-til-ende-test som skriver en anmeldelse i appen og leser den tilbake på «Les anmeldelser»-siden, slik at alle tre lagene testes sammen.
 
@@ -198,7 +217,7 @@ Alle testene som skriver til fil, også UI-testene, bruker `@TempDir` fra JUnit,
 | --- | --- | --- |
 | core | 100 % | 100 % |
 | file | 99 % | 92 % |
-| ui | 91 % | 81 % |
+| ui | 92 % | 81 % |
 
 Ved innlevering av release 2 gir `mvn clean verify` ingen
 Checkstyle-warnings og ingen SpotBugs-funn utover de dokumenterte
@@ -208,7 +227,7 @@ unntakene i [code-quality.md](code-quality.md).
 
 ### Arbeidsflyt med Git
 
-Vi har fortsatt med samme arbeidsflyt som i release 1, men denne gangen skrev vi den ned i [workflow.md](workflow.md), med maler for issues, branch-navn, commit-meldinger og merge requests. Alt arbeid starter med et issue som er knyttet til milepælen for release 2, og hvert issue får sin egen branch. Før vi lager en merge request, henter vi inn siste versjon av `master`, løser eventuelle konflikter lokalt og kjører `mvn clean verify`. Minst én annen på gruppen ser over endringene før de blir merget.
+Vi har fortsatt med samme arbeidsflyt som i release 1, men denne gangen skrev vi den ned i [workflow.md](workflow.md), med maler for issues, branch-navn, commit-meldinger og pull requests. Alt arbeid starter med et issue som er knyttet til milepælen for release 2, og hvert issue får sin egen branch. Før vi lager en pull request, henter vi inn siste versjon av `master`, løser eventuelle konflikter lokalt og kjører `mvn clean verify`. Minst én annen på gruppen ser over endringene før de blir merget.
 
 ### Parprogrammering
 
@@ -218,8 +237,8 @@ Parprogrammering var særlig nyttig på oppgaver som gikk på tvers av modulene.
 
 Mot slutten av release 2 oppdaget vi at `Co-authored-by` hadde
 stått over issue-referansen (`ref`/`closes`) i commit-meldingene.
-GitLab gjenkjenner bare medforfattere når linjen står helt nederst i
-meldingen, så parprogrammeringen vises ikke på GitLab, selv om
+GitHub gjenkjenner bare medforfattere når linjen står helt nederst i
+meldingen, så parprogrammeringen vises ikke på GitHub, selv om
 medforfatterne står i commit-meldingene. Vi har rettet malen i
 [workflow.md](workflow.md) og bruker riktig rekkefølge fra release 3.
 
@@ -231,7 +250,7 @@ Som i release 1 hadde vi møte én gang i uken, på tirsdager kl. 13:30. Der gik
 
 ## Utfordringer i release 2
 
-Det tok en del tid å gå fra CSV til JSON. All fillagringen fra release 1 måtte skrives om og flyttes ut av `core`. Jackson trenger en tom konstruktør og settere for å lage objekter fra JSON, så vi måtte legge det til i `Review`. Vi lagde også egne DTO-klasser (`CourseDTO` og `UserDTO`) for hvordan dataene ser ut i filene.
+Det tok en del tid å gå fra CSV til JSON. All fillagringen fra release 1 måtte skrives om og flyttes ut av `core`. Som standard lager Jackson objekter med en tom konstruktør og settere. Først la vi det til i `Review`, men da kunne valideringen omgås. Jackson kan også bruke en konstruktør med annotasjoner, men da måtte `core` avhenge av Jackson. Vi lagde derfor egne DTO-klasser (`CourseDTO`, `ReviewDTO` og `UserDTO`) for hvordan dataene ser ut i filene, slik at `Review` kunne være uforanderlig og `core` uavhengig av lagringen.
 
 Det var fristende å bare la `core` bruke `ReviewHandler` direkte, men da ville domenelaget blitt avhengig av lagringen. Løsningen ble å lage grensesnittet `ReviewRepository`.
 
@@ -266,7 +285,7 @@ New-Item -ItemType Directory -Force "$HOME\.bithub"
 Copy-Item docs\release2\eksempeldata\courses.json "$HOME\.bithub\courses.json"
 ```
 
-Start så appen som beskrevet i [README](/README.md). Bildene under er tatt med disse dataene, og du kan gjenskape dem slik:
+Start så appen som beskrevet i [README](/README.md). Bildene over er tatt med disse dataene, og du kan gjenskape dem slik:
 
 1. Trykk «SKRIV ANMELDELSE», velg IT1901 og trykk «GÅ VIDERE».
 2. Gi vurdering 4, skriv «Gode tilbakemeldinger fra læringsassistentene.», kryss av for anonym og trykk «SEND INN».

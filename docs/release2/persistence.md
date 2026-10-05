@@ -11,7 +11,7 @@ valgt å bruke **JSON** (JavaScript Object Notation) i kombinasjon med
 
 * **Hvorfor JSON?** JSON er et menneskevennlig, standardisert og lettleselig
   format som passer godt til objektorienterte datastrukturer. Det gjør det
-  enkelt å serialisere DTO-er, som `CourseDTO` og `UserDTO`, direkte til fil
+  enkelt å serialisere DTO-er, som `CourseDTO`, `ReviewDTO` og `UserDTO`, direkte til fil
   og deserialisere dem tilbake til Java-objekter.
 
 ### 1.1 Kurs og anmeldelser
@@ -22,8 +22,10 @@ representerer et kurs (`CourseDTO`).
 Hvert kurs inneholder en emnekode (`courseCode`), et emnenavn (`courseName`)
 og en liste over tilhørende anmeldelser (`reviews`).
 
-Hver anmeldelse inneholder informasjon om hvem som har skrevet den
-(`reviewerName`), en tallkarakter (`rating`) og en tekstkommentar (`comment`).
+Hver anmeldelse lagres som en `ReviewDTO` med navnet på den som skrev den
+(`reviewerName`), en vurdering fra 1 til 5 (`rating`) og en kommentar
+(`comment`). Når filen leses, gjør `ReviewHandler` hver `ReviewDTO` om til
+domeneklassen `Review`, som sjekker at verdiene er gyldige.
 
 #### Eksempel på filstruktur for kurs og anmeldelser
 
