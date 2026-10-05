@@ -276,4 +276,59 @@ class ReviewHandlerTest {
         assertFalse(handler.findCourse("TDT4100").isPresent());
         assertFalse(handler.findCourse(null).isPresent());
     }
+
+    /**
+     * Verifiserer at JSON fra før innføringen av ReviewDTO fortsatt kan leses.
+     *
+     * @throws IOException dersom testfilen ikke kan skrives
+     */
+    @Test
+    void findCourseReadsExistingJsonFormat() throws IOException {
+        Path file = tempDir.resolve("courses.json");
+        Files.writeString(file, """
+                [
+                  {
+                    "courseCode": "IT1901",
+                    "courseName": "Prosjektarbeid",
+                    "reviews": [
+                      {
+                        "reviewerName": "Ola",
+                        "rating": 4,
+                        "comment": "Bra fag"
+                      }
+                    ]
+                  }
+                ]
+                """);
+
+        Course course = new ReviewHandler(file)
+                .findCourse("IT1901").orElseThrow();
+
+        assertEquals("IT1901", course.getCourseCode());
+        assertEquals("Prosjektarbeid", course.getCourseName());
+        assertEquals(1, course.getReviews().size());
+
+        Review review = course.getReviews().get(0);
+        assertEquals("Ola", review.getReviewerName());
+        assertEquals(4, review.getRating());
+        assertEquals("Bra fag", review.getComment());
+    }
+
+    /**
+     * Verifiserer at ugyldig lagret rating avvises ved konvertering til Review.
+     */
+    @Test
+    void findCourseRejectsInvalidStoredRating() {
+        Path file = tempDir.resolve("courses.json");
+        ReviewHandler handler = new ReviewHandler(file);
+        CourseDTO course = new CourseDTO("IT1901", "Prosjektarbeid");
+        course.getReviews().add(new ReviewDTO("Ola", 0, "Kommentar"));
+        handler.writeToFile(List.of(course));
+
+        ReviewHandler reader = new ReviewHandler(file);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> reader.findCourse("IT1901"));
+    }
 }

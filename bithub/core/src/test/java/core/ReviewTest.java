@@ -1,7 +1,6 @@
 package core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
@@ -10,24 +9,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Testklasse for {@link Review}-klassen.
  *
- * <p>Verifiserer at vurderinger opprettes og endres korrekt, samt at validering av
+ * <p>Verifiserer at anmeldelser opprettes korrekt, og at validering av
  * navn og rating avviser ugyldige verdier.
  */
 class ReviewTest {
-
-    /**
-     * Verifiserer at den tomme konstruktøren oppretter et objekt med
-     * tomme/standard verdier.
-     */
-    @Test
-    @DisplayName("Skal opprette tomt Review-objekt ved bruk av tom konstruktør")
-    void testNoArgsConstructor() {
-        Review review = new Review();
-        assertNull(review.getReviewerName());
-        assertEquals(0, review.getRating());
-        assertNull(review.getComment());
-    }
-
     /**
      * Verifiserer at parametrisert konstruktør setter alle feltene korrekt.
      */
@@ -114,24 +99,5 @@ class ReviewTest {
     @DisplayName("Skal kaste unntak når anmelders navn er tomt")
     void testConstructorThrowsWhenReviewerNameIsEmpty() {
         assertThrows(IllegalArgumentException.class, () -> new Review("", 3, "Kommentar"));
-    }
-
-    /**
-     * Verifiserer at alle setter-metodene oppdaterer feltene i objektet
-     * korrekt.
-     */
-    @Test
-    @DisplayName("Skal oppdatere felter korrekt ved bruk av settere")
-    void testSettersWorkCorrectly() {
-        Review review = new Review();
-
-        review.setReviewerName("Kari Nordmann");
-        assertEquals("Kari Nordmann", review.getReviewerName());
-
-        review.setRating(4);
-        assertEquals(4, review.getRating());
-
-        review.setComment("Ny kommentar");
-        assertEquals("Ny kommentar", review.getComment());
     }
 }

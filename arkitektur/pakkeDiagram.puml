@@ -1,0 +1,35 @@
+@startuml pakkeDiagram
+
+title Pakkediagram - BIThub
+
+component "ui" as uiModul {
+    package ui
+}
+
+component "file" as fileModul {
+    package file
+}
+
+component "core" as coreModul {
+    package core
+}
+
+component javafx {
+    component fxml
+    component controls
+    component graphics
+}
+
+component jackson {
+    component databind
+    component annotations
+}
+
+ui ..> file
+ui ..> core
+ui ..> javafx
+
+file ..> core
+file ..> jackson
+
+@enduml

@@ -1,0 +1,57 @@
+@startuml brukerhistorie2_lese_anmeldelser
+
+title Brukerhistorie 2 - Foreleser leser anmeldelser av faget sitt
+
+actor "Foreleser" as User
+participant "HjemmesideController\n(ui)" as HomeC
+participant "Navigation\n(ui)" as Nav
+participant "VelgFagController\n(ui)" as SelectC
+participant "LeseAnmeldelserController\n(ui)" as ReadC
+participant "ReviewService\n(core)" as Service
+participant "ReviewRepository\n(interface, core)" as Repo
+participant "ReviewHandler\n(file)" as Handler
+database "courses.json" as File
+
+== Velge fag ==
+
+User -> HomeC : trykker "Les anmeldelser"
+HomeC -> Nav : showCourseSelectionForReading(readReviewsButton)
+Nav -> SelectC : setOnCourseSelected(Navigation::showReviews)
+Nav --> User : viser VelgFag\n(nedtrekksliste med fag)
+
+User -> SelectC : velger faget sitt og trykker "Gå videre"
+
+alt ingen fag valgt
+    SelectC --> User : viser "Velg et fag først."
+else fag valgt
+    SelectC -> Nav : onCourseSelected.accept(nextButton, course)\nsom kaller showReviews(nextButton, course)
+    Nav -> ReadC : setReviewService(reviewService)
+    Nav -> ReadC : setCourse(course)
+
+    == Hente anmeldelser ==
+
+    ReadC -> Service : getCourseWithReviews(course)
+    Service -> Repo : findCourse(courseCode)
+    note right of Repo : implementeres av ReviewHandler
+    Repo -> Handler : findCourse(courseCode)
+    Handler -> File : readFromFile()
+    File --> Handler : liste med CourseDTO
+    Handler -> Handler : finn CourseDTO med samme emnekode\n(skiller ikke store og små bokstaver)
+
+    alt faget har anmeldelser
+        Handler -> Handler : toCourse(courseDto)\nnew Course + addReview for hver anmeldelse
+        Handler --> Service : Optional med Course
+        Service --> ReadC : Course med anmeldelser
+    else faget finnes ikke i filen
+        Handler --> Service : Optional.empty()
+        Service -> Service : new Course(courseCode, courseName)
+        Service --> ReadC : tomt Course
+    end
+
+    == Vise anmeldelser ==
+
+    ReadC -> ReadC : getAverageRating(), getReviews()\nfyller ut tittel, gjennomsnitt,\nantall og liste
+    ReadC --> User : viser alle anmeldelsene,\ngjennomsnittlig vurdering og antall
+end
+
+@enduml

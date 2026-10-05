@@ -14,7 +14,7 @@ import javafx.scene.paint.Color;
 /**
  * Kontroller for skjemaet der brukeren skriver og sender inn en anmeldelse.
  */
-public class EmneController {
+public class SkrivAnmeldelseController {
 
     @FXML
     private Label emneTittelLabel;
@@ -115,10 +115,20 @@ public class EmneController {
         Navigation.showHome(homeButton);
     }
 
+    /**
+     * Henter emnekoden som vises på siden.
+     *
+     * @return emnekoden, eller en tom streng hvis ingen emne er valgt
+     */
     public String getCourseCode() {
         return courseCode;
     }
 
+    /**
+     * Henter emnenavnet som vises på siden.
+     *
+     * @return emnenavnet, eller en tom streng hvis ingen emne er valgt
+     */
     public String getCourseName() {
         return courseName;
     }

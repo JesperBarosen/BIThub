@@ -29,7 +29,7 @@ fungerer sammen, og at en anmeldelse som sendes inn faktisk blir lagret
 til fil.
  
 Brukergrensesnittet testes med TestFX. Testene kontrollerer
-enkeltkontrollere, som feilmeldinger og innsending i `EmneController` og
+enkeltkontrollere, som feilmeldinger og innsending i `SkrivAnmeldelseController` og
 visning av anmeldelser, gjennomsnitt og antall i `LeseAnmeldelserController`,
 og navigasjonen mellom sidene. `NewNavigationTest` har en ende-til-ende-test
 som skriver en anmeldelse i appen og leser den tilbake, slik at alle tre

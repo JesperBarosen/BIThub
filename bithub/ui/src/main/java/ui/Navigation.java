@@ -98,10 +98,10 @@ public final class Navigation {
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     public static void showReviewForm(Node source, Course course) {
-        FXMLLoader loader = new FXMLLoader(Navigation.class.getResource("EmneView.fxml"));
+        FXMLLoader loader = new FXMLLoader(Navigation.class.getResource("SkrivAnmeldelse.fxml"));
         try {
             Parent root = loader.load();
-            EmneController controller = loader.getController();
+            SkrivAnmeldelseController controller = loader.getController();
             controller.setReviewService(reviewService);
             controller.setCourse(course);
             stageOf(source).setScene(new Scene(root));

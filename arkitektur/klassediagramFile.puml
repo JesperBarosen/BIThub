@@ -1,0 +1,103 @@
+@startuml klassediagramFile
+hide empty members
+
+package core {
+    interface ReviewRepository {
+        + void addReview(courseCode: String, courseName: String, review: Review)
+        + Optional<Course> findCourse(courseCode: String)
+    }
+    class Course
+    class Review
+    class User
+}
+
+package file {
+
+    interface "DataHandler<T>" as DataHandler {
+        + List<T> readFromFile()
+        + void writeToFile(data: List<T>)
+        + boolean isEmpty()
+    }
+
+    class ReviewHandler {
+        - path: Path {readOnly}
+        - objectMapper: ObjectMapper {readOnly}
+        + ReviewHandler()
+        + ReviewHandler(path: Path)
+        + boolean isEmpty()
+        + List<CourseDTO> readFromFile()
+        + void writeToFile(data: List<CourseDTO>)
+        + void addReview(courseCode: String, courseName: String, review: Review)
+        + Optional<Course> findCourse(courseCode: String)
+        - {static} Course toCourse(courseDto: CourseDTO)
+        + {static} Path getDefaultPath(fileName: String)
+    }
+
+    class UserHandler {
+        - path: Path {readOnly}
+        - objectMapper: ObjectMapper {readOnly}
+        + UserHandler()
+        + UserHandler(path: Path)
+        + boolean isEmpty()
+        + List<UserDTO> readFromFile()
+        + void writeToFile(data: List<UserDTO>)
+        + void addUser(user: User)
+        + {static} Path getDefaultPath(fileName: String)
+    }
+
+    class CourseDTO {
+        - courseCode: String
+        - courseName: String
+        - reviews: List<ReviewDTO>
+        + CourseDTO()
+        + CourseDTO(courseCode: String, courseName: String)
+        + String getCourseCode()
+        + void setCourseCode(courseCode: String)
+        + String getCourseName()
+        + void setCourseName(courseName: String)
+        + List<ReviewDTO> getReviews()
+        + void setReviews(reviews: List<ReviewDTO>)
+    }
+
+    class ReviewDTO {
+        - reviewerName: String
+        - rating: int
+        - comment: String
+        + ReviewDTO()
+        + ReviewDTO(reviewerName: String, rating: int, comment: String)
+        + String getReviewerName()
+        + void setReviewerName(reviewerName: String)
+        + int getRating()
+        + void setRating(rating: int)
+        + String getComment()
+        + void setComment(comment: String)
+    }
+
+    class UserDTO {
+        - name: String
+        - email: String
+        - password: String
+        + UserDTO()
+        + UserDTO(name: String, email: String, password: String)
+        + String getName()
+        + void setName(name: String)
+        + String getEmail()
+        + void setEmail(email: String)
+        + String getPassword()
+        + void setPassword(password: String)
+    }
+
+    ReviewHandler ..|> DataHandler
+    UserHandler ..|> DataHandler
+    ReviewHandler ..> CourseDTO : leser/skriver List<CourseDTO>
+    CourseDTO --> "reviews: *" ReviewDTO
+    ReviewHandler ..> ReviewDTO : gjør om til og fra Review
+    UserHandler ..> UserDTO : leser/skriver List<UserDTO>
+}
+
+ReviewHandler ..|> ReviewRepository
+ReviewHandler ..> Course : oppretter i toCourse(CourseDTO)
+ReviewHandler ..> Review : leser i addReview(...), oppretter i toCourse(...)
+UserHandler ..> User : bruker i addUser(User)
+
+@enduml
