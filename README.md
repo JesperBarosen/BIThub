@@ -24,6 +24,16 @@ Kildefilen til diagrammet ligger i [`arkitektur/pakkeDiagram.puml`](arkitektur/p
 Filene viser avhengighetene mellom modulene: `ui`  er avhengig av `core` og `file`, `file` er
 avhengig av `core` og Jackson, og `core` er ikke avhengig av noen av de andre modulene.
 
+### Klassediagram for core
+
+![Klassediagram for core](arkitektur/png/klassediagramCore.png)
+
+Kildefilen til diagrammet ligger i [`arkitektur/klassediagramCore.puml`](arkitektur/klassediagramCore.puml).
+
+- Et `Course` har en liste med `Review`, og regner ut gjennomsnittlig vurdering.
+- `ReviewService` validerer og sender anmeldelser videre, men kjenner bare til grensesnittet
+  `ReviewRepository`. Slik er ikke `core` avhengig av hvordan dataene lagres.
+
 ## Mappestruktur i kodingsprosjektet
 
 ```
