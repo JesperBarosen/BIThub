@@ -17,17 +17,12 @@ Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og er bygget med tre-lags
 - **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core`, implementerer `ReviewRepository` og gjør dataene om til og fra JSON med Jackson.
 - **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene og `ReviewService`. `file` brukes bare i `App`, som kobler `ReviewHandler` til `ReviewService` ved oppstart.
 
-```mermaid
-flowchart TD
-    ui["`**ui**
-    brukergrensesnitt`"] --> core["`**core**
-    domenelogikk`"]
-    file["`**file**
-    persistens`"] --> core
-    ui --> file
-    ui -.-> javafx["JavaFX"]
-    file -.-> jackson["Jackson"]
-```
+![Pakkediagram for BIThub](arkitektur/png/pakkeDiagram.png)
+
+Kildefilen til diagrammet ligger i [`arkitektur/pakkeDiagram.puml`](arkitektur/pakkeDiagram.puml)
+
+Filene viser avhengighetene mellom modulene: `ui`  er avhengig av `core` og `file`, `file` er
+avhengig av `core` og Jackson, og `core` er ikke avhengig av noen av de andre modulene.
 
 ## Mappestruktur i kodingsprosjektet
 
