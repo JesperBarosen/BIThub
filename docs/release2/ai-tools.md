@@ -3,10 +3,12 @@
 ## Verktøy og bruksområder
 
 I arbeidet med release 2 har vi brukt ChatGPT, Google Gemini, Claude og Codex.
-Bruken har variert mellom gruppemedlemmene. Vi har blant annet fått hjelp til å
-forstå oppgaveteksten, forklare kode og undersøke feilmeldinger. I noen oppgaver
-har KI også foreslått og skrevet kodeendringer. Forslagene har vært utgangspunkt
-for videre vurdering og testing i prosjektet.
+Hvilket verktøy som ble brukt har variert mellom gruppemedlemmene, men
+bruksområdene har i stor grad vært de samme. KI har blant annet blitt brukt til
+å forstå oppgaveteksten, forklare kode, undersøke feilmeldinger og vurdere
+mulige løsninger på issues. I noen oppgaver har KI også foreslått
+kodeendringer og hjulpet med gjennomgang av dokumentasjon. Forslagene har vært
+utgangspunkt for videre vurdering, testing og diskusjon i gruppen.
 
 ## Feilsøking og tester
 
