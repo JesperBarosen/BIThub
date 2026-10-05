@@ -15,25 +15,16 @@ Beskrivelse av appen, Figma-skisser og brukerhistorier finnes i [bithub/README.m
 
 I release 2 var hovedmålet å dele opp prosjektet i moduler og få på plass en tre-lags arkitektur, uten å miste noe av det vi hadde fra release 1. Vi ville heller ha en app der lagene fungerer godt sammen og alt er testet, enn mange nye funksjoner.
 
-Målene våre var:
+- [x] **Modulær struktur:** Prosjektet er delt i modulene core, file og ui, som bygges samlet med Maven.
+- [x] **Tydelig ansvarsdeling:** Domenet er uavhengig av lagring og brukergrensesnitt, og logikk og validering ligger i riktig lag.
+- [x] **Varig lagring:** Data lagres som JSON i en egen modul, og valg av filformat og lagringsmodell er begrunnet.
+- [x] **Data begge veier:** Brukeren kan både skrive og lese anmeldelser, og dataene går gjennom alle tre lagene.
+- [x] **Automatisk kvalitetssikring:** Alle moduler er testet, og testdekning og kodekvalitet sjekkes i bygget.
+- [x] **Dokumentert arbeid:** Arkitektur, arbeidsflyt og kodekvalitet er beskrevet med tekst og diagrammer.
+- [x] **Gode arbeidsvaner:** Alt arbeid er knyttet til issues og en milepæl, gjøres i egne brancher og blir reviewet i pull requests før merge.
+- [ ] **Brukerkontoer:** Innlogging og registrering er utsatt til release 3.
 
-- [x] Dele opp prosjektet i modulene `core`, `file` og `ui`, med egen `pom.xml` og `module-info.java` for hver modul
-- [x] Samle felles versjoner og plugins i rot-`pom.xml`
-- [x] Bytte fra CSV til JSON med Jackson, i en egen modul for lagring
-- [x] Dokumentere filformatet og velge mellom dokumentmetafor og implisitt lagring
-- [x] Holde domenelaget uavhengig av lagringen
-- [x] Flytte validering av anmeldelser fra kontrolleren til domenelaget
-- [x] Koble logikk til «Velg fag»-siden og hjemmesiden
-- [x] Samle navigasjonen mellom sidene i én klasse
-- [x] Lage en klasse for brukere og lagre dem til fil
-- [x] Lese anmeldelser for et emne, med gjennomsnittlig vurdering og antall anmeldelser
-- [x] Tester i alle modulene, med høy testdekning fra JaCoCo
-- [x] Checkstyle og SpotBugs som kjøres av Maven
-- [x] Skrive ned arbeidsflyt, arbeidsvaner og valg for kodekvalitet
-- [x] Dokumentere arkitekturen med et diagram
-- [ ] Innlogging og registrering i appen
-
-Vi er fornøyde med arkitekturen og kodekvaliteten. Med lesing og skriving av anmeldelser går data nå begge veier gjennom alle tre lagene. Innlogging prioriterte vi ned, ettersom hovedmålet var å opprettholde kvalitet før eventuelt nye funksjoner legges til. 
+Vi er fornøyde med arkitekturen og kodekvaliteten. Med lesing og skriving av anmeldelser går data nå begge veier gjennom alle tre lagene. Innlogging prioriterte vi ned, ettersom hovedmålet var å opprettholde kvalitet før eventuelt nye funksjoner legges til.
 
 ## Funksjonalitet i release 2
 
