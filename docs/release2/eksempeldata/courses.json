@@ -1,0 +1,37 @@
+[ {
+  "courseCode" : "EXPH0300",
+  "courseName" : "Examen philosophicum",
+  "reviews" : [ {
+    "reviewerName" : "Student",
+    "rating" : 2,
+    "comment" : "Mye pensum, og vanskelig eksamen."
+  } ]
+}, {
+  "courseCode" : "IT1604",
+  "courseName" : "Digitalt samfunn",
+  "reviews" : [ {
+    "reviewerName" : "Anonym",
+    "rating" : 3,
+    "comment" : "Spennende temaer, men litt rotete."
+  }, {
+    "reviewerName" : "Student",
+    "rating" : 4,
+    "comment" : "Fine diskusjoner i seminarene."
+  } ]
+}, {
+  "courseCode" : "IT1901",
+  "courseName" : "Informatikk prosjektarbeid I",
+  "reviews" : [ {
+    "reviewerName" : "Student",
+    "rating" : 5,
+    "comment" : "Lærte mye om Git og samarbeid i gruppe."
+  }, {
+    "reviewerName" : "Anonym",
+    "rating" : 4,
+    "comment" : "Mye arbeid, men veldig nyttig."
+  }, {
+    "reviewerName" : "Student",
+    "rating" : 3,
+    "comment" : "Krevende å komme i gang med Maven."
+  } ]
+} ]
