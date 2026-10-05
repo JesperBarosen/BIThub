@@ -25,6 +25,14 @@ prosjektets kvalitetskontroller, blant annet Checkstyle og SpotBugs, passerte.
  
 ## Kode og kodegjennomgang 
 
+KI ble også brukt som støtte under kodegjennomgang og refaktorering. Et eksempel 
+var arbeidet med Checkstyle og JavaDoc, der KI hjalp oss med å tolke advarsler og 
+foreslå endringer som fulgte prosjektets kodestandard. Vi brukte også KI til å 
+vurdere avhengigheter mellom modulene og se etter steder der ansvaret mellom 
+`ui`, `file` og `core` kunne være tydeligere. Forslagene ble vurdert opp mot 
+den eksisterende arkitekturen og koden i prosjektet før vi gjorde endringer. 
+Etterpå brukte vi tester og kvalitetsverktøy for å kontrollere at endringene ikke 
+introduserte nye feil.
 
 ## Dokumentasjon 
 
