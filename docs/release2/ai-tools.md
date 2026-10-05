@@ -13,14 +13,14 @@ for videre vurdering og testing i prosjektet.
 Vi har brukt KI til å tolke feilmeldinger og advarsler fra Maven, Checkstyle
 og SpotBugs i terminalen. Vi har også fått forslag til årsaker til testfeil
 og til tester som kunne undersøke bestemte feilsituasjoner. Et eksempel var filtester
-som feilet på Mac fordi de forventet at lesing av filstørrelsen til en mappe
+som feilet på Mac fordi de forventet at innhenting av filstørrelsen for en mappe
 skulle gi et unntak. KI hjalp oss å forstå hvorfor dette ikke skjedde, og
 forklarte hvordan Mockito kunne brukes til å simulere unntaket i stedet.
-Forklaringen gjorde det lettere å rette feilene.
+Testen ble derfor endret slik at unntaket ble simulert eksplisitt med Mockito.
 
 Forslagene ble kontrollert ved å kjøre relevante tester underveis og
-`mvn test` for å sjekke testene samlet. Med `mvn verify` kontrollerte vi også
-resultatene fra Checkstyle og SpotBugs. 
+`mvn test` for å sjekke testene samlet. Med `mvn verify` kontrollerte vi også at 
+prosjektets kvalitetskontroller, blant annet Checkstyle og SpotBugs, passerte.
 
  
 ## Kode og kodegjennomgang 
@@ -33,18 +33,9 @@ strukturen endret seg. Mot slutten brukte vi KI til å sammenligne
 dokumentasjonen med koden for å fange opp feil vi kunne ha oversett.
 Et eksempel var en død lenke til README-filen i `ui`-mappen, som skulle
 peke til `bithub/README.md`. 
-KI fant også at README-en nevnte en kontroller som ikke lenger fantes. 
-Vi sjekket hvert punkt mot koden før vi rettet det.
+KI-gjennomgangen avdekket også at README-en nevnte en kontroller som ikke 
+lenger fantes. Vi sjekket hvert punkt mot koden før vi rettet det.
 På samme måte brukte vi KI til å kontrollere at klassediagrammene og
 pakkediagrammet i `arkitektur/` stemte med koden.
 
-## Erfaringer og kritisk vurdering 
-
- 
-
-
-## Hva vi lærte 
-
- 
-
-## Refleksjon 
+## Erfaringer, kritisk vurdering og læring
