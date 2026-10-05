@@ -27,7 +27,7 @@ Informasjon om appen finnes via lenken nederst på innloggings- oghjemskjermen.
 ### Planlagt til release 3
 
 - **Innlogging og registrering:** Koble brukere til appen og lage sidene for dem.
-- - **Profil:** Lage en profilside hvor det er mulig å endre navn og passord.
+- **Profil:** Lage en profilside hvor det er mulig å endre navn og passord.
 - **Mine anmeldelser:** Implementere slik at dine tidligere skrevne anmeldelser dukker opp her.
 
 ## Illustrerende skjermbilde - Figma
