@@ -55,8 +55,8 @@ Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal s
 <table>
   <tr>
     <td align="center">
-      <b>Hjem skjerm</b><br>
-      <img src="ui/images/image-5.png" alt="Hjem skjerm" height="300">
+      <b>Hjemmeside</b><br>
+      <img src="ui/images/image-5.png" alt="Hjemmeside" height="300">
     </td>
     <td align="center">
       <b>Velg fag</b><br>
@@ -74,7 +74,7 @@ Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal s
       <img src="ui/images/image-7.png" alt="Lese anmeldelser" height="300">
     </td>
     <td align="center">
-      <b>Skrive anmeldelse - eksempel</b><br>
+      <b>Skrive anmeldelse</b><br>
       <img src="ui/images/image-8.png" alt="Skrive anmeldelse" height="300">
     </td>
   </tr>
