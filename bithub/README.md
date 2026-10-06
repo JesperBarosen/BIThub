@@ -1,16 +1,37 @@
 
 # BIThub - app for å skrive og lese anmeldelser av BIT fag
 
-## Beskrivelse av appen og dens funksjonalitet
+## Hva er BIThub?
+
+Beskrivelsen under viser appens planlagte funksjonalitet når programmet er ferdigstilt.
 BIThub skal gjøre det mulig for studenter ved BIT (Bachelor i informatikk) å legge igjen en offentlig anmeldelse av fag de har fullført. Hensikten med appen er at studenter skal kunne dele sine erfaringer med ulike fag ved BIT, slik at andre studenter og forelesere kan få nytte av det (se brukerhistorier).
 
 Fra hjemskjermen kan man velge mellom å lese anmeldelser, skrive en anmeldelse og se egne anmeldelser.
 
-Lese anmeldelser: Man kan bla gjennom fagene som tilbys på BIT, sortert etter fagkode, eller søke dem opp. Trykker man på et fag, får man se anmeldelsene av faget, gjennomsnittlig vurdering fra 1 til 5 og antall anmeldelser.
-Skrive anmeldelse: Man velger fag på samme måte som når man leser. Deretter fyller man ut et skjema der man vurderer faget fra 1 til 5, skriver en kommentar og velger om anmeldelsen skal være anonym.
-Mine anmeldelser: Her kan man endre og slette anmeldelsene man har skrevet selv.
-Profil: Her kan man endre navn, brukernavn og passord, og logge ut.
+**Lese anmeldelser:** Man kan bla gjennom fagene som tilbys på BIT, sortert etter fagkode, eller søke dem opp. Trykker man på et fag, får man se anmeldelsene av faget, gjennomsnittlig vurdering fra 1 til 5 og antall anmeldelser.
+
+**Skrive anmeldelse:** Man velger fag på samme måte som når man leser. Deretter fyller man ut et skjema der man vurderer faget fra 1 til 5, skriver en kommentar og velger om anmeldelsen skal være anonym.
+
+**Mine anmeldelser:** Her kan man endre og slette anmeldelsene man har skrevet selv.
+
+**Profil:** Her kan man endre navn, brukernavn og passord, og logge ut.
 Informasjon om appen finnes via lenken nederst på innloggings- og hjemskjermen.
+
+## Funksjonalitet
+
+### Implementert i release 2
+
+- **Velge fag:** Man kan velge fag fra en liste, som brukes når man skal lese og skrive anmeldelser.
+- **Lese anmeldelser:** Se anmeldelser til fag, i tillegg til gjennomsnittlig vurdering og antall anmeldelser til et fag.
+- **Skrive anmeldelser:** Velge et fag og skrive en anmeldelse med vurdering fra 1 til 5, kommentar og anonymitet.
+- **Lagre anmeldelser:** Anmeldelser valideres og lagres automatisk i en JSON-fil.
+
+### Planlagt til release 3
+
+- **Innlogging og registrering:** Koble brukere til appen og lage sidene for dem.
+- **Profil:** Lage en profilside hvor det er mulig å endre navn og passord.
+- **Mine anmeldelser:** Implementere slik at dine tidligere skrevne anmeldelser dukker opp her.
+- **Søk etter fag:** Søke opp fag i stedet for å bla i listen.
 
 ## Illustrerende skjermbilde - Figma
 
