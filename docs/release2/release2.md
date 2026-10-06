@@ -177,6 +177,12 @@ Når brukeren skal lese anmeldelser, går det motsatt vei. `LeseAnmeldelserContr
 
 `ui` avhenger av `file` bare fordi `App` må opprette `ReviewHandler`. Resten av `ui` bruker bare `core`. Vi så på om vi kunne fjerne denne avhengigheten helt, men valgte å prioritere det i neste release.
 
+Arkitekturen er vist i diagrammer i [arkitektur/](/arkitektur/):
+
+- [Pakkediagram](/arkitektur/png/pakkeDiagram.png) som viser avhengighetene mellom modulene
+- [Klassediagram for core](/arkitektur/png/klassediagramCore.png) og [for file](/arkitektur/png/klassediagramFile.png) i [README](/README.md#arkitektur)
+- [Sekvensdiagrammer](/bithub/README.md#brukerhistorier) for skriving og lesing av anmeldelser
+
 ## Valg for release 2
 
 I release 1 lagret vi anmeldelser i CSV med en `FileHandler` som lå i `core`. Nå har vi flyttet lagringen til en egen `file`-modul og byttet til JSON med Jackson. JSON passer bedre når et emne skal ha en liste med anmeldelser. Dataene lagres automatisk i `~/.bithub/`, så brukeren trenger aldri å velge fil selv. Filformatet og hvorfor vi valgte implisitt lagring står i [persistence.md](persistence.md).
