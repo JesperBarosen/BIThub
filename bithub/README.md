@@ -13,7 +13,7 @@ Fra hjemskjermen kan man velge mellom å lese anmeldelser, skrive en anmeldelse 
 **Mine anmeldelser:** Her kan man endre og slette anmeldelsene man har skrevet selv.
 
 **Profil:** Her kan man endre navn, brukernavn og passord, og logge ut.
-Informasjon om appen finnes via lenken nederst på innloggings- oghjemskjermen.
+Informasjon om appen finnes via lenken nederst på innloggings- og hjemskjermen.
 
 ## Funksjonalitet
 
