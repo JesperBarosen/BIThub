@@ -217,7 +217,7 @@ Alle testene som skriver til fil, også UI-testene, bruker `@TempDir` fra JUnit,
 | --- | --- | --- |
 | core | 100 % | 100 % |
 | file | 99 % | 92 % |
-| ui | 92 % | 81 % |
+| ui | 92 % | 80 % |
 
 Ved innlevering av release 2 gir `mvn clean verify` ingen
 Checkstyle-warnings og ingen SpotBugs-funn utover de dokumenterte
