@@ -2,6 +2,8 @@
 # BIThub - app for å skrive og lese anmeldelser av BIT fag
 
 ## Hva er BIThub?
+
+Beskrivelsen under viser appens planlagte funksjonalitet når programmet er ferdigstilt.
 BIThub skal gjøre det mulig for studenter ved BIT (Bachelor i informatikk) å legge igjen en offentlig anmeldelse av fag de har fullført. Hensikten med appen er at studenter skal kunne dele sine erfaringer med ulike fag ved BIT, slik at andre studenter og forelesere kan få nytte av det (se brukerhistorier).
 
 Fra hjemskjermen kan man velge mellom å lese anmeldelser, skrive en anmeldelse og se egne anmeldelser.
