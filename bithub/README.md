@@ -193,3 +193,10 @@ og ser anmeldelsene, gjennomsnittet og antallet. Se
 **Brukerhistorie 4:** «Som student, skal jeg kunne opprette en bruker og logge inn, for å kunne skrive, endre og slette egne anmeldelser uten at andre kan endre på dem.»
 
 Diagrammet kommer i en senere sprint
+
+## Brukerhistorie 5
+
+**Brukerhistorie 5:** «Som student, skal jeg kunne se, endre og slette egne anmeldelser, for å holde anmeldelsene mine oppdaterte og relevante
+for andre studenter.»
+
+Diagrammet kommer i en senere sprint
