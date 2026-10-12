@@ -187,3 +187,9 @@ lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
 Brukerhistorie 3 bruker samme flyt som brukerhistorie 2: man velger et fag under «Les anmeldelser»
 og ser anmeldelsene, gjennomsnittet og antallet. Se
 [sekvensdiagrammet for brukerhistorie 2](#sekvensdiagram-for-brukerhistorie-2).
+
+## Brukerhistorie 4
+
+**Brukerhistorie 4:** «Som student, skal jeg kunne opprette en bruker og logge inn, for å kunne skrive, endre og slette egne anmeldelser uten at andre kan endre på dem.»
+
+Diagrammet kommer i en senere sprint
