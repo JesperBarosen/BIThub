@@ -21,6 +21,7 @@
         <module>core</module>
         <module>ui</module>
         <module>file</module>
+        <module>rest</module>
     </modules>
 
     <dependencyManagement>
