@@ -195,7 +195,7 @@ Sletter en egen anmeldelse.
 
 Svar `204`.
 
-Feil: `401`, `403`, `404`.
+Feil: `401`, `403` hvis anmeldelsen tilhører en annen eller er en gjesteanmeldelse, `404` hvis den ikke finnes.
 
 ## Brukere
 

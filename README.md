@@ -46,6 +46,10 @@ Kildefilen til diagrammet ligger i [`arkitektur/klassediagramFile.puml`](arkitek
 - `ReviewHandler` implementerer også `ReviewRepository` fra `core`, og gjør om mellom
   domeneklassene (`Course`, `Review`) og objektene som lagres i filen (`CourseDTO`, `ReviewDTO`).
 
+### REST-API
+
+Appen deles i en REST-server (modulen `rest`) og JavaFX-klienten. Alle forespørslene serveren støtter, med eksempler på forespørsel og svar, statuskoder og innlogging, er beskrevet i [docs/release3/rest-api.md](docs/release3/rest-api.md).
+
 ## Mappestruktur i kodingsprosjektet
 
 ```text
