@@ -192,11 +192,16 @@ og ser anmeldelsene, gjennomsnittet og antallet. Se
 
 **Brukerhistorie 4:** «Som student, skal jeg kunne opprette en bruker og logge inn, for å kunne skrive, endre og slette egne anmeldelser uten at andre kan endre på dem.»
 
-Diagrammet kommer i en senere sprint
+Diagrammet kommer i en senere sprint.
 
 ## Brukerhistorie 5
 
-**Brukerhistorie 5:** «Som student, skal jeg kunne se, endre og slette egne anmeldelser, for å holde anmeldelsene mine oppdaterte og relevante
-for andre studenter.»
+**Brukerhistorie 5:** «Som student, skal jeg kunne se, endre og slette egne anmeldelser, for å holde anmeldelsene mine oppdaterte og relevante for andre studenter.»
 
-Diagrammet kommer i en senere sprint
+Diagrammet kommer i en senere sprint.
+
+## Brukerhistorie 6
+
+**Brukerhistorie 6:** «Som registrert bruker, skal jeg kunne se profilen min og endre passordet mitt, for å kunne bytte til et sikrere passord hvis jeg tror noen andre kjenner det.»
+
+Diagrammet kommer i en senere sprint.
