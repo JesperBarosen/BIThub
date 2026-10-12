@@ -65,14 +65,10 @@ public final class UserHandler implements DataHandler<UserDTO> {
         }
 
         try {
-            return objectMapper.readValue(
-                    this.path.toFile(),
-                    objectMapper
-                            .getTypeFactory()
-                            .constructCollectionType(List.class, UserDTO.class));
+            return objectMapper.readValue(this.path.toFile(), objectMapper.getTypeFactory()
+                    .constructCollectionType(List.class, UserDTO.class));
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "Feil ved lesing av JSON-fil: " + this.path, e);
+            throw new RuntimeException("Feil ved lesing av JSON-fil: " + this.path, e);
         }
     }
 
@@ -92,8 +88,7 @@ public final class UserHandler implements DataHandler<UserDTO> {
 
             objectMapper.writeValue(this.path.toFile(), data);
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "Feil ved skriving til JSON-fil: " + this.path, e);
+            throw new RuntimeException("Feil ved skriving til JSON-fil: " + this.path, e);
         }
     }
 
@@ -104,10 +99,7 @@ public final class UserHandler implements DataHandler<UserDTO> {
      * @return filbanen under brukerens .bithub-mappe
      */
     public static Path getDefaultPath(String fileName) {
-        return Path.of(
-                System.getProperty("user.home"),
-                ".bithub",
-                fileName);
+        return Path.of(System.getProperty("user.home"), ".bithub", fileName);
     }
 
     /**
@@ -123,12 +115,30 @@ public final class UserHandler implements DataHandler<UserDTO> {
 
         List<UserDTO> users = readFromFile();
 
-        UserDTO userDto = new UserDTO(
-                user.getName(),
-                user.getEmail(),
-                user.getPassword());
+        UserDTO userDto = new UserDTO(user.getName(), user.getEmail(), user.getPassword());
 
         users.add(userDto);
         writeToFile(users);
+    }
+
+    /**
+     * Henter lagrede brukere som validerte domeneobjekter.
+     *
+     * @return listen med lagrede brukere
+     * @throws IllegalArgumentException hvis lagrede brukeropplysninger er ugyldige
+     */
+    public List<User> getUsers() {
+        return readFromFile().stream().map(UserHandler::toUser).toList();
+    }
+
+    /**
+     * Gjør om lagrede brukerdata til et domeneobjekt.
+     *
+     * @param userDto brukeren slik den er lagret i filen
+     * @return brukeren som domeneobjekt
+     * @throws IllegalArgumentException hvis brukeropplysningene er ugyldige
+     */
+    private static User toUser(UserDTO userDto) {
+        return new User(userDto.getName(), userDto.getEmail(), userDto.getPassword());
     }
 }

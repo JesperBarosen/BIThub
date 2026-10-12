@@ -1,13 +1,13 @@
 package core;
 
 /**
- * Representerer en bruker med navn, e-postadresse og passord.
+ * Representerer en uforanderlig bruker med navn, e-postadresse og passord.
  */
 public final class User {
 
-    private String name;
-    private String email;
-    private String password;
+    private final String name;
+    private final String email;
+    private final String password;
 
     /**
      * Oppretter en bruker med validerte brukeropplysninger.
