@@ -205,3 +205,9 @@ Diagrammet kommer i en senere sprint.
 **Brukerhistorie 6:** «Som registrert bruker, skal jeg kunne se profilen min og endre passordet mitt, for å kunne bytte til et sikrere passord hvis jeg tror noen andre kjenner det.»
 
 Diagrammet kommer i en senere sprint.
+
+## Brukerhistorie 7
+
+**Brukerhistorie 7:** «Som student, skal jeg kunne søke etter fag med fagkode eller navn, for å raskt finne faget jeg vil lese eller skrive anmeldelser om.»
+
+Diagrammet kommer i en senere sprint.
