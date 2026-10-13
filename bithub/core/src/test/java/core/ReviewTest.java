@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
 /**
  * Testklasse for {@link Review}-klassen.
  *
- * <p>Verifiserer at anmeldelser opprettes korrekt, og at validering av navn og rating avviser
- * ugyldige verdier.
+ * <p>Verifiserer at anmeldelser opprettes korrekt med id, eier og anonymitet, at ugyldige
+ * verdier avvises, og at forfattertype og visningsnavn blir riktige.
  */
 class ReviewTest {
     /**
@@ -197,6 +197,36 @@ class ReviewTest {
     void testAuthorTypeIsAnonymous() {
         Review review = new Review("abc-123", "ola@ntnu.no", "Ola Nordmann", true, 3, "Kommentar");
         assertEquals(AuthorType.ANONYMOUS, review.getAuthorType());
+    }
+
+    /**
+     * Verifiserer at en anonym anmeldelse vises som «Anonym», og ikke med navn eller e-post.
+     */
+    @Test
+    @DisplayName("Skal vise «Anonym» når anmeldelsen er anonym")
+    void testDisplayNameIsAnonymousWhenAnonymous() {
+        Review review = new Review("abc-123", "ola@ntnu.no", "Ola Nordmann", true, 3, "Kommentar");
+        assertEquals("Anonym", review.getDisplayName());
+    }
+
+    /**
+     * Verifiserer at en anmeldelse med eier som ikke er anonym vises med navnet til anmelderen.
+     */
+    @Test
+    @DisplayName("Skal vise navnet når anmeldelsen har eier og ikke er anonym")
+    void testDisplayNameIsReviewerNameForUser() {
+        Review review = new Review("abc-123", "ola@ntnu.no", "Ola Nordmann", false, 3, "Kommentar");
+        assertEquals("Ola Nordmann", review.getDisplayName());
+    }
+
+    /**
+     * Verifiserer at en anmeldelse uten eier vises med navnet som er lagret.
+     */
+    @Test
+    @DisplayName("Skal vise lagret navn når anmeldelsen ikke har eier")
+    void testDisplayNameIsReviewerNameWithoutOwner() {
+        Review review = new Review("Student", 3, "Kommentar");
+        assertEquals("Student", review.getDisplayName());
     }
 
 }
