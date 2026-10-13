@@ -1,6 +1,7 @@
 package core;
 
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
@@ -18,6 +19,32 @@ public final class PasswordHasher {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private PasswordHasher() {
+    }
+
+    /**
+     * Kontrollerer et passord mot en lagret hash.
+     *
+     * @param password     passordet som skal kontrolleres
+     * @param salt         saltet som ble brukt til den lagrede hashen
+     * @param expectedHash den lagrede hashen kodet som Base64
+     * @return true hvis passordet stemmer, ellers false
+     * @throws IllegalArgumentException hvis passord, salt eller hash er ugyldig
+     * @throws IllegalStateException    hvis hashing ikke kan utføres
+     */
+    public static boolean verifyPassword(String password, String salt, String expectedHash) {
+        if (expectedHash == null) {
+            throw new IllegalArgumentException("Hash cannot be null.");
+        }
+
+        byte[] expectedBytes = Base64.getDecoder().decode(expectedHash);
+        if (expectedBytes.length != HASH_LENGTH / Byte.SIZE) {
+            throw new IllegalArgumentException("Hash must contain 32 bytes.");
+        }
+
+        String actualHash = hashPassword(password, salt);
+        byte[] actualBytes = Base64.getDecoder().decode(actualHash);
+
+        return MessageDigest.isEqual(expectedBytes, actualBytes);
     }
 
     /**
