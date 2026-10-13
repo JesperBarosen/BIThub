@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -132,4 +133,50 @@ class ReviewTest {
         assertFalse(review.isAnonymous());
         assertEquals(AuthorType.GUEST, review.getAuthorType());
     }
+
+    /**
+     * Verifiserer at den lange konstruktøren beholder alle verdiene som sendes inn.
+     */
+    @Test
+    @DisplayName("Skal beholde id, eier og anonymitet fra den lange konstruktøren")
+    void testFullConstructorKeepsAllValues() {
+        Review review = new Review("abc-123", "ola@ntnu.no", "Ola Nordmann", true, 4, "Bra fag");
+        assertEquals("abc-123", review.getId());
+        assertEquals("ola@ntnu.no", review.getOwnerEmail());
+        assertEquals("Ola Nordmann", review.getReviewerName());
+        assertTrue(review.isAnonymous());
+        assertEquals(4, review.getRating());
+        assertEquals("Bra fag", review.getComment());
+    }
+
+    /**
+     * Verifiserer at null som id kaster IllegalArgumentException.
+     */
+    @Test
+    @DisplayName("Skal kaste unntak når id er null")
+    void testFullConstructorThrowsWhenIdIsNull() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Review(null, "ola@ntnu.no", "Ola Nordmann", false, 3, "Kommentar"));
+    }
+
+    /**
+     * Verifiserer at en blank id kaster IllegalArgumentException.
+     */
+    @Test
+    @DisplayName("Skal kaste unntak når id er blank")
+    void testFullConstructorThrowsWhenIdIsBlank() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Review(" ", "ola@ntnu.no", "Ola Nordmann", false, 3, "Kommentar"));
+    }
+
+    /**
+     * Verifiserer at en anmeldelse uten eier ikke kan være anonym.
+     */
+    @Test
+    @DisplayName("Skal kaste unntak når anmeldelsen er anonym uten eier")
+    void testFullConstructorThrowsWhenAnonymousWithoutOwner() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Review("123-abc", null, "Ola Nordmann", true, 3, "Kommentar"));
+    }
+
 }
