@@ -179,4 +179,24 @@ class ReviewTest {
                 () -> new Review("123-abc", null, "Ola Nordmann", true, 3, "Kommentar"));
     }
 
+    /**
+     * Verifiserer at en anmeldelse med eier som ikke er anonym får typen USER.
+     */
+    @Test
+    @DisplayName("Skal gi typen USER når anmeldelsen har eier og ikke er anonym")
+    void testAuthorTypeIsUser() {
+        Review review = new Review("abc-123", "ola@ntnu.no", "Ola Nordmann", false, 3, "Kommentar");
+        assertEquals(AuthorType.USER, review.getAuthorType());
+    }
+
+    /**
+     * Verifiserer at en anmeldelse med eier som er anonym får typen ANONYMOUS.
+     */
+    @Test
+    @DisplayName("Skal gi typen ANONYMOUS når anmeldelsen har eier og er anonym")
+    void testAuthorTypeIsAnonymous() {
+        Review review = new Review("abc-123", "ola@ntnu.no", "Ola Nordmann", true, 3, "Kommentar");
+        assertEquals(AuthorType.ANONYMOUS, review.getAuthorType());
+    }
+
 }
