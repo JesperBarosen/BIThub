@@ -122,6 +122,14 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
     }
 
     /**
+     * Henter alle emner, uavhengig av om de har anmeldelser eller ikke. 
+     */
+    @Override
+    public List<Course> findAllCourses() {
+        return readFromFile().stream().map(ReviewHandler::toCourse).toList();
+    }
+
+    /**
      * Gjør om et lagret emne til domeneklassen, med alle anmeldelsene.
      *
      * @param courseDto emnet slik det er lagret i filen

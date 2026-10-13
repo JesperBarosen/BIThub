@@ -1,5 +1,6 @@
 package core;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,4 +28,11 @@ public interface ReviewRepository {
      * @return emnet med anmeldelser, eller tom dersom emnet ikke har noen lagred anmeldelser
      */
     Optional<Course> findCourse(String courseCode);
+
+    /**
+     * Henter alle emner, uavhengig av om de har anmeldelser eller ikke.
+     *
+     * @return en liste over alle emner
+     */
+    List<Course> findAllCourses();
 }

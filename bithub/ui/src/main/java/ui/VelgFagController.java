@@ -10,6 +10,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import core.ReviewRepository;
+import java.util.List;
 
 /**
  * Lar brukeren velge et emne, enten for å skrive eller lese anmeldelser.
@@ -33,13 +35,35 @@ public class VelgFagController {
 
     private BiConsumer<Node, Course> onCourseSelected = Navigation::showReviewForm;
 
+    private ReviewRepository reviewRepository;
+
     @FXML
     private void initialize() {
-        courseComboBox.setItems(
-                FXCollections.observableArrayList(CourseOptions.availableCourses()));
         courseComboBox.setButtonCell(courseCell());
         courseComboBox.setCellFactory(listView -> courseCell());
     }
+
+    /** 
+     * Setter repositoryet som skal brukes til å hente emner.
+     * 
+     * @param reviewRepository repository for emner og anmeldelser.
+     * @throws NullPointerException hvis reviewRepository er null.
+    */
+    public void setReviewRepository(ReviewRepository reviewRepository) {
+        this.reviewRepository = Objects.requireNonNull(reviewRepository);
+        loadCourses();
+    }
+
+    /**
+     * Henter alle emnene fra repositoryet og legger dem i
+     * Emnene hentes fra lagring i stedet for fra en hardkodet nedtrekkliste.
+     */
+    private void loadCourses() {
+        List<Course> courses = reviewRepository.findAllCourses();
+
+        courseComboBox.setItems(
+            FXCollections.observableArrayList(courses));
+    } 
 
     /**
      * Bestemmer hva som skal skje når brukeren har valgt et emne og trykker
