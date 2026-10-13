@@ -23,7 +23,8 @@ public final class Review {
      * @param anonymous    om anmeldelsen er anonym
      * @param rating       vurderingen fra 1 til 5
      * @param comment      kommentaren, null behandles som en tom tekst
-     * @throws IllegalArgumentException hvis id, navn eller vurdering er ugyldig
+     * @throws IllegalArgumentException hvis id, navn eller vurdering er ugyldig, eller hvis
+     *                                      anmeldelsen er anonym uten å ha en eier.
      */
     public Review(String id, String ownerEmail, String reviewerName, boolean anonymous, int rating,
             String comment) {
@@ -39,6 +40,10 @@ public final class Review {
         if (reviewerName == null || reviewerName.isBlank()) {
             throw new IllegalArgumentException(
                     "Navnet på anmelderen kan ikke være null eller tomt.");
+        }
+
+        if (ownerEmail == null && anonymous) {
+            throw new IllegalArgumentException("En anmeldelse uten eier kan ikke være anonym.");
         }
 
         if (comment == null) {
@@ -101,6 +106,22 @@ public final class Review {
      */
     public boolean isAnonymous() {
         return anonymous;
+    }
+
+    /**
+     * Finner hvilken type forfatter anmeldelsen har.
+     *
+     * @return GUEST om anmeldelsen ikke har en eier, ANONYMOUS om eieren har valgt å være anonym,
+     *             ellers USER.
+     */
+    public AuthorType getAuthorType() {
+        if (ownerEmail == null) {
+            return AuthorType.GUEST;
+        }
+        if (anonymous) {
+            return AuthorType.ANONYMOUS;
+        }
+        return AuthorType.USER;
     }
 
     /**
