@@ -125,6 +125,18 @@ public final class Review {
     }
 
     /**
+     * Finner navnet som skal vises i anmeldelsen. E-posten til eieren vises aldri.
+     *
+     * @return "Anonym" om anmeldelsen er anonym, ellers navnet til anmelderen.
+     */
+    public String getDisplayName() {
+        if (getAuthorType() == AuthorType.ANONYMOUS) {
+            return "Anonym";
+        }
+        return reviewerName;
+    }
+
+    /**
      * Henter vurderingen av emnet.
      *
      * @return vurderingen fra 1 til 5
