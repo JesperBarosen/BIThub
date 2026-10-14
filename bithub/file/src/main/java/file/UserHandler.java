@@ -115,7 +115,8 @@ public final class UserHandler implements DataHandler<UserDTO> {
 
         List<UserDTO> users = readFromFile();
 
-        UserDTO userDto = new UserDTO(user.getName(), user.getEmail(), user.getPassword());
+        UserDTO userDto = new UserDTO(user.getName(), user.getEmail(), user.getPasswordHash(),
+                user.getSalt());
 
         users.add(userDto);
         writeToFile(users);
@@ -139,6 +140,7 @@ public final class UserHandler implements DataHandler<UserDTO> {
      * @throws IllegalArgumentException hvis brukeropplysningene er ugyldige
      */
     private static User toUser(UserDTO userDto) {
-        return new User(userDto.getName(), userDto.getEmail(), userDto.getPassword());
+        return new User(userDto.getName(), userDto.getEmail(), userDto.getPasswordHash(),
+                userDto.getSalt());
     }
 }
