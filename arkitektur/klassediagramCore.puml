@@ -25,13 +25,26 @@ package core {
     }
 
     class User {
-        - name: String
-        - email: String
-        - password: String
+        - name: String {readOnly}
+        - email: String {readOnly}
+        - passwordHash: String {readOnly}
+        - salt: String {readOnly}
         + User(name: String, email: String, password: String)
+        + User(name: String, email: String, passwordHash: String, salt: String)
         + String getName()
         + String getEmail()
-        + String getPassword()
+        + String getPasswordHash()
+        + String getSalt()
+        + boolean verifyPassword(password: String)
+    }
+
+    class PasswordHasher {
+        - {static} ITERATIONS: int
+        - {static} HASH_LENGTH: int
+        - {static} SALT_LENGTH: int
+        + {static} String generateSalt()
+        + {static} String hashPassword(password: String, salt: String)
+        + {static} boolean verifyPassword(password: String, salt: String, expectedHash: String)
     }
 
     interface ReviewRepository {
@@ -47,6 +60,7 @@ package core {
         - {static} int parseRating(ratingText: String)
     }
 
+    User ..> PasswordHasher : hashing og verifisering
     Course --> "reviews: *" Review
     ReviewService --> "reviewRepository: 1" ReviewRepository
     ReviewService ..> Course : henter via ReviewRepository.findCourse(String)
