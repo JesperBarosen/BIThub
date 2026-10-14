@@ -4,9 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import core.Course;
+import core.DefaultCourses;
 import core.ReviewService;
 import file.ReviewHandler;
 import java.nio.file.Path;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -30,10 +34,16 @@ class NewNavigationTest extends ApplicationTest {
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
-        new App().start(stage);
-        // Bytter til en midlertidig fil, slik at testene ikke bruker ~/.bithub.
-        Navigation.setReviewService(
-                new ReviewService(new ReviewHandler(tempDir.resolve("courses.json"))));
+        // Setter opp appen slik App gjør, men med en midlertidig fil i stedet for ~/.bithub.
+        // Filen finnes ikke fra før, så dette er det samme som første oppstart.
+        ReviewHandler reviewHandler = new ReviewHandler(tempDir.resolve("courses.json"));
+        reviewHandler.addCoursesIfMissing(DefaultCourses.all());
+        Navigation.setReviewRepository(reviewHandler);
+        Navigation.setReviewService(new ReviewService(reviewHandler));
+
+        Parent root = new FXMLLoader(App.class.getResource("Hjemmeside.fxml")).load();
+        stage.setScene(new Scene(root));
+        stage.show();
     }
 
     @Test

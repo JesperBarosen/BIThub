@@ -1,6 +1,7 @@
 package ui;
 
 import core.Course;
+import core.ReviewRepository;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import javafx.collections.FXCollections;
@@ -10,8 +11,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import core.ReviewRepository;
-import java.util.List;
 
 /**
  * Lar brukeren velge et emne, enten for å skrive eller lese anmeldelser.
@@ -35,43 +34,31 @@ public class VelgFagController {
 
     private BiConsumer<Node, Course> onCourseSelected = Navigation::showReviewForm;
 
-    private ReviewRepository reviewRepository;
-
     @FXML
     private void initialize() {
         courseComboBox.setButtonCell(courseCell());
         courseComboBox.setCellFactory(listView -> courseCell());
     }
 
-    /** 
-     * Setter repositoryet som skal brukes til å hente emner.
-     * 
-     * @param reviewRepository repository for emner og anmeldelser.
-     * @throws NullPointerException hvis reviewRepository er null.
-    */
+    /**
+     * Setter lagringen som emnene hentes fra, og fyller nedtrekkslisten med alle emnene, også de
+     * uten anmeldelser.
+     *
+     * @param reviewRepository lagringen for emner og anmeldelser
+     * @throws NullPointerException hvis reviewRepository er null
+     */
     public void setReviewRepository(ReviewRepository reviewRepository) {
-        this.reviewRepository = Objects.requireNonNull(reviewRepository);
-        loadCourses();
+        Objects.requireNonNull(reviewRepository);
+        courseComboBox
+                .setItems(FXCollections.observableArrayList(reviewRepository.findAllCourses()));
     }
 
     /**
-     * Henter alle emnene fra repositoryet og legger dem i
-     * Emnene hentes fra lagring i stedet for fra en hardkodet nedtrekkliste.
-     */
-    private void loadCourses() {
-        List<Course> courses = reviewRepository.findAllCourses();
-
-        courseComboBox.setItems(
-            FXCollections.observableArrayList(courses));
-    } 
-
-    /**
-     * Bestemmer hva som skal skje når brukeren har valgt et emne og trykker
-     * «Gå videre». Slik kan fagvelgeren brukes både for å skrive og lese
-     * anmeldelser. Standard er å åpne anmeldelsesskjemaet.
+     * Bestemmer hva som skal skje når brukeren har valgt et emne og trykker «Gå videre». Slik kan
+     * fagvelgeren brukes både for å skrive og lese anmeldelser. Standard er å åpne
+     * anmeldelsesskjemaet.
      *
-     * @param onCourseSelected handlingen som får knappen som ble trykket og det
-     *     valgte emnet
+     * @param onCourseSelected handlingen som får knappen som ble trykket og det valgte emnet
      * @throws NullPointerException hvis onCourseSelected er null
      */
     public void setOnCourseSelected(BiConsumer<Node, Course> onCourseSelected) {

@@ -54,6 +54,7 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
 
         handler = new ReviewHandler(tempDir.resolve("courses.json"));
         Navigation.setReviewService(new ReviewService(handler));
+        Navigation.setReviewRepository(handler);
         controller.setReviewService(new ReviewService(handler));
 
         stage.setScene(new Scene(root));
