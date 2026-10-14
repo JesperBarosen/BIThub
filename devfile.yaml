@@ -25,7 +25,7 @@ components:
         - exposure: public
           name: 8080-tcp
           protocol: http
-          targetPort: 8080 #springboot
+          targetPort: 8080 #REST-serveren (Spring Boot)
 commands:
   - id: bygg-og-test
     exec:
@@ -41,7 +41,7 @@ commands:
       label: "2. Start REST-serveren"
       component: bithub
       workingDir: ${PROJECT_SOURCE}/bithub
-      commandLine: mvn install -DskipTests && mvn -pl rest spring-boot:run
+      commandLine: mvn install -DskipTests && mvn -pl springboot/restserver spring-boot:run
       group:
         kind: run
         isDefault: true
