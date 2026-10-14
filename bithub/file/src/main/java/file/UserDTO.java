@@ -8,12 +8,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Brukes ved serialisering og deserialisering av brukere med Jackson.
  */
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
-@JsonPropertyOrder({"name", "email", "password"})
+@JsonPropertyOrder({ "name", "email", "passwordHash", "salt" })
 public class UserDTO {
 
     private String name;
     private String email;
-    private String password;
+    private String passwordHash;
+    private String salt;
 
     /**
      * Oppretter et tomt UserDTO-objekt.
@@ -24,16 +25,18 @@ public class UserDTO {
     }
 
     /**
-     * Oppretter et nytt UserDTO-objekt med navn, e-post og passord.
+     * Oppretter et nytt UserDTO-objekt med brukerdata.
      *
-     * @param name navnet til brukeren
-     * @param email e-postadressen til brukeren
-     * @param password passordet til brukeren
+     * @param name         navnet til brukeren
+     * @param email        e-postadressen til brukeren
+     * @param passwordHash passordets hash
+     * @param salt         saltet som brukes ved hashing
      */
-    public UserDTO(String name, String email, String password) {
+    public UserDTO(String name, String email, String passwordHash, String salt) {
         this.name = name;
         this.email = email;
-        this.password = password;
+        this.passwordHash = passwordHash;
+        this.salt = salt;
     }
 
     /**
@@ -73,20 +76,38 @@ public class UserDTO {
     }
 
     /**
-     * Henter passordet til brukeren.
+     * Henter passordets hash.
      *
-     * @return passordet
+     * @return passordets hash
      */
-    public String getPassword() {
-        return password;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
     /**
-     * Setter passordet til brukeren.
+     * Setter passordets hash.
      *
-     * @param password passordet
+     * @param passwordHash passordets hash
      */
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    /**
+     * Henter saltet som brukes ved hashing.
+     *
+     * @return saltet
+     */
+    public String getSalt() {
+        return salt;
+    }
+
+    /**
+     * Setter saltet som brukes ved hashing.
+     *
+     * @param salt saltet
+     */
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }
