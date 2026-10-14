@@ -1,5 +1,6 @@
 package rest;
 
+import core.DefaultCourses;
 import core.ReviewRepository;
 import core.ReviewService;
 import file.ReviewHandler;
@@ -25,16 +26,18 @@ public class RestApplication {
     }
 
     /**
-     * Oppretter lagringen med konfigurert filsti.
+     * Oppretter lagringen med konfigurert filsti og legger inn standardemnene som mangler. Lagrede
+     * emner og anmeldelser endres ikke, så dette er trygt ved hver oppstart.
      *
      * @param filePath filen som inneholder emner og anmeldelser
      * @return lagringen serveren skal bruke
      */
     @Bean
     public ReviewRepository reviewRepository(
-            @Value("${bithub.reviews-file:${user.home}/.bithub/courses.json}")
-            String filePath) {
-        return new ReviewHandler(Path.of(filePath));
+            @Value("${bithub.reviews-file:${user.home}/.bithub/courses.json}") String filePath) {
+        ReviewRepository repository = new ReviewHandler(Path.of(filePath));
+        repository.addCoursesIfMissing(DefaultCourses.all());
+        return repository;
     }
 
     /**
