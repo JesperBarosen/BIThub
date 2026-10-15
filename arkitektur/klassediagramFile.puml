@@ -42,6 +42,8 @@ package file {
         + List<UserDTO> readFromFile()
         + void writeToFile(data: List<UserDTO>)
         + void addUser(user: User)
+        + List<User> getUsers()
+        - {static} User toUser(userDto: UserDTO)
         + {static} Path getDefaultPath(fileName: String)
     }
 
@@ -76,15 +78,18 @@ package file {
     class UserDTO {
         - name: String
         - email: String
-        - password: String
+        - passwordHash: String
+        - salt: String
         + UserDTO()
-        + UserDTO(name: String, email: String, password: String)
+        + UserDTO(name: String, email: String, passwordHash: String, salt: String)
         + String getName()
         + void setName(name: String)
         + String getEmail()
         + void setEmail(email: String)
-        + String getPassword()
-        + void setPassword(password: String)
+        + String getPasswordHash()
+        + void setPasswordHash(passwordHash: String)
+        + String getSalt()
+        + void setSalt(salt: String)
     }
 
     ReviewHandler ..|> DataHandler
@@ -98,6 +103,6 @@ package file {
 ReviewHandler ..|> ReviewRepository
 ReviewHandler ..> Course : oppretter i toCourse(CourseDTO)
 ReviewHandler ..> Review : leser i addReview(...), oppretter i toCourse(...)
-UserHandler ..> User : bruker i addUser(User)
+UserHandler ..> User : lagrer i addUser(User), gjenoppretter i toUser(UserDTO)
 
 @enduml
