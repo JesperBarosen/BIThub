@@ -1,6 +1,7 @@
 package core;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Håndterer registrering og innlogging av brukere.
@@ -40,5 +41,19 @@ public final class UserService {
 
         userRepository.save(user);
         return user;
+    }
+
+    /**
+     * Logger inn en bruker ved å sjekke passordet mot den lagrede hashen.
+     *
+     * @param email    e-postadressen til brukeren
+     * @param password passordet til brukeren
+     * @return brukeren hvis e-post og passord stemmer, ellers tom
+     */
+    public Optional<User> login(String email, String password) {
+        if (password == null || password.isBlank()) {
+            return Optional.empty();
+        }
+        return userRepository.findByEmail(email).filter(user -> user.verifyPassword(password));
     }
 }
