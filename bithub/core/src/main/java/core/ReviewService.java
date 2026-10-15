@@ -1,13 +1,15 @@
 package core;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Håndterer innsending av anmeldelser.
  *
- * <p>Klassen validerer det brukeren har skrevet inn og sender anmeldelsen videre
- * til lagring. Den kjenner bare grensesnittet {@link ReviewRepository}, slik at
- * core ikke blir avhengig av hvordan anmeldelsene lagres.
+ * <p>Klassen validerer det brukeren har skrevet inn og sender anmeldelsen videre til lagring. Den
+ * kjenner bare grensesnittet {@link ReviewRepository}, slik at core ikke blir avhengig av hvordan
+ * anmeldelsene lagres.
  */
 public final class ReviewService {
 
@@ -26,11 +28,11 @@ public final class ReviewService {
     /**
      * Validerer og lagrer en anmeldelse for et emne.
      *
-     * @param courseCode emnekoden til emnet
-     * @param courseName navnet på emnet
+     * @param courseCode   emnekoden til emnet
+     * @param courseName   navnet på emnet
      * @param reviewerName navnet som skal vises på anmeldelsen
-     * @param ratingText vurderingen slik brukeren skrev den inn
-     * @param comment kommentaren til anmeldelsen, kan være tom
+     * @param ratingText   vurderingen slik brukeren skrev den inn
+     * @param comment      kommentaren til anmeldelsen, kan være tom
      * @throws IllegalArgumentException hvis emnet eller anmeldelsen er ugyldig
      */
     public void submitReview(String courseCode, String courseName, String reviewerName,
@@ -44,8 +46,8 @@ public final class ReviewService {
     /**
      * Henter emnet med alle lagrede anmeldelser, slik at de kan vises.
      *
-     * <p>Dersom ingen har anmeldt emnet ennå, returneres et emne uten
-     * anmeldelser, slik at brukergrensesnittet alltid har noe å vise.
+     * <p>Dersom ingen har anmeldt emnet ennå, returneres et emne uten anmeldelser, slik at
+     * brukergrensesnittet alltid har noe å vise.
      *
      * @param course emnet som skal vises
      * @return emnet med lagrede anmeldelser, eller et emne uten anmeldelser
@@ -57,6 +59,25 @@ public final class ReviewService {
         }
         return reviewRepository.findCourse(course.getCourseCode())
                 .orElseGet(() -> new Course(course.getCourseCode(), course.getCourseName()));
+    }
+
+    /**
+     * Henter alle lagrede emner, også de uten anmeldelser.
+     *
+     * @return alle emnene med anmeldelsene sine
+     */
+    public List<Course> getAllCourses() {
+        return reviewRepository.findAllCourses();
+    }
+
+    /**
+     * Finner et lagret emne ut fra emnekoden, med alle anmeldelsene.
+     *
+     * @param courseCode emnekoden, store og små bokstaver skilles ikke
+     * @return emnet, eller tom hvis emnet ikke finnes
+     */
+    public Optional<Course> findCourse(String courseCode) {
+        return reviewRepository.findCourse(courseCode);
     }
 
     /**
