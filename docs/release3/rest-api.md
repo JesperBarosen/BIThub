@@ -1,6 +1,6 @@
 # REST-API for BIThub
 
-Her beskriver vi forespørslene som REST-serveren vår i modulen `rest` støtter. JavaFX-klienten bruker bare disse forespørslene for å hente og lagre data. Vi oppdaterer dokumentet hver gang et endepunkt blir lagt til eller endret.
+Her beskriver vi forespørslene som REST-serveren vår i modulen `springboot/restserver` støtter. JavaFX-klienten bruker bare disse forespørslene for å hente og lagre data. Vi oppdaterer dokumentet hver gang et endepunkt blir lagt til eller endret.
 
 Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og alle forespørsler og svar med innhold bruker JSON (`Content-Type: application/json`).
 
@@ -8,7 +8,7 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 
 - **rest** tar imot forespørsler, sjekker innlogging og gjør om mellom JSON og objektene i core. All forretningslogikk ligger i tjenestene i core (`ReviewService` og `UserService`).
 - Serveren validerer alle forespørsler selv. Vi stoler ikke på at klienten har sjekket noe, fordi hvem som helst kan sende HTTP-forespørsler direkte.
-- JSON-feltene i API-et er egne modeller i `rest`. De er ikke de samme klassene som lagres i filene (`CourseDTO`, `ReviewDTO`, `UserDTO`), slik at vi kan endre lagringen uten å endre API-et.
+- JSON-feltene i API-et er egne modeller i `springboot/restserver`. De er ikke de samme klassene som lagres i filene (`CourseDTO`, `ReviewDTO`, `UserDTO`), slik at vi kan endre lagringen uten å endre API-et.
 - Passord, passordhash, salt og e-posten til eieren av en anonym anmeldelse sendes aldri ut fra serveren.
 
 ## Oversikt
