@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * Tester endepunktene for emner med en falsk tjeneste, uten fil og uten ekte server.
  */
 @WebMvcTest(CourseController.class)
+@Import(ApiExceptionHandler.class)
 class CourseControllerTest {
 
     @Autowired
@@ -94,6 +96,26 @@ class CourseControllerTest {
         when(reviewService.findCourse("TDT4100")).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/courses/TDT4100"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("Fant ikke emnet TDT4100."));
+    }
+
+    /**
+     * Verifiserer at valideringsfeil fra core gir 400 med den opprinnelige meldingen.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void getCourseReturnsBadRequestForInvalidCode() throws Exception {
+        when(reviewService.findCourse("ugyldig"))
+                .thenThrow(new IllegalArgumentException("Ugyldig emnekode."));
+
+        mockMvc.perform(get("/api/courses/ugyldig"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value("Ugyldig emnekode."));
     }
 }
