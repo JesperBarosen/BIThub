@@ -6,6 +6,7 @@ import core.Course;
 import core.Review;
 import core.ReviewRepository;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
      * Sjekker om JSON-filen enten ikke eksisterer eller er tom.
      *
      * @return true hvis filen ikke finnes eller har en størrelse på 0 bytes, ellers false
+     * @throws UncheckedIOException hvis filstørrelsen ikke kan leses
      */
     @Override
     public boolean isEmpty() {
@@ -56,7 +58,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
         try {
             return Files.size(this.path) == 0;
         } catch (IOException e) {
-            return true;
+            throw new UncheckedIOException("Kunne ikke lese filstørrelsen: " + this.path, e);
         }
     }
 
@@ -77,7 +79,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
             courses = objectMapper.readValue(this.path.toFile(), objectMapper.getTypeFactory()
                     .constructCollectionType(List.class, CourseDTO.class));
         } catch (IOException e) {
-            throw new RuntimeException("Feil ved lesing av JSON-fil: " + this.path, e);
+            throw new UncheckedIOException("Feil ved lesing av JSON-fil: " + this.path, e);
         }
         if (assignMissingIds(courses)) {
             writeToFile(courses);

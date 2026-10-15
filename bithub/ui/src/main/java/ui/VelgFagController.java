@@ -2,6 +2,7 @@ package ui;
 
 import core.Course;
 import core.ReviewRepository;
+import java.io.UncheckedIOException;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import javafx.collections.FXCollections;
@@ -49,8 +50,12 @@ public class VelgFagController {
      */
     public void setReviewRepository(ReviewRepository reviewRepository) {
         Objects.requireNonNull(reviewRepository);
-        courseComboBox
-                .setItems(FXCollections.observableArrayList(reviewRepository.findAllCourses()));
+        try {
+            courseComboBox.setItems(
+                    FXCollections.observableArrayList(reviewRepository.findAllCourses()));
+        } catch (UncheckedIOException e) {
+            statusLabel.setText("Kunne ikke lese emnene. Prøv igjen senere.");
+        }
     }
 
     /**
