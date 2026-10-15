@@ -79,7 +79,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
             courses = objectMapper.readValue(this.path.toFile(), objectMapper.getTypeFactory()
                     .constructCollectionType(List.class, CourseDTO.class));
         } catch (IOException e) {
-            throw new RuntimeException("Feil ved lesing av JSON-fil: " + this.path, e);
+            throw new UncheckedIOException("Feil ved lesing av JSON-fil: " + this.path, e);
         }
         if (assignMissingIds(courses)) {
             writeToFile(courses);
