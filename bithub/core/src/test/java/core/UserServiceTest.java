@@ -153,4 +153,44 @@ class UserServiceTest {
     void constructorRejectsNullRepository() {
         assertThrows(NullPointerException.class, () -> new UserService(null));
     }
+
+    /**
+     * Verifiserer at innlogging med riktig e-post og passord returnerer brukeren.
+     */
+    @Test
+    void loginReturnsUserWithCorrectPassword() {
+        User user = service.register("Ola Nordmann", "ola@example.com", "Passord123");
+
+        assertEquals(Optional.of(user), service.login("ola@example.com", "Passord123"));
+    }
+
+    /**
+     * Verifiserer at innlogging med feil passord gir tomt resultat.
+     */
+    @Test
+    void loginRejectsWrongPassword() {
+        service.register("Ola Nordmann", "ola@example.com", "Passord123");
+
+        assertTrue(service.login("ola@example.com", "FeilPassord").isEmpty());
+    }
+
+    /**
+     * Verifiserer at innlogging med ukjent e-post gir tomt resultat.
+     */
+    @Test
+    void loginRejectsUnknownEmail() {
+        assertTrue(service.login("ukjent@example.com", "Passord123").isEmpty());
+    }
+
+    /**
+     * Verifiserer at innlogging uten passord gir tomt resultat i stedet for unntak.
+     */
+    @Test
+    void loginRejectsMissingPassword() {
+        service.register("Ola Nordmann", "ola@example.com", "Passord123");
+
+        for (String password : new String[] { null, "", " " }) {
+            assertTrue(service.login("ola@example.com", password).isEmpty());
+        }
+    }
 }
