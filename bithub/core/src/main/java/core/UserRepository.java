@@ -2,6 +2,9 @@ package core;
 
 import java.util.Optional;
 
+/**
+ * Definerer hvordan brukere lagres og hentes.
+ */
 public interface UserRepository {
     /**
      * Lagrer ny bruker.
