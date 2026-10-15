@@ -4,10 +4,12 @@ import core.DefaultCourses;
 import core.ReviewService;
 import file.ReviewHandler;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 /**
@@ -27,7 +29,12 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         ReviewHandler reviewHandler = new ReviewHandler();
         // Standardemnene legges inn ved første oppstart, uten å endre lagrede anmeldelser.
-        reviewHandler.addCoursesIfMissing(DefaultCourses.all());
+        try {
+            reviewHandler.addCoursesIfMissing(DefaultCourses.all());
+        } catch (UncheckedIOException e) {
+            new Alert(Alert.AlertType.ERROR,
+                    "Kunne ikke lese lagrede anmeldelser. Prøv å starte appen på nytt.").show();
+        }
         Navigation.setReviewRepository(reviewHandler);
         Navigation.setReviewService(new ReviewService(reviewHandler));
 

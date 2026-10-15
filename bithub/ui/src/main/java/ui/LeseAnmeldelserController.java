@@ -3,6 +3,7 @@ package ui;
 import core.Course;
 import core.Review;
 import core.ReviewService;
+import java.io.UncheckedIOException;
 import java.util.Locale;
 import java.util.Objects;
 import javafx.fxml.FXML;
@@ -93,7 +94,18 @@ public class LeseAnmeldelserController {
         if (reviewService == null) {
             throw new IllegalStateException("ReviewService must be set before the course.");
         }
-        Course courseWithReviews = reviewService.getCourseWithReviews(course);
+        Course courseWithReviews;
+        try {
+            courseWithReviews = reviewService.getCourseWithReviews(course);
+        } catch (UncheckedIOException e) {
+            courseTitleLabel.setText(course.getCourseCode() + " - " + course.getCourseName());
+            averageLabel.setText("-");
+            countLabel.setText("-");
+            reviewList.getItems().clear();
+            reviewList.setPlaceholder(
+                new Label("Kunne ikke lese anmeldelsene. Prøv igjen senere."));
+            return;
+        }
 
         courseTitleLabel.setText(
                 courseWithReviews.getCourseCode() + " - " + courseWithReviews.getCourseName());
