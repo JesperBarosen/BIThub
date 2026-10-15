@@ -48,7 +48,7 @@ Kildefilen til diagrammet ligger i [`arkitektur/klassediagramFile.puml`](arkitek
 
 ### REST-API
 
-Appen deles i en REST-server (modulen `rest`) og JavaFX-klienten. Alle forespørslene serveren støtter, med eksempler på forespørsel og svar, statuskoder og innlogging, er beskrevet i [docs/release3/rest-api.md](docs/release3/rest-api.md).
+Appen deles i en REST-server (modulen `springboot/restserver`) og JavaFX-klienten. Alle forespørslene serveren støtter, med eksempler på forespørsel og svar, statuskoder og innlogging, er beskrevet i [docs/release3/rest-api.md](docs/release3/rest-api.md).
 
 ## Mappestruktur i kodingsprosjektet
 

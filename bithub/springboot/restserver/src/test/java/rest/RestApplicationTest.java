@@ -42,13 +42,14 @@ class RestApplicationTest {
             assertTrue(serverContext.getWebServer().getPort() > 0);
 
             ReviewService service = context.getBean(ReviewService.class);
-            service.submitReview("IT1901", "Prosjektarbeid", "Testbruker", "4", "Bra fag");
+            service.submitReview("IT1901", "Informatikk prosjektarbeid I", "Testbruker", "4",
+                    "Bra fag");
 
             assertTrue(Files.isRegularFile(reviewsFile));
             // En ny leser bekrefter at anmeldelsen faktisk finnes i testfilen.
             Course savedCourse = new ReviewHandler(reviewsFile)
                     .findCourse("IT1901").orElseThrow();
-            assertEquals("Prosjektarbeid", savedCourse.getCourseName());
+            assertEquals("Informatikk prosjektarbeid I", savedCourse.getCourseName());
             assertEquals(1, savedCourse.getReviews().size());
             Review savedReview = savedCourse.getReviews().get(0);
             assertEquals("Testbruker", savedReview.getReviewerName());

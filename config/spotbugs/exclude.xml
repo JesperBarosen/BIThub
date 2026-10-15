@@ -6,4 +6,11 @@
         <Class name="core.ReviewService" />
         <Field name="reviewRepository" />
     </Match>
+    <!-- Navigation skal gi fagvelgeren lagringen den får fra App, ikke en kopi.
+         Det statiske feltet fjernes når Navigation blir et vanlig objekt i #153. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_STATIC_REP2" />
+        <Class name="ui.Navigation" />
+        <Field name="reviewRepository" />
+    </Match>
 </FindBugsFilter>

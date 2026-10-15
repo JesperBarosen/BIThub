@@ -21,7 +21,7 @@
         <module>core</module>
         <module>ui</module>
         <module>file</module>
-        <module>rest</module>
+        <module>springboot/restserver</module>
     </modules>
 
     <dependencyManagement>
