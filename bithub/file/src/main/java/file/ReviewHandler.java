@@ -133,11 +133,11 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
     }
 
     /**
-     * Henter et lagret emne med anmeldelser fra JSON-filen og gjør det om til domeneklassen
-     * {@link Course}.
+     * Henter et lagret emne med anmeldelser fra JSON-filen og gjør det om til domeneklassen.
      *
      * @param courseCode emnekoden til emnet, store og små bokstaver skilles ikke
      * @return emnet med anmeldelser, eller tom dersom emnet ikke finnes i filen
+     * @see Course
      */
     @Override
     public Optional<Course> findCourse(String courseCode) {
@@ -146,6 +146,40 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
         }
         return readFromFile().stream().filter(c -> courseCode.equalsIgnoreCase(c.getCourseCode()))
                 .findFirst().map(ReviewHandler::toCourse);
+    }
+
+    /**
+     * Henter alle emnene i JSON-filen, også de uten anmeldelser.
+     *
+     * @return alle lagrede emner, eller en tom liste hvis filen mangler
+     */
+    @Override
+    public List<Course> findAllCourses() {
+        return readFromFile().stream().map(ReviewHandler::toCourse).toList();
+    }
+
+    /**
+     * Legger emner uten anmeldelser inn i JSON-filen hvis de ikke finnes fra før. Emner som
+     * allerede er lagret, beholdes med alle anmeldelsene. Filen skrives bare når minst ett emne er
+     * lagt til.
+     *
+     * @param courses emnene som skal finnes i filen
+     */
+    @Override
+    public void addCoursesIfMissing(List<Course> courses) {
+        List<CourseDTO> storedCourses = readFromFile();
+        boolean changed = false;
+        for (Course course : courses) {
+            boolean exists = storedCourses.stream()
+                    .anyMatch(c -> course.getCourseCode().equalsIgnoreCase(c.getCourseCode()));
+            if (!exists) {
+                storedCourses.add(new CourseDTO(course.getCourseCode(), course.getCourseName()));
+                changed = true;
+            }
+        }
+        if (changed) {
+            writeToFile(storedCourses);
+        }
     }
 
     /**

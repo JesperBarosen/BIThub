@@ -1,6 +1,7 @@
 package ui;
 
 import core.Course;
+import core.ReviewRepository;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import javafx.collections.FXCollections;
@@ -35,19 +36,29 @@ public class VelgFagController {
 
     @FXML
     private void initialize() {
-        courseComboBox.setItems(
-                FXCollections.observableArrayList(CourseOptions.availableCourses()));
         courseComboBox.setButtonCell(courseCell());
         courseComboBox.setCellFactory(listView -> courseCell());
     }
 
     /**
-     * Bestemmer hva som skal skje når brukeren har valgt et emne og trykker
-     * «Gå videre». Slik kan fagvelgeren brukes både for å skrive og lese
-     * anmeldelser. Standard er å åpne anmeldelsesskjemaet.
+     * Setter lagringen som emnene hentes fra, og fyller nedtrekkslisten med alle emnene, også de
+     * uten anmeldelser.
      *
-     * @param onCourseSelected handlingen som får knappen som ble trykket og det
-     *     valgte emnet
+     * @param reviewRepository lagringen for emner og anmeldelser
+     * @throws NullPointerException hvis reviewRepository er null
+     */
+    public void setReviewRepository(ReviewRepository reviewRepository) {
+        Objects.requireNonNull(reviewRepository);
+        courseComboBox
+                .setItems(FXCollections.observableArrayList(reviewRepository.findAllCourses()));
+    }
+
+    /**
+     * Bestemmer hva som skal skje når brukeren har valgt et emne og trykker «Gå videre». Slik kan
+     * fagvelgeren brukes både for å skrive og lese anmeldelser. Standard er å åpne
+     * anmeldelsesskjemaet.
+     *
+     * @param onCourseSelected handlingen som får knappen som ble trykket og det valgte emnet
      * @throws NullPointerException hvis onCourseSelected er null
      */
     public void setOnCourseSelected(BiConsumer<Node, Course> onCourseSelected) {

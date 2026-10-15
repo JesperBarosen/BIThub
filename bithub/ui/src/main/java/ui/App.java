@@ -1,5 +1,6 @@
 package ui;
 
+import core.DefaultCourses;
 import core.ReviewService;
 import file.ReviewHandler;
 import java.io.IOException;
@@ -15,16 +16,20 @@ import javafx.stage.Stage;
 public class App extends Application {
 
     /**
-     * Setter opp lagringen og viser hjemmesiden når JavaFX starter. Dette er
-     * det eneste stedet i UI som vet at anmeldelser lagres med ReviewHandler.
-     * Resten av UI bruker bare ReviewService fra core.
+     * Setter opp lagringen og viser hjemmesiden når JavaFX starter. Dette er det eneste stedet i UI
+     * som vet at anmeldelser lagres med ReviewHandler. Resten av UI bruker bare ReviewService fra
+     * core.
      *
      * @param stage hovedvinduet til applikasjonen
      * @throws IOException hvis hjemmesiden ikke kan lastes
      */
     @Override
     public void start(Stage stage) throws IOException {
-        Navigation.setReviewService(new ReviewService(new ReviewHandler()));
+        ReviewHandler reviewHandler = new ReviewHandler();
+        // Standardemnene legges inn ved første oppstart, uten å endre lagrede anmeldelser.
+        reviewHandler.addCoursesIfMissing(DefaultCourses.all());
+        Navigation.setReviewRepository(reviewHandler);
+        Navigation.setReviewService(new ReviewService(reviewHandler));
 
         FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("Hjemmeside.fxml"));
         Parent parent = fxmlLoader.load();
