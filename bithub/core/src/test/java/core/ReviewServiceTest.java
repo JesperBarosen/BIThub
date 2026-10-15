@@ -11,8 +11,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 /**
- * Testklasse for ReviewService. Bruker en falsk lagring i minnet i stedet for
- * ReviewHandler, slik at core kan testes uten fil og uten brukergrensesnitt.
+ * Testklasse for ReviewService. Bruker en falsk lagring i minnet i stedet for ReviewHandler, slik
+ * at core kan testes uten fil og uten brukergrensesnitt.
  */
 class ReviewServiceTest {
 
@@ -20,14 +20,13 @@ class ReviewServiceTest {
     private final List<Review> savedReviews = new ArrayList<>();
 
     /**
-     * Emnet den falske lagringen returnerer ved oppslag, eller null for ingen
-     * treff.
+     * Emnet den falske lagringen returnerer ved oppslag, eller null for ingen treff.
      */
     private Course storedCourse;
 
     /**
-     * Falsk lagring som bare husker hva den har fått, og som returnerer
-     * {@link #storedCourse} ved oppslag.
+     * Falsk lagring som bare husker hva den har fått, og som returnerer {@link #storedCourse} ved
+     * oppslag.
      */
     private final ReviewRepository fakeRepository = new ReviewRepository() {
         @Override
@@ -41,13 +40,22 @@ class ReviewServiceTest {
             return Optional.ofNullable(storedCourse)
                     .filter(course -> course.getCourseCode().equals(courseCode));
         }
+
+        @Override
+        public List<Course> findAllCourses() {
+            return List.of();
+        }
+
+        @Override
+        public void addCoursesIfMissing(List<Course> courses) {
+        }
     };
 
     private final ReviewService service = new ReviewService(fakeRepository);
 
     /**
-     * Verifiserer at en gyldig anmeldelse sendes videre til lagringen med
-     * riktig emne og riktige verdier.
+     * Verifiserer at en gyldig anmeldelse sendes videre til lagringen med riktig emne og riktige
+     * verdier.
      */
     @Test
     void submitReviewSavesValidReview() {
@@ -62,8 +70,8 @@ class ReviewServiceTest {
     }
 
     /**
-     * Verifiserer at mellomrom rundt vurdering og kommentar fjernes, og at
-     * manglende kommentar blir en tom streng.
+     * Verifiserer at mellomrom rundt vurdering og kommentar fjernes, og at manglende kommentar blir
+     * en tom streng.
      */
     @Test
     void submitReviewTrimsInput() {
@@ -80,7 +88,7 @@ class ReviewServiceTest {
      */
     @Test
     void submitReviewRejectsMissingRating() {
-        for (String rating : new String[]{null, "", "   "}) {
+        for (String rating : new String[] { null, "", "   " }) {
             IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                     () -> service.submitReview("IT1901", "Prosjektarbeid", "Student", rating, ""));
             assertEquals("Vurdering må fylles ut.", e.getMessage());
@@ -104,7 +112,7 @@ class ReviewServiceTest {
      */
     @Test
     void submitReviewRejectsRatingOutsideRange() {
-        for (String rating : new String[]{"0", "6", "-1"}) {
+        for (String rating : new String[] { "0", "6", "-1" }) {
             IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                     () -> service.submitReview("IT1901", "Prosjektarbeid", "Student", rating, ""));
             assertEquals("Vurdering må være et tall fra 1 til 5.", e.getMessage());
@@ -117,23 +125,20 @@ class ReviewServiceTest {
      */
     @Test
     void submitReviewRejectsMissingCourseOrReviewer() {
-        assertThrows(
-                IllegalArgumentException.class,
+        assertThrows(IllegalArgumentException.class,
                 () -> service.submitReview("", "Prosjektarbeid", "Student", "4", ""));
 
-        assertThrows(
-                IllegalArgumentException.class,
+        assertThrows(IllegalArgumentException.class,
                 () -> service.submitReview("IT1901", "", "Student", "4", ""));
 
-        assertThrows(
-                IllegalArgumentException.class,
+        assertThrows(IllegalArgumentException.class,
                 () -> service.submitReview("IT1901", "Prosjektarbeid", "", "4", ""));
         assertTrue(savedReviews.isEmpty());
     }
 
     /**
-     * Verifiserer at feil fra lagringen sendes videre til den som kaller, slik
-     * at brukergrensesnittet kan vise en feilmelding.
+     * Verifiserer at feil fra lagringen sendes videre til den som kaller, slik at
+     * brukergrensesnittet kan vise en feilmelding.
      */
     @Test
     void submitReviewPassesOnStorageFailure() {
@@ -147,6 +152,15 @@ class ReviewServiceTest {
             @Override
             public Optional<Course> findCourse(String courseCode) {
                 return Optional.empty();
+            }
+
+            @Override
+            public List<Course> findAllCourses() {
+                return List.of();
+            }
+
+            @Override
+            public void addCoursesIfMissing(List<Course> courses) {
             }
         });
 
@@ -172,8 +186,8 @@ class ReviewServiceTest {
     }
 
     /**
-     * Verifiserer at et emne uten lagrede anmeldelser gir et tomt emne med
-     * samme kode og navn, i stedet for en feil.
+     * Verifiserer at et emne uten lagrede anmeldelser gir et tomt emne med samme kode og navn, i
+     * stedet for en feil.
      */
     @Test
     void getCourseWithReviewsReturnsEmptyCourseWhenNotStored() {

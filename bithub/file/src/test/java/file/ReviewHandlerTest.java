@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
 import core.Course;
+import core.DefaultCourses;
 import core.Review;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -330,5 +331,66 @@ class ReviewHandlerTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> reader.findCourse("IT1901"));
+    }
+
+    /**
+     * Verifiserer at alle standardemnene finnes ved første oppstart, når datafilen
+     * ikke finnes fra før.
+     */
+    @Test
+    void allDefaultCoursesAreAvailableOnFirstStartup() {
+        Path file = tempDir.resolve("courses.json");
+        ReviewHandler handler = new ReviewHandler(file);
+        assertFalse(Files.exists(file));
+
+        handler.addCoursesIfMissing(DefaultCourses.all());
+
+        List<Course> courses = new ReviewHandler(file).findAllCourses();
+        assertEquals(5, courses.size());
+        assertEquals(
+                DefaultCourses.all().stream().map(Course::getCourseCode).toList(),
+                courses.stream().map(Course::getCourseCode).toList());
+        assertTrue(courses.stream().allMatch(course -> course.getReviews().isEmpty()));
+    }
+
+    /**
+     * Verifiserer at emner uten anmeldelser er med når alle emner hentes.
+     */
+    @Test
+    void findAllCoursesIncludesCoursesWithoutReviews() {
+        Path file = tempDir.resolve("courses.json");
+        ReviewHandler handler = new ReviewHandler(file);
+        handler.addReview("IT1901", "Prosjektarbeid", new Review("Ola", 4, "Bra"));
+        handler.addCoursesIfMissing(List.of(new Course("TDT4100", "Objektorientert")));
+
+        List<Course> courses = handler.findAllCourses();
+
+        assertEquals(2, courses.size());
+        assertEquals(1, courses.get(0).getReviews().size());
+        assertEquals("TDT4100", courses.get(1).getCourseCode());
+        assertTrue(courses.get(1).getReviews().isEmpty());
+    }
+
+    /**
+     * Verifiserer at eksisterende anmeldelser bevares, og at ingen emner blir
+     * lagt inn to ganger, når standardemnene initialiseres på nytt.
+     */
+    @Test
+    void reinitializingDefaultCoursesKeepsExistingReviews() {
+        Path file = tempDir.resolve("courses.json");
+        ReviewHandler handler = new ReviewHandler(file);
+        handler.addCoursesIfMissing(DefaultCourses.all());
+        handler.addReview("IT1901", "Informatikk prosjektarbeid I", new Review("Ola", 5, "Bra"));
+        handler.addReview("IT1901", "Informatikk prosjektarbeid I", new Review("Kari", 3, ""));
+
+        handler.addCoursesIfMissing(DefaultCourses.all());
+        new ReviewHandler(file).addCoursesIfMissing(DefaultCourses.all());
+
+        List<Course> courses = new ReviewHandler(file).findAllCourses();
+        assertEquals(5, courses.size());
+        Course course = handler.findCourse("IT1901").orElseThrow();
+        assertEquals(2, course.getReviews().size());
+        assertEquals("Ola", course.getReviews().get(0).getReviewerName());
+        assertEquals("Kari", course.getReviews().get(1).getReviewerName());
     }
 }
