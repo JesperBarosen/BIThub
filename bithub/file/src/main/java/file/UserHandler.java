@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import core.User;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -40,6 +41,12 @@ public final class UserHandler implements DataHandler<UserDTO> {
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
+    /**
+     * Sjekker om JSON-filen enten ikke eksisterer eller er tom.
+     *
+     * @return true hvis filen ikke finnes eller har en størrelse på 0 bytes, ellers false
+     * @throws UncheckedIOException hvis filstørrelsen ikke kan leses
+     */
     @Override
     public boolean isEmpty() {
         if (!Files.exists(this.path)) {
@@ -49,7 +56,7 @@ public final class UserHandler implements DataHandler<UserDTO> {
         try {
             return Files.size(this.path) == 0;
         } catch (IOException e) {
-            return true;
+            throw new UncheckedIOException("Kunne ikke lese filstørrelsen: " + this.path, e);
         }
     }
 

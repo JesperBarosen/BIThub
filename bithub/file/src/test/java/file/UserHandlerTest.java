@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mockStatic;
 
 import core.User;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -124,10 +125,12 @@ class UserHandlerTest {
     }
 
     /**
-     * Tester feilhåndtering når filstørrelsen ikke kan leses.
+     * Verifiserer at isEmpty kaster UncheckedIOException når filstørrelsen ikke kan leses.
+     *
+     * @throws IOException dersom mocking av filoperasjonen feiler
      */
     @Test
-    void testIsEmptyReturnsTrueWhenSizeThrowsIoException() throws IOException {
+    void testIsEmptyThrowsWhenSizeThrowsIoException() throws IOException {
         Path file = tempDir.resolve("unreadable.json");
         UserHandler handler = new UserHandler(file);
 
@@ -136,8 +139,7 @@ class UserHandlerTest {
             files.when(() -> Files.size(file))
                     .thenThrow(new IOException("Kan ikke lese filstørrelsen"));
 
-            assertTrue(handler.isEmpty());
-            files.verify(() -> Files.size(file));
+            assertThrows(UncheckedIOException.class, handler::isEmpty);
         }
     }
 
