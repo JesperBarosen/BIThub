@@ -194,3 +194,24 @@ class UserServiceTest {
         }
     }
 }
+    /**
+     * Verifiserer at e-post med store bokstaver regnes som samme adresse ved registrering.
+     */
+    @Test
+    void registerRejectsDuplicateEmailWithDifferentCase() {
+        service.register("Ola Nordmann", "Ola@Example.com", "Passord123");
+
+        assertThrows(DuplicateEmailException.class,
+                () -> service.register("Kari Nordmann", " ola@example.com ", "AnnetPassord123"));
+        assertEquals(1, savedUsers.size());
+    }
+
+    /**
+     * Verifiserer at innlogging virker uansett store og små bokstaver i e-posten.
+     */
+    @Test
+    void loginIgnoresCaseInEmail() {
+        service.register("Ola Nordmann", "ola@example.com", "Passord123");
+
+        assertTrue(service.login("OLA@Example.com", "Passord123").isPresent());
+    }
