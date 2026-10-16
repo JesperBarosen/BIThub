@@ -193,7 +193,7 @@ class UserServiceTest {
             assertTrue(service.login("ola@example.com", password).isEmpty());
         }
     }
-}
+
     /**
      * Verifiserer at e-post med store bokstaver regnes som samme adresse ved registrering.
      */
@@ -215,3 +215,4 @@ class UserServiceTest {
 
         assertTrue(service.login("OLA@Example.com", "Passord123").isPresent());
     }
+}
