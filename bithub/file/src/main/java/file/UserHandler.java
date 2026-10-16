@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import core.User;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -40,6 +41,12 @@ public final class UserHandler implements DataHandler<UserDTO> {
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
+    /**
+     * Sjekker om JSON-filen enten ikke eksisterer eller er tom.
+     *
+     * @return true hvis filen ikke finnes eller har en størrelse på 0 bytes, ellers false
+     * @throws UncheckedIOException hvis filstørrelsen ikke kan leses
+     */
     @Override
     public boolean isEmpty() {
         if (!Files.exists(this.path)) {
@@ -49,7 +56,7 @@ public final class UserHandler implements DataHandler<UserDTO> {
         try {
             return Files.size(this.path) == 0;
         } catch (IOException e) {
-            return true;
+            throw new UncheckedIOException("Kunne ikke lese filstørrelsen: " + this.path, e);
         }
     }
 
@@ -115,7 +122,8 @@ public final class UserHandler implements DataHandler<UserDTO> {
 
         List<UserDTO> users = readFromFile();
 
-        UserDTO userDto = new UserDTO(user.getName(), user.getEmail(), user.getPassword());
+        UserDTO userDto = new UserDTO(user.getName(), user.getEmail(), user.getPasswordHash(),
+                user.getSalt());
 
         users.add(userDto);
         writeToFile(users);
@@ -139,6 +147,7 @@ public final class UserHandler implements DataHandler<UserDTO> {
      * @throws IllegalArgumentException hvis brukeropplysningene er ugyldige
      */
     private static User toUser(UserDTO userDto) {
-        return new User(userDto.getName(), userDto.getEmail(), userDto.getPassword());
+        return new User(userDto.getName(), userDto.getEmail(), userDto.getPasswordHash(),
+                userDto.getSalt());
     }
 }

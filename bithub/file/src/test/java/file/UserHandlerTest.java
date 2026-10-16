@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mockStatic;
 
 import core.User;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -52,14 +53,16 @@ class UserHandlerTest {
     }
 
     /**
-     * Verifiserer at en lagret bruker kan leses tilbake av en ny UserHandler.
+     * Verifiserer at en bruker lagres med hash og salt og kan leses tilbake.
      */
     @Test
-    void testUserIsSavedAndCanBeRead() {
+    void testUserIsSavedAndCanBeRead() throws IOException {
         Path file = tempDir.resolve("users.json");
         UserHandler handler = new UserHandler(file);
 
-        handler.addUser(new User("Ola Nordmann", "ola@gmail.com", "jegharmangepassord123"));
+        String password = "jegharmangepassord123";
+        User user = new User("Ola Nordmann", "ola@gmail.com", password);
+        handler.addUser(user);
 
         // Ny handler på samme fil viser at dataene ble lagret på disken.
         List<UserDTO> users = new UserHandler(file).readFromFile();
@@ -67,7 +70,14 @@ class UserHandlerTest {
         assertEquals(1, users.size());
         assertEquals("Ola Nordmann", users.get(0).getName());
         assertEquals("ola@gmail.com", users.get(0).getEmail());
-        assertEquals("jegharmangepassord123", users.get(0).getPassword());
+        assertEquals(user.getPasswordHash(), users.get(0).getPasswordHash());
+        assertEquals(user.getSalt(), users.get(0).getSalt());
+
+        String json = Files.readString(file);
+        assertTrue(json.contains("\"passwordHash\""));
+        assertTrue(json.contains("\"salt\""));
+        assertFalse(json.contains("\"password\""));
+        assertFalse(json.contains(password));
     }
 
     /**
@@ -124,10 +134,12 @@ class UserHandlerTest {
     }
 
     /**
-     * Tester feilhåndtering når filstørrelsen ikke kan leses.
+     * Verifiserer at isEmpty kaster UncheckedIOException når filstørrelsen ikke kan leses.
+     *
+     * @throws IOException dersom mocking av filoperasjonen feiler
      */
     @Test
-    void testIsEmptyReturnsTrueWhenSizeThrowsIoException() throws IOException {
+    void testIsEmptyThrowsWhenSizeThrowsIoException() throws IOException {
         Path file = tempDir.resolve("unreadable.json");
         UserHandler handler = new UserHandler(file);
 
@@ -136,8 +148,7 @@ class UserHandlerTest {
             files.when(() -> Files.size(file))
                     .thenThrow(new IOException("Kan ikke lese filstørrelsen"));
 
-            assertTrue(handler.isEmpty());
-            files.verify(() -> Files.size(file));
+            assertThrows(UncheckedIOException.class, handler::isEmpty);
         }
     }
 
@@ -162,7 +173,11 @@ class UserHandlerTest {
         Path nestedFile = tempDir.resolve("subfolder").resolve("nested_users.json");
         UserHandler handler = new UserHandler(nestedFile);
 
-        handler.writeToFile(List.of(new UserDTO("Kari", "kari@gmail.com", "passord")));
+        User user = new User("Kari", "kari@gmail.com", "passord123");
+        UserDTO userDto = new UserDTO(user.getName(), user.getEmail(), user.getPasswordHash(),
+                user.getSalt());
+
+        handler.writeToFile(List.of(userDto));
 
         assertTrue(Files.exists(nestedFile));
         assertEquals(1, handler.readFromFile().size());
@@ -197,25 +212,36 @@ class UserHandlerTest {
     }
 
     /**
-     * Verifiserer at lagrede brukere hentes som domeneobjekter.
+     * Verifiserer at lagrede brukere gjenopprettes med riktig hash og salt.
      */
     @Test
     void testGetUsersReturnsSavedUsers() {
         Path file = tempDir.resolve("users.json");
         UserHandler handler = new UserHandler(file);
 
-        handler.addUser(new User("Ola Nordmann", "ola@gmail.com", "passord123"));
-        handler.addUser(new User("Kari Nordmann", "kari@gmail.com", "passord456"));
+        User ola = new User("Ola Nordmann", "ola@gmail.com", "passord123");
+        User kari = new User("Kari Nordmann", "kari@gmail.com", "passord456");
+
+        handler.addUser(ola);
+        handler.addUser(kari);
 
         List<User> users = new UserHandler(file).getUsers();
 
         assertEquals(2, users.size());
-        assertEquals("Ola Nordmann", users.get(0).getName());
-        assertEquals("ola@gmail.com", users.get(0).getEmail());
-        assertEquals("passord123", users.get(0).getPassword());
-        assertEquals("Kari Nordmann", users.get(1).getName());
-        assertEquals("kari@gmail.com", users.get(1).getEmail());
-        assertEquals("passord456", users.get(1).getPassword());
+
+        assertEquals(ola.getName(), users.get(0).getName());
+        assertEquals(ola.getEmail(), users.get(0).getEmail());
+        assertEquals(ola.getPasswordHash(), users.get(0).getPasswordHash());
+        assertEquals(ola.getSalt(), users.get(0).getSalt());
+        assertTrue(users.get(0).verifyPassword("passord123"));
+        assertFalse(users.get(0).verifyPassword("feilpassord"));
+
+        assertEquals(kari.getName(), users.get(1).getName());
+        assertEquals(kari.getEmail(), users.get(1).getEmail());
+        assertEquals(kari.getPasswordHash(), users.get(1).getPasswordHash());
+        assertEquals(kari.getSalt(), users.get(1).getSalt());
+        assertTrue(users.get(1).verifyPassword("passord456"));
+        assertFalse(users.get(1).verifyPassword("feilpassord"));
     }
 
     /**
@@ -234,8 +260,71 @@ class UserHandlerTest {
     @Test
     void testGetUsersRejectsInvalidStoredUser() {
         UserHandler handler = new UserHandler(tempDir.resolve("users.json"));
-        handler.writeToFile(List.of(new UserDTO("Ola Nordmann", "ugyldig-epost", "passord123")));
+
+        User user = new User("Ola Nordmann", "ola@gmail.com", "passord123");
+        UserDTO invalidUser = new UserDTO(user.getName(), "ugyldig-epost", user.getPasswordHash(),
+                user.getSalt());
+
+        handler.writeToFile(List.of(invalidUser));
 
         assertThrows(IllegalArgumentException.class, handler::getUsers);
+    }
+
+    /**
+     * Verifiserer at en ugyldig lagret passordhash avvises.
+     */
+    @Test
+    void testGetUsersRejectsInvalidStoredHash() {
+        UserHandler handler = new UserHandler(tempDir.resolve("users.json"));
+
+        User user = new User("Ola Nordmann", "ola@gmail.com", "passord123");
+        UserDTO invalidUser = new UserDTO(user.getName(), user.getEmail(), "ugyldig-hash",
+                user.getSalt());
+
+        handler.writeToFile(List.of(invalidUser));
+
+        assertThrows(IllegalArgumentException.class, handler::getUsers);
+    }
+
+    /**
+     * Verifiserer at et ugyldig lagret salt avvises.
+     */
+    @Test
+    void testGetUsersRejectsInvalidStoredSalt() {
+        UserHandler handler = new UserHandler(tempDir.resolve("users.json"));
+
+        User user = new User("Ola Nordmann", "ola@gmail.com", "passord123");
+        UserDTO invalidUser = new UserDTO(user.getName(), user.getEmail(), user.getPasswordHash(),
+                "ugyldig-salt");
+
+        handler.writeToFile(List.of(invalidUser));
+
+        assertThrows(IllegalArgumentException.class, handler::getUsers);
+    }
+
+    /**
+     * Verifiserer at eldre brukerdata ikke overskrives ved lagring.
+     */
+    @Test
+    void testAddUserDoesNotOverwriteLegacyPasswordData() throws IOException {
+        Path file = tempDir.resolve("users.json");
+
+        String legacyJson = """
+                [
+                  {
+                    "name": "Ola Nordmann",
+                    "email": "ola@gmail.com",
+                    "password": "gammeltpassord123"
+                  }
+                ]
+                """;
+
+        Files.writeString(file, legacyJson);
+
+        UserHandler handler = new UserHandler(file);
+        User user = new User("Kari Nordmann", "kari@gmail.com", "passord456");
+
+        assertThrows(RuntimeException.class, () -> handler.addUser(user));
+        assertEquals(legacyJson, Files.readString(file));
     }
 }

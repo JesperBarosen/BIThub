@@ -3,14 +3,17 @@ package file;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
+import core.AuthorType;
 import core.Course;
 import core.DefaultCourses;
 import core.Review;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -22,8 +25,8 @@ import org.mockito.MockedStatic;
 /**
  * Testklassen for ReviewHandler.
  *
- * <p>Verifiserer at anmeldelser lagres til og leses fra JSON-fil. Testene bruker
- * en midlertidig mappe slik at den ekte filen ikke berøres.
+ * <p>Verifiserer at anmeldelser lagres til og leses fra JSON-fil. Testene bruker en midlertidig
+ * mappe slik at den ekte filen ikke berøres.
  */
 class ReviewHandlerTest {
 
@@ -40,10 +43,7 @@ class ReviewHandlerTest {
     void reviewIsSavedAndCanBeRead() {
         Path file = tempDir.resolve("courses.json");
         ReviewHandler handler = new ReviewHandler(file);
-        handler.addReview(
-                "IT1901",
-                "Prosjektarbeid",
-                new Review("Ola", 4, "Bra"));
+        handler.addReview("IT1901", "Prosjektarbeid", new Review("Ola", 4, "Bra"));
 
         // Ny handler på samme fil viser at dataene faktisk ble lagret på disken.
         List<CourseDTO> courses = new ReviewHandler(file).readFromFile();
@@ -51,9 +51,7 @@ class ReviewHandlerTest {
         assertEquals(1, courses.size());
         assertEquals("IT1901", courses.get(0).getCourseCode());
         assertEquals(4, courses.get(0).getReviews().get(0).getRating());
-        assertEquals(
-                "Ola",
-                courses.get(0).getReviews().get(0).getReviewerName());
+        assertEquals("Ola", courses.get(0).getReviews().get(0).getReviewerName());
     }
 
     /**
@@ -73,11 +71,9 @@ class ReviewHandlerTest {
      */
     @Test
     void testNullPathThrowsException() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> {
-                    new ReviewHandler(null);
-                });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ReviewHandler(null);
+        });
     }
 
     /**
@@ -114,16 +110,10 @@ class ReviewHandlerTest {
         ReviewHandler handler = new ReviewHandler(file);
 
         // Legg til første anmeldelse og opprett emnet.
-        handler.addReview(
-                "IT1901",
-                "Informatikk",
-                new Review("Kari", 5, "Fantastisk"));
+        handler.addReview("IT1901", "Informatikk", new Review("Kari", 5, "Fantastisk"));
 
         // Legg til en ekstra anmeldelse på samme emnekode.
-        handler.addReview(
-                "IT1901",
-                "Informatikk",
-                new Review("Ola", 3, "Ok"));
+        handler.addReview("IT1901", "Informatikk", new Review("Ola", 3, "Ok"));
 
         List<CourseDTO> courses = handler.readFromFile();
 
@@ -142,11 +132,9 @@ class ReviewHandlerTest {
         Files.writeString(file, "Dette er ikke gyldig JSON-format!");
         ReviewHandler handler = new ReviewHandler(file);
 
-        assertThrows(
-                RuntimeException.class,
-                () -> {
-                    handler.readFromFile();
-                });
+        assertThrows(RuntimeException.class, () -> {
+            handler.readFromFile();
+        });
     }
 
     /**
@@ -157,21 +145,18 @@ class ReviewHandlerTest {
         Path nestedFile = tempDir.resolve("subfolder/nested/courses.json");
         ReviewHandler handler = new ReviewHandler(nestedFile);
 
-        handler.addReview(
-                "TDT4100",
-                "Objektorientert programmering",
-                new Review("Per", 3, "Topp"));
+        handler.addReview("TDT4100", "Objektorientert programmering", new Review("Per", 3, "Topp"));
 
         assertTrue(Files.exists(nestedFile));
     }
 
     /**
-     * Tester feilhåndtering når filstørrelsen ikke kan leses.
+     * Verifiserer at isEmpty kaster UncheckedIOException når filstørrelsen ikke kan leses.
      *
      * @throws IOException dersom mocking av filoperasjonen feiler
      */
     @Test
-    void testIsEmptyReturnsTrueWhenSizeThrowsIoException() throws IOException {
+    void testIsEmptyThrowsWhenSizeThrowsIoException() throws IOException {
         Path file = tempDir.resolve("unreadable.json");
         ReviewHandler handler = new ReviewHandler(file);
 
@@ -180,8 +165,7 @@ class ReviewHandlerTest {
             files.when(() -> Files.size(file))
                     .thenThrow(new IOException("Kan ikke lese filstørrelsen"));
 
-            assertTrue(handler.isEmpty());
-            files.verify(() -> Files.size(file));
+            assertThrows(UncheckedIOException.class, handler::isEmpty);
         }
     }
 
@@ -191,17 +175,14 @@ class ReviewHandlerTest {
      * @throws IOException dersom testmappen ikke kan opprettes
      */
     @Test
-    void testWriteToFileThrowsRuntimeExceptionOnIoException()
-            throws IOException {
+    void testWriteToFileThrowsRuntimeExceptionOnIoException() throws IOException {
         Path dir = tempDir.resolve("directoryAsFile");
         Files.createDirectories(dir);
         ReviewHandler handler = new ReviewHandler(dir);
 
-        assertThrows(
-                RuntimeException.class,
-                () -> {
-                    handler.writeToFile(List.of());
-                });
+        assertThrows(RuntimeException.class, () -> {
+            handler.writeToFile(List.of());
+        });
     }
 
     /**
@@ -217,10 +198,7 @@ class ReviewHandlerTest {
         handler.writeToFile(List.of(nullCourse));
 
         // Filteret skal håndtere null-emnekoden uten å krasje.
-        handler.addReview(
-                "IT1901",
-                "Informatikk",
-                new Review("Ola", 5, "Bra"));
+        handler.addReview("IT1901", "Informatikk", new Review("Ola", 5, "Bra"));
 
         List<CourseDTO> courses = handler.readFromFile();
 
@@ -228,8 +206,8 @@ class ReviewHandlerTest {
     }
 
     /**
-     * Verifiserer at et lagret emne leses tilbake som domeneklassen Course, med
-     * alle anmeldelsene og riktig gjennomsnitt.
+     * Verifiserer at et lagret emne leses tilbake som domeneklassen Course, med alle anmeldelsene
+     * og riktig gjennomsnitt.
      */
     @Test
     void findCourseReturnsCourseWithReviews() {
@@ -250,8 +228,7 @@ class ReviewHandlerTest {
     }
 
     /**
-     * Verifiserer at oppslaget ikke skiller mellom store og små bokstaver, slik
-     * som addReview.
+     * Verifiserer at oppslaget ikke skiller mellom store og små bokstaver, slik som addReview.
      */
     @Test
     void findCourseIgnoresCase() {
@@ -263,8 +240,8 @@ class ReviewHandlerTest {
     }
 
     /**
-     * Verifiserer at emner som ikke finnes, manglende fil og null gir tomt
-     * resultat i stedet for feil.
+     * Verifiserer at emner som ikke finnes, manglende fil og null gir tomt resultat i stedet for
+     * feil.
      */
     @Test
     void findCourseReturnsEmptyWhenNotFound() {
@@ -279,7 +256,7 @@ class ReviewHandlerTest {
     }
 
     /**
-     * Verifiserer at JSON fra før innføringen av ReviewDTO fortsatt kan leses.
+     * Verifiserer at JSON fra release 2 fortsatt kan leses, og at anmeldelsene blir uten eier.
      *
      * @throws IOException dersom testfilen ikke kan skrives
      */
@@ -302,8 +279,7 @@ class ReviewHandlerTest {
                 ]
                 """);
 
-        Course course = new ReviewHandler(file)
-                .findCourse("IT1901").orElseThrow();
+        Course course = new ReviewHandler(file).findCourse("IT1901").orElseThrow();
 
         assertEquals("IT1901", course.getCourseCode());
         assertEquals("Prosjektarbeid", course.getCourseName());
@@ -313,6 +289,9 @@ class ReviewHandlerTest {
         assertEquals("Ola", review.getReviewerName());
         assertEquals(4, review.getRating());
         assertEquals("Bra fag", review.getComment());
+        assertNull(review.getOwnerEmail());
+        assertFalse(review.isAnonymous());
+        assertEquals(AuthorType.GUEST, review.getAuthorType());
     }
 
     /**
@@ -328,14 +307,12 @@ class ReviewHandlerTest {
 
         ReviewHandler reader = new ReviewHandler(file);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> reader.findCourse("IT1901"));
+        assertThrows(IllegalArgumentException.class, () -> reader.findCourse("IT1901"));
     }
 
     /**
-     * Verifiserer at alle standardemnene finnes ved første oppstart, når datafilen
-     * ikke finnes fra før.
+     * Verifiserer at alle standardemnene finnes ved første oppstart, når datafilen ikke finnes fra
+     * før.
      */
     @Test
     void allDefaultCoursesAreAvailableOnFirstStartup() {
@@ -347,8 +324,7 @@ class ReviewHandlerTest {
 
         List<Course> courses = new ReviewHandler(file).findAllCourses();
         assertEquals(5, courses.size());
-        assertEquals(
-                DefaultCourses.all().stream().map(Course::getCourseCode).toList(),
+        assertEquals(DefaultCourses.all().stream().map(Course::getCourseCode).toList(),
                 courses.stream().map(Course::getCourseCode).toList());
         assertTrue(courses.stream().allMatch(course -> course.getReviews().isEmpty()));
     }
@@ -372,8 +348,8 @@ class ReviewHandlerTest {
     }
 
     /**
-     * Verifiserer at eksisterende anmeldelser bevares, og at ingen emner blir
-     * lagt inn to ganger, når standardemnene initialiseres på nytt.
+     * Verifiserer at eksisterende anmeldelser bevares, og at ingen emner blir lagt inn to ganger,
+     * når standardemnene initialiseres på nytt.
      */
     @Test
     void reinitializingDefaultCoursesKeepsExistingReviews() {
@@ -393,4 +369,57 @@ class ReviewHandlerTest {
         assertEquals("Ola", course.getReviews().get(0).getReviewerName());
         assertEquals("Kari", course.getReviews().get(1).getReviewerName());
     }
+
+    /**
+     * Verifiserer at id, eier og anonymitet lagres i filen og leses tilbake uendret.
+     */
+    @Test
+    void findCourseKeepsIdOwnerAndAnonymity() {
+        Path file = tempDir.resolve("courses.json");
+        new ReviewHandler(file).addReview("IT1901", "Prosjektarbeid",
+                new Review("abc-123", "ola@ntnu.no", "Ola", true, 4, "Bra"));
+
+        Review review = new ReviewHandler(file).findCourse("IT1901").orElseThrow().getReviews()
+                .get(0);
+
+        assertEquals("abc-123", review.getId());
+        assertEquals("ola@ntnu.no", review.getOwnerEmail());
+        assertTrue(review.isAnonymous());
+    }
+
+    /**
+     * Verifiserer at en anmeldelse uten id i en fil fra release 2 får en id som lagres i filen,
+     * slik at id-en er den samme ved neste lesing.
+     *
+     * @throws IOException dersom testfilen ikke kan skrives eller leses
+     */
+    @Test
+    void findCourseGivesOldReviewStableId() throws IOException {
+        Path file = tempDir.resolve("courses.json");
+        Files.writeString(file, """
+                [
+                  {
+                    "courseCode": "IT1901",
+                    "courseName": "Prosjektarbeid",
+                    "reviews": [
+                      {
+                        "reviewerName": "Ola",
+                        "rating": 4,
+                        "comment": "Bra fag"
+                      }
+                    ]
+                  }
+                ]
+                """);
+
+        String firstId = new ReviewHandler(file).findCourse("IT1901").orElseThrow().getReviews()
+                .get(0).getId();
+        String secondId = new ReviewHandler(file).findCourse("IT1901").orElseThrow().getReviews()
+                .get(0).getId();
+
+        assertNotNull(firstId);
+        assertEquals(firstId, secondId);
+        assertTrue(Files.readString(file).contains(firstId));
+    }
+
 }

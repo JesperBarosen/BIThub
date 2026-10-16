@@ -6,11 +6,13 @@ import core.Course;
 import core.Review;
 import core.ReviewRepository;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Håndterer persistering av anmeldelser organisert per emne til og fra JSON.
@@ -46,6 +48,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
      * Sjekker om JSON-filen enten ikke eksisterer eller er tom.
      *
      * @return true hvis filen ikke finnes eller har en størrelse på 0 bytes, ellers false
+     * @throws UncheckedIOException hvis filstørrelsen ikke kan leses
      */
     @Override
     public boolean isEmpty() {
@@ -55,12 +58,13 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
         try {
             return Files.size(this.path) == 0;
         } catch (IOException e) {
-            return true;
+            throw new UncheckedIOException("Kunne ikke lese filstørrelsen: " + this.path, e);
         }
     }
 
     /**
-     * Leser eksisterende emner og anmeldelser fra JSON-filen.
+     * Leser eksisterende emner og anmeldelser fra JSON-filen. Anmeldelser som mangler id, for
+     * eksempel fra eldre filer, får en ny id som lagres i filen med en gang.
      *
      * @return liste av emner med anmeldelser
      */
@@ -69,13 +73,37 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
         if (isEmpty()) {
             return new ArrayList<>();
         }
+        List<CourseDTO> courses;
         try {
             // Henter informasjon fra filer i form av CourseDTO.
-            return objectMapper.readValue(this.path.toFile(), objectMapper.getTypeFactory()
+            courses = objectMapper.readValue(this.path.toFile(), objectMapper.getTypeFactory()
                     .constructCollectionType(List.class, CourseDTO.class));
         } catch (IOException e) {
-            throw new RuntimeException("Feil ved lesing av JSON-fil: " + this.path, e);
+            throw new UncheckedIOException("Feil ved lesing av JSON-fil: " + this.path, e);
         }
+        if (assignMissingIds(courses)) {
+            writeToFile(courses);
+        }
+        return courses;
+    }
+
+    /**
+     * Gir en ny id til anmeldelser som mangler id, for eksempel anmeldelser fra eldre filer.
+     *
+     * @param courses emnene som er lest fra filen
+     * @return true hvis minst én anmeldelse fikk ny id, ellers false
+     */
+    private static boolean assignMissingIds(List<CourseDTO> courses) {
+        boolean changed = false;
+        for (CourseDTO course : courses) {
+            for (ReviewDTO review : course.getReviews()) {
+                if (review.getId() == null || review.getId().isBlank()) {
+                    review.setId(UUID.randomUUID().toString());
+                    changed = true;
+                }
+            }
+        }
+        return changed;
     }
 
     /**
@@ -99,8 +127,9 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
             courses.add(targetCourse);
         }
 
-        targetCourse.getReviews().add(
-                new ReviewDTO(review.getReviewerName(), review.getRating(), review.getComment()));
+        targetCourse.getReviews()
+                .add(new ReviewDTO(review.getId(), review.getOwnerEmail(), review.getReviewerName(),
+                        review.isAnonymous(), review.getRating(), review.getComment()));
 
         writeToFile(courses);
     }
@@ -164,7 +193,8 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
     private static Course toCourse(CourseDTO courseDto) {
         Course course = new Course(courseDto.getCourseCode(), courseDto.getCourseName());
         for (ReviewDTO reviewDto : courseDto.getReviews()) {
-            course.addReview(new Review(reviewDto.getReviewerName(), reviewDto.getRating(),
+            course.addReview(new Review(reviewDto.getId(), reviewDto.getOwnerEmail(),
+                    reviewDto.getReviewerName(), reviewDto.isAnonymous(), reviewDto.getRating(),
                     reviewDto.getComment()));
         }
         return course;
