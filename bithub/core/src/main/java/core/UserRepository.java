@@ -7,7 +7,10 @@ import java.util.Optional;
  */
 public interface UserRepository {
     /**
-     * Lagrer ny bruker.
+     * Lagrer en ny bruker.
+     *
+     * <p>Ved registrering gjennom {@link UserService} er brukeropplysningene validert,
+     * e-postadressen normalisert og passordet hashet før denne metoden kalles.
      *
      * @param user brukeren som skal lagres
      */
@@ -16,8 +19,12 @@ public interface UserRepository {
     /**
      * Finner brukeren med den oppgitte e-postadressen.
      *
-     * @param email e-postadressen det skal søkes etter
-     * @return brukeren, eller tom hvis den ikke finner noen
+     * <p>{@link UserService} sender inn en normalisert adresse uten mellomrom rundt og med små
+     * bokstaver. Implementasjonen må sikre at lagrede adresser kan finnes med denne formen, også
+     * dersom eldre data inneholder store bokstaver.
+     *
+     * @param email den normaliserte e-postadressen det skal søkes etter
+     * @return brukeren hvis adressen finnes, ellers et tomt resultat
      */
     Optional<User> findByEmail(String email);
 }

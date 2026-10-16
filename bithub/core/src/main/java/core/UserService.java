@@ -26,6 +26,10 @@ public final class UserService {
     /**
      * Validerer og registrerer en ny bruker.
      *
+     * <p>E-postadressen normaliseres ved å fjerne mellomrom rundt adressen og gjøre bokstavene små
+     * med {@link Locale#ROOT} før validering, oppslag og lagring. Passordet hashes før brukeren
+     * lagres.
+     *
      * @param name     navnet til brukeren
      * @param email    e-postadressen til brukeren
      * @param password passordet som skal hashes før lagring
@@ -47,9 +51,15 @@ public final class UserService {
     /**
      * Logger inn en bruker ved å sjekke passordet mot den lagrede hashen.
      *
+     * <p>E-postadressen normaliseres ved å fjerne mellomrom rundt adressen og gjøre bokstavene små
+     * med {@link Locale#ROOT} før oppslag. Passordet brukes uendret ved kontroll mot hashen.
+     *
+     * <p>Hvis e-post eller passord er null eller blankt, returneres et tomt resultat uten oppslag i
+     * lagringen.
+     *
      * @param email    e-postadressen til brukeren
      * @param password passordet til brukeren
-     * @return brukeren hvis e-post og passord stemmer, ellers tom
+     * @return brukeren hvis opplysningene stemmer, ellers et tomt resultat
      */
     public Optional<User> login(String email, String password) {
         if (email == null || email.isBlank() || password == null || password.isBlank()) {
