@@ -15,10 +15,6 @@ components:
           attributes:
             urlRewriteSupported: 'true' #required
         - exposure: public
-          name: 3000-tcp
-          protocol: http
-          targetPort: 3000 #typical nodejs port
-        - exposure: public
           name: 5900-tcp
           protocol: http
           targetPort: 5900 #typical VNC port
@@ -29,8 +25,31 @@ components:
         - exposure: public
           name: 8080-tcp
           protocol: http
-          targetPort: 8080 #typical spring boot / tomcat port
-        - exposure: public
-          name: 5500-tcp
-          protocol: http
-          targetPort: 5500 #typical live server port
+          targetPort: 8080 #REST-serveren (Spring Boot)
+commands:
+  - id: bygg-og-test
+    exec:
+      label: "1. Bygg og test (mvn clean verify)"
+      component: bithub
+      workingDir: ${PROJECT_SOURCE}/bithub
+      commandLine: mvn clean verify
+      group:
+        kind: build
+        isDefault: true
+  - id: start-server
+    exec:
+      label: "2. Start REST-serveren"
+      component: bithub
+      workingDir: ${PROJECT_SOURCE}/bithub
+      commandLine: mvn install -DskipTests && mvn -pl springboot/restserver spring-boot:run
+      group:
+        kind: run
+        isDefault: true
+  - id: start-app
+    exec:
+      label: "3. Start JavaFX-appen"
+      component: bithub
+      workingDir: ${PROJECT_SOURCE}/bithub
+      commandLine: mvn install -DskipTests && mvn -pl ui javafx:run
+      group:
+        kind: run
