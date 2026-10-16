@@ -239,4 +239,29 @@ class UserServiceTest {
             assertTrue(loginService.login(email, "Passord123").isEmpty());
         }
     }
+
+    /**
+     * Verifiserer at e-post lagres med små bokstaver uten mellomrom rundt.
+     */
+    @Test
+    void registerSavesNormalizedEmail() {
+        User user = service.register("Ola Nordmann", " Ola@Example.com ", "Passord123");
+
+        assertEquals("ola@example.com", user.getEmail());
+        assertEquals(1, savedUsers.size());
+        assertEquals("ola@example.com", savedUsers.get(0).getEmail());
+    }
+
+    /**
+     * Verifiserer at innlogging godtar mellomrom rundt e-postadressen.
+     */
+    @Test
+    void loginAcceptsSurroundingWhitespaceInEmail() {
+        User user = service.register("Ola Nordmann", "ola@example.com", "Passord123");
+
+        Optional<User> result = service.login(" ola@example.com ", "Passord123");
+
+        assertTrue(result.isPresent());
+        assertSame(user, result.orElseThrow());
+    }
 }
