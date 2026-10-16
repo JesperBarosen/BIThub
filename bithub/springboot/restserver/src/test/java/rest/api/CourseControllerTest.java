@@ -118,4 +118,27 @@ class CourseControllerTest {
                 .andExpect(jsonPath("$.error").value("Bad Request"))
                 .andExpect(jsonPath("$.message").value("Ugyldig emnekode."));
     }
+    
+    /**
+     * Verifiserer at anmeldelser med eier vises med navn eller som anonyme, med id og uten e-post.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void getCourseShowsUserAndAnonymousReviews() throws Exception {
+        Course course = new Course("IT1901", "Informatikk prosjektarbeid I");
+        course.addReview(new Review("id-1", "kari@ntnu.no", "Kari", false, 5, "Lærerikt"));
+        course.addReview(new Review("id-2", "ola@ntnu.no", "Ola", true, 4, ""));
+        when(reviewService.findCourse("IT1901")).thenReturn(Optional.of(course));
+
+        mockMvc.perform(get("/api/courses/IT1901"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reviews[0].id").value("id-1"))
+                .andExpect(jsonPath("$.reviews[0].displayName").value("Kari"))
+                .andExpect(jsonPath("$.reviews[0].authorType").value("USER"))
+                .andExpect(jsonPath("$.reviews[1].id").value("id-2"))
+                .andExpect(jsonPath("$.reviews[1].displayName").value("Anonym"))
+                .andExpect(jsonPath("$.reviews[1].authorType").value("ANONYMOUS"))
+                .andExpect(jsonPath("$.reviews[0].ownerEmail").doesNotExist());
+    }
 }
