@@ -33,14 +33,16 @@ public final class ReviewService {
      * @param reviewerName navnet som skal vises på anmeldelsen
      * @param ratingText   vurderingen slik brukeren skrev den inn
      * @param comment      kommentaren til anmeldelsen, kan være tom
+     * @return den lagrede anmeldelsen, med id
      * @throws IllegalArgumentException hvis emnet eller anmeldelsen er ugyldig
      */
-    public void submitReview(String courseCode, String courseName, String reviewerName,
+    public Review submitReview(String courseCode, String courseName, String reviewerName,
             String ratingText, String comment) {
         int rating = parseRating(ratingText);
         Course course = new Course(courseCode, courseName);
         Review review = new Review(reviewerName, rating, comment == null ? "" : comment.trim());
         reviewRepository.addReview(course.getCourseCode(), course.getCourseName(), review);
+        return review;
     }
 
     /**
