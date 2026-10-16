@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import core.Course;
+import core.Review;
 import core.ReviewService;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -43,11 +44,15 @@ class ReviewControllerTest {
     @Test
     void validReviewIsSubmittedAsGuest() throws Exception {
         knownCourse();
+        Review saved = new Review("Gjest", 4, "Bra fag");
+        when(reviewService.submitReview("IT1901", "Prosjektarbeid", "Gjest", "4", "  Bra fag  "))
+                .thenReturn(saved);
 
         mockMvc.perform(post("/api/courses/IT1901/reviews")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"rating\":4,\"comment\":\"  Bra fag  \",\"anonymous\":true}"))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(saved.getId()))
                 .andExpect(jsonPath("$.displayName").value("Gjest"))
                 .andExpect(jsonPath("$.authorType").value("GUEST"))
                 .andExpect(jsonPath("$.rating").value(4))
@@ -59,6 +64,8 @@ class ReviewControllerTest {
     @Test
     void missingCommentIsReturnedAsEmptyText() throws Exception {
         knownCourse();
+        when(reviewService.submitReview("IT1901", "Prosjektarbeid", "Gjest", "5", null))
+                .thenReturn(new Review("Gjest", 5, null));
 
         mockMvc.perform(post("/api/courses/IT1901/reviews")
                 .contentType(MediaType.APPLICATION_JSON).content("{\"rating\":5}"))

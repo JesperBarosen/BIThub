@@ -1,6 +1,7 @@
 package rest.api;
 
 import core.Course;
+import core.Review;
 import core.ReviewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import rest.model.AuthorType;
 import rest.model.NewReviewRequest;
 import rest.model.ReviewResponse;
 
@@ -47,11 +47,9 @@ public class ReviewController {
         Course course = reviewService.findCourse(code)
                 .orElseThrow(() -> new CourseNotFoundException(code));
 
-        reviewService.submitReview(course.getCourseCode(), course.getCourseName(),
-                ReviewResponse.GUEST_NAME, String.valueOf(request.rating()), request.comment());
-
-        String comment = request.comment() == null ? "" : request.comment().trim();
-        return new ReviewResponse(ReviewResponse.GUEST_NAME, AuthorType.GUEST,
-                request.rating(), comment);
+        Review review = reviewService.submitReview(course.getCourseCode(),
+                course.getCourseName(), ReviewResponse.GUEST_NAME,
+                String.valueOf(request.rating()), request.comment());
+        return ReviewResponse.from(review);
     }
 }
