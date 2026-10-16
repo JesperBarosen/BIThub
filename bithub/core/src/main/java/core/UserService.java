@@ -52,7 +52,7 @@ public final class UserService {
      * @return brukeren hvis e-post og passord stemmer, ellers tom
      */
     public Optional<User> login(String email, String password) {
-        if (password == null || password.isBlank()) {
+        if (email == null || email.isBlank() || password == null || password.isBlank()) {
             return Optional.empty();
         }
         return userRepository.findByEmail(normalizeEmail(email))

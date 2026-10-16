@@ -215,4 +215,28 @@ class UserServiceTest {
 
         assertTrue(service.login("OLA@Example.com", "Passord123").isPresent());
     }
+
+    /**
+     * Verifiserer at manglende e-post avvises uten oppslag i lagringen.
+     */
+    @Test
+    void loginRejectsMissingEmailWithoutRepositoryAccess() {
+        UserRepository unusedRepository = new UserRepository() {
+            @Override
+            public void save(User user) {
+                throw new AssertionError("Innlogging skal ikke lagre brukere.");
+            }
+
+            @Override
+            public Optional<User> findByEmail(String email) {
+                throw new AssertionError("Manglende e-post skal avvises før oppslag.");
+            }
+        };
+
+        UserService loginService = new UserService(unusedRepository);
+
+        for (String email : new String[] { null, "", "   " }) {
+            assertTrue(loginService.login(email, "Passord123").isEmpty());
+        }
+    }
 }
