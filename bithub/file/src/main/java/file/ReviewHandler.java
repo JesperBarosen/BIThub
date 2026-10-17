@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import core.Course;
 import core.Review;
 import core.ReviewRepository;
-import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,9 +57,9 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
     }
 
     /**
-     * Leser eksisterende emner og tilhørende anmeldelser fra JSON-filen. 
-     * Anmeldelser som mangler id, for eksempel fra eldre filer, får en ny 
-     * id som lagres i filen med en gang.
+     * Leser eksisterende emner og tilhørende anmeldelser fra JSON-filen. Anmeldelser som mangler
+     * id, for eksempel fra eldre filer, får en ny id som lagres i filen med en gang. Lesingen skjer
+     * med skrivelås, fordi filen kan bli oppdatert med nye id-er.
      *
      * @return liste over emner og tilhørende anmeldelser
      */
@@ -71,9 +70,8 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
                 return new ArrayList<>();
             }
 
-            List<CourseDTO> courses = objectMapper.readValue(
-                this.path.toFile(), objectMapper.getTypeFactory()
-                .constructCollectionType(List.class, CourseDTO.class));
+            List<CourseDTO> courses = objectMapper.readValue(this.path.toFile(), objectMapper
+                    .getTypeFactory().constructCollectionType(List.class, CourseDTO.class));
 
             if (assignMissingIds(courses)) {
                 storage.write(courses);
@@ -104,7 +102,8 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
 
     /**
      * Legger til en anmeldelse for et emne. Dersom emnet allerede finnes i JSON-filen, legges
-     * anmeldelsen til i det eksisterende emnet.
+     * anmeldelsen til i det eksisterende emnet. Hele lesingen, endringen og skrivingen skjer med
+     * skrivelås, slik at samtidige anmeldelser ikke overskriver hverandre.
      *
      * @param courseCode emnekoden til faget, for eksempel "IT1901"
      * @param courseName navnet på emnet, for eksempel "Informatikk prosjektarbeid"
@@ -115,9 +114,10 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
         storage.update(() -> {
             List<CourseDTO> courses = readFromFile();
 
-            CourseDTO targetCourse = courses.stream().filter(
-                    c -> c.getCourseCode() != null && c.getCourseCode()
-                    .equalsIgnoreCase(courseCode)).findFirst().orElse(null);
+            CourseDTO targetCourse = courses.stream()
+                    .filter(c -> c.getCourseCode() != null
+                            && c.getCourseCode().equalsIgnoreCase(courseCode))
+                    .findFirst().orElse(null);
 
             if (targetCourse == null) {
                 targetCourse = new CourseDTO(courseCode, courseName);
@@ -125,8 +125,9 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
             }
 
             targetCourse.getReviews()
-                    .add(new ReviewDTO(review.getId(), review.getOwnerEmail(), review.getReviewerName(),
-                            review.isAnonymous(), review.getRating(), review.getComment()));
+                    .add(new ReviewDTO(review.getId(), review.getOwnerEmail(),
+                            review.getReviewerName(), review.isAnonymous(), review.getRating(),
+                            review.getComment()));
 
             storage.write(courses);
             return null;
@@ -176,7 +177,8 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
                 boolean exists = storedCourses.stream()
                         .anyMatch(c -> course.getCourseCode().equalsIgnoreCase(c.getCourseCode()));
                 if (!exists) {
-                    storedCourses.add(new CourseDTO(course.getCourseCode(), course.getCourseName()));
+                    storedCourses
+                            .add(new CourseDTO(course.getCourseCode(), course.getCourseName()));
                     changed = true;
                 }
             }
@@ -185,7 +187,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
             }
 
             return null;
-        });   
+        });
     }
 
     /**
@@ -205,7 +207,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
     }
 
     /**
-     * Skriver en liste med emner og anmeldelser ned til JSON-filen.
+     * Skriver en liste med emner og anmeldelser ned til JSON-filen, via en midlertidig fil.
      *
      * @param data listen med CourseDTO-objekter som skal lagres
      */

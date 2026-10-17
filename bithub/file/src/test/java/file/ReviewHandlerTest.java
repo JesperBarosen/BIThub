@@ -19,14 +19,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.mockito.MockedStatic;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
 
 /**
  * Testklassen for ReviewHandler.
@@ -429,12 +429,12 @@ class ReviewHandlerTest {
     }
 
     /**
-     * Kontrollerer at oppdateringer som skjer samtidig fra flere ReviewHandler- instanser
-     * ikke fører til at anmeldelser går tapt i JSON- filen.
-     * 
+     * Kontrollerer at oppdateringer som skjer samtidig fra flere ReviewHandler-instanser ikke fører
+     * til at anmeldelser går tapt i JSON-filen.
+     *
      * @throws Exception hvis det er feil i en av trådene eller den ikke blir ferdig i tide
      */
-    @Test 
+    @Test
     void testReviewsWhenAddedSimultaneously() throws Exception {
         int numberOfReviews = 20;
         Path path = tempDir.resolve("simultaneously-reviews.json");
@@ -452,22 +452,14 @@ class ReviewHandlerTest {
                     start.await();
 
                     ReviewHandler handler = new ReviewHandler(path);
-                    handler.addReview(
-                            "IT1901",
-                            "Informatikk prosjektarbeid",
-                            new Review(
-                                    "Reviewer " + reviewNumber,
-                                    4,
-                                    "Kommentar " + reviewNumber
-                            )
-                    );
+                    handler.addReview("IT1901", "Informatikk prosjektarbeid",
+                            new Review("Reviewer " + reviewNumber, 4, "Kommentar " + reviewNumber));
 
                     return null;
                 }));
             }
 
-            assertTrue(ready.await(10, TimeUnit.SECONDS),
-                    "Alle trådene skulle bli klare");
+            assertTrue(ready.await(10, TimeUnit.SECONDS), "Alle trådene skulle bli klare");
 
             start.countDown();
 
