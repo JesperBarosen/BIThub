@@ -1,9 +1,9 @@
 package file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOExeption;
-import java.io.UncheckedIOExeption;
-import java.nio.file.AtomicMoveNotSupportedExeption;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 final class JsonFileStorage {
 
-    private static final ConcurrentHashMap<Path, ReentrantReadWriteLock> LOCKS = new ConcurrentHash<>();
+    private static final ConcurrentHashMap<Path, ReentrantReadWriteLock> LOCKS = new ConcurrentHashMap<>();
 
     private final Path path;
     private final ObjectMapper objectMapper;
@@ -106,14 +106,14 @@ final class JsonFileStorage {
             try {
                 Files.move(temporaryFile, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
             } catch (AtomicMoveNotSupportedException e) {
-                Files.move(temporaryFile, path, StandardCopyOption.REPLACE_EXCISTING);
+                Files.move(temporaryFile, path, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
             throw new UncheckedIOException("Kunne ikke skrive JSON fil på en sikker måte: " + path, e);
         } finally {
             if (temporaryFile != null) {
                 try {
-                    Files.deleteIfExsists(temporaryFile);
+                    Files.deleteIfExists(temporaryFile);
                 } catch (IOException ignored) {
                     // Ignorerer feilen ved sletting av den midlertidig filen
                     // sånn at den opprinnelige feilen ikke overskrives.
