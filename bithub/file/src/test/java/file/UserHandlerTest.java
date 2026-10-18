@@ -12,7 +12,13 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
@@ -326,5 +332,65 @@ class UserHandlerTest {
 
         assertThrows(RuntimeException.class, () -> handler.addUser(user));
         assertEquals(legacyJson, Files.readString(file));
+    }
+
+    /**
+     * Verifiserer at addUserIfEmailAvailable lagrer en ny bruker og avviser en e-postadresse som
+     * finnes fra før, uansett store og små bokstaver.
+     */
+    @Test
+    void testAddUserIfEmailAvailableRejectsDuplicateEmail() {
+        Path file = tempDir.resolve("users.json");
+        UserHandler handler = new UserHandler(file);
+
+        assertTrue(handler.addUserIfEmailAvailable(
+                new User("Ola Nordmann", "ola@example.com", "Passord123")));
+        assertFalse(handler.addUserIfEmailAvailable(
+                new User("Kari Nordmann", "OLA@example.com", "AnnetPassord123")));
+
+        assertEquals(1, handler.getUsers().size());
+        assertEquals("Ola Nordmann", handler.getUsers().get(0).getName());
+    }
+
+    /**
+     * Verifiserer at bare én av flere samtidige registreringer med samme e-postadresse lykkes, også
+     * når de bruker hver sin UserHandler.
+     *
+     * @throws Exception hvis en av trådene feiler eller ikke blir ferdig i tide
+     */
+    @Test
+    void testSimultaneousRegistrationsWithSameEmailSaveOneUser() throws Exception {
+        int attempts = 6;
+        Path file = tempDir.resolve("users.json");
+        List<User> users = new ArrayList<>();
+        for (int i = 0; i < attempts; i++) {
+            users.add(new User("Bruker", "samme@example.com", "Passord123"));
+        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(attempts);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<Boolean>> results = new ArrayList<>();
+        try {
+            for (User user : users) {
+                results.add(executor.submit(() -> {
+                    start.await();
+                    return new UserHandler(file).addUserIfEmailAvailable(user);
+                }));
+            }
+            start.countDown();
+
+            int saved = 0;
+            for (Future<Boolean> result : results) {
+                if (result.get(10, TimeUnit.SECONDS)) {
+                    saved++;
+                }
+            }
+
+            assertEquals(1, saved);
+            assertEquals(1, new UserHandler(file).getUsers().size());
+        } finally {
+            start.countDown();
+            executor.shutdownNow();
+        }
     }
 }
