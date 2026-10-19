@@ -16,8 +16,14 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
@@ -420,6 +426,55 @@ class ReviewHandlerTest {
         assertNotNull(firstId);
         assertEquals(firstId, secondId);
         assertTrue(Files.readString(file).contains(firstId));
+    }
+
+    /**
+     * Kontrollerer at oppdateringer som skjer samtidig fra flere ReviewHandler-instanser ikke fører
+     * til at anmeldelser går tapt i JSON-filen.
+     *
+     * @throws Exception hvis det er feil i en av trådene eller den ikke blir ferdig i tide
+     */
+    @Test
+    void testReviewsWhenAddedSimultaneously() throws Exception {
+        int numberOfReviews = 20;
+        Path path = tempDir.resolve("simultaneously-reviews.json");
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+        CountDownLatch ready = new CountDownLatch(8);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<?>> futures = new ArrayList<>();
+
+        try {
+            for (int i = 0; i < numberOfReviews; i++) {
+                final int reviewNumber = i;
+
+                futures.add(executor.submit(() -> {
+                    ready.countDown();
+                    start.await();
+
+                    ReviewHandler handler = new ReviewHandler(path);
+                    handler.addReview("IT1901", "Informatikk prosjektarbeid",
+                            new Review("Reviewer " + reviewNumber, 4, "Kommentar " + reviewNumber));
+
+                    return null;
+                }));
+            }
+
+            assertTrue(ready.await(10, TimeUnit.SECONDS), "Alle trådene skulle bli klare");
+
+            start.countDown();
+
+            for (Future<?> future : futures) {
+                future.get(10, TimeUnit.SECONDS);
+            }
+
+            List<CourseDTO> courses = new ReviewHandler(path).readFromFile();
+
+            assertEquals(1, courses.size());
+            assertEquals(numberOfReviews, courses.get(0).getReviews().size());
+        } finally {
+            start.countDown();
+            executor.shutdownNow();
+        }
     }
 
 }
