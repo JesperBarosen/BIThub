@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
+import core.DuplicateEmailException;
 import core.User;
+import core.UserRepository;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -375,6 +377,137 @@ class UserHandlerTest {
                 results.add(executor.submit(() -> {
                     start.await();
                     return new UserHandler(file).addUserIfEmailAvailable(user);
+                }));
+            }
+            start.countDown();
+
+            int saved = 0;
+            for (Future<Boolean> result : results) {
+                if (result.get(10, TimeUnit.SECONDS)) {
+                    saved++;
+                }
+            }
+
+            assertEquals(1, saved);
+            assertEquals(1, new UserHandler(file).getUsers().size());
+        } finally {
+            start.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    /**
+     * Verifiserer at en bruker som lagres gjennom UserRepository, får med hash og salt og kan
+     * finnes igjen med findByEmail fra en ny UserHandler.
+     */
+    @Test
+    void testSaveStoresUserThatCanBeFoundByEmail() {
+        Path file = tempDir.resolve("users.json");
+        UserRepository repository = new UserHandler(file);
+        User user = new User("Ola Nordmann", "ola@example.com", "Passord123");
+        repository.save(user);
+
+        User found = new UserHandler(file).findByEmail("ola@example.com").orElseThrow();
+
+        assertEquals(user.getName(), found.getName());
+        assertEquals(user.getEmail(), found.getEmail());
+        assertEquals(user.getPasswordHash(), found.getPasswordHash());
+        assertEquals(user.getSalt(), found.getSalt());
+        assertTrue(found.verifyPassword("Passord123"));
+    }
+
+    /**
+     * Verifiserer at save avviser en e-postadresse som allerede er registrert, uansett store
+     * og små bokstaver, og at den lagrede brukeren ikke endres.
+     */
+    @Test
+    void testSaveRejectsDuplicateEmail() {
+        Path file = tempDir.resolve("users.json");
+        UserRepository repository = new UserHandler(file);
+
+        repository.save(new User("Ola Nordmann", "ola@example.com", "Passord123"));
+
+        User duplicate = new User("Kari Nordmann", "OLA@example.com", "AnnetPassord123");
+
+        assertThrows(DuplicateEmailException.class, () -> repository.save(duplicate));
+
+        List<User> users = new UserHandler(file).getUsers();
+        assertEquals(1, users.size());
+        assertEquals("Ola Nordmann", users.get(0).getName());
+    }
+
+    /**
+     * Verifiserer at save kaster IllegalArgumentException hvis brukeren er null.
+     */
+    @Test
+    void testSaveThrowsOnNull() {
+        UserRepository repository = new UserHandler(tempDir.resolve("users.json"));
+
+        assertThrows(IllegalArgumentException.class, () -> repository.save(null));
+    }
+
+    /**
+     * Verifiserer at findByEmail gir et tomt resultat for ukjent e-post, manglende fil og null.
+     */
+    @Test
+    void testFindByEmailReturnsEmptyWhenNotFound() {
+        Path file = tempDir.resolve("users.json");
+        UserRepository repository = new UserHandler(file);
+
+        assertTrue(repository.findByEmail("ola@example.com").isEmpty());
+
+        repository.save(new User("Ola Nordmann", "ola@example.com", "Passord123"));
+
+        assertTrue(repository.findByEmail("kari@example.com").isEmpty());
+        assertTrue(repository.findByEmail(null).isEmpty());
+    }
+
+    /**
+     * Verifiserer at findByEmail finner brukere som er lagret med store bokstaver i e-posten,
+     * for eksempel fra før e-postadresser ble normalisert.
+     */
+    @Test
+    void testFindByEmailIgnoresCaseInStoredEmail() {
+        Path file = tempDir.resolve("users.json");
+        UserHandler handler = new UserHandler(file);
+        User user = new User("Ola Nordmann", "Ola@Example.com", "Passord123");
+
+        handler.writeToFile(List.of(new UserDTO(user.getName(), user.getEmail(),
+                user.getPasswordHash(), user.getSalt())));
+
+        User found = handler.findByEmail("ola@example.com").orElseThrow();
+        assertEquals("Ola Nordmann", found.getName());
+    }
+
+    /**
+     * Verifiserer at bare en av flere samtidige registreringer med samme e-postadresse lykkes
+     * gjennom UserRepository. De andre får DuplicateEmailException, og bare en bruker lagres.
+     *
+     * @throws Exception hvis en av trådene feiler uventet eller ikke blir ferdig i tide
+     */
+    @Test
+    void testSimultaneousSavesThroughRepositorySaveOneUser() throws Exception {
+        int attempts = 6;
+        Path file = tempDir.resolve("users.json");
+        List<User> users = new ArrayList<>();
+        for (int i = 0; i < attempts; i++) {
+            users.add(new User("Bruker", "samme@example.com", "Passord123"));
+        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(attempts);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<Boolean>> results = new ArrayList<>();
+        try {
+            for (User user : users) {
+                results.add(executor.submit(() -> {
+                    UserRepository repository = new UserHandler(file);
+                    start.await();
+                    try {
+                        repository.save(user);
+                        return true;
+                    } catch (DuplicateEmailException e) {
+                        return false;
+                    }
                 }));
             }
             start.countDown();
