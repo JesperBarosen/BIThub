@@ -33,6 +33,19 @@ Informasjon om appen finnes via lenken nederst på innloggings- og hjemskjermen.
 - **Mine anmeldelser:** Implementere slik at dine tidligere skrevne anmeldelser dukker opp her.
 - **Søk etter fag:** Søke opp fag i stedet for å bla i listen.
 
+## Brukerlagring på REST-serveren
+
+Serveren kobler `UserService` i `core` til `UserHandler` i `file` gjennom
+grensesnittet `UserRepository`. Koblingen konfigureres med Spring-beans i
+`RestApplication`.
+
+Brukere lagres som JSON med navn, e-post, passordhash og salt. Standardfilen
+er `.bithub/users.json` i hjemmemappen til brukeren som kjører serveren.
+Filstien kan overstyres med Spring-innstillingen `bithub.users-file`.
+
+Serverkoblingen er på plass. REST-endepunkter for registrering og
+innlogging implementeres i #174.
+
 ## Illustrerende skjermbilde - Figma
 
 Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal se ut og fungere når den er ferdig

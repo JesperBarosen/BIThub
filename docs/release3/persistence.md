@@ -8,13 +8,14 @@ Dokumentet bygger på [persistence.md fra release 2](../release2/persistence.md)
 - Brukere lagres med passordhash og salt i stedet for passord i klartekst (#148).
 - En lesefeil tolkes ikke lenger som en tom fil (#147).
 - All lesing og skriving er beskyttet mot samtidige oppdateringer og skrivefeil (#149).
+- `UserHandler` implementerer `UserRepository` og kobles til `UserService` på REST-serveren (#155).
 - Lesing og skriving flyttes til REST-serveren i release 3.
 
 ## 1. Filformat
 
 Vi lagrer data som **JSON** med biblioteket **Jackson**. JSON er standardisert og lett å lese, og passer godt til objekter med lister, for eksempel et emne med anmeldelser. Jackson gjør om mellom JSON og egne DTO-klasser (`CourseDTO`, `ReviewDTO` og `UserDTO`). DTO-ene beskriver hvordan dataene ser ut i filene, slik at domeneklassene i `core` kan være uforanderlige og uavhengige av Jackson.
 
-Dataene lagres i mappen `.bithub` i hjemmemappen til brukeren:
+Som standard lagres dataene i mappen `.bithub` i hjemmemappen til brukeren som kjører programmet:
 
 | Fil | Innhold | Klasse |
 |---|---|---|
@@ -22,6 +23,8 @@ Dataene lagres i mappen `.bithub` i hjemmemappen til brukeren:
 | `users.json` | Brukere med passordhash og salt | `UserHandler` |
 
 Filene leses og skrives bare av modulen `file`. `core` kjenner bare grensesnittene `ReviewRepository` og `UserRepository`, så lagringen kan byttes ut uten å endre `core`.
+
+På REST-serveren oppretter `RestApplication` en `UserHandler` som `UserRepository` og gir den til `UserService` gjennom Spring-beans. Standardfilen for brukere er `.bithub/users.json` i hjemmemappen til brukeren som kjører serveren. Filstien kan overstyres med Spring-innstillingen `bithub.users-file`, for eksempel for å bruke en egen testfil.
 
 ### 1.1 Emner og anmeldelser (`courses.json`)
 
@@ -38,7 +41,7 @@ Hver anmeldelse (`ReviewDTO`) har disse feltene:
 | `rating` | Vurdering fra 1 til 5 |
 | `comment` | Kommentar, kan være tom |
 
-Ut fra `ownerEmail` og `anonymous` får anmeldelsen typen `USER`, `ANONYMOUS` eller `GUEST`. E-posten til eieren lagres i filen, men sendes aldri ut fra REST-serveren (se [rest-api.md](rest-api.md)).
+Ut fra `ownerEmail` og `anonymous` får anmeldelsen typen `USER`, `ANONYMOUS` eller `GUEST`. E-posten til eieren lagres i filen, men skal ikke sendes ut i offentlige REST-svar (se [rest-api.md](rest-api.md)).
 
 ```json
 [
@@ -79,7 +82,7 @@ Ut fra `ownerEmail` og `anonymous` får anmeldelsen typen `USER`, `ANONYMOUS` el
 
 ### 1.2 Brukere (`users.json`)
 
-Hver bruker (`UserDTO`) har navn (`name`), e-post (`email`), passordhash (`passwordHash`) og salt (`salt`). Passordet lagres aldri. Når en bruker lages, lages et tilfeldig salt på 16 byte, og passordet hashes med PBKDF2 (`PBKDF2WithHmacSHA256`) til 32 byte. Begge lagres som Base64. Ved innlogging hashes passordet på nytt med samme salt og sammenlignes med den lagrede hashen.
+Hver bruker (`UserDTO`) har navn (`name`), e-post (`email`), passordhash (`passwordHash`) og salt (`salt`). Passordet lagres aldri i klartekst. Når en bruker lages, lages et tilfeldig salt på 16 byte, og passordet hashes med PBKDF2 (`PBKDF2WithHmacSHA256`) til 32 byte. Hash og salt lagres som Base64. Ved innlogging hashes passordet på nytt med samme salt og sammenlignes med den lagrede hashen.
 
 ```json
 [
@@ -92,7 +95,9 @@ Hver bruker (`UserDTO`) har navn (`name`), e-post (`email`), passordhash (`passw
 ]
 ```
 
-E-postadresser gjøres om til små bokstaver uten mellomrom før de lagres og slås opp (#152), så `Kari@Example.com` og `kari@example.com` er samme bruker.
+`UserService` gjør e-postadresser om til små bokstaver og fjerner mellomrom rundt adressen før registrering og oppslag (#152). Dermed behandles `Kari@Example.com` og `kari@example.com` som samme adresse.
+
+`UserHandler` gjør om mellom `UserDTO` i filen og `User` i domenelaget. Ved lesing brukes den lagrede hashen og saltet til å gjenopprette brukeren, uten å hashe passordet på nytt.
 
 ## 2. Lagringsmodell: dokumentmetafor og implisitt lagring
 
@@ -112,13 +117,15 @@ Vi bruker fortsatt **implisitt lagring**, slik vi begrunnet i release 2. Appen e
 
 - **Lesing:** Når brukeren velger et emne, hentes anmeldelsene i bakgrunnen og vises med gjennomsnitt og antall.
 - **Skriving:** Når brukeren trykker «SEND INN», lagres anmeldelsen uten at brukeren blir spurt om filnavn.
-- **Brukere:** Registrering og innlogging lagrer og leser `users.json` i bakgrunnen på samme måte.
+- **Brukere:** Registrering gjennom `UserService` lagrer brukeren i `users.json`, og innlogging leser brukerdata fra samme fil.
 
-I release 3 flytter vi lesing og skriving til REST-serveren. Når JavaFX-appen er koblet til serveren, sender den forespørsler, og serveren bruker `ReviewHandler` og `UserHandler`. For brukeren er lagringen fortsatt implisitt.
+I release 3 flytter vi lesing og skriving til REST-serveren. Serverkoblingen mellom `UserService` og `UserHandler` er på plass i #155. REST-endepunkter for registrering og innlogging implementeres i #174.
+
+Når JavaFX-appen er koblet til serveren, sender den forespørsler, og serveren bruker `ReviewHandler` og `UserHandler`. For brukeren er lagringen fortsatt implisitt.
 
 ### 2.3 Begrensninger
 
-- **Handlingsutløst lagring:** Data lagres når brukeren trykker på en knapp, for eksempel «SEND INN» eller «LAG NY BRUKER», ikke fortløpende mens brukeren skriver.
+- **Handlingsutløst lagring:** Data lagres når brukeren utfører en handling, for eksempel å sende inn en anmeldelse eller registrere en bruker, ikke fortløpende mens brukeren skriver.
 - **Lokale filer:** Dataene ligger i filer på maskinen der serveren kjører. Med REST-serveren kan flere klienter dele samme data, men det er ingen ekte skytjeneste eller database.
 - **Én serverprosess:** Beskyttelsen mot samtidige oppdateringer gjelder bare innenfor én prosess (se avsnitt 3.3).
 
@@ -137,15 +144,17 @@ Derfor går all lesing og skriving gjennom `JsonFileStorage`:
 - Lesing uten endring bruker leselåsen, slik at flere kan lese samtidig.
 - Nye metoder som endrer data, for eksempel å endre eller slette anmeldelser i sprint 2, må gjøre hele operasjonen inne i `JsonFileStorage.update` og skrive med `JsonFileStorage.write`.
 
-`UserHandler.addUserIfEmailAvailable` sjekker om e-postadressen finnes og lagrer brukeren under samme lås. Da kan ikke to samtidige registreringer med samme e-post begge lykkes. `UserService` fra #152 sjekker duplikat og lagrer i to steg (`findByEmail` og `save`). Når #155 kobler `UserHandler` til `UserRepository`, skal lagringen bruke `addUserIfEmailAvailable`, slik at sjekken og lagringen skjer samlet.
+`UserHandler` implementerer `UserRepository`. Metoden `save` bruker `addUserIfEmailAvailable`, som sjekker om e-postadressen finnes og lagrer brukeren under samme skrivelås. Hvis adressen allerede er registrert, kaster `save` en `DuplicateEmailException`.
+
+`UserService` gjør også en forhåndssjekk med `findByEmail`, men denne sjekken alene beskytter ikke mot samtidige registreringer. Den samlede sjekken og lagringen i `UserHandler` sikrer at to samtidige registreringer med samme e-post ikke begge lykkes.
 
 ### 3.2 Skrivefeil og lesefeil
 
 Vi skriver aldri rett til den opprinnelige filen. `JsonFileStorage.write` skriver først til en midlertidig fil i samme mappe, og flytter den deretter over den opprinnelige filen. Flyttingen er atomisk der filsystemet støtter det.
 
-Feiler skrivingen, for eksempel fordi disken er full eller dataene ikke kan gjøres om til JSON, er den opprinnelige filen uendret, og den midlertidige filen slettes.
+Feiler skrivingen til den midlertidige filen, for eksempel fordi disken er full eller dataene ikke kan gjøres om til JSON, er den opprinnelige filen uendret. Den midlertidige filen forsøkes slettet ved feil. Hvis filsystemet ikke støtter atomisk flytting, kan vi ikke gi samme garanti ved feil under selve erstatningen av originalfilen.
 
-Kan en fil ikke leses, kastes `UncheckedIOException` (#147). Appen og serveren tolker aldri en lesefeil som en tom fil, fordi neste lagring da ville slettet alt som var lagret.
+Kan en fil ikke leses på grunn av en I/O-feil, kastes `UncheckedIOException` (#147). Appen og serveren tolker aldri en lesefeil som en tom fil, fordi neste lagring da ville slettet alt som var lagret.
 
 ### 3.3 Begrensning: én serverprosess
 
@@ -159,3 +168,4 @@ Alle testene som skriver til fil, bruker `@TempDir` fra JUnit, så de skriver al
 
 - `ReviewHandlerTest` og `UserHandlerTest` tester lesing, skriving, ødelagt JSON, lesefeil og samtidige oppdateringer fra flere instanser og tråder.
 - `JsonFileStorageTest` tester at skriving går via en midlertidig fil, og at den opprinnelige filen er uendret når skrivingen feiler.
+- `RestApplicationTest` tester at Spring kobler brukerlagringen til `UserHandler`, og at registrering gjennom `UserService` skriver til den konfigurerte testfilen. Testen leser brukeren tilbake med en ny handler, kontrollerer at hash og salt er bevart, og tester innlogging med de lagrede brukerdataene.
