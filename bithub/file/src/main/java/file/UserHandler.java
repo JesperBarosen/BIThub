@@ -2,18 +2,21 @@ package file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import core.DuplicateEmailException;
 import core.User;
+import core.UserRepository;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Håndterer persistens av brukerdata til og fra JSON.
  */
-public final class UserHandler implements DataHandler<UserDTO> {
+public final class UserHandler implements DataHandler<UserDTO>, UserRepository {
 
     private final Path path;
     private final ObjectMapper objectMapper;
@@ -134,6 +137,41 @@ public final class UserHandler implements DataHandler<UserDTO> {
             storage.write(users);
             return true;
         });
+    }
+
+    /**
+     * Lagrer en ny bruker med {@link #addUserIfEmailAvailable(User)}, slik at sjekken av
+     * e-postadressen og lagringen skjer under samme skrivelås.
+     *
+     * @param user brukeren som skal lagres
+     * @throws DuplicateEmailException hvis e-postadressen allerede er registrert
+     * @throws IllegalArgumentException hvis brukeren er null
+     */
+    @Override
+    public void save(User user) {
+        if (!addUserIfEmailAvailable(user)) {
+            throw new DuplicateEmailException("E-postadressen er allerede registrert.");
+        }
+    }
+
+    /**
+     * Finner brukeren med den oppgitte e-postadressen. Ignorerer store og små bokstaver, slik
+     * at også brukere som er lagret med store bokstaver blir funnet.
+     *
+     * @param email e-postadressen det skal søkes etter
+     * @return brukeren hvis den finnes, ellers et tomt resultat
+     * @throws UncheckedIOException hvis filen ikke kan leses
+     * @throws IllegalArgumentException hvis den lagrede brukeren har ugyldige opplysninger
+     */
+    @Override
+    public Optional<User> findByEmail(String email) {
+        if (email == null) {
+            return Optional.empty();
+        }
+        return readFromFile().stream()
+                .filter(stored -> email.equalsIgnoreCase(stored.getEmail()))
+                .findFirst()
+                .map(UserHandler::toUser);
     }
 
     /**

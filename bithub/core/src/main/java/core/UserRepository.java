@@ -12,7 +12,11 @@ public interface UserRepository {
      * <p>Ved registrering gjennom {@link UserService} er brukeropplysningene validert,
      * e-postadressen normalisert og passordet hashet før denne metoden kalles.
      *
+     * <p>Sjekken av e-postadressen og lagringen må skje samlet, slik at samtidige registreringer
+     * ikke gir duplikater.
+     *
      * @param user brukeren som skal lagres
+     * @throws DuplicateEmailException hvis e-postadressen allerede er registrert
      */
     void save(User user);
 

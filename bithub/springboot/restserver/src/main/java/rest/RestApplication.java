@@ -3,7 +3,10 @@ package rest;
 import core.DefaultCourses;
 import core.ReviewRepository;
 import core.ReviewService;
+import core.UserRepository;
+import core.UserService;
 import file.ReviewHandler;
+import file.UserHandler;
 import java.nio.file.Path;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -49,5 +52,28 @@ public class RestApplication {
     @Bean
     public ReviewService reviewService(ReviewRepository repository) {
         return new ReviewService(repository);
+    }
+
+    /**
+     * Oppretter brukerlagringen med konfigurert filsti.
+     *
+     * @param filePath filen som inneholder brukerne
+     * @return lagringen serveren skal bruke for brukere
+     */
+    @Bean
+    public UserRepository userRepository(
+            @Value("${bithub.users-file:${user.home}/.bithub/users.json}") String filePath) {
+        return new UserHandler(Path.of(filePath));
+    }
+
+    /**
+     * Oppretter brukertjenesten med serverens brukerlagring.
+     *
+     * @param repository lagring for brukere
+     * @return tjenesten som håndterer registrering og innlogging
+     */
+    @Bean
+    public UserService userService(UserRepository repository) {
+        return new UserService(repository);
     }
 }
