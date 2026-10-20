@@ -43,7 +43,7 @@ class ReviewServiceTest {
 
         @Override
         public List<Course> findAllCourses() {
-            return List.of();
+            return storedCourse == null ? List.of() : List.of(storedCourse);
         }
 
         @Override
@@ -213,5 +213,26 @@ class ReviewServiceTest {
     @Test
     void constructorRejectsNullRepository() {
         assertThrows(NullPointerException.class, () -> new ReviewService(null));
+    }
+
+    /**
+     * Verifiserer at alle emnene hentes fra lagringen.
+     */
+    @Test
+    void getAllCoursesReturnsStoredCourses() {
+        storedCourse = new Course("IT1901", "Informatikk prosjektarbeid");
+
+        assertEquals(List.of(storedCourse), service.getAllCourses());
+    }
+
+    /**
+     * Verifiserer at et lagret emne blir funnet, og at et ukjent emne gir tomt svar.
+     */
+    @Test
+    void findCourseReturnsStoredCourseOrEmpty() {
+        storedCourse = new Course("IT1901", "Informatikk prosjektarbeid");
+
+        assertSame(storedCourse, service.findCourse("IT1901").orElseThrow());
+        assertTrue(service.findCourse("TDT4100").isEmpty());
     }
 }
