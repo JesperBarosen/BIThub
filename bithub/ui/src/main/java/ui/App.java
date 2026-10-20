@@ -35,11 +35,15 @@ public class App extends Application {
             new Alert(Alert.AlertType.ERROR,
                     "Kunne ikke lese lagrede anmeldelser. Prøv å starte appen på nytt.").show();
         }
-        Navigation.setReviewRepository(reviewHandler);
-        Navigation.setReviewService(new ReviewService(reviewHandler));
+
+        ReviewService reviewService = new ReviewService(reviewHandler);
+        Navigation navigation = new Navigation(reviewService, reviewHandler);
 
         FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("Hjemmeside.fxml"));
         Parent parent = fxmlLoader.load();
+
+        HjemmesideController controller = fxmlLoader.getController();
+        controller.setNavigation(navigation);
         stage.setScene(new Scene(parent));
         stage.show();
     }

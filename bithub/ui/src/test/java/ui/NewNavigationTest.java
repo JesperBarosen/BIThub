@@ -38,10 +38,19 @@ class NewNavigationTest extends ApplicationTest {
         // Filen finnes ikke fra før, så dette er det samme som første oppstart.
         ReviewHandler reviewHandler = new ReviewHandler(tempDir.resolve("courses.json"));
         reviewHandler.addCoursesIfMissing(DefaultCourses.all());
-        Navigation.setReviewRepository(reviewHandler);
-        Navigation.setReviewService(new ReviewService(reviewHandler));
 
-        Parent root = new FXMLLoader(App.class.getResource("Hjemmeside.fxml")).load();
+        ReviewService reviewService = new ReviewService(reviewHandler);
+        Navigation navigation = new Navigation(reviewService, reviewHandler);
+
+        FXMLLoader loader = new FXMLLoader(App.class.getResource("Hjemmeside.fxml"));
+        Parent root = loader.load();
+
+        HjemmesideController controller = loader.getController();
+        controller.setNavigation(navigation);
+
+        assertNotNull(controller);
+        assertNotNull(navigation);
+
         stage.setScene(new Scene(root));
         stage.show();
     }

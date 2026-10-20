@@ -20,23 +20,30 @@ public class HjemmesideController {
     @FXML
     private Button profileButton;
 
+    private Navigation navigation;
+
+    public void setNavigation(Navigation navigation) {
+        this.navigation = navigation;
+    }
+
     @FXML
     private void handleReadReviews() {
-        Navigation.showCourseSelectionForReading(readReviewsButton);
+        navigation.showCourseSelectionForReading(readReviewsButton);
     }
 
     @FXML
     private void handleWriteReview() {
-        Navigation.showCourseSelection(writeReviewButton);
+        navigation.showCourseSelection(writeReviewButton);
     }
 
     @FXML
     private void handleMyReviews() {
-        Navigation.showComingSoon(myReviewsButton, "Mine anmeldelser");
+        navigation.showComingSoon(myReviewsButton, "Mine anmeldelser");
     }
 
     @FXML
     private void handleProfile() {
-        Navigation.showComingSoon(profileButton, "Profil");
+        navigation.showComingSoon(profileButton, "Profil");
     }
+
 }

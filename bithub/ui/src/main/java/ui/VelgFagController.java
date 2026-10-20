@@ -33,7 +33,7 @@ public class VelgFagController {
     @FXML
     private Button homeButton;
 
-    private BiConsumer<Node, Course> onCourseSelected = Navigation::showReviewForm;
+    private BiConsumer<Node, Course> onCourseSelected;
 
     @FXML
     private void initialize() {
@@ -70,6 +70,17 @@ public class VelgFagController {
         this.onCourseSelected = Objects.requireNonNull(onCourseSelected);
     }
 
+    private Navigation navigation;
+
+    /**
+     * Setter navigasjonen som kontrolleren skal bruke.
+     * 
+     * @param navigation navigasjonsobjektet 
+     */
+    public void setNavigation(Navigation navigation) {
+        this.navigation = Objects.requireNonNull(navigation);
+    }
+
     @FXML
     private void handleNext() {
         Course selectedCourse = courseComboBox.getValue();
@@ -82,12 +93,12 @@ public class VelgFagController {
 
     @FXML
     private void handleBack() {
-        Navigation.showHome(backButton);
+        navigation.showHome(backButton);
     }
 
     @FXML
     private void handleHome() {
-        Navigation.showHome(homeButton);
+        navigation.showHome(homeButton);
     }
 
     private ListCell<Course> courseCell() {
