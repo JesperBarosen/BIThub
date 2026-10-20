@@ -43,13 +43,10 @@ class NewNavigationTest extends ApplicationTest {
         Navigation navigation = new Navigation(reviewService, reviewHandler);
 
         FXMLLoader loader = new FXMLLoader(App.class.getResource("Hjemmeside.fxml"));
-        Parent root = loader.load();
+        final Parent root = loader.load();
 
         HjemmesideController controller = loader.getController();
         controller.setNavigation(navigation);
-
-        assertNotNull(controller);
-        assertNotNull(navigation);
 
         stage.setScene(new Scene(root));
         stage.show();
