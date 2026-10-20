@@ -17,6 +17,7 @@ public final class UserHandler implements DataHandler<UserDTO> {
 
     private final Path path;
     private final ObjectMapper objectMapper;
+    private final JsonFileStorage storage;
 
     /**
      * Oppretter en UserHandler med standard filsti.
@@ -39,6 +40,7 @@ public final class UserHandler implements DataHandler<UserDTO> {
         this.path = path;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        this.storage = new JsonFileStorage(path, this.objectMapper);
     }
 
     /**
@@ -49,54 +51,32 @@ public final class UserHandler implements DataHandler<UserDTO> {
      */
     @Override
     public boolean isEmpty() {
-        if (!Files.exists(this.path)) {
-            return true;
-        }
-
-        try {
-            return Files.size(this.path) == 0;
-        } catch (IOException e) {
-            throw new UncheckedIOException("Kunne ikke lese filstørrelsen: " + this.path, e);
-        }
+        return storage.read(this::isFileEmpty);
     }
 
     /**
      * Leser eksisterende brukere fra JSON-filen.
      *
      * @return listen med lagrede brukere
+     * @throws UncheckedIOException hvis filen ikke kan leses
      */
     @Override
     public List<UserDTO> readFromFile() {
-        if (isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        try {
-            return objectMapper.readValue(this.path.toFile(), objectMapper.getTypeFactory()
-                    .constructCollectionType(List.class, UserDTO.class));
-        } catch (IOException e) {
-            throw new RuntimeException("Feil ved lesing av JSON-fil: " + this.path, e);
-        }
+        return storage.read(this::readUsers);
     }
 
     /**
-     * Skriver brukerdata til JSON-filen.
+     * Skriver brukerdata til JSON-filen, via en midlertidig fil.
      *
      * @param data listen med brukere som skal lagres
+     * @throws UncheckedIOException hvis filen ikke kan skrives
      */
     @Override
     public void writeToFile(List<UserDTO> data) {
-        try {
-            Path parent = this.path.getParent();
-
-            if (parent != null && !Files.exists(parent)) {
-                Files.createDirectories(parent);
-            }
-
-            objectMapper.writeValue(this.path.toFile(), data);
-        } catch (IOException e) {
-            throw new RuntimeException("Feil ved skriving til JSON-fil: " + this.path, e);
-        }
+        storage.update(() -> {
+            storage.write(data);
+            return null;
+        });
     }
 
     /**
@@ -110,7 +90,8 @@ public final class UserHandler implements DataHandler<UserDTO> {
     }
 
     /**
-     * Legger til en bruker og lagrer den oppdaterte brukerlisten.
+     * Legger til en bruker og lagrer den oppdaterte brukerlisten. Hele lesingen, endringen og
+     * skrivingen skjer med skrivelås.
      *
      * @param user brukeren som skal legges til
      * @throws IllegalArgumentException dersom brukeren er null
@@ -120,13 +101,39 @@ public final class UserHandler implements DataHandler<UserDTO> {
             throw new IllegalArgumentException("User cannot be null");
         }
 
-        List<UserDTO> users = readFromFile();
+        storage.update(() -> {
+            List<UserDTO> users = readUsers();
+            users.add(toDto(user));
+            storage.write(users);
+            return null;
+        });
+    }
 
-        UserDTO userDto = new UserDTO(user.getName(), user.getEmail(), user.getPasswordHash(),
-                user.getSalt());
+    /**
+     * Legger til brukeren bare hvis ingen bruker har samme e-postadresse fra før. Sjekken og
+     * lagringen skjer under samme skrivelås, slik at to samtidige registreringer med samme e-post
+     * ikke begge kan lykkes. Store og små bokstaver i e-posten skilles ikke.
+     *
+     * @param user brukeren som skal legges til
+     * @return true hvis brukeren ble lagret, false hvis e-postadressen allerede er registrert
+     * @throws IllegalArgumentException dersom brukeren er null
+     */
+    public boolean addUserIfEmailAvailable(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
 
-        users.add(userDto);
-        writeToFile(users);
+        return storage.update(() -> {
+            List<UserDTO> users = readUsers();
+            boolean emailTaken = users.stream()
+                    .anyMatch(stored -> user.getEmail().equalsIgnoreCase(stored.getEmail()));
+            if (emailTaken) {
+                return false;
+            }
+            users.add(toDto(user));
+            storage.write(users);
+            return true;
+        });
     }
 
     /**
@@ -137,6 +144,40 @@ public final class UserHandler implements DataHandler<UserDTO> {
      */
     public List<User> getUsers() {
         return readFromFile().stream().map(UserHandler::toUser).toList();
+    }
+
+    /**
+     * Sjekker om filen mangler eller er tom. Skal kalles mens låsen holdes.
+     *
+     * @return true hvis filen ikke finnes eller er tom
+     * @throws IOException hvis filstørrelsen ikke kan leses
+     */
+    private boolean isFileEmpty() throws IOException {
+        return !Files.exists(this.path) || Files.size(this.path) == 0;
+    }
+
+    /**
+     * Leser brukerne fra filen. Skal kalles mens låsen holdes.
+     *
+     * @return listen med lagrede brukere, eller en tom liste hvis filen mangler eller er tom
+     * @throws IOException hvis filen ikke kan leses
+     */
+    private List<UserDTO> readUsers() throws IOException {
+        if (isFileEmpty()) {
+            return new ArrayList<>();
+        }
+        return objectMapper.readValue(this.path.toFile(),
+                objectMapper.getTypeFactory().constructCollectionType(List.class, UserDTO.class));
+    }
+
+    /**
+     * Gjør om en bruker til formatet som lagres i filen.
+     *
+     * @param user brukeren som skal lagres
+     * @return brukeren som UserDTO
+     */
+    private static UserDTO toDto(User user) {
+        return new UserDTO(user.getName(), user.getEmail(), user.getPasswordHash(), user.getSalt());
     }
 
     /**
