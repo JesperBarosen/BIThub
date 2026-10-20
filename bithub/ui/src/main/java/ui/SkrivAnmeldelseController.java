@@ -55,8 +55,8 @@ public class SkrivAnmeldelseController {
     }
 
     /**
-     * Setter navigasjonen som kontrolleren skal bruke
-     * 
+     * Setter navigasjonen som kontrolleren skal bruke.
+     *
      * @param navigation navigasjonsobjektet
      */
     public void setNavigation(Navigation navigation) {

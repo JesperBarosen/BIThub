@@ -1,5 +1,6 @@
 package ui;
 
+import java.util.Objects;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
@@ -22,8 +23,13 @@ public class HjemmesideController {
 
     private Navigation navigation;
 
+    /**
+     * Setter navigasjonen som kontrolleren skal bruke.
+     *
+     * @param navigation navigasjonsobjektet
+     */
     public void setNavigation(Navigation navigation) {
-        this.navigation = navigation;
+        this.navigation = Objects.requireNonNull(navigation);
     }
 
     @FXML
@@ -45,5 +51,4 @@ public class HjemmesideController {
     private void handleProfile() {
         navigation.showComingSoon(profileButton, "Profil");
     }
-
 }

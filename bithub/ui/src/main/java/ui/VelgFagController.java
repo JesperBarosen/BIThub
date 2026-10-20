@@ -35,6 +35,8 @@ public class VelgFagController {
 
     private BiConsumer<Node, Course> onCourseSelected;
 
+    private Navigation navigation;
+
     @FXML
     private void initialize() {
         courseComboBox.setButtonCell(courseCell());
@@ -60,8 +62,8 @@ public class VelgFagController {
 
     /**
      * Bestemmer hva som skal skje når brukeren har valgt et emne og trykker «Gå videre». Slik kan
-     * fagvelgeren brukes både for å skrive og lese anmeldelser. Standard er å åpne
-     * anmeldelsesskjemaet.
+     * fagvelgeren brukes både for å skrive og lese anmeldelser. Handlingen settes av
+     * {@link Navigation}.
      *
      * @param onCourseSelected handlingen som får knappen som ble trykket og det valgte emnet
      * @throws NullPointerException hvis onCourseSelected er null
@@ -70,12 +72,10 @@ public class VelgFagController {
         this.onCourseSelected = Objects.requireNonNull(onCourseSelected);
     }
 
-    private Navigation navigation;
-
     /**
      * Setter navigasjonen som kontrolleren skal bruke.
-     * 
-     * @param navigation navigasjonsobjektet 
+     *
+     * @param navigation navigasjonsobjektet
      */
     public void setNavigation(Navigation navigation) {
         this.navigation = Objects.requireNonNull(navigation);
