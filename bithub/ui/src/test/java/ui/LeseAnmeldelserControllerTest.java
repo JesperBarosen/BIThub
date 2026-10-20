@@ -53,9 +53,11 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
         controller = loader.getController();
 
         handler = new ReviewHandler(tempDir.resolve("courses.json"));
-        Navigation.setReviewService(new ReviewService(handler));
-        Navigation.setReviewRepository(handler);
-        controller.setReviewService(new ReviewService(handler));
+        ReviewService reviewService = new ReviewService(handler);
+        Navigation navigation = new Navigation(reviewService, handler);
+
+        controller.setReviewService(reviewService);
+        controller.setNavigation(navigation);
 
         stage.setScene(new Scene(root));
         stage.show();
@@ -143,6 +145,10 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("LeseAnmeldelser.fxml"));
             try {
                 Parent page = loader.load();
+                LeseAnmeldelserController pageController = loader.getController();
+                pageController.setReviewService(new ReviewService(handler));
+                pageController.setNavigation(new Navigation(new ReviewService(handler), handler));
+                
                 Stage stage = (Stage) lookup("#courseComboBox").query().getScene().getWindow();
                 stage.setScene(new Scene(page));
                 ((Button) page.lookup("#homeButton")).fire();

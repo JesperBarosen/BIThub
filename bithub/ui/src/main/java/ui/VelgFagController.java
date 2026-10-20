@@ -33,7 +33,9 @@ public class VelgFagController {
     @FXML
     private Button homeButton;
 
-    private BiConsumer<Node, Course> onCourseSelected = Navigation::showReviewForm;
+    private BiConsumer<Node, Course> onCourseSelected;
+
+    private Navigation navigation;
 
     @FXML
     private void initialize() {
@@ -60,14 +62,23 @@ public class VelgFagController {
 
     /**
      * Bestemmer hva som skal skje når brukeren har valgt et emne og trykker «Gå videre». Slik kan
-     * fagvelgeren brukes både for å skrive og lese anmeldelser. Standard er å åpne
-     * anmeldelsesskjemaet.
+     * fagvelgeren brukes både for å skrive og lese anmeldelser. Handlingen settes av
+     * {@link Navigation}.
      *
      * @param onCourseSelected handlingen som får knappen som ble trykket og det valgte emnet
      * @throws NullPointerException hvis onCourseSelected er null
      */
     public void setOnCourseSelected(BiConsumer<Node, Course> onCourseSelected) {
         this.onCourseSelected = Objects.requireNonNull(onCourseSelected);
+    }
+
+    /**
+     * Setter navigasjonen som kontrolleren skal bruke.
+     *
+     * @param navigation navigasjonsobjektet
+     */
+    public void setNavigation(Navigation navigation) {
+        this.navigation = Objects.requireNonNull(navigation);
     }
 
     @FXML
@@ -82,12 +93,12 @@ public class VelgFagController {
 
     @FXML
     private void handleBack() {
-        Navigation.showHome(backButton);
+        navigation.showHome(backButton);
     }
 
     @FXML
     private void handleHome() {
-        Navigation.showHome(homeButton);
+        navigation.showHome(homeButton);
     }
 
     private ListCell<Course> courseCell() {

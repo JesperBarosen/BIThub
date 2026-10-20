@@ -40,6 +40,7 @@ public class SkrivAnmeldelseController {
     private String courseCode = "";
     private String courseName = "";
     private ReviewService reviewService;
+    private Navigation navigation;
 
     /**
      * Setter tjenesten kontrolleren skal bruke når brukeren sender inn en
@@ -51,6 +52,15 @@ public class SkrivAnmeldelseController {
      */
     public void setReviewService(ReviewService reviewService) {
         this.reviewService = Objects.requireNonNull(reviewService);
+    }
+
+    /**
+     * Setter navigasjonen som kontrolleren skal bruke.
+     *
+     * @param navigation navigasjonsobjektet
+     */
+    public void setNavigation(Navigation navigation) {
+        this.navigation = Objects.requireNonNull(navigation);
     }
 
     /**
@@ -107,12 +117,12 @@ public class SkrivAnmeldelseController {
 
     @FXML
     private void handleBack() {
-        Navigation.showCourseSelection(backButton);
+        navigation.showCourseSelection(backButton);
     }
 
     @FXML
     private void handleHome() {
-        Navigation.showHome(homeButton);
+        navigation.showHome(homeButton);
     }
 
     /**

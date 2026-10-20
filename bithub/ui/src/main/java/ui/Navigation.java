@@ -23,35 +23,23 @@ public final class Navigation {
     /**
      * Tjenesten for anmeldelser, satt én gang av App ved oppstart.
      */
-    private static ReviewService reviewService;
+    private final ReviewService reviewService;
 
     /**
      * Lagringen som fagvelgeren henter emnene fra, satt én gang av App ved oppstart.
      */
-    private static ReviewRepository reviewRepository;
-
-    private Navigation() {
-    }
+    private final ReviewRepository reviewRepository;
 
     /**
-     * Setter lagringen som fagvelgeren skal hente emnene fra.
+     * Oppretter navigasjonen med tjenestene skjermbildene trenger.
      *
-     * @param repository lagringen for emner og anmeldelser
-     * @throws NullPointerException hvis repository er null
+     * @param reviewService    tjenesten for anmeldelser
+     * @param reviewRepository lagringen fagvelgeren henter emnene fra
+     * @throws NullPointerException hvis en av parameterne er null
      */
-    public static void setReviewRepository(ReviewRepository repository) {
-        reviewRepository = Objects.requireNonNull(repository);
-    }
-
-    /**
-     * Setter tjenesten som skal gis videre til skjermbildene som trenger den. Kalles fra App, slik
-     * at lagringen bestemmes ett sted.
-     *
-     * @param service tjenesten fra core som validerer og lagrer anmeldelser
-     * @throws NullPointerException hvis service er null
-     */
-    public static void setReviewService(ReviewService service) {
-        reviewService = Objects.requireNonNull(service);
+    public Navigation(ReviewService reviewService, ReviewRepository reviewRepository) {
+        this.reviewService = Objects.requireNonNull(reviewService);
+        this.reviewRepository = Objects.requireNonNull(reviewRepository);
     }
 
     /**
@@ -60,7 +48,7 @@ public final class Navigation {
      * @param source et element i skjermbildet som er åpent nå
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
-    public static void showHome(Node source) {
+    public void showHome(Node source) {
         showFxml(source, "Hjemmeside.fxml");
     }
 
@@ -71,8 +59,8 @@ public final class Navigation {
      * @param source et element i skjermbildet som er åpent nå
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
-    public static void showCourseSelection(Node source) {
-        openCourseSelection(source, Navigation::showReviewForm);
+    public void showCourseSelection(Node source) {
+        openCourseSelection(source, this::showReviewForm);
     }
 
     /**
@@ -81,8 +69,8 @@ public final class Navigation {
      * @param source et element i skjermbildet som er åpent nå
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
-    public static void showCourseSelectionForReading(Node source) {
-        openCourseSelection(source, Navigation::showReviews);
+    public void showCourseSelectionForReading(Node source) {
+        openCourseSelection(source, this::showReviews);
     }
 
     /**
@@ -92,13 +80,14 @@ public final class Navigation {
      * @param course emnet brukeren har valgt
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
-    public static void showReviews(Node source, Course course) {
-        FXMLLoader loader = new FXMLLoader(Navigation.class.getResource("LeseAnmeldelser.fxml"));
+    public void showReviews(Node source, Course course) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("LeseAnmeldelser.fxml"));
         try {
-            Parent root = loader.load();
+            final Parent root = loader.load();
             LeseAnmeldelserController controller = loader.getController();
             controller.setReviewService(reviewService);
             controller.setCourse(course);
+            controller.setNavigation(this);
             stageOf(source).setScene(new Scene(root));
         } catch (IOException e) {
             throw new IllegalStateException("Kunne ikke åpne siden med anmeldelser", e);
@@ -112,12 +101,13 @@ public final class Navigation {
      * @param course emnet brukeren har valgt
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
-    public static void showReviewForm(Node source, Course course) {
-        FXMLLoader loader = new FXMLLoader(Navigation.class.getResource("SkrivAnmeldelse.fxml"));
+    public void showReviewForm(Node source, Course course) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("SkrivAnmeldelse.fxml"));
         try {
-            Parent root = loader.load();
+            final Parent root = loader.load();
             SkrivAnmeldelseController controller = loader.getController();
             controller.setReviewService(reviewService);
+            controller.setNavigation(this);
             controller.setCourse(course);
             stageOf(source).setScene(new Scene(root));
         } catch (IOException e) {
@@ -131,7 +121,7 @@ public final class Navigation {
      * @param source et element i skjermbildet som er åpent nå
      * @param title  overskriften som skal vises
      */
-    public static void showComingSoon(Node source, String title) {
+    public void showComingSoon(Node source, String title) {
         Label heading = new Label(title);
         heading.setId("placeholderHeading");
         Label message = new Label("Denne siden er ikke laget ennå.");
@@ -149,12 +139,13 @@ public final class Navigation {
      * @param onCourseSelected handlingen som får knappen og det valgte emnet
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
-    private static void openCourseSelection(Node source,
+    private void openCourseSelection(Node source,
             BiConsumer<Node, Course> onCourseSelected) {
-        FXMLLoader loader = new FXMLLoader(Navigation.class.getResource("VelgFag.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("VelgFag.fxml"));
         try {
-            Parent root = loader.load();
+            final Parent root = loader.load();
             VelgFagController controller = loader.getController();
+            controller.setNavigation(this);
             controller.setOnCourseSelected(onCourseSelected);
             controller.setReviewRepository(reviewRepository);
             stageOf(source).setScene(new Scene(root));
@@ -163,9 +154,15 @@ public final class Navigation {
         }
     }
 
-    private static void showFxml(Node source, String fileName) {
+    private void showFxml(Node source, String fileName) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fileName));
         try {
-            Parent root = FXMLLoader.load(Navigation.class.getResource(fileName));
+            final Parent root = loader.load();
+
+            if (loader.getController() instanceof HjemmesideController controller) {
+                controller.setNavigation(this);
+            }
+
             stageOf(source).setScene(new Scene(root));
         } catch (IOException e) {
             throw new IllegalStateException("Kunne ikke åpne " + fileName, e);

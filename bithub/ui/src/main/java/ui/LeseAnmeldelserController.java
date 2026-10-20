@@ -41,6 +41,7 @@ public class LeseAnmeldelserController {
     private Button homeButton;
 
     private ReviewService reviewService;
+    private Navigation navigation;
 
     /**
      * Setter opp lista slik at hver anmeldelse vises som et kort, og viser en
@@ -81,6 +82,15 @@ public class LeseAnmeldelserController {
      */
     public void setReviewService(ReviewService reviewService) {
         this.reviewService = Objects.requireNonNull(reviewService);
+    }
+
+    /**
+     * Setter navigasjonen som kontrolleren skal bruke.
+     *
+     * @param navigation navigasjonsobjektet
+     */
+    public void setNavigation(Navigation navigation) {
+        this.navigation = Objects.requireNonNull(navigation);
     }
 
     /**
@@ -142,11 +152,11 @@ public class LeseAnmeldelserController {
 
     @FXML
     private void handleBack() {
-        Navigation.showCourseSelectionForReading(backButton);
+        navigation.showCourseSelectionForReading(backButton);
     }
 
     @FXML
     private void handleHome() {
-        Navigation.showHome(homeButton);
+        navigation.showHome(homeButton);
     }
 }
