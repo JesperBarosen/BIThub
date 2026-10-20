@@ -95,6 +95,20 @@ class ReviewControllerTest {
     }
 
     @Test
+    void reviewIsSavedWithCourseCodeFromStorage() throws Exception {
+        when(reviewService.findCourse("it1901"))
+                .thenReturn(Optional.of(new Course("IT1901", "Prosjektarbeid")));
+        when(reviewService.submitReview("IT1901", "Prosjektarbeid", "Gjest", "3", null))
+                .thenReturn(new Review("Gjest", 3, null));
+
+        mockMvc.perform(post("/api/courses/it1901/reviews")
+                .contentType(MediaType.APPLICATION_JSON).content("{\"rating\":3}"))
+                .andExpect(status().isCreated());
+
+        verify(reviewService).submitReview("IT1901", "Prosjektarbeid", "Gjest", "3", null);
+    }
+
+    @Test
     void unknownCourseReturnsNotFoundWithoutSaving() throws Exception {
         when(reviewService.findCourse("IT1901")).thenReturn(Optional.empty());
 
