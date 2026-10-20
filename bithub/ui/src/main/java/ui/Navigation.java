@@ -30,6 +30,13 @@ public final class Navigation {
      */
     private final ReviewRepository reviewRepository;
 
+    /**
+     * Oppretter navigasjonen med tjenestene skjermbildene trenger.
+     *
+     * @param reviewService    tjenesten for anmeldelser
+     * @param reviewRepository lagringen fagvelgeren henter emnene fra
+     * @throws NullPointerException hvis en av parameterne er null
+     */
     public Navigation(ReviewService reviewService, ReviewRepository reviewRepository) {
         this.reviewService = Objects.requireNonNull(reviewService);
         this.reviewRepository = Objects.requireNonNull(reviewRepository);
@@ -76,7 +83,7 @@ public final class Navigation {
     public void showReviews(Node source, Course course) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("LeseAnmeldelser.fxml"));
         try {
-            Parent root = loader.load();
+            final Parent root = loader.load();
             LeseAnmeldelserController controller = loader.getController();
             controller.setReviewService(reviewService);
             controller.setCourse(course);
@@ -97,7 +104,7 @@ public final class Navigation {
     public void showReviewForm(Node source, Course course) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("SkrivAnmeldelse.fxml"));
         try {
-            Parent root = loader.load();
+            final Parent root = loader.load();
             SkrivAnmeldelseController controller = loader.getController();
             controller.setReviewService(reviewService);
             controller.setNavigation(this);
@@ -136,7 +143,7 @@ public final class Navigation {
             BiConsumer<Node, Course> onCourseSelected) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("VelgFag.fxml"));
         try {
-            Parent root = loader.load();
+            final Parent root = loader.load();
             VelgFagController controller = loader.getController();
             controller.setNavigation(this);
             controller.setOnCourseSelected(onCourseSelected);
@@ -150,7 +157,7 @@ public final class Navigation {
     private void showFxml(Node source, String fileName) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fileName));
         try {
-            Parent root = loader.load();
+            final Parent root = loader.load();
 
             if (loader.getController() instanceof HjemmesideController controller) {
                 controller.setNavigation(this);
