@@ -1,5 +1,6 @@
 package rest.api;
 
+import core.DuplicateEmailException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import rest.model.ErrorResponse;
 
 /**
- * Gjør ugyldige forespørsler og manglende emner om til JSON-feilsvar.
+ * Gjør feil fra core og kontrollerne om til JSON-feilsvar med felles format.
  */
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -44,6 +45,29 @@ public class ApiExceptionHandler {
     @ExceptionHandler(CourseNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCourseNotFound(CourseNotFoundException exception) {
         return errorResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    /**
+     * Forteller at e-postadressen allerede er registrert.
+     *
+     * @param exception feilen fra core
+     * @return feilsvar med status 409
+     */
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateEmail(DuplicateEmailException exception) {
+        return errorResponse(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    /**
+     * Avviser innlogging uten å si om det var e-posten eller passordet som var feil.
+     *
+     * @param exception feilen ved innlogging
+     * @return feilsvar med status 401
+     */
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(
+            InvalidCredentialsException exception) {
+        return errorResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
     }
 
     private static ResponseEntity<ErrorResponse> errorResponse(HttpStatus status, String message) {
