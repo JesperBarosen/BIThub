@@ -11,7 +11,7 @@ Se [bithub/README.md](bithub/README.md) for beskrivelse av appen og dens funksjo
 
 ## Arkitektur
 
-Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og består av fire moduler: tre lag (core, file og ui) og REST-serveren. Hver modul er både en egen Maven-modul og en egen Java-modul (`module-info.java`), slik at avhengighetene mellom modulene er eksplisitte.
+Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og består av fire moduler: tre lag (core, file og ui) og REST-serveren. Hver modul er en egen Maven-modul, og core, file og ui er i tillegg egne Java-moduler (`module-info.java`), slik at avhengighetene mellom lagene er eksplisitte.
 
 - **core** (`bithub.core`) er domenelaget og er ikke avhengig av noen av de andre modulene.
 - **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core`, implementerer `ReviewRepository` og gjør dataene om til og fra JSON med Jackson.
