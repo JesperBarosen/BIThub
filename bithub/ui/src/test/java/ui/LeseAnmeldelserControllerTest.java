@@ -8,9 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import core.Course;
 import core.Review;
 import core.ReviewService;
-import file.ReviewHandler;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,27 +19,22 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.testfx.framework.junit5.ApplicationTest;
 
 /**
  * UI-tester for {@link LeseAnmeldelserController} ved bruk av TestFX.
  *
- * <p>Anmeldelsene lagres i en midlertidig fil med {@link ReviewHandler}, slik at
- * testene viser at data som er lagret til fil, leses tilbake og vises i UI.
+ * <p>Anmeldelsene lagres i en {@link InMemoryReviewRepository}, slik at testene viser at lagrede
+ * anmeldelser hentes og vises i UI uten at serveren må kjøre.
  */
 class LeseAnmeldelserControllerTest extends ApplicationTest {
 
-    @TempDir
-    Path tempDir;
-
     private LeseAnmeldelserController controller;
-    private ReviewHandler handler;
+    private InMemoryReviewRepository repository;
     private Parent root;
 
     /**
-     * Laster LeseAnmeldelser.fxml og kobler kontrolleren til en tjeneste som
-     * lagrer i en midlertidig fil.
+     * Laster LeseAnmeldelser.fxml og kobler kontrolleren til en tjeneste som lagrer i minnet.
      *
      * @param stage hovedvinduet for TestFX
      * @throws IOException hvis FXML-filen ikke kan lastes
@@ -52,9 +45,9 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
         root = loader.load();
         controller = loader.getController();
 
-        handler = new ReviewHandler(tempDir.resolve("courses.json"));
-        ReviewService reviewService = new ReviewService(handler);
-        Navigation navigation = new Navigation(reviewService, handler);
+        repository = new InMemoryReviewRepository();
+        ReviewService reviewService = new ReviewService(repository);
+        Navigation navigation = new Navigation(reviewService, repository);
 
         controller.setReviewService(reviewService);
         controller.setNavigation(navigation);
@@ -64,13 +57,12 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
     }
 
     /**
-     * Verifiserer at emnenavn, gjennomsnitt, antall og anmeldelser fra filen
-     * vises på siden.
+     * Verifiserer at emnenavn, gjennomsnitt, antall og anmeldelser fra lagringen vises på siden.
      */
     @Test
     void showsStoredReviewsAndAverage() {
-        handler.addReview("IT1901", "Informatikk prosjektarbeid I", new Review("Ola", 5, "Bra"));
-        handler.addReview("IT1901", "Informatikk prosjektarbeid I", new Review("Anonym", 2, ""));
+        repository.addReview("IT1901", "Informatikk prosjektarbeid I", new Review("Ola", 5, "Bra"));
+        repository.addReview("IT1901", "Informatikk prosjektarbeid I", new Review("Anonym", 2, ""));
 
         interact(() -> controller.setCourse(new Course("IT1901", "Informatikk prosjektarbeid I")));
 
@@ -96,17 +88,15 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
     }
 
     /**
-     * Verifiserer at en anmeldelse vises med navn, vurdering og kommentar, og
-     * at kommentaren utelates når den er tom.
+     * Verifiserer at en anmeldelse vises med navn, vurdering og kommentar, og at kommentaren
+     * utelates når den er tom.
      */
     @Test
     void reviewCardShowsNameRatingAndComment() {
-        assertEquals(List.of("OLA", "VURDERING: 4/5", "KOMMENTAR:", "Bra fag"),
-                labelTexts(LeseAnmeldelserController.createReviewCard(
-                        new Review("Ola", 4, "Bra fag"))));
-        assertEquals(List.of("ANONYM", "VURDERING: 2/5"),
-                labelTexts(LeseAnmeldelserController.createReviewCard(
-                        new Review("Anonym", 2, ""))));
+        assertEquals(List.of("OLA", "VURDERING: 4/5", "KOMMENTAR:", "Bra fag"), labelTexts(
+                LeseAnmeldelserController.createReviewCard(new Review("Ola", 4, "Bra fag"))));
+        assertEquals(List.of("ANONYM", "VURDERING: 2/5"), labelTexts(
+                LeseAnmeldelserController.createReviewCard(new Review("Anonym", 2, ""))));
     }
 
     /**
@@ -116,14 +106,12 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
      * @return teksten i etikettene, ovenfra og ned
      */
     private static List<String> labelTexts(VBox card) {
-        return card.getChildren().stream()
-                .map(node -> ((Label) node).getText())
-                .toList();
+        return card.getChildren().stream().map(node -> ((Label) node).getText()).toList();
     }
 
     /**
-     * Verifiserer at emnet ikke kan vises før tjenesten er satt, og at
-     * tjenesten ikke kan være null.
+     * Verifiserer at emnet ikke kan vises før tjenesten er satt, og at tjenesten ikke kan være
+     * null.
      */
     @Test
     void requiresReviewService() {
@@ -146,9 +134,10 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
             try {
                 Parent page = loader.load();
                 LeseAnmeldelserController pageController = loader.getController();
-                pageController.setReviewService(new ReviewService(handler));
-                pageController.setNavigation(new Navigation(new ReviewService(handler), handler));
-                
+                pageController.setReviewService(new ReviewService(repository));
+                pageController
+                        .setNavigation(new Navigation(new ReviewService(repository), repository));
+
                 Stage stage = (Stage) lookup("#courseComboBox").query().getScene().getWindow();
                 stage.setScene(new Scene(page));
                 ((Button) page.lookup("#homeButton")).fire();

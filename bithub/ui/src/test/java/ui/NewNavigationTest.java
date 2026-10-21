@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import core.Course;
 import core.DefaultCourses;
 import core.ReviewService;
-import file.ReviewHandler;
-import java.nio.file.Path;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -18,7 +16,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.testfx.framework.junit5.ApplicationTest;
 
 /**
@@ -26,21 +23,18 @@ import org.testfx.framework.junit5.ApplicationTest;
  */
 class NewNavigationTest extends ApplicationTest {
 
-    @TempDir
-    Path tempDir;
-
     private Stage stage;
 
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
-        // Setter opp appen slik App gjør, men med en midlertidig fil i stedet for ~/.bithub.
-        // Filen finnes ikke fra før, så dette er det samme som første oppstart.
-        ReviewHandler reviewHandler = new ReviewHandler(tempDir.resolve("courses.json"));
-        reviewHandler.addCoursesIfMissing(DefaultCourses.all());
+        // Setter opp appen slik App gjør, men med lagring i minnet i stedet for serveren.
+        // Lagringen har bare standardemnene, slik serveren har ved første oppstart.
+        InMemoryReviewRepository repository = new InMemoryReviewRepository();
+        repository.addCoursesIfMissing(DefaultCourses.all());
 
-        ReviewService reviewService = new ReviewService(reviewHandler);
-        Navigation navigation = new Navigation(reviewService, reviewHandler);
+        ReviewService reviewService = new ReviewService(repository);
+        Navigation navigation = new Navigation(reviewService, repository);
 
         FXMLLoader loader = new FXMLLoader(App.class.getResource("Hjemmeside.fxml"));
         final Parent root = loader.load();
@@ -57,8 +51,8 @@ class NewNavigationTest extends ApplicationTest {
         interact(() -> button("#writeReviewButton").fire());
 
         @SuppressWarnings("unchecked")
-        ComboBox<Course> courseComboBox
-                = (ComboBox<Course>) stage.getScene().getRoot().lookup("#courseComboBox");
+        ComboBox<Course> courseComboBox = (ComboBox<Course>) stage.getScene().getRoot()
+                .lookup("#courseComboBox");
         assertNotNull(courseComboBox);
         assertEquals(5, courseComboBox.getItems().size());
 
@@ -86,8 +80,8 @@ class NewNavigationTest extends ApplicationTest {
     }
 
     /**
-     * Går gjennom alle tre lag: skriver en anmeldelse i UI, som lagres til fil,
-     * og leser den tilbake på siden for å lese anmeldelser.
+     * Går gjennom ui og core: skriver en anmeldelse i UI, som lagres, og leser den tilbake på siden
+     * for å lese anmeldelser.
      */
     @Test
     void writtenReviewIsShownWhenReading() {
@@ -111,8 +105,8 @@ class NewNavigationTest extends ApplicationTest {
         assertEquals("IT1901 - Informatikk prosjektarbeid I", label("#courseTitleLabel").getText());
         assertEquals("4.00", label("#averageLabel").getText());
         assertEquals("1", label("#countLabel").getText());
-        assertEquals(1, ((ListView<?>) stage.getScene().getRoot().lookup("#reviewList"))
-                .getItems().size());
+        assertEquals(1,
+                ((ListView<?>) stage.getScene().getRoot().lookup("#reviewList")).getItems().size());
 
         interact(() -> button("#backButton").fire());
         assertNotNull(courseComboBox());

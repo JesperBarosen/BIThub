@@ -5,3 +5,6 @@ target/
 .project
 .classpath
 org.eclipse.*.prefs
+
+# Ignorer mappeinnstillinger fra macOS
+.DS_Store

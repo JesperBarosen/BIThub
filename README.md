@@ -5,17 +5,18 @@
 Dette er kodelageret til gruppe 2610 i faget IT1901 ved NTNU. Vi lager appen BIThub, der studenter kan anmelde emner
 med terningkast 1-5 og kommentar.
 
-I nåværende versjon kan man velge emne og sende inn en anmeldelse, eventuelt anonymt, og lese anmeldelsene for et emne. Anmeldelsene lagres automatisk i en JSON-fil.
+I nåværende versjon kan man velge emne og sende inn en anmeldelse, og lese anmeldelsene for et emne. Appen er delt i en JavaFX-klient og en REST-server. Klienten henter og sender alle data til serveren, og serveren lagrer anmeldelsene i en JSON-fil.
 
 Se [bithub/README.md](bithub/README.md) for beskrivelse av appen og dens funksjonalitet, skisser fra Figma og brukerhistorier.
 
 ## Arkitektur
 
-Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og er bygget med tre-lags arkitektur. Hvert lag er både en egen Maven-modul og en egen Java-modul (`module-info.java`), slik at avhengighetene mellom lagene er eksplisitte.
+Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og består av fire moduler: tre lag (core, file og ui) og REST-serveren. Hver modul er en egen Maven-modul, og core, file og ui er i tillegg egne Java-moduler (`module-info.java`), slik at avhengighetene mellom lagene er eksplisitte.
 
 - **core** (`bithub.core`) er domenelaget og er ikke avhengig av noen av de andre modulene.
 - **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core`, implementerer `ReviewRepository` og gjør dataene om til og fra JSON med Jackson.
-- **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene og `ReviewService`. `file` brukes bare i `App`, som kobler `ReviewHandler` til `ReviewService` ved oppstart.
+- **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene og `ReviewService`, og henter dataene fra REST-serveren med `RemoteReviewRepository`. `ui` er ikke avhengig av `file`.
+- **springboot/restserver** (`rest`) er REST-serveren. Den bruker `core` og `file`, og er den eneste som leser og skriver JSON-filene.
 
 ### Pakkediagram
 
@@ -23,8 +24,10 @@ Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og er bygget med tre-lags
 
 Kildefilen til diagrammet ligger i [`arkitektur/pakkeDiagram.puml`](arkitektur/pakkeDiagram.puml).
 
-Pilene viser avhengighetene mellom modulene: `ui` er avhengig av `core` og `file`, `file` er
-avhengig av `core` og Jackson, og `core` er ikke avhengig av noen av de andre modulene.
+Pilene viser avhengighetene mellom modulene: `ui` er avhengig av `core`, JavaFX, Jackson og
+`java.net.http`, men ikke av `file`. `ui` snakker med `springboot/restserver` over HTTP. Serveren
+er avhengig av `core`, `file` og Spring Boot, `file` er avhengig av `core` og Jackson, og `core` er
+ikke avhengig av noen av de andre modulene.
 
 ### Klassediagram for core
 
@@ -55,7 +58,7 @@ Appen deles i en REST-server (modulen `springboot/restserver`) og JavaFX-kliente
 ```text
 └───bithub
     ├───pom.xml
-    │    -- Foreldre-POM som samler modulene core, file og ui.
+    │    -- Foreldre-POM som samler modulene core, file, ui og springboot/restserver.
     ├───README.md
     │    -- Beskrivelse av appen, skisser fra Figma og brukerhistorier.
     │
@@ -65,7 +68,8 @@ Appen deles i en REST-server (modulen `springboot/restserver`) og JavaFX-kliente
     │       │   └───java
     │       │       └───core
     │       │           -- Course, Review og User står for domenelogikken og validering.
-    │       │           -- ReviewService og ReviewRepository håndterer innsending og lagring.
+    │       │           -- ReviewService og UserService håndterer anmeldelser og brukere.
+    │       │           -- ReviewRepository og UserRepository er grensesnittene for lagring.
     │       └───test
     │           └───java
     │               └───core
@@ -77,12 +81,30 @@ Appen deles i en REST-server (modulen `springboot/restserver`) og JavaFX-kliente
     │       │   └───java
     │       │       └───file
     │       │           -- ReviewHandler og UserHandler leser og skriver JSON med Jackson.
-    │       │           -- DataHandler er grensesnittet de to handlerne implementerer.
+    │       │           -- JsonFileStorage sørger for trygg skriving når flere forespørsler kommer samtidig.
     │       │           -- CourseDTO, ReviewDTO og UserDTO er objektene som lagres til fil.
     │       └───test
     │           └───java
     │               └───file
     │                   -- Testene for file-modulen ligger her.
+    │
+    ├───springboot
+    │   └───restserver
+    │       └───src
+    │           ├───main
+    │           │   ├───java
+    │           │   │   └───rest
+    │           │   │       -- RestApplication starter Spring Boot-serveren.
+    │           │   │       ├───api
+    │           │   │       │   -- Kontrollerne med endepunktene i REST-API-et, og felles feilhåndtering.
+    │           │   │       └───model
+    │           │   │           -- Objektene som tas imot og sendes som JSON i forespørsler og svar.
+    │           │   └───resources
+    │           │       -- application.properties med innstillingene til serveren.
+    │           └───test
+    │               └───java
+    │                   └───rest
+    │                       -- Testene for REST-serveren, med MockMvc og @SpringBootTest.
     │
     └───ui
         ├───images
@@ -92,7 +114,8 @@ Appen deles i en REST-server (modulen `springboot/restserver`) og JavaFX-kliente
             ├───main
             │   ├───java
             │   │   └───ui
-            │   │       -- App, Navigation, CourseOptions og kontrollerne ligger her.
+            │   │       -- App, Navigation og kontrollerne ligger her.
+            │   │       -- RemoteReviewRepository henter og sender data til REST-serveren.
             │   └───resources
             │       └───ui
             │           -- FXML-filene og Style.css for brukergrensesnittet ligger her.
@@ -113,6 +136,7 @@ Appen deles i en REST-server (modulen `springboot/restserver`) og JavaFX-kliente
 - **Checkstyle** og **SpotBugs** for kodekvalitet
 - **Jackson**
 - **TestFX**
+- **Spring Boot 3.4** for REST-serveren
 - **Mockito**
 
 Alle avhengigheter bortsett fra Java og Maven lastes ned automatisk av Maven ved bygging.
@@ -125,12 +149,22 @@ Kommandoene kjøres fra `bithub/`-mappen:
 - `mvn test` - kjører testene
 - `mvn verify` - kjører tester, kodekvalitetssjekker og genererer testdekningsrapport
 
-Appen startes fra `bithub/`:
+Appen trenger at REST-serveren kjører. Start serveren i én terminal fra `bithub/`:
 
 ```bash
-mvn clean install
+mvn install -DskipTests
+mvn -pl springboot/restserver spring-boot:run
+```
+
+`-DskipTests` hopper over testene slik at oppstarten går raskere.
+
+Start så appen i en ny terminal, også fra `bithub/`:
+
+```bash
 mvn javafx:run
 ```
 
-Testdekningsrapporten fra JaCoCo finnes etterpå i `bithub/core/target/site/jacoco/index.html`,
-`bithub/file/target/site/jacoco/index.html` og `bithub/ui/target/site/jacoco/index.html`.
+Serveren kjører på `http://localhost:8080`, og lagrer dataene i `~/.bithub/`. 
+
+Testdekningsrapporten fra JaCoCo finnes etterpå i `target/site/jacoco/index.html` i hver modul, for eksempel
+`bithub/core/target/site/jacoco/index.html` og `bithub/springboot/restserver/target/site/jacoco/index.html`.

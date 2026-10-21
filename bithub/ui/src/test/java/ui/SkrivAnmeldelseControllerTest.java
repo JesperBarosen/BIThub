@@ -1,12 +1,9 @@
 package ui;
 
+import core.Course;
+import core.Review;
 import core.ReviewService;
-import file.CourseDTO;
-import file.ReviewDTO;
-import file.ReviewHandler;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,27 +17,23 @@ import javafx.stage.Stage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.testfx.framework.junit5.ApplicationTest;
 
 /**
  * Enhetstester og UI-tester for {@link SkrivAnmeldelseController} ved bruk av TestFX.
  *
- * <p>Sjekker at data blir satt og oppdelt korrekt, at validering av innsending gir
- * riktige feil- og suksessmeldinger, og at skjemaet nullstilles ved suksess.
+ * <p>Sjekker at data blir satt og oppdelt korrekt, at validering av innsending gir riktige feil- og
+ * suksessmeldinger, og at skjemaet nullstilles ved suksess.
  */
 public class SkrivAnmeldelseControllerTest extends ApplicationTest {
 
-    @TempDir
-    Path tempDir;
-
     private SkrivAnmeldelseController controller;
     private Parent root;
-    private Path testFilePath;
+    private InMemoryReviewRepository repository;
 
     /**
-     * Klargjør og viser grensesnittet SkrivAnmeldelse.fxml før hver test. Sett opp en
-     * midlertidig filsti for lagring slik at I/O ikke feiler under testkjøring.
+     * Klargjør og viser grensesnittet SkrivAnmeldelse.fxml før hver test. Anmeldelsene lagres i
+     * minnet, slik at testene ikke trenger serveren.
      *
      * @param stage Hovedscenen for TestFX
      * @throws IOException dersom FXML-filen ikke kan lastes
@@ -51,19 +44,16 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
         root = loader.load();
         controller = loader.getController();
 
-        // Oppretter en isolert filbane i JUnit sin midlertidige testmappe
-        testFilePath = tempDir.resolve("test-reviews.json");
-        ReviewHandler testHandler = new ReviewHandler(testFilePath);
-
-        controller.setReviewService(new ReviewService(testHandler));
+        repository = new InMemoryReviewRepository();
+        controller.setReviewService(new ReviewService(repository));
 
         stage.setScene(new Scene(root));
         stage.show();
     }
 
     /**
-     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} håndterer null og
-     * blanke strenger uten feil.
+     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} håndterer null og blanke
+     * strenger uten feil.
      */
     @Test
     @DisplayName("Skal ignorere null og blank emneData")
@@ -78,8 +68,8 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} deler opp emnekode
-     * og emnenavn korrekt ved formatet "KODE - NAVN".
+     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} deler opp emnekode og
+     * emnenavn korrekt ved formatet "KODE - NAVN".
      */
     @Test
     @DisplayName("Skal splitte emnekode og emnenavn når formatet inneholder bindestrek")
@@ -89,16 +79,16 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
         interact(() -> controller.setEmneData(testData));
 
         Label emneTittelLabel = (Label) root.lookup("#emneTittelLabel");
-        Assertions.assertNotNull(
-                emneTittelLabel, "emneTittelLabel ble ikke funnet i SkrivAnmeldelse.fxml");
+        Assertions.assertNotNull(emneTittelLabel,
+                "emneTittelLabel ble ikke funnet i SkrivAnmeldelse.fxml");
         Assertions.assertEquals(testData, emneTittelLabel.getText());
         Assertions.assertEquals("TDT4100", controller.getCourseCode());
         Assertions.assertEquals("Objektorientert programmering", controller.getCourseName());
     }
 
     /**
-     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} setter emnenavn når
-     * formatet ikke har bindestrek.
+     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} setter emnenavn når formatet
+     * ikke har bindestrek.
      */
     @Test
     @DisplayName("Skal sette kun emnenavn dersom formatet mangler bindestrek")
@@ -112,8 +102,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester at innsending av ugyldig rating (ikke-tall) viser feilmelding i
-     * status-labelen.
+     * Tester at innsending av ugyldig rating (ikke-tall) viser feilmelding i status-labelen.
      */
     @Test
     @DisplayName("Skal vise feilmelding dersom rating ikke er et gyldig tall")
@@ -152,8 +141,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester en vellykket innsending med anonym vurdering, og at feltene
-     * tømmes.
+     * Tester en vellykket innsending med anonym vurdering, og at feltene tømmes.
      */
     @Test
     @DisplayName("Skal lagre vurdering vellykket med anonym avhuking og nullstille felter")
@@ -181,14 +169,12 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
         Assertions.assertEquals("", commentArea.getText());
         Assertions.assertFalse(anonymousCheckBox.isSelected());
 
-        // Les fra fil med en ny handler for å kontrollere hva som faktisk ble lagret.
-        List<CourseDTO> courses = new ReviewHandler(testFilePath).readFromFile();
-        Assertions.assertEquals(1, courses.size());
-        CourseDTO course = courses.get(0);
-        Assertions.assertEquals("TDT4120", course.getCourseCode());
+        // Les fra lagringen for å kontrollere hva som faktisk ble lagret.
+        Assertions.assertEquals(1, repository.findAllCourses().size());
+        Course course = repository.findCourse("TDT4120").orElseThrow();
         Assertions.assertEquals("Algoritmer og datastrukturer", course.getCourseName());
         Assertions.assertEquals(1, course.getReviews().size());
-        ReviewDTO review = course.getReviews().get(0);
+        Review review = course.getReviews().get(0);
         Assertions.assertEquals("Anonym", review.getReviewerName());
         Assertions.assertEquals(5, review.getRating());
         Assertions.assertEquals("Veldig bra emne!", review.getComment());
@@ -218,14 +204,12 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
         Assertions.assertEquals("Vurderingen ble sendt inn!", statusLabel.getText());
         Assertions.assertEquals(Color.GREEN, statusLabel.getTextFill());
 
-        // Les fra fil med en ny handler for å kontrollere hva som faktisk ble lagret.
-        List<CourseDTO> courses = new ReviewHandler(testFilePath).readFromFile();
-        Assertions.assertEquals(1, courses.size());
-        CourseDTO course = courses.get(0);
-        Assertions.assertEquals("TDT4100", course.getCourseCode());
+        // Les fra lagringen for å kontrollere hva som faktisk ble lagret.
+        Assertions.assertEquals(1, repository.findAllCourses().size());
+        Course course = repository.findCourse("TDT4100").orElseThrow();
         Assertions.assertEquals("Objektorientert programmering", course.getCourseName());
         Assertions.assertEquals(1, course.getReviews().size());
-        ReviewDTO review = course.getReviews().get(0);
+        Review review = course.getReviews().get(0);
         Assertions.assertEquals("Student", review.getReviewerName());
         Assertions.assertEquals(4, review.getRating());
         Assertions.assertEquals("Moro prosjekt.", review.getComment());

@@ -65,6 +65,20 @@ class CourseControllerTest {
     }
 
     /**
+     * Verifiserer at en tom lagring gir en tom liste, ikke en feil.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void getAllCoursesReturnsEmptyListWhenNoCourses() throws Exception {
+        when(reviewService.getAllCourses()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/courses"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    /**
      * Verifiserer at ett emne returneres med anmeldelser, og at anmeldelsene vises som gjest uten
      * navnet til den som skrev dem.
      *
@@ -118,7 +132,7 @@ class CourseControllerTest {
                 .andExpect(jsonPath("$.error").value("Bad Request"))
                 .andExpect(jsonPath("$.message").value("Ugyldig emnekode."));
     }
-    
+
     /**
      * Verifiserer at anmeldelser med eier vises med navn eller som anonyme, med id og uten e-post.
      *
