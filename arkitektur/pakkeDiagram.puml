@@ -2,12 +2,22 @@
 
 title Pakkediagram - BIThub
 
-component "ui" as uiModul {
-    package ui
+skinparam linetype ortho
+
+component "Spring Boot" as springboot
+
+component "springboot/restserver" as restModul {
+    package rest
 }
 
 component "file" as fileModul {
     package file
+}
+
+component Jackson
+
+component "ui" as uiModul {
+    package ui
 }
 
 component "core" as coreModul {
@@ -20,16 +30,15 @@ component javafx {
     component graphics
 }
 
-component jackson {
-    component databind
-    component annotations
-}
+restModul .left.> springboot
+restModul .down.> fileModul
+restModul .down.> coreModul
 
-ui ..> file
-ui ..> core
-ui ..> javafx
+fileModul .down.> coreModul
+fileModul .down.> Jackson
 
-file ..> core
-file ..> jackson
+uiModul .right.> coreModul
+uiModul .up.> Jackson
+uiModul .right.> javafx
 
 @enduml
