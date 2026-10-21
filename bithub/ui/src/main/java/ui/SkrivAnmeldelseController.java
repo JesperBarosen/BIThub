@@ -43,9 +43,8 @@ public class SkrivAnmeldelseController {
     private Navigation navigation;
 
     /**
-     * Setter tjenesten kontrolleren skal bruke når brukeren sender inn en
-     * anmeldelse. Kontrolleren oppretter ikke lagring selv, den får den
-     * utenfra.
+     * Setter tjenesten kontrolleren skal bruke når brukeren sender inn en anmeldelse. Kontrolleren
+     * oppretter ikke lagring selv, den får den utenfra.
      *
      * @param reviewService tjenesten som validerer og lagrer anmeldelser
      * @throws NullPointerException hvis reviewService er null
@@ -102,16 +101,15 @@ public class SkrivAnmeldelseController {
         String reviewerName = anonymousCheckBox.isSelected() ? "Anonym" : "Student";
 
         try {
-            reviewService.submitReview(courseCode, courseName, reviewerName,
-                    ratingField.getText(), commentArea.getText());
+            reviewService.submitReview(courseCode, courseName, reviewerName, ratingField.getText(),
+                    commentArea.getText());
 
             showSuccessMessage("Vurderingen ble sendt inn!");
             clearFields();
         } catch (IllegalArgumentException e) {
-            // Valideringsfeil fra core, for eksempel ugyldig vurdering
             showErrorMessage(e.getMessage());
         } catch (RuntimeException e) {
-            showErrorMessage("Feil ved lagring: Kunne ikke skrive til fil.");
+            showErrorMessage("Kunne ikke lagre anmeldelsen. Sjekk at serveren kjører.");
         }
     }
 

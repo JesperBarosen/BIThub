@@ -15,9 +15,9 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 
 | Metode | Sti | Hva | Innlogging | Status |
 |---|---|---|---|---|
-| GET | `/api/courses` | Alle emner | Nei | Lages i #151 |
-| GET | `/api/courses/{code}` | Ett emne med anmeldelser og gjennomsnitt | Nei | Lages i #151 |
-| POST | `/api/courses/{code}/reviews` | Ny anmeldelse | Valgfri | Lages i #151 |
+| GET | `/api/courses` | Alle emner | Nei | Ferdig (#151), brukes av klienten (#172) |
+| GET | `/api/courses/{code}` | Ett emne med anmeldelser og gjennomsnitt | Nei | Ferdig (#151), brukes av klienten (#172) |
+| POST | `/api/courses/{code}/reviews` | Ny anmeldelse | Valgfri | Ferdig (#151), brukes av klienten (#172) |
 | PUT | `/api/reviews/{id}` | Endre egen anmeldelse | Ja | Planlagt i sprint 2 |
 | DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Planlagt i sprint 2 |
 | POST | `/api/users` | Registrere bruker | Nei | Planlagt i sprint 2 |
