@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Testklasse for ReviewService. Bruker en falsk lagring i minnet i stedet for ReviewHandler, slik
@@ -234,5 +237,63 @@ class ReviewServiceTest {
 
         assertSame(storedCourse, service.findCourse("IT1901").orElseThrow());
         assertTrue(service.findCourse("TDT4100").isEmpty());
+    }
+
+    /**
+     * Verifiserer at bare eierens egne anmeldelser hentes, også de anonyme, og ikke anmeldelser fra
+     * andre brukere eller gjester.
+     */
+    @Test
+    void findReviewsByOwnerReturnsOnlyOwnReviews() {
+        Review own = new Review("id-1", "ola@example.com", "Ola", false, 5, "Bra");
+        Review ownAnonymous = new Review("id-2", "ola@example.com", "Ola", true, 4, "");
+        storedCourse = new Course("IT1901", "Informatikk prosjektarbeid I");
+        storedCourse.addReview(own);
+        storedCourse.addReview(ownAnonymous);
+        storedCourse.addReview(new Review("id-3", "kari@example.com", "Kari", false, 3, ""));
+        storedCourse.addReview(new Review("Gjest", 2, ""));
+
+        List<Course> result = service.findReviewsByOwner("ola@example.com");
+
+        assertEquals(1, result.size());
+        assertEquals("IT1901", result.get(0).getCourseCode());
+        assertEquals(List.of(own, ownAnonymous), result.get(0).getReviews());
+    }
+
+    /**
+     * Verifiserer at emner der brukeren ikke har skrevet noe, ikke er med.
+     */
+    @Test
+    void findReviewsByOwnerSkipsCoursesWithoutOwnReviews() {
+        storedCourse = new Course("IT1901", "Informatikk prosjektarbeid I");
+        storedCourse.addReview(new Review("id-3", "kari@example.com", "Kari", false, 3, ""));
+
+        assertTrue(service.findReviewsByOwner("ola@example.com").isEmpty());
+    }
+
+    /**
+     * Verifiserer at e-posten sammenlignes uten å skille store og små bokstaver.
+     */
+    @Test
+    void findReviewsByOwnerIgnoresCaseInEmail() {
+        storedCourse = new Course("IT1901", "Informatikk prosjektarbeid I");
+        storedCourse.addReview(new Review("id-1", "ola@example.com", "Ola", false, 5, "Bra"));
+
+        assertEquals(1, service.findReviewsByOwner("OLA@example.com").size());
+    }
+
+    /**
+     * Verifiserer at manglende e-post gir en tom liste.
+     *
+     * @param email e-posten som mangler
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = { "   " })
+    void findReviewsByOwnerReturnsEmptyForMissingEmail(String email) {
+        storedCourse = new Course("IT1901", "Informatikk prosjektarbeid I");
+        storedCourse.addReview(new Review("id-1", "ola@example.com", "Ola", false, 5, "Bra"));
+
+        assertTrue(service.findReviewsByOwner(email).isEmpty());
     }
 }
