@@ -8,9 +8,9 @@ Her beskriver vi hvordan vi tester REST-serveren i `springboot/restserver`, og h
 |---|---|---|
 | `CourseControllerTest` | `MockMvc` med falsk `ReviewService` | `GET /api/courses` og `GET /api/courses/{code}`: JSON-feltene, gjennomsnitt, visningsnavn og `authorType`, at e-posten til eieren aldri sendes ut, 400 og 404 |
 | `ReviewControllerTest` | `MockMvc` med falsk `ReviewService` | `POST /api/courses/{code}/reviews`: gyldig anmeldelse gir 201, ugyldig vurdering og ugyldig JSON gir 400, ukjent emne gir 404 uten at noe lagres |
-| `UserControllerTest` | `MockMvc` med falske `UserService`, `ReviewService` og `TokenService` | `POST /api/users`, `POST /api/login` og `GET /api/me/reviews`: token i svaret, at passord, hash og salt aldri sendes ut, 400, 401 og 409 |
+| `UserControllerTest` | `MockMvc` med falske `UserService`, `ReviewService` og `TokenService` | `POST /api/users`, `POST /api/login`, `PUT /api/users/{email}/password` og `GET /api/me/reviews`: token i svaret, at passord, hash og salt aldri sendes ut, 204, 400, 401 og 409 |
 | `TokenServiceTest` | Vanlig enhetstest | At hvert token er unikt og hører til riktig bruker, og at ukjente eller manglende tokener ikke gir noen bruker |
-| `RestIntegrationTest` | `@SpringBootTest` med ekte server og HTTP | Hele serveren startes på en ledig port med ekte `ReviewService` og `ReviewHandler`. Testene sender HTTP-forespørsler med `java.net.http.HttpClient` og sjekker både svaret og innholdet i datafilen |
+| `RestIntegrationTest` | `@SpringBootTest` med ekte server og HTTP | Hele serveren startes på en ledig port med ekte tjenester i core og ekte lagring i file. Testene sender HTTP-forespørsler med `java.net.http.HttpClient` og sjekker både svaret og innholdet i datafilene, blant annet samtidig registrering og passordbytte |
 | `RestApplicationTest` | Start av Spring-konteksten | At serveren starter, og at `ReviewService` og `UserService` skriver til filene som er satt med `bithub.reviews-file` og `bithub.users-file` |
 
 `MockMvc`-testene tester bare kontrollerne og feilhåndteringen. De er raske og viser presist hvilken del som feiler. `RestIntegrationTest` viser at delene virker sammen: HTTP, JSON, kontrollerne, tjenesten i core og lagringen i file.
