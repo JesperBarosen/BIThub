@@ -10,6 +10,7 @@ import core.Review;
 import core.ReviewService;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,6 +21,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 /**
  * UI-tester for {@link LeseAnmeldelserController} ved bruk av TestFX.
@@ -60,11 +62,12 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
      * Verifiserer at emnenavn, gjennomsnitt, antall og anmeldelser fra lagringen vises på siden.
      */
     @Test
-    void showsStoredReviewsAndAverage() {
+    void showsStoredReviewsAndAverage() throws Exception {
         repository.addReview("IT1901", "Informatikk prosjektarbeid I", new Review("Ola", 5, "Bra"));
         repository.addReview("IT1901", "Informatikk prosjektarbeid I", new Review("Anonym", 2, ""));
 
         interact(() -> controller.setCourse(new Course("IT1901", "Informatikk prosjektarbeid I")));
+        awaitReviewsLoaded();
 
         assertEquals("IT1901 - Informatikk prosjektarbeid I", label("#courseTitleLabel").getText());
         assertEquals("3.50", label("#averageLabel").getText());
@@ -159,5 +162,16 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
 
     private Button button(String selector) {
         return (Button) root.lookup(selector);
+    }
+
+    /**
+     * Venter til anmeldelsene er ferdig hentet og statistikken er oppdatert.
+     *
+     * @throws Exception hvis innlastingen ikke fullføres innen tidsgrensen
+     */
+    private void awaitReviewsLoaded() throws Exception {
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
+                () -> WaitForAsyncUtils.asyncFx(() -> !"-".equals(label("#countLabel").getText()))
+                        .get(5, TimeUnit.SECONDS));
     }
 }

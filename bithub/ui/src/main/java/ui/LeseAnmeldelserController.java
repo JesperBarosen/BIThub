@@ -3,7 +3,6 @@ package ui;
 import core.Course;
 import core.Review;
 import core.ReviewService;
-import java.io.UncheckedIOException;
 import java.util.Locale;
 import java.util.Objects;
 import javafx.fxml.FXML;
@@ -14,11 +13,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 
 /**
- * Kontroller for siden som viser anmeldelsene og gjennomsnittlig vurdering for
- * et valgt emne.
+ * Kontroller for siden som viser anmeldelsene og gjennomsnittlig vurdering for et valgt emne.
  *
- * <p>Kontrolleren henter emnet gjennom {@link ReviewService}, slik at den ikke
- * vet hvordan anmeldelsene er lagret.
+ * <p>Kontrolleren henter emnet gjennom {@link ReviewService}, slik at den ikke vet hvordan
+ * anmeldelsene er lagret.
  */
 public class LeseAnmeldelserController {
 
@@ -43,20 +41,21 @@ public class LeseAnmeldelserController {
     private ReviewService reviewService;
     private Navigation navigation;
 
+    private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
+
     /**
-     * Setter opp lista slik at hver anmeldelse vises som et kort, og viser en
-     * melding når emnet ikke har anmeldelser.
+     * Setter opp lista slik at hver anmeldelse vises som et kort, og viser en melding når emnet
+     * ikke har anmeldelser.
      */
     @FXML
     private void initialize() {
         reviewList.setPlaceholder(new Label("Ingen anmeldelser ennå."));
         reviewList.setCellFactory(listView -> new ListCell<>() {
             /**
-             * Viser kortet for anmeldelsen i cellen, eller ingenting hvis
-             * cellen er tom.
+             * Viser kortet for anmeldelsen i cellen, eller ingenting hvis cellen er tom.
              *
              * @param review anmeldelsen cellen skal vise
-             * @param empty {@code true} hvis cellen ikke har innhold
+             * @param empty  {@code true} hvis cellen ikke har innhold
              */
             @Override
             protected void updateItem(Review review, boolean empty) {
@@ -98,36 +97,42 @@ public class LeseAnmeldelserController {
      *
      * @param course emnet som skal vises
      * @throws IllegalArgumentException hvis emnet er null
-     * @throws IllegalStateException hvis tjenesten ikke er satt
+     * @throws IllegalStateException    hvis tjenesten ikke er satt
      */
     public void setCourse(Course course) {
         if (reviewService == null) {
             throw new IllegalStateException("ReviewService must be set before the course.");
         }
-        Course courseWithReviews;
-        try {
-            courseWithReviews = reviewService.getCourseWithReviews(course);
-        } catch (UncheckedIOException e) {
-            courseTitleLabel.setText(course.getCourseCode() + " - " + course.getCourseName());
-            averageLabel.setText("-");
-            countLabel.setText("-");
-            reviewList.getItems().clear();
-            reviewList.setPlaceholder(
-                new Label("Kunne ikke lese anmeldelsene. Prøv igjen senere."));
-            return;
+        if (course == null) {
+            throw new IllegalArgumentException("Emnet kan ikke være null.");
         }
 
-        courseTitleLabel.setText(
-                courseWithReviews.getCourseCode() + " - " + courseWithReviews.getCourseName());
-        averageLabel.setText(
-                String.format(Locale.ROOT, "%.2f", courseWithReviews.getAverageRating()));
-        countLabel.setText(String.valueOf(courseWithReviews.getReviews().size()));
-        reviewList.getItems().setAll(courseWithReviews.getReviews());
+        taskRunner.cancel();
+
+        courseTitleLabel.setText(course.getCourseCode() + " - " + course.getCourseName());
+        averageLabel.setText("-");
+        countLabel.setText("-");
+        reviewList.getItems().clear();
+        reviewList.setPlaceholder(new Label("Henter anmeldelser ..."));
+
+        taskRunner.execute(() -> reviewService.getCourseWithReviews(course), courseWithReviews -> {
+            courseTitleLabel.setText(
+                    courseWithReviews.getCourseCode() + " - " + courseWithReviews.getCourseName());
+            averageLabel.setText(
+                    String.format(Locale.ROOT, "%.2f", courseWithReviews.getAverageRating()));
+            countLabel.setText(String.valueOf(courseWithReviews.getReviews().size()));
+            reviewList.getItems().setAll(courseWithReviews.getReviews());
+            reviewList.setPlaceholder(new Label("Ingen anmeldelser ennå."));
+        }, error -> {
+            reviewList.getItems().clear();
+            reviewList
+                    .setPlaceholder(new Label("Kunne ikke lese anmeldelsene. Prøv igjen senere."));
+        });
     }
 
     /**
-     * Lager visningen av én anmeldelse i listen: navnet, vurderingen og
-     * kommentaren under hverandre.
+     * Lager visningen av én anmeldelse i listen: navnet, vurderingen og kommentaren under
+     * hverandre.
      *
      * @param review anmeldelsen som skal vises
      * @return en boks med navn, vurdering og eventuelt kommentar
@@ -152,11 +157,13 @@ public class LeseAnmeldelserController {
 
     @FXML
     private void handleBack() {
+        taskRunner.cancel();
         navigation.showCourseSelectionForReading(backButton);
     }
 
     @FXML
     private void handleHome() {
+        taskRunner.cancel();
         navigation.showHome(homeButton);
     }
 }
