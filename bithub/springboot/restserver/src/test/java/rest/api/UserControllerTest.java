@@ -26,7 +26,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import rest.auth.TokenService;
 
 /**
- * Tester registrering, innlogging og egne anmeldelser med falske tjenester, uten fil og uten ekte server.
+ * Tester registrering, innlogging og egne anmeldelser med falske tjenester,
+ * uten fil og uten ekte server.
  */
 @WebMvcTest(UserController.class)
 @Import(ApiExceptionHandler.class)
