@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import core.Course;
 import core.DefaultCourses;
 import core.ReviewService;
+import java.util.concurrent.TimeUnit;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -17,6 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 /**
  * Tester navigasjonen i de nye FXML-skjermbildene.
@@ -47,8 +49,9 @@ class NewNavigationTest extends ApplicationTest {
     }
 
     @Test
-    void canChooseCourseAndReturnHome() {
+    void canChooseCourseAndReturnHome() throws Exception {
         interact(() -> button("#writeReviewButton").fire());
+        awaitCoursesLoaded();
 
         @SuppressWarnings("unchecked")
         ComboBox<Course> courseComboBox = (ComboBox<Course>) stage.getScene().getRoot()
@@ -75,6 +78,7 @@ class NewNavigationTest extends ApplicationTest {
     @Test
     void unimplementedPageShowsPlaceholder() {
         interact(() -> button("#myReviewsButton").fire());
+
         Label heading = (Label) stage.getScene().getRoot().lookup("#placeholderHeading");
         assertEquals("Mine anmeldelser", heading.getText());
     }
@@ -84,12 +88,15 @@ class NewNavigationTest extends ApplicationTest {
      * for å lese anmeldelser.
      */
     @Test
-    void writtenReviewIsShownWhenReading() {
+    void writtenReviewIsShownWhenReading() throws Exception {
         interact(() -> button("#writeReviewButton").fire());
+        awaitCoursesLoaded();
+
         interact(() -> {
             courseComboBox().getSelectionModel().select(4);
             button("#nextButton").fire();
         });
+
         interact(() -> {
             ((TextField) stage.getScene().getRoot().lookup("#ratingField")).setText("4");
             button("#sendInnButton").fire();
@@ -97,6 +104,8 @@ class NewNavigationTest extends ApplicationTest {
         });
 
         interact(() -> button("#readReviewsButton").fire());
+        awaitCoursesLoaded();
+
         interact(() -> {
             courseComboBox().getSelectionModel().select(4);
             button("#nextButton").fire();
@@ -123,5 +132,16 @@ class NewNavigationTest extends ApplicationTest {
 
     private Button button(String selector) {
         return (Button) stage.getScene().getRoot().lookup(selector);
+    }
+
+    /**
+     * Venter til standardemnene er lastet og emnevelgeren er tilgjengelig.
+     */
+    private void awaitCoursesLoaded() throws Exception {
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> WaitForAsyncUtils.asyncFx(() -> {
+            ComboBox<Course> comboBox = courseComboBox();
+            return comboBox != null && !comboBox.isDisabled()
+                    && comboBox.getItems().size() == DefaultCourses.all().size();
+        }).get(5, TimeUnit.SECONDS));
     }
 }
