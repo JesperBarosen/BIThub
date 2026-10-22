@@ -31,4 +31,13 @@ public interface UserRepository {
      * @return brukeren hvis adressen finnes, ellers et tomt resultat
      */
     Optional<User> findByEmail(String email);
+
+    /**
+     * Erstatter den lagrede brukeren som har samme e-postadresse, for eksempel etter at passordet
+     * er byttet.
+     *
+     * @param user brukeren med de nye opplysningene
+     * @throws IllegalArgumentException hvis ingen bruker med denne e-postadressen er lagret
+     */
+    void update(User user);
 }
