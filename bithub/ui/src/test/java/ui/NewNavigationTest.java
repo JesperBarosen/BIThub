@@ -100,8 +100,9 @@ class NewNavigationTest extends ApplicationTest {
         interact(() -> {
             ((TextField) stage.getScene().getRoot().lookup("#ratingField")).setText("4");
             button("#sendInnButton").fire();
-            button("#homeButton").fire();
         });
+        awaitReviewSaved();
+        interact(() -> button("#homeButton").fire());
 
         interact(() -> button("#readReviewsButton").fire());
         awaitCoursesLoaded();
@@ -110,6 +111,8 @@ class NewNavigationTest extends ApplicationTest {
             courseComboBox().getSelectionModel().select(4);
             button("#nextButton").fire();
         });
+
+        awaitReviewsLoaded();
 
         assertEquals("IT1901 - Informatikk prosjektarbeid I", label("#courseTitleLabel").getText());
         assertEquals("4.00", label("#averageLabel").getText());
@@ -142,6 +145,32 @@ class NewNavigationTest extends ApplicationTest {
             ComboBox<Course> comboBox = courseComboBox();
             return comboBox != null && !comboBox.isDisabled()
                     && comboBox.getItems().size() == DefaultCourses.all().size();
+        }).get(5, TimeUnit.SECONDS));
+    }
+
+    /**
+     * Venter på bekreftet lagring før testen navigerer bort fra skjemaet.
+     */
+    private void awaitReviewSaved() throws Exception {
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> WaitForAsyncUtils.asyncFx(() -> {
+            Label status = label("#statusLabel");
+            return status != null && "Vurderingen ble sendt inn!".equals(status.getText());
+        }).get(5, TimeUnit.SECONDS));
+    }
+
+    /**
+     * Venter til vurderingen er hentet og vises på anmeldelsessiden.
+     */
+    private void awaitReviewsLoaded() throws Exception {
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> WaitForAsyncUtils.asyncFx(() -> {
+            Label average = label("#averageLabel");
+            Label count = label("#countLabel");
+            ListView<?> reviews =
+                    (ListView<?>) stage.getScene().getRoot().lookup("#reviewList");
+            return average != null && count != null && reviews != null
+                    && "4.00".equals(average.getText())
+                    && "1".equals(count.getText())
+                    && reviews.getItems().size() == 1;
         }).get(5, TimeUnit.SECONDS));
     }
 }
