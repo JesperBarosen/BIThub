@@ -70,6 +70,17 @@ public class ApiExceptionHandler {
         return errorResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
     }
 
+    /**
+     * Avviser forespørsler som krever innlogging når tokenet mangler eller er ukjent.
+     *
+     * @param exception feilen ved manglende innlogging
+     * @return feilsvar med status 401
+     */
+    @ExceptionHandler(NotLoggedInException.class)
+    public ResponseEntity<ErrorResponse> handleNotLoggedIn(NotLoggedInException exception) {
+        return errorResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
+    }
+
     private static ResponseEntity<ErrorResponse> errorResponse(HttpStatus status, String message) {
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(status.value(), status.getReasonPhrase(), message));

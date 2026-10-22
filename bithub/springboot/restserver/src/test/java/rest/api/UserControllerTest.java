@@ -3,13 +3,18 @@ package rest.api;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import core.Course;
 import core.DuplicateEmailException;
+import core.Review;
+import core.ReviewService;
 import core.User;
 import core.UserService;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import rest.auth.TokenService;
 
 /**
- * Tester registrering og innlogging med falske tjenester, uten fil og uten ekte server.
+ * Tester registrering, innlogging og egne anmeldelser med falske tjenester, uten fil og uten ekte server.
  */
 @WebMvcTest(UserController.class)
 @Import(ApiExceptionHandler.class)
@@ -40,10 +45,13 @@ class UserControllerTest {
     private UserService userService;
 
     @MockitoBean
+    private ReviewService reviewService;
+
+    @MockitoBean
     private TokenService tokenService;
 
     /**
-     * Lager brukere slik UserService returnerer den, med normalisert e-post.
+     * Lager brukeren slik UserService returnerer den, med normalisert e-post.
      *
      * @return brukeren
      */
@@ -98,7 +106,7 @@ class UserControllerTest {
     }
 
     /**
-     * Verifiserer at valideringsfeil fra core gir 400 med den opprinelige
+     * Verifiserer at valideringsfeil fra core gir 400 med den opprinnelige
      * meldingen, uten at det lages token.
      *
      * @throws Exception hvis forespørselen feiler
@@ -158,5 +166,78 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.message").value("Feil e-post eller passord."));
 
         verifyNoInteractions(tokenService);
+    }
+
+    /**
+     * Verifiserer at innlogget bruker får egne anmeldelser med emnet de hører til og om de er
+     * anonyme, men uten e-posten til eieren.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void getOwnReviewsReturnsOwnReviewsWithCourse() throws Exception {
+        Course course = new Course("IT1901", "Informatikk prosjektarbeid I");
+        course.addReview(
+                new Review("id-1", "ola@example.com", "Ola Nordmann", true, 4, "Mye arbeid"));
+        when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
+        when(reviewService.findReviewsByOwner("ola@example.com")).thenReturn(List.of(course));
+
+        mockMvc.perform(get("/api/me/reviews").header("Authorization", "Bearer token-123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value("id-1"))
+                .andExpect(jsonPath("$[0].courseCode").value("IT1901"))
+                .andExpect(jsonPath("$[0].courseName").value("Informatikk prosjektarbeid I"))
+                .andExpect(jsonPath("$[0].rating").value(4))
+                .andExpect(jsonPath("$[0].comment").value("Mye arbeid"))
+                .andExpect(jsonPath("$[0].anonymous").value(true))
+                .andExpect(jsonPath("$[0].ownerEmail").doesNotExist());
+    }
+
+    /**
+     * Verifiserer at en forespørsel uten token gir 401 uten at anmeldelser hentes.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void getOwnReviewsReturnsUnauthorizedWithoutToken() throws Exception {
+        mockMvc.perform(get("/api/me/reviews"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.error").value("Unauthorized"))
+                .andExpect(jsonPath("$.message").value("Du må være logget inn."));
+
+        verifyNoInteractions(reviewService);
+    }
+
+    /**
+     * Verifiserer at et ukjent eller utlogget token gir 401 uten at anmeldelser hentes.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void getOwnReviewsReturnsUnauthorizedForUnknownToken() throws Exception {
+        when(tokenService.findEmail("ukjent-token")).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/me/reviews").header("Authorization", "Bearer ukjent-token"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Du må være logget inn."));
+
+        verifyNoInteractions(reviewService);
+    }
+
+    /**
+     * Verifiserer at tokenet må sendes med «Bearer » foran, slik rest-api.md beskriver.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void getOwnReviewsRequiresBearerPrefix() throws Exception {
+        when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
+
+        mockMvc.perform(get("/api/me/reviews").header("Authorization", "token-123"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(reviewService);
     }
 }
