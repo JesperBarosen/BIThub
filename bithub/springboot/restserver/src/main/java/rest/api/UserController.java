@@ -6,7 +6,9 @@ import core.UserService;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,12 +16,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import rest.auth.TokenService;
 import rest.model.AuthResponse;
+import rest.model.ChangePasswordRequest;
 import rest.model.LoginRequest;
 import rest.model.OwnReviewResponse;
 import rest.model.RegisterRequest;
 
 /**
- * Endepunkter for å registrere og logge inn brukere, og for å hente egne anmeldelser.
+ * Endepunkter for registrering, innlogging og passordbytte, og for å hente egne anmeldelser.
  */
 @RestController
 @RequestMapping("/api")
@@ -72,6 +75,24 @@ public class UserController {
         User user = userService.login(request.email(), request.password())
                 .orElseThrow(InvalidCredentialsException::new);
         return AuthResponse.from(user, tokenService.createToken(user.getEmail()));
+    }
+
+    /**
+     * Bytter passordet til en bruker etter å ha sjekket det gamle passordet.
+     *
+     * <p>Foreløpig sjekkes ikke hvem som sender forespørselen. At bare eieren kan bytte sitt eget
+     * passord, kommer i (#176).
+     *
+     * @param email e-postadressen til brukeren
+     * @param request det gamle og det nye passordet
+     * @throws IllegalArgumentException hvis det gamle passordet er feil,
+     *                                  brukeren ikke finnes eller det nye er ugyldig
+     */
+    @PutMapping("/users/{email}/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changePassword(@PathVariable("email") String email,
+            @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(email, request.oldPassword(), request.newPassword());
     }
 
     /**

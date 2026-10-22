@@ -103,7 +103,7 @@ class UserServiceTest {
     @Test
     void registerRejectsInvalidEmail() {
         for (String email : new String[] { null, "", "   ", "ola", "ola@example",
-                "ola nordmann@example.com" }) {
+            "ola nordmann@example.com" }) {
             assertThrows(IllegalArgumentException.class,
                     () -> service.register("Ola Nordmann", email, "Passord123"));
         }

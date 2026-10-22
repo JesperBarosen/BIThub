@@ -1,10 +1,12 @@
 package rest.api;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -26,7 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import rest.auth.TokenService;
 
 /**
- * Tester registrering, innlogging og egne anmeldelser med falske tjenester,
+ * Tester registrering, innlogging, passordbytte og egne anmeldelser med falske tjenester,
  * uten fil og uten ekte server.
  */
 @WebMvcTest(UserController.class)
@@ -38,6 +40,9 @@ class UserControllerTest {
 
     private static final String LOGIN_BODY =
             "{\"email\":\"Ola@example.com\",\"password\":\"Passord123\"}";
+
+    private static final String CHANGE_PASSWORD_BODY =
+            "{\"oldPassword\":\"Passord123\",\"newPassword\":\"NyttPassord123\"}";
 
     @Autowired
     private MockMvc mockMvc;
@@ -167,6 +172,39 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.message").value("Feil e-post eller passord."));
 
         verifyNoInteractions(tokenService);
+    }
+
+    /**
+     * Verifiserer at passordbytte gir 204 uten innhold, og at e-posten fra stien og passordene
+     * sendes videre til core.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void changePasswordReturnsNoContent() throws Exception {
+        mockMvc.perform(put("/api/users/ola@example.com/password")
+                .contentType(MediaType.APPLICATION_JSON).content(CHANGE_PASSWORD_BODY))
+                .andExpect(status().isNoContent());
+
+        verify(userService).changePassword("ola@example.com", "Passord123", "NyttPassord123");
+    }
+
+    /**
+     * Verifiserer at feil gammelt passord gir 400 med meldingen fra core.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void changePasswordReturnsBadRequestForWrongOldPassword() throws Exception {
+        doThrow(new IllegalArgumentException("Det gamle passordet er feil.")).when(userService)
+                .changePassword("ola@example.com", "Passord123", "NyttPassord123");
+
+        mockMvc.perform(put("/api/users/ola@example.com/password")
+                .contentType(MediaType.APPLICATION_JSON).content(CHANGE_PASSWORD_BODY))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value("Det gamle passordet er feil."));
     }
 
     /**
