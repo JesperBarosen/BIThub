@@ -35,7 +35,7 @@ import org.springframework.test.context.DynamicPropertySource;
 /**
  * Integrasjonstester som starter hele serveren på en ledig port og sender ekte HTTP-forespørsler.
  *
- * <p>Serveren bruker ekte {@code ReviewService} og {@code ReviewHandler}, men skriver til filer i
+ * <p>Serveren bruker ekte tjenester i core og ekte lagring i file, men skriver til filer i
  * en midlertidig mappe, slik at testene aldri endrer dataene i {@code ~/.bithub}.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -76,6 +76,14 @@ class RestIntegrationTest {
         HttpRequest request = HttpRequest.newBuilder(uri(path))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json)).build();
+        return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private HttpResponse<String> put(String path, String json)
+            throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder(uri(path))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(json)).build();
         return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
@@ -233,5 +241,27 @@ class RestIntegrationTest {
             start.countDown();
             executor.shutdownNow();
         }
+    }
+
+    /**
+     * Verifiserer at et nytt passord lagres, slik at brukeren etterpå kan logge inn med det nye
+     * passordet, men ikke med det gamle.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void changedPasswordIsSavedAndUsedAtLogin() throws Exception {
+        String register = "{\"name\":\"Kari Nordmann\",\"email\":\"kari@example.com\","
+                + "\"password\":\"Passord123\"}";
+        assertEquals(201, post("/api/users", register).statusCode());
+
+        String change = "{\"oldPassword\":\"Passord123\",\"newPassword\":\"NyttPassord123\"}";
+        assertEquals(204, put("/api/users/kari@example.com/password", change).statusCode());
+
+        String newLogin = "{\"email\":\"kari@example.com\",\"password\":\"NyttPassord123\"}";
+        assertEquals(200, post("/api/login", newLogin).statusCode());
+
+        String oldLogin = "{\"email\":\"kari@example.com\",\"password\":\"Passord123\"}";
+        assertEquals(401, post("/api/login", oldLogin).statusCode());
     }
 }
