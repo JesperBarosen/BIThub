@@ -12,9 +12,12 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.SkrivAnmeldelseController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+   prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21"
+   xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.SkrivAnmeldelseController">
    <children>
-      <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar" stylesheets="@Style.css">
+      <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar"
+         stylesheets="@Style.css">
          <children>
             <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
             <Label alignment="CENTER" prefHeight="70.0" prefWidth="250.0" text="BIThub">
@@ -23,7 +26,8 @@
                </font>
             </Label>
             <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" styleClass="profil-knapp" stylesheets="@Style.css" text="👤">
+            <Button mnemonicParsing="false" styleClass="profil-knapp" stylesheets="@Style.css"
+               text="👤">
                <font>
                   <Font size="24.0" />
                </font>
@@ -38,7 +42,8 @@
             <Insets top="5.0" />
          </padding>
          <children>
-            <Label fx:id="emneTittelLabel" alignment="CENTER" prefHeight="207.0" prefWidth="400.0" text="Fagnavn" textAlignment="CENTER" wrapText="true" VBox.vgrow="ALWAYS">
+            <Label fx:id="emneTittelLabel" alignment="CENTER" prefHeight="207.0" prefWidth="400.0"
+               text="Fagnavn" textAlignment="CENTER" wrapText="true" VBox.vgrow="ALWAYS">
                <font>
                   <Font name="System Bold" size="28.0" />
                </font>
@@ -50,7 +55,8 @@
                         <Font size="24.0" />
                      </font>
                   </Label>
-                  <!--Rating La til id-->
+                  <!--Rating
+                  La til id-->
                   <TextField fx:id="ratingField" prefHeight="35.0" prefWidth="35.0" />
                   <Label text=" /5">
                      <font>
@@ -74,8 +80,10 @@
                   <Insets left="10.0" right="10.0" />
                </padding>
             </HBox>
-            <!--Kommentar La til prompt og id-->
-            <TextArea fx:id="commentArea" prefHeight="201.0" prefWidth="380.0" promptText="Skriv her..." VBox.vgrow="ALWAYS">
+            <!--Kommentar
+            La til prompt og id-->
+            <TextArea fx:id="commentArea" prefHeight="201.0" prefWidth="380.0"
+               promptText="Skriv her..." VBox.vgrow="ALWAYS">
                <VBox.margin>
                   <Insets left="10.0" right="10.0" />
                </VBox.margin>
@@ -106,16 +114,21 @@
             </HBox>
 
             <!-- Statuslabel for feil- og suksessmeldinger -->
-            <Label fx:id="statusLabel" alignment="CENTER" maxWidth="Infinity">
+            <Label fx:id="statusLabel" alignment="CENTER" maxWidth="Infinity"
+               minHeight="-Infinity" wrapText="true" textAlignment="CENTER">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
+               <VBox.margin>
+                  <Insets left="30.0" right="30.0" />
+               </VBox.margin>
             </Label>
 
             <HBox>
                <children>
                   <!-- La til onAction-->
-                  <Button fx:id="sendInnButton" mnemonicParsing="false" onAction="#handleSendInn" styleClass="send-inn-knapp" stylesheets="@Style.css" text="SEND INN">
+                  <Button fx:id="sendInnButton" mnemonicParsing="false" onAction="#handleSendInn"
+                     styleClass="send-inn-knapp" stylesheets="@Style.css" text="SEND INN">
                      <font>
                         <Font name="System Bold" size="18.0" />
                      </font>
@@ -130,15 +143,20 @@
             </HBox>
          </children>
       </VBox>
-      <HBox alignment="CENTER" prefHeight="70.0" prefWidth="200.0" styleClass="header-bar" stylesheets="@Style.css">
+      <HBox alignment="CENTER" prefHeight="70.0" prefWidth="200.0" styleClass="header-bar"
+         stylesheets="@Style.css">
          <children>
-            <Button fx:id="backButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleBack" styleClass="bunn-knapp" stylesheets="@Style.css" text="TILBAKE" HBox.hgrow="ALWAYS">
+            <Button fx:id="backButton" maxHeight="1.7976931348623157E308"
+               maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleBack"
+               styleClass="bunn-knapp" stylesheets="@Style.css" text="TILBAKE" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="System Bold" size="36.0" />
                </font>
             </Button>
             <Line endX="100.0" startX="100.0" startY="-67.57472229003906" />
-            <Button fx:id="homeButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleHome" styleClass="bunn-knapp" stylesheets="@Style.css" text="HJEM" HBox.hgrow="ALWAYS">
+            <Button fx:id="homeButton" maxHeight="1.7976931348623157E308"
+               maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleHome"
+               styleClass="bunn-knapp" stylesheets="@Style.css" text="HJEM" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>

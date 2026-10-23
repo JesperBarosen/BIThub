@@ -1,15 +1,24 @@
 package ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.Course;
 import core.Review;
+import core.ReviewRepository;
 import core.ReviewService;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.ConnectException;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,6 +29,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 /**
  * UI-tester for {@link LeseAnmeldelserController} ved bruk av TestFX.
@@ -32,6 +42,7 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
     private LeseAnmeldelserController controller;
     private InMemoryReviewRepository repository;
     private Parent root;
+    private Stage stage;
 
     /**
      * Laster LeseAnmeldelser.fxml og kobler kontrolleren til en tjeneste som lagrer i minnet.
@@ -41,6 +52,7 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
      */
     @Override
     public void start(Stage stage) throws IOException {
+        this.stage = stage;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("LeseAnmeldelser.fxml"));
         root = loader.load();
         controller = loader.getController();
@@ -60,11 +72,12 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
      * Verifiserer at emnenavn, gjennomsnitt, antall og anmeldelser fra lagringen vises på siden.
      */
     @Test
-    void showsStoredReviewsAndAverage() {
+    void showsStoredReviewsAndAverage() throws Exception {
         repository.addReview("IT1901", "Informatikk prosjektarbeid I", new Review("Ola", 5, "Bra"));
         repository.addReview("IT1901", "Informatikk prosjektarbeid I", new Review("Anonym", 2, ""));
 
         interact(() -> controller.setCourse(new Course("IT1901", "Informatikk prosjektarbeid I")));
+        awaitReviewsLoaded();
 
         assertEquals("IT1901 - Informatikk prosjektarbeid I", label("#courseTitleLabel").getText());
         assertEquals("3.50", label("#averageLabel").getText());
@@ -78,13 +91,125 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
      * Verifiserer at et emne uten anmeldelser viser 0 og en tom liste.
      */
     @Test
-    void showsEmptyCourse() {
+    void showsEmptyCourse() throws Exception {
         interact(() -> controller.setCourse(new Course("TDT4100", "Objektorientert")));
+        awaitReviewsLoaded();
 
         assertEquals("TDT4100 - Objektorientert", label("#courseTitleLabel").getText());
         assertEquals("0.00", label("#averageLabel").getText());
         assertEquals("0", label("#countLabel").getText());
         assertTrue(reviewList().getItems().isEmpty());
+    }
+
+
+    /**
+     * Kontrollerer lastetilstand og at JavaFX svarer mens hentingen er treg.
+     */
+    @Test
+    void showsLoadingStateWhileFetchingReviews() throws Exception {
+        DelayedReviewRepository delayedRepository = new DelayedReviewRepository();
+
+        try {
+            interact(() -> {
+                controller.setReviewService(new ReviewService(delayedRepository));
+                controller.setCourse(new Course("IT1901", "Informatikk prosjektarbeid I"));
+            });
+            assertTrue(delayedRepository.started.await(5, TimeUnit.SECONDS));
+
+            interact(() -> {
+                assertEquals("-", label("#averageLabel").getText());
+                assertEquals("-", label("#countLabel").getText());
+                assertEquals("Henter anmeldelser ...", placeholderText());
+                assertTrue(reviewList().getItems().isEmpty());
+                assertFalse(button("#backButton").isDisabled());
+                assertFalse(button("#homeButton").isDisabled());
+            });
+
+            Course loaded = new Course("IT1901", "Informatikk prosjektarbeid I");
+            loaded.addReview(new Review("Ola", 5, "Bra emne"));
+            delayedRepository.response.complete(Optional.of(loaded));
+            awaitReviewsLoaded();
+
+            interact(() -> {
+                assertEquals("5.00", label("#averageLabel").getText());
+                assertEquals("1", label("#countLabel").getText());
+                assertEquals("Ingen anmeldelser ennå.", placeholderText());
+                assertEquals(1, reviewList().getItems().size());
+            });
+        } finally {
+            delayedRepository.response.complete(Optional.empty());
+        }
+    }
+
+    /**
+     * Kontrollerer at utilgjengelig server gir forståelig feilmelding.
+     */
+    @Test
+    void showsErrorWhenServerIsUnavailable() throws Exception {
+        DelayedReviewRepository delayedRepository = new DelayedReviewRepository();
+
+        try {
+            interact(() -> {
+                controller.setReviewService(new ReviewService(delayedRepository));
+                controller.setCourse(new Course("IT1901", "Informatikk prosjektarbeid I"));
+            });
+            assertTrue(delayedRepository.started.await(5, TimeUnit.SECONDS));
+            delayedRepository.response.completeExceptionally(
+                    new UncheckedIOException(new ConnectException("Server utilgjengelig")));
+
+            WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
+                    () -> WaitForAsyncUtils.asyncFx(() ->
+                            "Kunne ikke lese anmeldelsene. Prøv igjen senere."
+                                    .equals(placeholderText())).get(5, TimeUnit.SECONDS));
+
+            interact(() -> {
+                assertEquals("-", label("#averageLabel").getText());
+                assertEquals("-", label("#countLabel").getText());
+                assertTrue(reviewList().getItems().isEmpty());
+                assertFalse(button("#backButton").isDisabled());
+                assertFalse(button("#homeButton").isDisabled());
+            });
+        } finally {
+            delayedRepository.response.complete(Optional.empty());
+        }
+    }
+
+    /**
+     * Kontrollerer at et sent serversvar ikke oppdaterer en forlatt skjerm.
+     */
+    @Test
+    void ignoresLateResponseAfterNavigation() throws Exception {
+        DelayedReviewRepository delayedRepository = new DelayedReviewRepository();
+
+        try {
+            interact(() -> {
+                controller.setReviewService(new ReviewService(delayedRepository));
+                controller.setCourse(new Course("IT1901", "Informatikk prosjektarbeid I"));
+            });
+            assertTrue(delayedRepository.started.await(5, TimeUnit.SECONDS));
+
+            interact(() -> {
+                button("#homeButton").fire();
+                assertNotSame(root, stage.getScene().getRoot());
+                assertNotNull(stage.getScene().getRoot().lookup("#writeReviewButton"));
+            });
+
+            Course lateResponse = new Course("IT1901", "Informatikk prosjektarbeid I");
+            lateResponse.addReview(new Review("Ola", 5, "Sent svar"));
+            delayedRepository.response.complete(Optional.of(lateResponse));
+            assertTrue(delayedRepository.finished.await(5, TimeUnit.SECONDS));
+            WaitForAsyncUtils.waitForFxEvents();
+
+            interact(() -> {
+                assertEquals("-", label("#averageLabel").getText());
+                assertEquals("-", label("#countLabel").getText());
+                assertTrue(reviewList().getItems().isEmpty());
+                assertEquals("Henter anmeldelser ...", placeholderText());
+                assertNotNull(stage.getScene().getRoot().lookup("#writeReviewButton"));
+            });
+        } finally {
+            delayedRepository.response.complete(Optional.empty());
+        }
     }
 
     /**
@@ -160,4 +285,55 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
     private Button button(String selector) {
         return (Button) root.lookup(selector);
     }
+
+    /**
+     * Venter til anmeldelsene er ferdig hentet og statistikken er oppdatert.
+     *
+     * @throws Exception hvis innlastingen ikke fullføres innen tidsgrensen
+     */
+    private void awaitReviewsLoaded() throws Exception {
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
+                () -> WaitForAsyncUtils.asyncFx(() -> !"-".equals(label("#countLabel").getText()))
+                        .get(5, TimeUnit.SECONDS));
+    }
+
+    private String placeholderText() {
+        return ((Label) reviewList().getPlaceholder()).getText();
+    }
+
+    /**
+     * Simulerer et forsinket svar fra lagringen uten en faktisk REST-server.
+     */
+    private static final class DelayedReviewRepository implements ReviewRepository {
+
+        private final CompletableFuture<Optional<Course>> response = new CompletableFuture<>();
+        private final CountDownLatch started = new CountDownLatch(1);
+        private final CountDownLatch finished = new CountDownLatch(1);
+
+        @Override
+        public Optional<Course> findCourse(String courseCode) {
+            started.countDown();
+            try {
+                return response.join();
+            } finally {
+                finished.countDown();
+            }
+        }
+
+        @Override
+        public List<Course> findAllCourses() {
+            throw new UnsupportedOperationException("Testen støtter bare henting av anmeldelser.");
+        }
+
+        @Override
+        public void addReview(String courseCode, String courseName, Review review) {
+            throw new UnsupportedOperationException("Testen støtter bare henting av anmeldelser.");
+        }
+
+        @Override
+        public void addCoursesIfMissing(List<Course> courses) {
+            throw new UnsupportedOperationException("Testen støtter bare henting av anmeldelser.");
+        }
+    }
+
 }

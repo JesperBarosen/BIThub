@@ -32,6 +32,9 @@ public class SkrivAnmeldelseController {
     private Label statusLabel;
 
     @FXML
+    private Button sendInnButton;
+
+    @FXML
     private Button backButton;
 
     @FXML
@@ -41,6 +44,19 @@ public class SkrivAnmeldelseController {
     private String courseName = "";
     private ReviewService reviewService;
     private Navigation navigation;
+
+    private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
+
+    /**
+     * Deaktiverer innsending og redigering mens en anmeldelse sendes.
+     */
+    @FXML
+    private void initialize() {
+        sendInnButton.disableProperty().bind(taskRunner.runningProperty());
+        ratingField.disableProperty().bind(taskRunner.runningProperty());
+        commentArea.disableProperty().bind(taskRunner.runningProperty());
+        anonymousCheckBox.disableProperty().bind(taskRunner.runningProperty());
+    }
 
     /**
      * Setter tjenesten kontrolleren skal bruke når brukeren sender inn en anmeldelse. Kontrolleren
@@ -96,30 +112,55 @@ public class SkrivAnmeldelseController {
         emneTittelLabel.setText(courseCode + " - " + courseName);
     }
 
+    /**
+     * Sender anmeldelsen i bakgrunnen uten å blokkere JavaFX-tråden.
+     *
+     * <p>Skjemainnholdet beholdes ved feil og tømmes først etter bekreftet innsending.
+     */
     @FXML
     private void handleSendInn() {
-        String reviewerName = anonymousCheckBox.isSelected() ? "Anonym" : "Student";
-
-        try {
-            reviewService.submitReview(courseCode, courseName, reviewerName, ratingField.getText(),
-                    commentArea.getText());
-
-            showSuccessMessage("Vurderingen ble sendt inn!");
-            clearFields();
-        } catch (IllegalArgumentException e) {
-            showErrorMessage(e.getMessage());
-        } catch (RuntimeException e) {
-            showErrorMessage("Kunne ikke lagre anmeldelsen. Sjekk at serveren kjører.");
+        if (taskRunner.runningProperty().get()) {
+            return;
         }
+
+        String reviewerName = anonymousCheckBox.isSelected() ? "Anonym" : "Student";
+        String selectedCourseCode = courseCode;
+        String selectedCourseName = courseName;
+        String rating = ratingField.getText();
+        String comment = commentArea.getText();
+
+        statusLabel.setTextFill(Color.BLACK);
+        statusLabel.setText("Sender anmeldelsen ...");
+
+        taskRunner.execute(() -> reviewService.submitReview(selectedCourseCode, selectedCourseName,
+                reviewerName, rating, comment), review -> {
+                    showSuccessMessage("Vurderingen ble sendt inn!");
+                    clearFields();
+                }, error -> {
+                    if (error instanceof IllegalArgumentException) {
+                        showErrorMessage(error.getMessage());
+                    } else {
+                        showErrorMessage("Kunne ikke bekrefte at anmeldelsen ble lagret. "
+                                + "Prøv igjen senere.");
+                    }
+                });
     }
 
+    /**
+     * Avbryter ventingen og går tilbake til emnevalget.
+     */
     @FXML
     private void handleBack() {
+        taskRunner.cancel();
         navigation.showCourseSelection(backButton);
     }
 
+    /**
+     * Avbryter ventingen og går til hjemmesiden.
+     */
     @FXML
     private void handleHome() {
+        taskRunner.cancel();
         navigation.showHome(homeButton);
     }
 

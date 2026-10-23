@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import core.Course;
 import core.DefaultCourses;
 import core.ReviewService;
+import java.util.concurrent.TimeUnit;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -17,6 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 /**
  * Tester navigasjonen i de nye FXML-skjermbildene.
@@ -47,8 +49,9 @@ class NewNavigationTest extends ApplicationTest {
     }
 
     @Test
-    void canChooseCourseAndReturnHome() {
+    void canChooseCourseAndReturnHome() throws Exception {
         interact(() -> button("#writeReviewButton").fire());
+        awaitCoursesLoaded();
 
         @SuppressWarnings("unchecked")
         ComboBox<Course> courseComboBox = (ComboBox<Course>) stage.getScene().getRoot()
@@ -75,6 +78,7 @@ class NewNavigationTest extends ApplicationTest {
     @Test
     void unimplementedPageShowsPlaceholder() {
         interact(() -> button("#myReviewsButton").fire());
+
         Label heading = (Label) stage.getScene().getRoot().lookup("#placeholderHeading");
         assertEquals("Mine anmeldelser", heading.getText());
     }
@@ -84,23 +88,31 @@ class NewNavigationTest extends ApplicationTest {
      * for å lese anmeldelser.
      */
     @Test
-    void writtenReviewIsShownWhenReading() {
+    void writtenReviewIsShownWhenReading() throws Exception {
         interact(() -> button("#writeReviewButton").fire());
+        awaitCoursesLoaded();
+
         interact(() -> {
             courseComboBox().getSelectionModel().select(4);
             button("#nextButton").fire();
         });
+
         interact(() -> {
             ((TextField) stage.getScene().getRoot().lookup("#ratingField")).setText("4");
             button("#sendInnButton").fire();
-            button("#homeButton").fire();
         });
+        awaitReviewSaved();
+        interact(() -> button("#homeButton").fire());
 
         interact(() -> button("#readReviewsButton").fire());
+        awaitCoursesLoaded();
+
         interact(() -> {
             courseComboBox().getSelectionModel().select(4);
             button("#nextButton").fire();
         });
+
+        awaitReviewsLoaded();
 
         assertEquals("IT1901 - Informatikk prosjektarbeid I", label("#courseTitleLabel").getText());
         assertEquals("4.00", label("#averageLabel").getText());
@@ -123,5 +135,42 @@ class NewNavigationTest extends ApplicationTest {
 
     private Button button(String selector) {
         return (Button) stage.getScene().getRoot().lookup(selector);
+    }
+
+    /**
+     * Venter til standardemnene er lastet og emnevelgeren er tilgjengelig.
+     */
+    private void awaitCoursesLoaded() throws Exception {
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> WaitForAsyncUtils.asyncFx(() -> {
+            ComboBox<Course> comboBox = courseComboBox();
+            return comboBox != null && !comboBox.isDisabled()
+                    && comboBox.getItems().size() == DefaultCourses.all().size();
+        }).get(5, TimeUnit.SECONDS));
+    }
+
+    /**
+     * Venter på bekreftet lagring før testen navigerer bort fra skjemaet.
+     */
+    private void awaitReviewSaved() throws Exception {
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> WaitForAsyncUtils.asyncFx(() -> {
+            Label status = label("#statusLabel");
+            return status != null && "Vurderingen ble sendt inn!".equals(status.getText());
+        }).get(5, TimeUnit.SECONDS));
+    }
+
+    /**
+     * Venter til vurderingen er hentet og vises på anmeldelsessiden.
+     */
+    private void awaitReviewsLoaded() throws Exception {
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> WaitForAsyncUtils.asyncFx(() -> {
+            Label average = label("#averageLabel");
+            Label count = label("#countLabel");
+            ListView<?> reviews =
+                    (ListView<?>) stage.getScene().getRoot().lookup("#reviewList");
+            return average != null && count != null && reviews != null
+                    && "4.00".equals(average.getText())
+                    && "1".equals(count.getText())
+                    && reviews.getItems().size() == 1;
+        }).get(5, TimeUnit.SECONDS));
     }
 }

@@ -41,23 +41,34 @@ public class VelgFagController {
     private void initialize() {
         courseComboBox.setButtonCell(courseCell());
         courseComboBox.setCellFactory(listView -> courseCell());
+
+        courseComboBox.disableProperty().bind(taskRunner.runningProperty());
+        nextButton.disableProperty()
+                .bind(taskRunner.runningProperty().or(courseComboBox.valueProperty().isNull()));
     }
 
+    private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
+
     /**
-     * Setter lagringen som emnene hentes fra, og fyller nedtrekkslisten med alle emnene, også de
-     * uten anmeldelser.
+     * Setter lagringen og henter emnene i bakgrunnen, også de uten anmeldelser.
+     *
+     * <p>En eventuell tidligere henting avbrytes før den nye starter.
      *
      * @param reviewRepository lagringen for emner og anmeldelser
      * @throws NullPointerException hvis reviewRepository er null
      */
     public void setReviewRepository(ReviewRepository reviewRepository) {
         Objects.requireNonNull(reviewRepository);
-        try {
-            courseComboBox.setItems(
-                    FXCollections.observableArrayList(reviewRepository.findAllCourses()));
-        } catch (UncheckedIOException e) {
-            statusLabel.setText("Kunne ikke lese emnene. Prøv igjen senere.");
-        }
+        taskRunner.cancel();
+
+        courseComboBox.getSelectionModel().clearSelection();
+        courseComboBox.getItems().clear();
+        statusLabel.setText("Henter emner …");
+
+        taskRunner.execute(() -> reviewRepository.findAllCourses(), courses -> {
+            courseComboBox.setItems(FXCollections.observableArrayList(courses));
+            statusLabel.setText(courses.isEmpty() ? "Ingen emner er tilgjengelige." : "");
+        }, error -> statusLabel.setText("Kunne ikke hente emnene. Prøv igjen senere."));
     }
 
     /**
@@ -83,21 +94,29 @@ public class VelgFagController {
 
     @FXML
     private void handleNext() {
+        if (taskRunner.runningProperty().get()) {
+            return;
+        }
+
         Course selectedCourse = courseComboBox.getValue();
         if (selectedCourse == null) {
             statusLabel.setText("Velg et fag først.");
             return;
         }
+
+        taskRunner.cancel();
         onCourseSelected.accept(nextButton, selectedCourse);
     }
 
     @FXML
     private void handleBack() {
+        taskRunner.cancel();
         navigation.showHome(backButton);
     }
 
     @FXML
     private void handleHome() {
+        taskRunner.cancel();
         navigation.showHome(homeButton);
     }
 

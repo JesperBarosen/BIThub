@@ -1,9 +1,19 @@
+
 package ui;
 
 import core.Course;
 import core.Review;
+import core.ReviewRepository;
 import core.ReviewService;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.ConnectException;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -18,6 +28,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 
 /**
  * Enhetstester og UI-tester for {@link SkrivAnmeldelseController} ved bruk av TestFX.
@@ -106,15 +117,18 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
      */
     @Test
     @DisplayName("Skal vise feilmelding dersom rating ikke er et gyldig tall")
-    void testHandleSendInnInvalidNumber() {
+    void testHandleSendInnInvalidNumber() throws Exception {
         TextField ratingField = (TextField) root.lookup("#ratingField");
         interact(() -> ratingField.setText("abc"));
 
         sendInn();
+        awaitStatusMessage("Vurdering må være et gyldig tall.");
 
-        Label statusLabel = (Label) root.lookup("#statusLabel");
-        Assertions.assertEquals("Vurdering må være et gyldig tall.", statusLabel.getText());
-        Assertions.assertEquals(Color.RED, statusLabel.getTextFill());
+        interact(() -> {
+            Label statusLabel = (Label) root.lookup("#statusLabel");
+            Assertions.assertEquals("Vurdering må være et gyldig tall.", statusLabel.getText());
+            Assertions.assertEquals(Color.RED, statusLabel.getTextFill());
+        });
     }
 
     /**
@@ -122,22 +136,32 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
      */
     @Test
     @DisplayName("Skal vise feilmelding dersom rating er utenfor intervallet 1-5")
-    void testHandleSendInnOutOfRangeNumber() {
+    void testHandleSendInnOutOfRangeNumber() throws Exception {
         TextField ratingField = (TextField) root.lookup("#ratingField");
 
         // Test rating for lav (0)
         interact(() -> ratingField.setText("0"));
         sendInn();
+        awaitStatusMessage("Vurdering må være et tall fra 1 til 5.");
 
-        Label statusLabel = (Label) root.lookup("#statusLabel");
-        Assertions.assertEquals("Vurdering må være et tall fra 1 til 5.", statusLabel.getText());
-        Assertions.assertEquals(Color.RED, statusLabel.getTextFill());
+        interact(() -> {
+            Label statusLabel = (Label) root.lookup("#statusLabel");
+            Assertions.assertEquals("Vurdering må være et tall fra 1 til 5.",
+                    statusLabel.getText());
+            Assertions.assertEquals(Color.RED, statusLabel.getTextFill());
+        });
 
         // Test rating for høy (6)
         interact(() -> ratingField.setText("6"));
         sendInn();
-        Assertions.assertEquals("Vurdering må være et tall fra 1 til 5.", statusLabel.getText());
-        Assertions.assertEquals(Color.RED, statusLabel.getTextFill());
+        awaitStatusMessage("Vurdering må være et tall fra 1 til 5.");
+
+        interact(() -> {
+            Label statusLabel = (Label) root.lookup("#statusLabel");
+            Assertions.assertEquals("Vurdering må være et tall fra 1 til 5.",
+                    statusLabel.getText());
+            Assertions.assertEquals(Color.RED, statusLabel.getTextFill());
+        });
     }
 
     /**
@@ -145,7 +169,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
      */
     @Test
     @DisplayName("Skal lagre vurdering vellykket med anonym avhuking og nullstille felter")
-    void testHandleSendInnSuccessAnonymous() {
+    void testHandleSendInnSuccessAnonymous() throws Exception {
         interact(() -> controller.setEmneData("TDT4120 - Algoritmer og datastrukturer"));
 
         TextField ratingField = (TextField) root.lookup("#ratingField");
@@ -159,15 +183,18 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
         });
 
         sendInn();
+        awaitStatusMessage("Vurderingen ble sendt inn!");
 
-        Label statusLabel = (Label) root.lookup("#statusLabel");
-        Assertions.assertEquals("Vurderingen ble sendt inn!", statusLabel.getText());
-        Assertions.assertEquals(Color.GREEN, statusLabel.getTextFill());
+        interact(() -> {
+            Label statusLabel = (Label) root.lookup("#statusLabel");
+            Assertions.assertEquals("Vurderingen ble sendt inn!", statusLabel.getText());
+            Assertions.assertEquals(Color.GREEN, statusLabel.getTextFill());
 
-        // Verifiser at feltene er tømt etter at vurderingen er sendt inn
-        Assertions.assertEquals("", ratingField.getText());
-        Assertions.assertEquals("", commentArea.getText());
-        Assertions.assertFalse(anonymousCheckBox.isSelected());
+            // Verifiser at feltene er tømt etter at vurderingen er sendt inn.
+            Assertions.assertEquals("", ratingField.getText());
+            Assertions.assertEquals("", commentArea.getText());
+            Assertions.assertFalse(anonymousCheckBox.isSelected());
+        });
 
         // Les fra lagringen for å kontrollere hva som faktisk ble lagret.
         Assertions.assertEquals(1, repository.findAllCourses().size());
@@ -185,7 +212,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
      */
     @Test
     @DisplayName("Skal lagre vurdering vellykket som ikke-anonym student")
-    void testHandleSendInnSuccessNonAnonymous() {
+    void testHandleSendInnSuccessNonAnonymous() throws Exception {
         interact(() -> controller.setEmneData("TDT4100 - Objektorientert programmering"));
 
         TextField ratingField = (TextField) root.lookup("#ratingField");
@@ -199,10 +226,13 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
         });
 
         sendInn();
+        awaitStatusMessage("Vurderingen ble sendt inn!");
 
-        Label statusLabel = (Label) root.lookup("#statusLabel");
-        Assertions.assertEquals("Vurderingen ble sendt inn!", statusLabel.getText());
-        Assertions.assertEquals(Color.GREEN, statusLabel.getTextFill());
+        interact(() -> {
+            Label statusLabel = (Label) root.lookup("#statusLabel");
+            Assertions.assertEquals("Vurderingen ble sendt inn!", statusLabel.getText());
+            Assertions.assertEquals(Color.GREEN, statusLabel.getTextFill());
+        });
 
         // Les fra lagringen for å kontrollere hva som faktisk ble lagret.
         Assertions.assertEquals(1, repository.findAllCourses().size());
@@ -215,6 +245,9 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
         Assertions.assertEquals("Moro prosjekt.", review.getComment());
     }
 
+    /**
+     * Utfører innsending gjennom FXML-handlingen.
+     */
     private void sendInn() {
         // Tester FXML-handlingen uten å være avhengig av museklikk eller vindusfokus.
         interact(() -> {
@@ -223,5 +256,196 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
             Assertions.assertFalse(button.isDisabled());
             button.fire();
         });
+    }
+
+    /**
+     * Venter til den forventede statusmeldingen vises og innsendingen er ferdig.
+     *
+     * @param expectedMessage meldingen som forventes etter innsending
+     * @throws Exception hvis innsendingen ikke avsluttes innen tidsgrensen
+     */
+    private void awaitStatusMessage(String expectedMessage) throws Exception {
+        Label statusLabel = (Label) root.lookup("#statusLabel");
+        Button sendButton = (Button) root.lookup("#sendInnButton");
+
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> WaitForAsyncUtils.asyncFx(
+                () -> expectedMessage.equals(statusLabel.getText()) && !sendButton.isDisabled())
+                .get(5, TimeUnit.SECONDS));
+    }
+
+    /**
+     * Tester at treg lagring ikke blokkerer JavaFX eller tillater dobbel innsending.
+     */
+    @Test
+    @DisplayName("Skal deaktivere innsending mens lagringen pågår")
+    void disablesSubmissionWhileSaving() throws Exception {
+        DelayedReviewRepository delayedRepository = new DelayedReviewRepository();
+
+        interact(() -> {
+            controller.setReviewService(new ReviewService(delayedRepository));
+            controller.setEmneData("IT1901 - Informatikk prosjektarbeid I");
+            ((TextField) root.lookup("#ratingField")).setText("5");
+            ((TextArea) root.lookup("#commentArea")).setText("Bra emne");
+        });
+
+        try {
+            sendInn();
+            Assertions.assertTrue(delayedRepository.started.await(5, TimeUnit.SECONDS));
+
+            interact(() -> {
+                Button sendButton = (Button) root.lookup("#sendInnButton");
+
+                Assertions.assertTrue(sendButton.isDisabled());
+                Assertions.assertTrue(root.lookup("#ratingField").isDisabled());
+                Assertions.assertTrue(root.lookup("#commentArea").isDisabled());
+                Assertions.assertTrue(root.lookup("#anonymousCheckBox").isDisabled());
+
+                Assertions.assertFalse(root.lookup("#backButton").isDisabled());
+                Assertions.assertFalse(root.lookup("#homeButton").isDisabled());
+
+                Assertions.assertEquals("Sender anmeldelsen ...",
+                        ((Label) root.lookup("#statusLabel")).getText());
+
+                sendButton.fire();
+            });
+
+            Assertions.assertEquals(1, delayedRepository.submissions.get());
+
+            delayedRepository.release.complete(null);
+            awaitStatusMessage("Vurderingen ble sendt inn!");
+
+            Assertions.assertEquals(1, delayedRepository.submissions.get());
+            Assertions.assertEquals(1,
+                    delayedRepository.findCourse("IT1901").orElseThrow().getReviews().size());
+        } finally {
+            delayedRepository.release.complete(null);
+        }
+    }
+
+    /**
+     * Kontrollerer at nettverksfeil ikke fjerner brukerens skjemainnhold.
+     */
+    @Test
+    @DisplayName("Skal beholde skjemainnhold og aktivere innsending ved feil")
+    void preservesInputWhenSubmissionFails() throws Exception {
+        DelayedReviewRepository delayedRepository = new DelayedReviewRepository();
+
+        interact(() -> {
+            controller.setReviewService(new ReviewService(delayedRepository));
+            controller.setEmneData("IT1901 - Informatikk prosjektarbeid I");
+            ((TextField) root.lookup("#ratingField")).setText("4");
+            ((TextArea) root.lookup("#commentArea")).setText("Bra emne");
+            ((CheckBox) root.lookup("#anonymousCheckBox")).setSelected(true);
+        });
+
+        try {
+            sendInn();
+            Assertions.assertTrue(delayedRepository.started.await(5, TimeUnit.SECONDS));
+            delayedRepository.release.completeExceptionally(
+                    new UncheckedIOException(new ConnectException("Serveren svarer ikke.")));
+
+            awaitStatusMessage(
+                    "Kunne ikke bekrefte at anmeldelsen ble lagret. " + "Prøv igjen senere.");
+
+            interact(() -> {
+                Assertions.assertEquals("4", ((TextField) root.lookup("#ratingField")).getText());
+                Assertions.assertEquals("Bra emne",
+                        ((TextArea) root.lookup("#commentArea")).getText());
+                Assertions.assertTrue(((CheckBox) root.lookup("#anonymousCheckBox")).isSelected());
+                Assertions.assertFalse(root.lookup("#sendInnButton").isDisabled());
+                Assertions.assertFalse(root.lookup("#ratingField").isDisabled());
+                Assertions.assertFalse(root.lookup("#commentArea").isDisabled());
+                Assertions.assertEquals(Color.RED,
+                        ((Label) root.lookup("#statusLabel")).getTextFill());
+            });
+
+            Assertions.assertTrue(delayedRepository.findAllCourses().isEmpty());
+        } finally {
+            delayedRepository.release.complete(null);
+        }
+    }
+
+    /**
+     * Kontrollerer at en gammel respons ikke oppdaterer en forlatt side.
+     */
+    @Test
+    @DisplayName("Skal ignorere forsinket svar etter navigering til hjem")
+    void ignoresLateResponseAfterNavigation() throws Exception {
+        DelayedReviewRepository delayedRepository = new DelayedReviewRepository();
+
+        interact(() -> {
+            controller.setReviewService(new ReviewService(delayedRepository));
+            controller.setNavigation(new Navigation(new ReviewService(repository), repository));
+            controller.setEmneData("IT1901 - Informatikk prosjektarbeid I");
+            ((TextField) root.lookup("#ratingField")).setText("5");
+            ((TextArea) root.lookup("#commentArea")).setText("Bra emne");
+        });
+
+        try {
+            sendInn();
+            Assertions.assertTrue(delayedRepository.started.await(5, TimeUnit.SECONDS));
+
+            interact(() -> {
+                Button homeButton = (Button) root.lookup("#homeButton");
+                Stage stage = (Stage) homeButton.getScene().getWindow();
+                homeButton.fire();
+                Assertions.assertNotSame(root, stage.getScene().getRoot());
+                Assertions.assertNotNull(stage.getScene().getRoot().lookup("#writeReviewButton"));
+            });
+
+            // Serveren kan fullføre lagringen selv om klienten har navigert bort.
+            delayedRepository.release.complete(null);
+            Assertions.assertTrue(delayedRepository.finished.await(5, TimeUnit.SECONDS));
+            WaitForAsyncUtils.waitForFxEvents();
+
+            interact(() -> {
+                Assertions.assertEquals("Sender anmeldelsen ...",
+                        ((Label) root.lookup("#statusLabel")).getText());
+                Assertions.assertEquals("5", ((TextField) root.lookup("#ratingField")).getText());
+                Assertions.assertEquals("Bra emne",
+                        ((TextArea) root.lookup("#commentArea")).getText());
+            });
+        } finally {
+            delayedRepository.release.complete(null);
+        }
+    }
+
+    /**
+     * Simulerer treg lagring uten å bruke en faktisk REST-server.
+     */
+    private static final class DelayedReviewRepository implements ReviewRepository {
+
+        private final InMemoryReviewRepository delegate = new InMemoryReviewRepository();
+        private final CountDownLatch started = new CountDownLatch(1);
+        private final CompletableFuture<Void> release = new CompletableFuture<>();
+        private final AtomicInteger submissions = new AtomicInteger();
+        private final CountDownLatch finished = new CountDownLatch(1);
+
+        @Override
+        public void addReview(String courseCode, String courseName, Review review) {
+            submissions.incrementAndGet();
+            started.countDown();
+            try {
+                release.join();
+                delegate.addReview(courseCode, courseName, review);
+            } finally {
+                finished.countDown();
+            }
+        }
+
+        @Override
+        public Optional<Course> findCourse(String courseCode) {
+            return delegate.findCourse(courseCode);
+        }
+
+        @Override
+        public List<Course> findAllCourses() {
+            return delegate.findAllCourses();
+        }
+
+        @Override
+        public void addCoursesIfMissing(List<Course> courses) {
+            delegate.addCoursesIfMissing(courses);
+        }
     }
 }
