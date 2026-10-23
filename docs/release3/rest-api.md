@@ -23,7 +23,7 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 | POST | `/api/users` | Registrere bruker | Nei | Ferdig (#174) |
 | POST | `/api/login` | Logge inn | Nei | Ferdig (#174) |
 | POST | `/api/logout` | Logge ut | Ja | Implementert i #176 |
-| PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll i (#176) |
+| PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll implementert i #176 |
 | GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174) |
 
 ## Innlogging og token
@@ -256,7 +256,9 @@ Svar `204`. Feil: `401`.
 
 ### PUT `/api/users/{email}/password`
 
-Bytter passord. E-posten i stien må tilhøre den innloggede brukeren.
+Bytter eget passord og krever `Authorization: Bearer <token>`. Serveren finner brukeren
+fra tokenet og kontrollerer at e-posten i stien tilhører samme bruker. Store og små
+bokstaver i e-postadressen behandles likt. Tilgangskontrollen skjer før passordet endres.
 
 Forespørsel:
 
@@ -269,7 +271,8 @@ Forespørsel:
 
 Svar `204`.
 
-Feil: `400` hvis det nye passordet er ugyldig eller det gamle er feil, `401`, `403` hvis e-posten tilhører en annen bruker.
+Feil: `400` hvis det nye passordet er ugyldig eller det gamle er feil, `401` hvis tokenet
+mangler, er ugyldig eller er logget ut, `403` hvis e-posten tilhører en annen bruker.
 
 ### GET `/api/me/reviews`
 

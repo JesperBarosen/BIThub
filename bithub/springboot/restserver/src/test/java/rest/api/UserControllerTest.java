@@ -221,16 +221,21 @@ class UserControllerTest {
     }
 
     /**
-     * Verifiserer at passordbytte gir 204 uten innhold, og at e-posten fra stien og passordene
-     * sendes videre til core.
+     * Verifiserer at eget passord kan byttes, og at core får identiteten fra tokenet.
      *
+     * @param email e-post i stien, med ulike store og små bokstaver
      * @throws Exception hvis forespørselen feiler
      */
-    @Test
-    void changePasswordReturnsNoContent() throws Exception {
-        mockMvc.perform(put("/api/users/ola@example.com/password")
+    @ParameterizedTest
+    @ValueSource(strings = {"ola@example.com", "OLA@EXAMPLE.COM"})
+    void changePasswordReturnsNoContent(String email) throws Exception {
+        when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
+
+        mockMvc.perform(put("/api/users/{email}/password", email)
+                .header("Authorization", "Bearer token-123")
                 .contentType(MediaType.APPLICATION_JSON).content(CHANGE_PASSWORD_BODY))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
 
         verify(userService).changePassword("ola@example.com", "Passord123", "NyttPassord123");
     }
@@ -242,15 +247,51 @@ class UserControllerTest {
      */
     @Test
     void changePasswordReturnsBadRequestForWrongOldPassword() throws Exception {
+        when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
         doThrow(new IllegalArgumentException("Det gamle passordet er feil.")).when(userService)
                 .changePassword("ola@example.com", "Passord123", "NyttPassord123");
 
         mockMvc.perform(put("/api/users/ola@example.com/password")
+                .header("Authorization", "Bearer token-123")
                 .contentType(MediaType.APPLICATION_JSON).content(CHANGE_PASSWORD_BODY))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("Bad Request"))
                 .andExpect(jsonPath("$.message").value("Det gamle passordet er feil."));
+    }
+
+    @Test
+    void changePasswordRejectsAnotherUsersEmail() throws Exception {
+        when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
+
+        mockMvc.perform(put("/api/users/kari@example.com/password")
+                .header("Authorization", "Bearer token-123")
+                .contentType(MediaType.APPLICATION_JSON).content(CHANGE_PASSWORD_BODY))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.error").value("Forbidden"))
+                .andExpect(jsonPath("$.message")
+                        .value("Du har ikke tilgang til å gjøre denne endringen."));
+
+        verifyNoInteractions(userService, reviewService);
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"Bearer ukjent-token", "token-123", "Bearer "})
+    void changePasswordRequiresValidToken(String authorization) throws Exception {
+        var request = put("/api/users/ola@example.com/password")
+                .contentType(MediaType.APPLICATION_JSON).content(CHANGE_PASSWORD_BODY);
+        if (authorization != null) {
+            request.header("Authorization", authorization);
+        }
+
+        mockMvc.perform(request)
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.error").value("Unauthorized"));
+
+        verifyNoInteractions(userService, reviewService);
     }
 
     /**

@@ -96,21 +96,27 @@ public class UserController {
     }
 
     /**
-     * Bytter passordet til en bruker etter å ha sjekket det gamle passordet.
-     *
-     * <p>Foreløpig sjekkes ikke hvem som sender forespørselen. At bare eieren kan bytte sitt eget
-     * passord, kommer i (#176).
+     * Bytter eget passord etter å ha kontrollert tokenet og det gamle passordet.
      *
      * @param email e-postadressen til brukeren
      * @param request det gamle og det nye passordet
+     * @param authorization headeren med innloggingstokenet, eller null
+     * @throws NotLoggedInException hvis innloggingen mangler eller er ugyldig
+     * @throws ForbiddenException hvis e-posten i stien tilhører en annen bruker
      * @throws IllegalArgumentException hvis det gamle passordet er feil,
      *                                  brukeren ikke finnes eller det nye er ugyldig
      */
     @PutMapping("/users/{email}/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@PathVariable("email") String email,
-            @RequestBody ChangePasswordRequest request) {
-        userService.changePassword(email, request.oldPassword(), request.newPassword());
+            @RequestBody ChangePasswordRequest request,
+            @RequestHeader(name = "Authorization", required = false) String authorization) {
+        String authenticatedEmail = authenticationService.requireEmail(authorization);
+        if (!authenticatedEmail.equalsIgnoreCase(email.trim())) {
+            throw new ForbiddenException();
+        }
+        userService.changePassword(authenticatedEmail,
+                request.oldPassword(), request.newPassword());
     }
 
     /**

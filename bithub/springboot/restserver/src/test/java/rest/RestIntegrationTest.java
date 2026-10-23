@@ -79,10 +79,11 @@ class RestIntegrationTest {
         return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    private HttpResponse<String> put(String path, String json)
+    private HttpResponse<String> put(String path, String json, String token)
             throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder(uri(path))
                 .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + token)
                 .PUT(HttpRequest.BodyPublishers.ofString(json)).build();
         return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
     }
@@ -116,6 +117,12 @@ class RestIntegrationTest {
         assertEquals(401, denied.statusCode());
         assertEquals(401, MAPPER.readTree(denied.body()).get("status").asInt());
         assertEquals(401, CLIENT.send(logout, HttpResponse.BodyHandlers.ofString()).statusCode());
+
+        String change = "{\"oldPassword\":\"Passord123\",\"newPassword\":\"NyttPassord123\"}";
+        assertEquals(401,
+                put("/api/users/logout@example.com/password", change, token).statusCode());
+        String login = "{\"email\":\"logout@example.com\",\"password\":\"Passord123\"}";
+        assertEquals(200, post("/api/login", login).statusCode());
     }
 
     private URI uri(String path) {
@@ -284,15 +291,44 @@ class RestIntegrationTest {
     void changedPasswordIsSavedAndUsedAtLogin() throws Exception {
         String register = "{\"name\":\"Kari Nordmann\",\"email\":\"kari@example.com\","
                 + "\"password\":\"Passord123\"}";
-        assertEquals(201, post("/api/users", register).statusCode());
+        HttpResponse<String> registered = post("/api/users", register);
+        assertEquals(201, registered.statusCode());
+        String token = MAPPER.readTree(registered.body()).get("token").asText();
 
         String change = "{\"oldPassword\":\"Passord123\",\"newPassword\":\"NyttPassord123\"}";
-        assertEquals(204, put("/api/users/kari@example.com/password", change).statusCode());
+        assertEquals(204, put("/api/users/kari@example.com/password", change, token).statusCode());
 
         String newLogin = "{\"email\":\"kari@example.com\",\"password\":\"NyttPassord123\"}";
         assertEquals(200, post("/api/login", newLogin).statusCode());
 
         String oldLogin = "{\"email\":\"kari@example.com\",\"password\":\"Passord123\"}";
         assertEquals(401, post("/api/login", oldLogin).statusCode());
+    }
+
+    /**
+     * Avviser bruker A selv om forespørselen inneholder bruker Bs riktige gamle passord.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void anotherUsersTokenCannotChangePassword() throws Exception {
+        String first = "{\"name\":\"Bruker A\",\"email\":\"user-a@example.com\","
+                + "\"password\":\"Passord123\"}";
+        HttpResponse<String> registered = post("/api/users", first);
+        assertEquals(201, registered.statusCode());
+        final String token = MAPPER.readTree(registered.body()).get("token").asText();
+        String second = "{\"name\":\"Bruker B\",\"email\":\"user-b@example.com\","
+                + "\"password\":\"Passord123\"}";
+        assertEquals(201, post("/api/users", second).statusCode());
+
+        String change = "{\"oldPassword\":\"Passord123\",\"newPassword\":\"NyttPassord123\"}";
+        HttpResponse<String> denied = put("/api/users/user-b@example.com/password", change, token);
+        assertEquals(403, denied.statusCode());
+        assertEquals(403, MAPPER.readTree(denied.body()).get("status").asInt());
+
+        String oldLogin = "{\"email\":\"user-b@example.com\",\"password\":\"Passord123\"}";
+        assertEquals(200, post("/api/login", oldLogin).statusCode());
+        String newLogin = "{\"email\":\"user-b@example.com\",\"password\":\"NyttPassord123\"}";
+        assertEquals(401, post("/api/login", newLogin).statusCode());
     }
 }
