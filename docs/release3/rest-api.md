@@ -22,7 +22,7 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 | DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Planlagt i sprint 2 |
 | POST | `/api/users` | Registrere bruker | Nei | Ferdig (#174) |
 | POST | `/api/login` | Logge inn | Nei | Ferdig (#174) |
-| POST | `/api/logout` | Logge ut | Ja | Planlagt i sprint 2 |
+| POST | `/api/logout` | Logge ut | Ja | Implementert i #176 |
 | PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll i (#176) |
 | GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174) |
 
@@ -250,7 +250,7 @@ Feil: `401` ved feil e-post eller passord. Svaret sier ikke hvilken av dem som v
 
 ### POST `/api/logout`
 
-Sletter tokenet på serveren.
+Sletter tokenet fra `Authorization: Bearer <token>` på serveren. Forespørselen trenger ingen body. Andre innlogginger beholdes, også for samme bruker. Det slettede tokenet kan ikke brukes til beskyttede kall eller til å logge ut på nytt.
 
 Svar `204`. Feil: `401`.
 

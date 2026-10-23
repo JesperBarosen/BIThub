@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,6 +20,9 @@ import core.UserService;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -172,6 +176,47 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.message").value("Feil e-post eller passord."));
 
         verifyNoInteractions(tokenService);
+    }
+
+    /**
+     * Verifiserer at utlogging fjerner tokenet og gir et tomt svar.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void logoutReturnsNoContent() throws Exception {
+        when(tokenService.removeToken("token-123")).thenReturn(true);
+
+        mockMvc.perform(post("/api/logout").header("Authorization", "Bearer token-123"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        verify(tokenService).removeToken("token-123");
+        verifyNoInteractions(userService, reviewService);
+    }
+
+    /**
+     * Verifiserer at utlogging uten gyldig token gir JSON-feilsvar med 401.
+     *
+     * @param authorization manglende eller ugyldig Authorization-header
+     * @throws Exception hvis forespørselen feiler
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = { "Bearer ukjent-token", "token-123", "Bearer " })
+    void logoutRejectsInvalidToken(String authorization) throws Exception {
+        var request = post("/api/logout");
+        if (authorization != null) {
+            request.header("Authorization", authorization);
+        }
+
+        mockMvc.perform(request)
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.error").value("Unauthorized"))
+                .andExpect(jsonPath("$.message").value("Du må være logget inn."));
+
+        verifyNoInteractions(userService, reviewService);
     }
 
     /**

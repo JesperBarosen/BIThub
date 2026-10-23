@@ -87,6 +87,37 @@ class RestIntegrationTest {
         return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
+    /**
+     * Verifiserer at utlogging over HTTP gjør tokenet ubrukelig på beskyttede endepunkter.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void logoutInvalidatesToken() throws Exception {
+        String registration = "{\"name\":\"Ola Nordmann\",\"email\":\"logout@example.com\","
+                + "\"password\":\"Passord123\"}";
+        HttpResponse<String> registered = post("/api/users", registration);
+        assertEquals(201, registered.statusCode());
+        String token = MAPPER.readTree(registered.body()).get("token").asText();
+
+        HttpRequest ownReviews = HttpRequest.newBuilder(uri("/api/me/reviews"))
+                .header("Authorization", "Bearer " + token).GET().build();
+        assertEquals(200,
+                CLIENT.send(ownReviews, HttpResponse.BodyHandlers.ofString()).statusCode());
+
+        HttpRequest logout = HttpRequest.newBuilder(uri("/api/logout"))
+                .header("Authorization", "Bearer " + token)
+                .POST(HttpRequest.BodyPublishers.noBody()).build();
+        HttpResponse<String> loggedOut = CLIENT.send(logout, HttpResponse.BodyHandlers.ofString());
+        assertEquals(204, loggedOut.statusCode());
+        assertEquals("", loggedOut.body());
+
+        HttpResponse<String> denied = CLIENT.send(ownReviews, HttpResponse.BodyHandlers.ofString());
+        assertEquals(401, denied.statusCode());
+        assertEquals(401, MAPPER.readTree(denied.body()).get("status").asInt());
+        assertEquals(401, CLIENT.send(logout, HttpResponse.BodyHandlers.ofString()).statusCode());
+    }
+
     private URI uri(String path) {
         return URI.create("http://localhost:" + port + path);
     }

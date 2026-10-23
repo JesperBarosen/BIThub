@@ -23,7 +23,7 @@ import rest.model.OwnReviewResponse;
 import rest.model.RegisterRequest;
 
 /**
- * Endepunkter for registrering, innlogging og passordbytte, og for å hente egne anmeldelser.
+ * Endepunkter for registrering, innlogging, utlogging, passordbytte og egne anmeldelser.
  */
 @RestController
 @RequestMapping("/api")
@@ -78,6 +78,21 @@ public class UserController {
         User user = userService.login(request.email(), request.password())
                 .orElseThrow(InvalidCredentialsException::new);
         return AuthResponse.from(user, tokenService.createToken(user.getEmail()));
+    }
+
+    /**
+     * Avslutter innloggingen som tokenet tilhører.
+     *
+     * @param authorization headeren {@code Authorization: Bearer <token>}, eller null
+     * @throws NotLoggedInException hvis tokenet mangler, er ukjent eller allerede er fjernet
+     */
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(
+            @RequestHeader(name = "Authorization", required = false) String authorization) {
+        if (!tokenService.removeToken(bearerToken(authorization))) {
+            throw new NotLoggedInException();
+        }
     }
 
     /**
