@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import rest.auth.AuthenticationService;
 import rest.auth.TokenService;
 import rest.model.AuthResponse;
 import rest.model.ChangePasswordRequest;
@@ -29,11 +30,10 @@ import rest.model.RegisterRequest;
 @RequestMapping("/api")
 public class UserController {
 
-    private static final String BEARER_PREFIX = "Bearer ";
-
     private final UserService userService;
     private final ReviewService reviewService;
     private final TokenService tokenService;
+    private final AuthenticationService authenticationService;
 
     /**
      * Oppretter kontrolleren med tjenestene fra Spring.
@@ -41,14 +41,16 @@ public class UserController {
      * @param userService   tjenesten som registrerer og logger inn brukere
      * @param reviewService tjenesten som henter anmeldelser
      * @param tokenService  tjenesten som lager og slår opp innloggingstokener
+     * @param authenticationService felles kontroll av innlogging
      */
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2",
             justification = "Spring deler tokentjenesten slik at utlogging gjelder alle kall.")
     public UserController(UserService userService, ReviewService reviewService,
-            TokenService tokenService) {
+            TokenService tokenService, AuthenticationService authenticationService) {
         this.userService = userService;
         this.reviewService = reviewService;
         this.tokenService = tokenService;
+        this.authenticationService = authenticationService;
     }
 
     /**
@@ -90,9 +92,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(
             @RequestHeader(name = "Authorization", required = false) String authorization) {
-        if (!tokenService.removeToken(bearerToken(authorization))) {
-            throw new NotLoggedInException();
-        }
+        authenticationService.logout(authorization);
     }
 
     /**
@@ -123,24 +123,11 @@ public class UserController {
     @GetMapping("/me/reviews")
     public List<OwnReviewResponse> getOwnReviews(
             @RequestHeader(name = "Authorization", required = false) String authorization) {
-        String email = tokenService.findEmail(bearerToken(authorization))
-                .orElseThrow(NotLoggedInException::new);
+        String email = authenticationService.requireEmail(authorization);
         return reviewService.findReviewsByOwner(email).stream()
                 .flatMap(course -> course.getReviews().stream()
                         .map(review -> OwnReviewResponse.from(course, review)))
                 .toList();
     }
 
-    /**
-     * Henter selve tokenet fra Authorization-headeren.
-     *
-     * @param authorization headeren, for eksempel {@code Bearer 3f1c9a2e-...}
-     * @return tokenet, eller null hvis headeren mangler eller ikke starter med «Bearer »
-     */
-    private static String bearerToken(String authorization) {
-        if (authorization == null || !authorization.startsWith(BEARER_PREFIX)) {
-            return null;
-        }
-        return authorization.substring(BEARER_PREFIX.length()).strip();
-    }
 }

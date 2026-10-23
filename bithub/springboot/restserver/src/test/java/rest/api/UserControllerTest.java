@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import rest.auth.AuthenticationService;
 import rest.auth.TokenService;
 
 /**
@@ -36,7 +37,7 @@ import rest.auth.TokenService;
  * uten fil og uten ekte server.
  */
 @WebMvcTest(UserController.class)
-@Import(ApiExceptionHandler.class)
+@Import({ApiExceptionHandler.class, AuthenticationService.class})
 class UserControllerTest {
 
     private static final String REGISTER_BODY = "{\"name\":\"Ola Nordmann\","
