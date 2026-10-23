@@ -3,6 +3,7 @@ package rest.api;
 import core.ReviewService;
 import core.User;
 import core.UserService;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +42,8 @@ public class UserController {
      * @param reviewService tjenesten som henter anmeldelser
      * @param tokenService  tjenesten som lager og slår opp innloggingstokener
      */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2",
+            justification = "Spring deler tokentjenesten slik at utlogging gjelder alle kall.")
     public UserController(UserService userService, ReviewService reviewService,
             TokenService tokenService) {
         this.userService = userService;

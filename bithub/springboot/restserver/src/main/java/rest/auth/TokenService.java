@@ -45,4 +45,14 @@ public class TokenService {
         }
         return Optional.ofNullable(emailsByToken.get(token));
     }
+
+    /**
+     * Fjerner ett innloggingstoken uten å påvirke andre innlogginger.
+     *
+     * @param token tokenet som skal avsluttes
+     * @return true hvis tokenet ble fjernet, ellers false hvis det mangler eller er ukjent
+     */
+    public boolean removeToken(String token) {
+        return token != null && emailsByToken.remove(token) != null;
+    }
 }
