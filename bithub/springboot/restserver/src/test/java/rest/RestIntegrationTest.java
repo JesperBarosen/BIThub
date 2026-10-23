@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import core.Course;
 import core.DefaultCourses;
 import file.ReviewHandler;
+import file.UserHandler;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -16,6 +17,14 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +35,7 @@ import org.springframework.test.context.DynamicPropertySource;
 /**
  * Integrasjonstester som starter hele serveren på en ledig port og sender ekte HTTP-forespørsler.
  *
- * <p>Serveren bruker ekte {@code ReviewService} og {@code ReviewHandler}, men skriver til filer i
+ * <p>Serveren bruker ekte tjenester i core og ekte lagring i file, men skriver til filer i
  * en midlertidig mappe, slik at testene aldri endrer dataene i {@code ~/.bithub}.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -70,6 +79,14 @@ class RestIntegrationTest {
         return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
+    private HttpResponse<String> put(String path, String json)
+            throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder(uri(path))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(json)).build();
+        return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
     private URI uri(String path) {
         return URI.create("http://localhost:" + port + path);
     }
@@ -77,6 +94,12 @@ class RestIntegrationTest {
     private static int savedReviewCount(String courseCode) {
         return new ReviewHandler(coursesFile()).findCourse(courseCode)
                 .map(course -> course.getReviews().size()).orElse(0);
+    }
+
+    private static long savedUserCount(String email) {
+        return new UserHandler(tempDir.resolve("users.json")).getUsers().stream()
+                .filter(user -> user.getEmail().equals(email))
+                .count();
     }
 
     /**
@@ -180,5 +203,65 @@ class RestIntegrationTest {
         assertEquals(404, posted.statusCode());
         assertEquals(404, MAPPER.readTree(posted.body()).get("status").asInt());
         assertTrue(new ReviewHandler(coursesFile()).findCourse("TDT9999").isEmpty());
+    }
+
+    /**
+     * Verifiserer at bare en av flere samtidige registreringer med samme e-post lykkes gjennom
+     * endepunktet. En får 201, de andre får 409, og bare en bruker lagres i filen.
+     *
+     * @throws Exception hvis en av forespørslene feiler uventet eller ikke blir ferdig i tide
+     */
+    @Test
+    void simultaneousRegistrationsWithSameEmailSaveOneUser() throws Exception {
+        int attempts = 6;
+        String json = "{\"name\":\"Samtidig Bruker\",\"email\":\"samtidig@example.com\","
+                + "\"password\":\"Passord123\"}";
+
+        ExecutorService executor = Executors.newFixedThreadPool(attempts);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<Integer>> results = new ArrayList<>();
+        try {
+            for (int i = 0; i < attempts; i++) {
+                results.add(executor.submit(() -> {
+                    start.await();
+                    return post("/api/users", json).statusCode();
+                }));
+            }
+            start.countDown();
+
+            List<Integer> statuses = new ArrayList<>();
+            for (Future<Integer> result : results) {
+                statuses.add(result.get(10, TimeUnit.SECONDS));
+            }
+
+            assertEquals(1, Collections.frequency(statuses, 201));
+            assertEquals(attempts - 1, Collections.frequency(statuses, 409));
+            assertEquals(1L, savedUserCount("samtidig@example.com"));
+        } finally {
+            start.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    /**
+     * Verifiserer at et nytt passord lagres, slik at brukeren etterpå kan logge inn med det nye
+     * passordet, men ikke med det gamle.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void changedPasswordIsSavedAndUsedAtLogin() throws Exception {
+        String register = "{\"name\":\"Kari Nordmann\",\"email\":\"kari@example.com\","
+                + "\"password\":\"Passord123\"}";
+        assertEquals(201, post("/api/users", register).statusCode());
+
+        String change = "{\"oldPassword\":\"Passord123\",\"newPassword\":\"NyttPassord123\"}";
+        assertEquals(204, put("/api/users/kari@example.com/password", change).statusCode());
+
+        String newLogin = "{\"email\":\"kari@example.com\",\"password\":\"NyttPassord123\"}";
+        assertEquals(200, post("/api/login", newLogin).statusCode());
+
+        String oldLogin = "{\"email\":\"kari@example.com\",\"password\":\"Passord123\"}";
+        assertEquals(401, post("/api/login", oldLogin).statusCode());
     }
 }

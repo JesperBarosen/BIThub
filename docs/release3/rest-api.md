@@ -20,11 +20,11 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 | POST | `/api/courses/{code}/reviews` | Ny anmeldelse | Valgfri | Ferdig (#151), brukes av klienten (#172) |
 | PUT | `/api/reviews/{id}` | Endre egen anmeldelse | Ja | Planlagt i sprint 2 |
 | DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Planlagt i sprint 2 |
-| POST | `/api/users` | Registrere bruker | Nei | Planlagt i sprint 2 |
-| POST | `/api/login` | Logge inn | Nei | Planlagt i sprint 2 |
+| POST | `/api/users` | Registrere bruker | Nei | Ferdig (#174) |
+| POST | `/api/login` | Logge inn | Nei | Ferdig (#174) |
 | POST | `/api/logout` | Logge ut | Ja | Planlagt i sprint 2 |
-| PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Planlagt i sprint 2 |
-| GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Planlagt i sprint 2 |
+| PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll i (#176) |
+| GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174) |
 
 ## Innlogging og token
 

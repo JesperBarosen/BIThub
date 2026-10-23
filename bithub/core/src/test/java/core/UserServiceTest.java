@@ -28,13 +28,19 @@ class UserServiceTest {
         public Optional<User> findByEmail(String email) {
             return savedUsers.stream().filter(user -> user.getEmail().equals(email)).findFirst();
         }
+
+        @Override
+        public void update(User user) {
+            savedUsers.replaceAll(
+                    stored -> stored.getEmail().equals(user.getEmail()) ? user : stored);
+        }
     };
 
     private final UserService service = new UserService(fakeRepository);
 
     /**
-     * Verifiserer at registrering lagrer og returnerer brukeren med riktige opplysninger og hashet
-     * passord.
+     * Verifiserer at registrering lagrer og returnerer brukeren med riktige
+     * opplysninger og hashet passord.
      */
     @Test
     void registerSavesAndReturnsUser() {
@@ -119,8 +125,8 @@ class UserServiceTest {
     }
 
     /**
-     * Verifiserer at lagringsfeil sendes videre slik at registreringen ikke fremstår som vellykket
-     * når lagring feiler.
+     * Verifiserer at lagringsfeil sendes videre slik at registreringen ikke
+     * fremstår som vellykket når lagring feiler.
      */
     @Test
     void registerPassesOnStorageFailure() {
@@ -135,6 +141,11 @@ class UserServiceTest {
             @Override
             public Optional<User> findByEmail(String email) {
                 return Optional.empty();
+            }
+
+            @Override
+            public void update(User user) {
+                throw failure;
             }
         };
 
@@ -231,6 +242,11 @@ class UserServiceTest {
             public Optional<User> findByEmail(String email) {
                 throw new AssertionError("Manglende e-post skal avvises før oppslag.");
             }
+
+            @Override
+            public void update(User user) {
+                throw new AssertionError("Innlogging skal ikke oppdatere brukere.");
+            }
         };
 
         UserService loginService = new UserService(unusedRepository);
@@ -263,5 +279,56 @@ class UserServiceTest {
 
         assertTrue(result.isPresent());
         assertSame(user, result.orElseThrow());
+    }
+
+    /**
+     * Verifiserer at passordbytte lagrer det nye passordet, slik at det nye virker
+     * og det gamle ikke gjør det lenger.
+     */
+    @Test
+    void changePasswordSavesNewPassword() {
+        service.register("Ola Nordmann", " ola@Example.com ", "Passord123");
+
+        service.changePassword("ola@example.com", "Passord123", "NyttPassord123");
+
+        assertEquals(1, savedUsers.size());
+        assertTrue(service.login("ola@example.com", "NyttPassord123").isPresent());
+        assertTrue(service.login("ola@example.com", "Passord123").isEmpty());
+    }
+
+    /**
+     * Verifiserer at feil gammelt passord avvises uten å endre passordet.
+     */
+    @Test
+    void changePasswordRejectsWrongOldPassword() {
+        service.register("Ola Nordmann", " ola@Example.com ", "Passord123");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> service.changePassword("ola@example.com", "FeilPassord", "NyttPassord123"));
+
+        assertEquals("Det gamle passordet er feil.", exception.getMessage());
+        assertTrue(service.login("ola@example.com", "Passord123").isPresent());
+    }
+
+    /**
+     * Verifiserer at et ugyldig nytt passord avvises uten å endre passordet.
+     */
+    @Test
+    void changePasswordRejectsInvalidNewPassword() {
+        service.register("Ola Nordmann", "ola@Example.com ", "Passord123");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.changePassword("ola@example.com", "Passord123", "kort"));
+        assertTrue(service.login("ola@example.com", "Passord123").isPresent());
+    }
+
+    /**
+     * Verifiserer at passordbytte for en ukjent e-post avvises med samme melding som feil passord.
+     */
+    @Test
+    void changePasswordRejectsUnknownEmail() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> service.changePassword("kari@example.com", "Passord123", "NyttPassord123"));
+        assertEquals("Det gamle passordet er feil.", exception.getMessage());
     }
 }

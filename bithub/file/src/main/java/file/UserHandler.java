@@ -155,6 +155,41 @@ public final class UserHandler implements DataHandler<UserDTO>, UserRepository {
     }
 
     /**
+     * Erstatter den lagrede brukeren som har samme e-postadresse. Lesingen, endringen og skrivingen
+     * skjer under samme skrivelås, slik at samtidige endringer ikke overskriver hverandre. Store og
+     * små bokstaver i e-posten skilles ikke.
+     *
+     * @param user brukeren med de nye opplysningene
+     * @throws IllegalArgumentException hvis brukeren er null, eller ingen bruker med denne
+     *                                  e-postadressen er lagret
+     */
+    @Override
+    public void update(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("Brukeren kan ikke være null.");
+        }
+
+        storage.update(() -> {
+            List<UserDTO> users = readUsers();
+            boolean updated = false;
+            for (int i = 0; i < users.size(); i++) {
+                UserDTO stored = users.get(i);
+                if (user.getEmail().equalsIgnoreCase(stored.getEmail())) {
+                    users.set(i, toDto(user));
+                    updated = true;
+                    break;
+                }
+            }
+            if (!updated) {
+                throw new IllegalArgumentException(
+                    "Ingen bruker med denne e-postadressen er lagret.");
+            }
+            storage.write(users);
+            return null;
+        });
+    }
+
+    /**
      * Finner brukeren med den oppgitte e-postadressen. Ignorerer store og små bokstaver, slik
      * at også brukere som er lagret med store bokstaver blir funnet.
      *
