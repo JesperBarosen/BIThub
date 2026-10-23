@@ -119,7 +119,7 @@ Vi bruker fortsatt **implisitt lagring**, slik vi begrunnet i release 2. Appen e
 - **Skriving:** Når brukeren trykker «SEND INN», lagres anmeldelsen uten at brukeren blir spurt om filnavn.
 - **Brukere:** Registrering gjennom `UserService` lagrer brukeren i `users.json`, og innlogging leser brukerdata fra samme fil.
 
-I release 3 flytter vi lesing og skriving til REST-serveren. Serverkoblingen mellom `UserService` og `UserHandler` er på plass i #155. REST-endepunkter for registrering og innlogging implementeres i #174.
+I release 3 flytter vi lesing og skriving til REST-serveren. Serverkoblingen mellom `UserService` og `UserHandler` er på plass i #155. REST-endepunkter for registrering, innlogging og passordbytte er nå på plass i #174.
 
 Når JavaFX-appen er koblet til serveren, sender den forespørsler, og serveren bruker `ReviewHandler` og `UserHandler`. For brukeren er lagringen fortsatt implisitt.
 

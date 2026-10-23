@@ -1,5 +1,6 @@
 package core;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -80,6 +81,32 @@ public final class ReviewService {
      */
     public Optional<Course> findCourse(String courseCode) {
         return reviewRepository.findCourse(courseCode);
+    }
+
+    /**
+     * Henter anmeldelsene en bruker har skrevet, også de anonyme, gruppert etter emne.
+     *
+     * <p>Bare emner der brukeren har skrevet minst en anmeldelse er med, og hvert emne inneholder
+     * bare brukerens egne anmeldelser.
+     *
+     * @param ownerEmail e-posten til eieren
+     * @return emnene med brukerens anmeldelser, eller en tom liste hvis e-posten mangler
+     */
+    public List<Course> findReviewsByOwner(String ownerEmail) {
+        if (ownerEmail == null || ownerEmail.isBlank()) {
+            return List.of();
+        }
+        List<Course> result = new ArrayList<>();
+        for (Course course : reviewRepository.findAllCourses()) {
+            Course ownCourse = new Course(course.getCourseCode(), course.getCourseName());
+            course.getReviews().stream()
+                    .filter(review -> ownerEmail.equalsIgnoreCase(review.getOwnerEmail()))
+                    .forEach(ownCourse::addReview);
+            if (!ownCourse.getReviews().isEmpty()) {
+                result.add(ownCourse);
+            }
+        }
+        return result;
     }
 
     /**

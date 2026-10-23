@@ -27,8 +27,8 @@ public final class UserService {
      * Validerer og registrerer en ny bruker.
      *
      * <p>E-postadressen normaliseres ved å fjerne mellomrom rundt adressen og gjøre bokstavene små
-     * med {@link Locale#ROOT} før validering, oppslag og lagring. Passordet hashes før brukeren
-     * lagres.
+     * med {@link Locale#ROOT} før validering, oppslag og lagring. Passordet hashes
+     * før brukeren lagres.
      *
      * @param name     navnet til brukeren
      * @param email    e-postadressen til brukeren
@@ -54,8 +54,8 @@ public final class UserService {
      * <p>E-postadressen normaliseres ved å fjerne mellomrom rundt adressen og gjøre bokstavene små
      * med {@link Locale#ROOT} før oppslag. Passordet brukes uendret ved kontroll mot hashen.
      *
-     * <p>Hvis e-post eller passord er null eller blankt, returneres et tomt resultat uten oppslag i
-     * lagringen.
+     * <p>Hvis e-post eller passord er null eller blankt, returneres et tomt resultat
+     * uten oppslag i lagringen.
      *
      * @param email    e-postadressen til brukeren
      * @param password passordet til brukeren
@@ -70,8 +70,25 @@ public final class UserService {
     }
 
     /**
-     * Fjerner mellomrom rundt e-postadressen og gjør den om til små bokstaver, slik at
-     * {@code Ola@ntnu.no} og {@code ola@ntnu.no} regnes som samme adresse.
+     * Bytter passordet til en bruker etter å ha sjekket det gamle passordet.
+     *
+     * <p>Hvem som har lov til å bytte passordet, sjekkes på serveren og ikke her.
+     *
+     * @param email       e-postadressen til brukeren
+     * @param oldPassword det nåværende passordet
+     * @param newPassword det nye passordet, som valideres som ved registrering
+     * @throws IllegalArgumentException hvis det gamle passordet er feil, brukeren ikke finnes,
+     *                                  eller det nye passordet er ugyldig
+     */
+    public void changePassword(String email, String oldPassword, String newPassword) {
+        User user = login(email, oldPassword)
+                .orElseThrow(() -> new IllegalArgumentException("Det gamle passordet er feil."));
+        userRepository.update(new User(user.getName(), user.getEmail(), newPassword));
+    }
+
+    /**
+     * Fjerner mellomrom rundt e-postadressen og gjør den om til små bokstaver, slik
+     * at {@code Ola@ntnu.no} og {@code ola@ntnu.no} regnes som samme adresse.
      *
      * @param email e-postadressen som skal normaliseres
      * @return den normaliserte e-postadressen, eller null hvis email er null

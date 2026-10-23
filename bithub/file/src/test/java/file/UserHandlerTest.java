@@ -526,4 +526,49 @@ class UserHandlerTest {
             executor.shutdownNow();
         }
     }
+
+    /**
+     * Verifiserer at update erstatter brukeren med samme e-post, slik at det nye passordet lagres i
+     * filen og det gamle ikke virker lenger.
+     */
+    @Test
+    void testUpdateReplacesStoredUser() {
+        Path file = tempDir.resolve("users.json");
+        UserHandler handler = new UserHandler(file);
+        handler.save(new User("Ola Nordmann", "ola@example.com", "Passord123"));
+
+        handler.update(new User("Ola Nordmann", "ola@example.com", "NyttPassord123"));
+
+        List<User> users = new UserHandler(file).getUsers();
+        assertEquals(1, users.size());
+        assertTrue(users.get(0).verifyPassword("NyttPassord123"));
+        assertFalse(users.get(0).verifyPassword("Passord123"));
+    }
+
+    /**
+     * Verifiserer at update avviser en bruker som ikke er lagret, uten å endre filen.
+     */
+    @Test
+    void testUpdateRejectsUnknownUser() {
+        Path file = tempDir.resolve("users.json");
+        UserHandler handler = new UserHandler(file);
+        handler.save(new User("Ola Nordmann", "ola@example.com", "Passord123"));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> handler.update(new User("Kari Nordmann", "kari@example.com", "Passord123")));
+
+        List<User> users = new UserHandler(file).getUsers();
+        assertEquals(1, users.size());
+        assertEquals("ola@example.com", users.get(0).getEmail());
+    }
+
+    /**
+     * Verifiserer at update avviser null.
+     */
+    @Test
+    void testUpdateRejectsNull() {
+        UserHandler handler = new UserHandler(tempDir.resolve("users.json"));
+
+        assertThrows(IllegalArgumentException.class, () -> handler.update(null));
+    }
 }
