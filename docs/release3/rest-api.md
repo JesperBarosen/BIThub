@@ -17,7 +17,7 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 |---|---|---|---|---|
 | GET | `/api/courses` | Alle emner | Nei | Ferdig (#151), brukes av klienten (#172) |
 | GET | `/api/courses/{code}` | Ett emne med anmeldelser og gjennomsnitt | Nei | Ferdig (#151), brukes av klienten (#172) |
-| POST | `/api/courses/{code}/reviews` | Ny anmeldelse | Valgfri | Ferdig (#151), brukes av klienten (#172) |
+| POST | `/api/courses/{code}/reviews` | Ny anmeldelse | Valgfri | Ferdig (#151), eierskap og anonymitet implementert i #176 |
 | PUT | `/api/reviews/{id}` | Endre egen anmeldelse | Ja | Planlagt i sprint 2 |
 | DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Planlagt i sprint 2 |
 | POST | `/api/users` | Registrere bruker | Nei | Ferdig (#174) |
@@ -179,7 +179,10 @@ Svar `201`: anmeldelsen slik den vises offentlig, med `id`.
 
 Feil: `400` ved ugyldig vurdering eller kommentar, `401` hvis tokenet er sendt med, men er ukjent eller logget ut, `404` hvis emnet ikke finnes.
 
-I første versjon (#151) blir alle nye anmeldelser gjesteanmeldelser. Kobling til innlogget bruker legger vi til i sprint 2.
+Serveren henter eier og navn fra brukerregisteret etter at tokenet er kontrollert. Klienten
+kan ikke velge eier ved å sende navn eller e-post i JSON. Anonyme anmeldelser beholder eieren
+i lagringen og vises under egne anmeldelser, men offentlig vises bare «Anonym».
+En sendt, ugyldig Authorization-header gir `401`; forespørselen lagres ikke som gjest.
 
 ### PUT `/api/reviews/{id}`
 
@@ -276,7 +279,9 @@ mangler, er ugyldig eller er logget ut, `403` hvis e-posten tilhører en annen b
 
 ### GET `/api/me/reviews`
 
-Henter anmeldelsene den innloggede brukeren har skrevet, også de anonyme.
+Henter anmeldelsene den innloggede brukeren har skrevet, også de anonyme. Brukeren bestemmes
+av tokenet i `Authorization`-headeren. E-post i query-parametere kan ikke brukes til å hente
+en annen brukers anmeldelser.
 
 Svar `200`:
 
@@ -296,3 +301,18 @@ Svar `200`:
 Feltet `anonymous` vises bare her, til eieren selv.
 
 Feil: `401`.
+
+## Felles tilgangskontroll og kobling til #177
+
+Kontrollere som krever innlogging bruker `AuthenticationService.requireEmail(authorization)`.
+Metoden returnerer e-posten fra serverens tokenregister, eller kaster `NotLoggedInException`
+som gir `401` i det felles JSON-formatet. Utlogging fjerner tokenet fra det samme registeret.
+
+Ved endring og sletting av anmeldelser i #177 skal den verifiserte e-posten sammenlignes
+med anmeldelsens lagrede `ownerEmail`. Manglende eierskap skal gi `ForbiddenException`,
+som håndteres som `403`. Dette gjelder også anonyme anmeldelser; visningsnavnet er ikke
+grunnlag for tilgang. Gjesteanmeldelser har ingen eier og kan ikke endres av innloggede brukere.
+
+PUT og DELETE for anmeldelser er fortsatt planlagt. Når #177 kobles til, må testene bekrefte
+at bruker A ikke kan endre eller slette bruker Bs anmeldelser, og at manglende, ukjente og
+utloggede tokener avvises.

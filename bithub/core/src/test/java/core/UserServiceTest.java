@@ -38,6 +38,16 @@ class UserServiceTest {
 
     private final UserService service = new UserService(fakeRepository);
 
+    @Test
+    void findByEmailNormalizesAddressAndHandlesMissingUsers() {
+        User owner = service.register("Ola Nordmann", "ola@example.com", "Passord123");
+
+        assertSame(owner, service.findByEmail(" OLA@EXAMPLE.COM ").orElseThrow());
+        assertTrue(service.findByEmail("ukjent@example.com").isEmpty());
+        assertTrue(service.findByEmail(null).isEmpty());
+        assertTrue(service.findByEmail(" ").isEmpty());
+    }
+
     /**
      * Verifiserer at registrering lagrer og returnerer brukeren med riktige
      * opplysninger og hashet passord.

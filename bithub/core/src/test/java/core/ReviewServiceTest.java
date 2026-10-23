@@ -1,6 +1,8 @@
 package core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -55,6 +57,50 @@ class ReviewServiceTest {
     };
 
     private final ReviewService service = new ReviewService(fakeRepository);
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void submitReviewPreservesOwnerAndAnonymity(boolean anonymous) {
+        User owner = new User("Ola Nordmann", "ola@example.com", "Passord123");
+
+        Review review = service.submitReview("IT1901", "Prosjektarbeid", owner, anonymous,
+                " 4 ", "  Bra fag  ");
+
+        assertSame(review, savedReviews.get(0));
+        assertFalse(review.getId().isBlank());
+        assertEquals(owner.getEmail(), review.getOwnerEmail());
+        assertEquals(owner.getName(), review.getReviewerName());
+        assertEquals(anonymous, review.isAnonymous());
+        assertEquals(anonymous ? AuthorType.ANONYMOUS : AuthorType.USER, review.getAuthorType());
+        assertEquals(anonymous ? "Anonym" : owner.getName(), review.getDisplayName());
+        assertEquals(4, review.getRating());
+        assertEquals("Bra fag", review.getComment());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void submitReviewWithoutOwnerAlwaysCreatesGuest(boolean anonymous) {
+        Review review = service.submitReview("IT1901", "Prosjektarbeid", null, anonymous,
+                "4", null);
+
+        assertSame(review, savedReviews.get(0));
+        assertNull(review.getOwnerEmail());
+        assertFalse(review.isAnonymous());
+        assertEquals(AuthorType.GUEST, review.getAuthorType());
+        assertEquals("Gjest", review.getDisplayName());
+        assertEquals("", review.getComment());
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"0", "6", "fire"})
+    void submitReviewWithOwnerRejectsInvalidRating(String rating) {
+        User owner = new User("Ola Nordmann", "ola@example.com", "Passord123");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.submitReview("IT1901", "Prosjektarbeid", owner, false, rating, ""));
+        assertTrue(savedReviews.isEmpty());
+    }
 
     /**
      * Verifiserer at en gyldig anmeldelse sendes videre til lagringen med riktig emne og riktige

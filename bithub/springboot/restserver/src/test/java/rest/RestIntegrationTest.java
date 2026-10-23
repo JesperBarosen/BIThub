@@ -27,6 +27,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -123,6 +125,114 @@ class RestIntegrationTest {
                 put("/api/users/logout@example.com/password", change, token).statusCode());
         String login = "{\"email\":\"logout@example.com\",\"password\":\"Passord123\"}";
         assertEquals(200, post("/api/login", login).statusCode());
+
+        final int before = savedReviewCount("IT1901");
+        HttpRequest reviewRequest = HttpRequest.newBuilder(uri("/api/courses/IT1901/reviews"))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString("{\"rating\":4}")).build();
+        assertEquals(401, CLIENT.send(reviewRequest, HttpResponse.BodyHandlers.ofString())
+                .statusCode());
+        assertEquals(before, savedReviewCount("IT1901"));
+    }
+
+    /**
+     * Kontrollerer eierskap i fil, anonymitet i offentlig svar og tilgang til egne anmeldelser.
+     *
+     * @param anonymous om anmeldelsen skal vises anonymt
+     * @throws Exception hvis en forespørsel feiler
+     */
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void submittedReviewBelongsToAuthenticatedUser(boolean anonymous) throws Exception {
+        final String email = "review-" + anonymous + "@example.com";
+        String registration = "{\"name\":\"Ola Nordmann\",\"email\":\"" + email
+                + "\",\"password\":\"Passord123\"}";
+        HttpResponse<String> registered = post("/api/users", registration);
+        assertEquals(201, registered.statusCode());
+        final String token = MAPPER.readTree(registered.body()).get("token").asText();
+
+        String body = "{\"rating\":4,\"comment\":\"  Bra fag  \",\"anonymous\":" + anonymous
+                + ",\"ownerEmail\":\"someone-else@example.com\",\"reviewerName\":\"Falskt Navn\"}";
+        HttpRequest request = HttpRequest.newBuilder(uri("/api/courses/IT1901/reviews"))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body)).build();
+        HttpResponse<String> created = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, created.statusCode());
+        JsonNode response = MAPPER.readTree(created.body());
+        final String id = response.get("id").asText();
+        assertEquals(anonymous ? "ANONYMOUS" : "USER", response.get("authorType").asText());
+        assertEquals(anonymous ? "Anonym" : "Ola Nordmann", response.get("displayName").asText());
+        assertFalse(response.has("ownerEmail"));
+        assertFalse(response.has("reviewerName"));
+
+        core.Review saved = new ReviewHandler(coursesFile()).findCourse("IT1901").orElseThrow()
+                .getReviews().stream().filter(review -> id.equals(review.getId()))
+                .findFirst().orElseThrow();
+        assertEquals(email, saved.getOwnerEmail());
+        assertEquals("Ola Nordmann", saved.getReviewerName());
+        assertEquals(anonymous, saved.isAnonymous());
+        assertEquals("Bra fag", saved.getComment());
+
+        JsonNode course = MAPPER.readTree(get("/api/courses/IT1901").body());
+        JsonNode publicReview = course.get("reviews").findParents("id").stream()
+                .filter(review -> id.equals(review.get("id").asText())).findFirst().orElseThrow();
+        assertEquals(response, publicReview);
+
+        HttpRequest ownReviews = HttpRequest.newBuilder(uri("/api/me/reviews"))
+                .header("Authorization", "Bearer " + token).GET().build();
+        HttpResponse<String> own = CLIENT.send(ownReviews, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, own.statusCode());
+        JsonNode reviews = MAPPER.readTree(own.body());
+        assertEquals(1, reviews.size());
+        assertEquals(id, reviews.get(0).get("id").asText());
+        assertEquals(anonymous, reviews.get(0).get("anonymous").asBoolean());
+    }
+
+    /**
+     * Verifiserer at tokenet bestemmer hvilke anmeldelser brukeren får se under egne anmeldelser.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void ownReviewsAreSeparatedBetweenUsers() throws Exception {
+        List<String> tokens = new ArrayList<>();
+        List<String> reviewIds = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            String registration = "{\"name\":\"Testbruker\",\"email\":\"isolation-" + i
+                    + "@example.com\",\"password\":\"Passord123\"}";
+            HttpResponse<String> registered = post("/api/users", registration);
+            assertEquals(201, registered.statusCode());
+            String token = MAPPER.readTree(registered.body()).get("token").asText();
+            tokens.add(token);
+
+            HttpRequest reviewRequest = HttpRequest.newBuilder(uri("/api/courses/IT1901/reviews"))
+                    .header("Authorization", "Bearer " + token)
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(
+                            "{\"rating\":4,\"anonymous\":true}")).build();
+            HttpResponse<String> created = CLIENT.send(reviewRequest,
+                    HttpResponse.BodyHandlers.ofString());
+            assertEquals(201, created.statusCode());
+            reviewIds.add(MAPPER.readTree(created.body()).get("id").asText());
+        }
+
+        for (int i = 0; i < 2; i++) {
+            // En ekstra e-post i forespørselen skal ikke kunne overstyre tokenets identitet.
+            String otherEmail = "isolation-" + (1 - i) + "@example.com";
+            HttpRequest ownRequest = HttpRequest.newBuilder(uri("/api/me/reviews?email="
+                    + otherEmail + "&ownerEmail=" + otherEmail))
+                    .header("Authorization", "Bearer " + tokens.get(i)).GET().build();
+            HttpResponse<String> response = CLIENT.send(ownRequest,
+                    HttpResponse.BodyHandlers.ofString());
+            assertEquals(200, response.statusCode());
+            JsonNode reviews = MAPPER.readTree(response.body());
+            assertEquals(1, reviews.size());
+            assertEquals(reviewIds.get(i), reviews.get(0).get("id").asText());
+            assertTrue(reviews.get(0).get("anonymous").asBoolean());
+            assertFalse(reviews.get(0).has("ownerEmail"));
+        }
     }
 
     private URI uri(String path) {

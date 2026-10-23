@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Håndterer innsending av anmeldelser.
@@ -28,6 +29,8 @@ public final class ReviewService {
 
     /**
      * Validerer og lagrer en anmeldelse for et emne.
+     * Denne varianten beholdes for klienten frem til innlogging er koblet til brukergrensesnittet.
+     * REST-serveren bruker varianten med verifisert eier og anonymitet.
      *
      * @param courseCode   emnekoden til emnet
      * @param courseName   navnet på emnet
@@ -42,6 +45,30 @@ public final class ReviewService {
         int rating = parseRating(ratingText);
         Course course = new Course(courseCode, courseName);
         Review review = new Review(reviewerName, rating, comment == null ? "" : comment.trim());
+        reviewRepository.addReview(course.getCourseCode(), course.getCourseName(), review);
+        return review;
+    }
+
+    /**
+     * Validerer og lagrer en anmeldelse med eier bestemt av serveren.
+     *
+     * @param courseCode emnekoden
+     * @param courseName navnet på emnet
+     * @param owner den verifiserte brukeren, eller null for en gjest
+     * @param anonymous om en innlogget bruker ønsker å være anonym; ignoreres for gjester
+     * @param ratingText vurderingen som tekst
+     * @param comment kommentaren, null behandles som tom tekst
+     * @return den lagrede anmeldelsen med id og eierskap
+     * @throws IllegalArgumentException hvis emnet eller vurderingen er ugyldig
+     */
+    public Review submitReview(String courseCode, String courseName, User owner, boolean anonymous,
+            String ratingText, String comment) {
+        int rating = parseRating(ratingText);
+        Course course = new Course(courseCode, courseName);
+        Review review = new Review(UUID.randomUUID().toString(),
+                owner == null ? null : owner.getEmail(),
+                owner == null ? "Gjest" : owner.getName(), owner != null && anonymous,
+                rating, comment == null ? "" : comment.trim());
         reviewRepository.addReview(course.getCourseCode(), course.getCourseName(), review);
         return review;
     }
