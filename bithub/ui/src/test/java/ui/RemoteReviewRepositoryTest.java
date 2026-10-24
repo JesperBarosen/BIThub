@@ -2,6 +2,7 @@ package ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,9 +19,13 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,6 +95,30 @@ class RemoteReviewRepositoryTest {
             byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             exchange.sendResponseHeaders(status, bytes.length);
+            try (OutputStream out = exchange.getResponseBody()) {
+                out.write(bytes);
+            }
+        });
+    }
+
+    /**
+     * Som {@link #respond(String, int, String)}, men serveren venter på {@code release} før den
+     * svarer. Slik kan testene lage et forsinket svar eller et svar som aldri kommer i tide.
+     *
+     * @param path    stien, for eksempel "/api/courses"
+     * @param release signalet serveren venter på før den svarer
+     * @param body    JSON-teksten serveren skal svare med
+     */
+    private void respondAfter(String path, CountDownLatch release, String body) {
+        server.createContext(path, exchange -> {
+            try {
+                release.await(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, bytes.length);
             try (OutputStream out = exchange.getResponseBody()) {
                 out.write(bytes);
             }
@@ -413,5 +442,114 @@ class RemoteReviewRepositoryTest {
     void testConstructorThrowsWhenBaseUrlIsInvalid() {
         assertThrows(IllegalArgumentException.class,
                 () -> new RemoteReviewRepository("http://ugyldig adresse"));
+    }
+
+    /**
+     * Verifiserer at 401 gir meldingen fra serveren, slik at brukeren får vite at innloggingen må
+     * fornyes.
+     */
+    @Test
+    void testAddReviewShowsServerMessageWhenNotLoggedIn() {
+        respond("/api/courses/IT1901/reviews", 401, """
+                {"status": 401, "error": "Unauthorized",
+                 "message": "Du må være logget inn."}""");
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+        repository.setToken("utlogget-token");
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> repository.addReview("IT1901", "Prosjektarbeid",
+                        new Review("Kari", 4, "")));
+
+        assertEquals("Du må være logget inn.", e.getMessage());
+    }
+
+    /**
+     * Verifiserer at 403 gir meldingen fra serveren.
+     */
+    @Test
+    void testAddReviewShowsServerMessageWhenForbidden() {
+        respond("/api/courses/IT1901/reviews", 403, """
+                {"status": 403, "error": "Forbidden",
+                 "message": "Du har ikke tilgang til å gjøre denne endringen."}""");
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> repository.addReview("IT1901", "Prosjektarbeid",
+                        new Review("Kari", 4, "")));
+
+        assertEquals("Du har ikke tilgang til å gjøre denne endringen.", e.getMessage());
+    }
+
+    /**
+     * Verifiserer at et svar som er forsinket, men kommer innen tidsgrensen, blir lest som vanlig.
+     *
+     * @throws InterruptedException hvis testen avbrytes mens den venter
+     */
+    @Test
+    void testFindAllCoursesWaitsForDelayedResponse() throws InterruptedException {
+        CountDownLatch release = new CountDownLatch(1);
+        respondAfter("/api/courses", release, """
+                [{"code": "IT1901", "name": "Prosjektarbeid"}]""");
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl(),
+                Duration.ofSeconds(5));
+
+        Thread releaser = new Thread(() -> {
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            release.countDown();
+        });
+        releaser.start();
+
+        List<Course> courses = repository.findAllCourses();
+        releaser.join();
+
+        assertEquals(1, courses.size());
+        assertEquals("IT1901", courses.get(0).getCourseCode());
+    }
+
+    /**
+     * Verifiserer at et svar som ikke kommer innen tidsgrensen gir UncheckedIOException med et
+     * tidsavbrudd som årsak, i stedet for at klienten venter for alltid.
+     */
+    @Test
+    void testFindAllCoursesThrowsOnTimeout() {
+        CountDownLatch release = new CountDownLatch(1);
+        respondAfter("/api/courses", release, "[]");
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl(),
+                Duration.ofMillis(200));
+
+        try {
+            UncheckedIOException e = assertThrows(UncheckedIOException.class,
+                    repository::findAllCourses);
+            assertInstanceOf(HttpTimeoutException.class, e.getCause());
+        } finally {
+            release.countDown();
+        }
+    }
+
+    /**
+     * Verifiserer at et svar som ikke er gyldig JSON gir UncheckedIOException.
+     */
+    @Test
+    void testFindAllCoursesThrowsOnInvalidJson() {
+        respond("/api/courses", 200, "dette er ikke JSON");
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+
+        assertThrows(UncheckedIOException.class, repository::findAllCourses);
+    }
+
+    /**
+     * Verifiserer at et svar som mangler et påkrevd felt gir UncheckedIOException.
+     */
+    @Test
+    void testFindAllCoursesThrowsWhenFieldIsMissing() {
+        respond("/api/courses", 200, """
+                [{"code": "IT1901"}]""");
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+
+        assertThrows(UncheckedIOException.class, repository::findAllCourses);
     }
 }
