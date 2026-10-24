@@ -102,6 +102,28 @@ class ReviewServiceTest {
         assertTrue(savedReviews.isEmpty());
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void submitReviewFromClientKeepsLoggedInUserAndAnonymity(boolean anonymous) {
+        Review review = service.submitReview("IT1901", "Prosjektarbeid", "kari@ntnu.no",
+                "Kari Nordmann", anonymous, " 5 ", "  Lærerikt  ");
+
+        assertSame(review, savedReviews.get(0));
+        assertEquals("kari@ntnu.no", review.getOwnerEmail());
+        assertEquals("Kari Nordmann", review.getReviewerName());
+        assertEquals(anonymous, review.isAnonymous());
+        assertEquals(5, review.getRating());
+        assertEquals("Lærerikt", review.getComment());
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void submitReviewFromClientRequiresOwnerEmail(String ownerEmail) {
+        assertThrows(IllegalArgumentException.class, () -> service.submitReview("IT1901",
+                "Prosjektarbeid", ownerEmail, "Kari Nordmann", true, "4", ""));
+        assertTrue(savedReviews.isEmpty());
+    }
+
     /**
      * Verifiserer at en gyldig anmeldelse sendes videre til lagringen med riktig emne og riktige
      * verdier.

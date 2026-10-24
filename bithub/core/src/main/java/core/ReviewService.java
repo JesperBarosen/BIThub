@@ -28,9 +28,9 @@ public final class ReviewService {
     }
 
     /**
-     * Validerer og lagrer en anmeldelse for et emne.
-     * Denne varianten beholdes for klienten frem til innlogging er koblet til brukergrensesnittet.
-     * REST-serveren bruker varianten med verifisert eier og anonymitet.
+     * Validerer og lagrer en anmeldelse for et emne. Denne varianten beholdes for klienten frem til
+     * innlogging er koblet til brukergrensesnittet. REST-serveren bruker varianten med verifisert
+     * eier og anonymitet.
      *
      * @param courseCode   emnekoden til emnet
      * @param courseName   navnet på emnet
@@ -54,10 +54,10 @@ public final class ReviewService {
      *
      * @param courseCode emnekoden
      * @param courseName navnet på emnet
-     * @param owner den verifiserte brukeren, eller null for en gjest
-     * @param anonymous om en innlogget bruker ønsker å være anonym; ignoreres for gjester
+     * @param owner      den verifiserte brukeren, eller null for en gjest
+     * @param anonymous  om en innlogget bruker ønsker å være anonym; ignoreres for gjester
      * @param ratingText vurderingen som tekst
-     * @param comment kommentaren, null behandles som tom tekst
+     * @param comment    kommentaren, null behandles som tom tekst
      * @return den lagrede anmeldelsen med id og eierskap
      * @throws IllegalArgumentException hvis emnet eller vurderingen er ugyldig
      */
@@ -66,9 +66,39 @@ public final class ReviewService {
         int rating = parseRating(ratingText);
         Course course = new Course(courseCode, courseName);
         Review review = new Review(UUID.randomUUID().toString(),
-                owner == null ? null : owner.getEmail(),
-                owner == null ? "Gjest" : owner.getName(), owner != null && anonymous,
-                rating, comment == null ? "" : comment.trim());
+                owner == null ? null : owner.getEmail(), owner == null ? "Gjest" : owner.getName(),
+                owner != null && anonymous, rating, comment == null ? "" : comment.trim());
+        reviewRepository.addReview(course.getCourseCode(), course.getCourseName(), review);
+        return review;
+    }
+
+    /**
+     * Validerer og lagrer en anmeldelse fra en innlogget bruker i klienten.
+     *
+     * <p>Klienten kjenner bare e-posten og navnet fra innloggingen, ikke hele brukeren. Serveren
+     * bestemmer likevel eieren selv ut fra tokenet, så e-posten og navnet brukes bare til å lage en
+     * gyldig anmeldelse. Det som sendes til serveren, er vurderingen, kommentaren og om anmeldelsen
+     * skal være anonym.
+     *
+     * @param courseCode   emnekoden
+     * @param courseName   navnet på emnet
+     * @param ownerEmail   e-posten til den innloggede brukeren
+     * @param reviewerName navnet til den innloggede brukeren
+     * @param anonymous    om anmeldelsen skal vises som anonym
+     * @param ratingText   vurderingen som tekst
+     * @param comment      kommentaren, null behandles som tom tekst
+     * @return den lagrede anmeldelsen
+     * @throws IllegalArgumentException hvis emnet, e-posten, navnet eller vurderingen er ugyldig
+     */
+    public Review submitReview(String courseCode, String courseName, String ownerEmail,
+            String reviewerName, boolean anonymous, String ratingText, String comment) {
+        if (ownerEmail == null || ownerEmail.isBlank()) {
+            throw new IllegalArgumentException("E-posten til den innloggede brukeren mangler.");
+        }
+        int rating = parseRating(ratingText);
+        Course course = new Course(courseCode, courseName);
+        Review review = new Review(UUID.randomUUID().toString(), ownerEmail, reviewerName,
+                anonymous, rating, comment == null ? "" : comment.trim());
         reviewRepository.addReview(course.getCourseCode(), course.getCourseName(), review);
         return review;
     }
