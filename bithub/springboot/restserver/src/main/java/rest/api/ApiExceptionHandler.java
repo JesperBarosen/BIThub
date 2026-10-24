@@ -81,6 +81,17 @@ public class ApiExceptionHandler {
         return errorResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
     }
 
+    /**
+     * Avviser endringer en innlogget bruker ikke har tilgang til.
+     *
+     * @param exception feilen ved manglende tilgang
+     * @return feilsvar med status 403
+     */
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException exception) {
+        return errorResponse(HttpStatus.FORBIDDEN, exception.getMessage());
+    }
+
     private static ResponseEntity<ErrorResponse> errorResponse(HttpStatus status, String message) {
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(status.value(), status.getReasonPhrase(), message));

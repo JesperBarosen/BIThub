@@ -70,6 +70,19 @@ public final class UserService {
     }
 
     /**
+     * Henter en registrert bruker. Oppslaget gir ikke i seg selv rett til å opptre som brukeren.
+     *
+     * @param email e-postadressen, som normaliseres før oppslag
+     * @return brukeren, eller tomt hvis adressen mangler eller ikke finnes
+     */
+    public Optional<User> findByEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return Optional.empty();
+        }
+        return userRepository.findByEmail(normalizeEmail(email));
+    }
+
+    /**
      * Bytter passordet til en bruker etter å ha sjekket det gamle passordet.
      *
      * <p>Hvem som har lov til å bytte passordet, sjekkes på serveren og ikke her.
