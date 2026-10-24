@@ -1,6 +1,9 @@
 
 package ui;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+
 /**
  * Holder informasjon om den innloggede brukeren mens appen er åpen.
  *
@@ -8,20 +11,40 @@ package ui;
  */
 public final class UserSession {
 
+    private final Consumer<String> tokenListener;
     private volatile SessionData current;
+
+    /**
+     * Oppretter en tom sesjon som ikke varsler noen når tokenet endres.
+     */
+    public UserSession() {
+        this(token -> {
+        });
+    }
+
+    /**
+     * Oppretter en tom sesjon som varsler når tokenet endres, for eksempel slik at
+     * {@link RemoteReviewRepository} sender tokenet med forespørslene.
+     *
+     * @param tokenListener får det nye tokenet ved innlogging, og null ved utlogging
+     * @throws NullPointerException hvis tokenListener er null
+     */
+    public UserSession(Consumer<String> tokenListener) {
+        this.tokenListener = Objects.requireNonNull(tokenListener);
+    }
 
     /**
      * Lagrer en vellykket innlogging eller registrering.
      *
      * @param token tokenet fra serveren
-     * @param name brukerens navn
+     * @param name  brukerens navn
      * @param email brukerens e-postadresse
      */
     public void signIn(String token, String name, String email) {
-        current = new SessionData(
-                requireText(token, "Token"),
-                requireText(name, "Navn"),
-                requireText(email, "E-post"));
+        SessionData session = new SessionData(requireText(token, "Token"),
+                requireText(name, "Navn"), requireText(email, "E-post"));
+        current = session;
+        tokenListener.accept(session.token());
     }
 
     /**
@@ -68,6 +91,7 @@ public final class UserSession {
      */
     public void clear() {
         current = null;
+        tokenListener.accept(null);
     }
 
     /**
@@ -75,8 +99,7 @@ public final class UserSession {
      */
     private static String requireText(String value, String fieldName) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(
-                    fieldName + " kan ikke være tomt.");
+            throw new IllegalArgumentException(fieldName + " kan ikke være tomt.");
         }
         return value.strip();
     }

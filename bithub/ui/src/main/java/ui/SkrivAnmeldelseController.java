@@ -44,6 +44,7 @@ public class SkrivAnmeldelseController {
     private String courseName = "";
     private ReviewService reviewService;
     private Navigation navigation;
+    private UserSession userSession = new UserSession();
 
     private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
 
@@ -67,6 +68,17 @@ public class SkrivAnmeldelseController {
      */
     public void setReviewService(ReviewService reviewService) {
         this.reviewService = Objects.requireNonNull(reviewService);
+    }
+
+    /**
+     * Setter sesjonen med den innloggede brukeren. Uten innlogget bruker sendes anmeldelsen som
+     * gjest.
+     *
+     * @param userSession sesjonen som husker den innloggede brukeren
+     * @throws NullPointerException hvis userSession er null
+     */
+    public void setUserSession(UserSession userSession) {
+        this.userSession = Objects.requireNonNull(userSession);
     }
 
     /**
@@ -115,7 +127,9 @@ public class SkrivAnmeldelseController {
     /**
      * Sender anmeldelsen i bakgrunnen uten å blokkere JavaFX-tråden.
      *
-     * <p>Skjemainnholdet beholdes ved feil og tømmes først etter bekreftet innsending.
+     * <p>For en innlogget bruker sendes avkrysningen «Anonym?» med, og serveren kobler anmeldelsen
+     * til brukeren ut fra tokenet. Uten innlogging sendes anmeldelsen som gjest. Skjemainnholdet
+     * beholdes ved feil og tømmes først etter bekreftet innsending.
      */
     @FXML
     private void handleSendInn() {
@@ -123,7 +137,10 @@ public class SkrivAnmeldelseController {
             return;
         }
 
-        String reviewerName = anonymousCheckBox.isSelected() ? "Anonym" : "Student";
+        boolean loggedIn = userSession.isLoggedIn();
+        String ownerEmail = userSession.getEmail();
+        String reviewerName = loggedIn ? userSession.getName() : "Gjest";
+        boolean anonymous = loggedIn && anonymousCheckBox.isSelected();
         String selectedCourseCode = courseCode;
         String selectedCourseName = courseName;
         String rating = ratingField.getText();
@@ -132,8 +149,12 @@ public class SkrivAnmeldelseController {
         statusLabel.setTextFill(Color.BLACK);
         statusLabel.setText("Sender anmeldelsen ...");
 
-        taskRunner.execute(() -> reviewService.submitReview(selectedCourseCode, selectedCourseName,
-                reviewerName, rating, comment), review -> {
+        taskRunner.execute(() -> loggedIn
+                ? reviewService.submitReview(selectedCourseCode, selectedCourseName, ownerEmail,
+                        reviewerName, anonymous, rating, comment)
+                : reviewService.submitReview(selectedCourseCode, selectedCourseName, reviewerName,
+                        rating, comment),
+                review -> {
                     showSuccessMessage("Vurderingen ble sendt inn!");
                     clearFields();
                 }, error -> {

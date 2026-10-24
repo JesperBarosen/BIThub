@@ -1,4 +1,11 @@
 <FindBugsFilter>
+    <!-- Alle skjermene i ui skal dele den samme sesjonen med den innloggede brukeren, ikke
+         en kopi. Gjelder bare feltet userSession i ui. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2" />
+        <Class name="~ui\..*" />
+        <Field name="userSession" />
+    </Match>
     <!-- ReviewService skal bruke lagringen den får fra App, ikke en kopi.
          Unntaket gjelder bare dette ene feltet. -->
     <Match>

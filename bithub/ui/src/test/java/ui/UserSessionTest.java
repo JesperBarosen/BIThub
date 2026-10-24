@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -57,8 +60,7 @@ class UserSessionTest {
                 () -> session.signIn("", "Kari", "kari@ntnu.no"));
         assertThrows(IllegalArgumentException.class,
                 () -> session.signIn("token", null, "kari@ntnu.no"));
-        assertThrows(IllegalArgumentException.class,
-                () -> session.signIn("token", "Kari", " "));
+        assertThrows(IllegalArgumentException.class, () -> session.signIn("token", "Kari", " "));
 
         assertFalse(session.isLoggedIn());
     }
@@ -73,5 +75,16 @@ class UserSessionTest {
 
         assertEquals("original-token", session.getToken());
         assertEquals("Kari", session.getName());
+    }
+
+    @Test
+    void tellsListenerAboutTokenOnSignInAndClear() {
+        List<String> tokens = new ArrayList<>();
+        UserSession session = new UserSession(tokens::add);
+
+        session.signIn("test-token", "Kari Nordmann", "kari@ntnu.no");
+        session.clear();
+
+        assertEquals(Arrays.asList("test-token", null), tokens);
     }
 }
