@@ -139,8 +139,7 @@ public final class Navigation {
      * @param onCourseSelected handlingen som får knappen og det valgte emnet
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
-    private void openCourseSelection(Node source,
-            BiConsumer<Node, Course> onCourseSelected) {
+    private void openCourseSelection(Node source, BiConsumer<Node, Course> onCourseSelected) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("VelgFag.fxml"));
         try {
             final Parent root = loader.load();
@@ -171,5 +170,14 @@ public final class Navigation {
 
     private static Stage stageOf(Node source) {
         return (Stage) source.getScene().getWindow();
+    }
+
+    /**
+     * Åpner registreringsskjermen i det samme vinduet.
+     *
+     * @param source et element i skjermbildet som er åpent nå
+     */
+    public void showRegistration(Node source) {
+        showFxml(source, "RegistrerBruker.fxml");
     }
 }
