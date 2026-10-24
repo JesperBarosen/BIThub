@@ -13,30 +13,44 @@ import javafx.stage.Stage;
  */
 public class App extends Application {
 
+    private final UserSession userSession = new UserSession();
+
     /**
-     * Kobler appen til REST-serveren og viser hjemmesiden når JavaFX starter. Dette er det eneste
-     * stedet i UI som vet at dataene hentes fra serveren. Resten av UI bruker bare ReviewService og
-     * ReviewRepository fra core.
+     * Kobler appen til REST-serveren og viser innloggingsskjermen.
+     *
+     * <p>Applikasjonens tjenester og sesjon opprettes og kobles sammen her. Resten av UI bruker
+     * tjenestene uten å kjenne til hvordan HTTP-kommunikasjonen utføres.
      *
      * <p>Serveradressen er {@code http://localhost:8080}, men kan endres med
-     * {@code -Dbithub.server-url=...} når appen startes. Standardemnene legges inn av serveren.
+     * {@code -Dbithub.server-url=...} ved oppstart.
      *
      * @param stage hovedvinduet til applikasjonen
-     * @throws IOException hvis hjemmesiden ikke kan lastes
+     * @throws IOException hvis innloggingsskjermen ikke kan lastes
      */
     @Override
     public void start(Stage stage) throws IOException {
-        RemoteReviewRepository repository = new RemoteReviewRepository(
-                System.getProperty("bithub.server-url", RemoteReviewRepository.DEFAULT_BASE_URL));
+        String baseUrl = System.getProperty("bithub.server-url",
+                RemoteReviewRepository.DEFAULT_BASE_URL);
+
+        RemoteReviewRepository repository = new RemoteReviewRepository(baseUrl);
         ReviewService reviewService = new ReviewService(repository);
         Navigation navigation = new Navigation(reviewService, repository);
 
-        FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("Hjemmeside.fxml"));
-        Parent parent = fxmlLoader.load();
+        AuthenticationClient authenticationClient = new RemoteAuthenticationClient(baseUrl);
 
-        HjemmesideController controller = fxmlLoader.getController();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("LoggInn.fxml"));
+        final Parent root = loader.load();
+
+        LoggInnController controller = loader.getController();
+        controller.setAuthenticationClient(authenticationClient);
         controller.setNavigation(navigation);
-        stage.setScene(new Scene(parent));
+
+        controller.setLoginSuccessHandler(result -> {
+            userSession.signIn(result.token(), result.name(), result.email());
+            repository.setToken(userSession.getToken());
+        });
+
+        stage.setScene(new Scene(root));
         stage.show();
     }
 
