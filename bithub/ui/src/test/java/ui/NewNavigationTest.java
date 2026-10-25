@@ -77,10 +77,23 @@ class NewNavigationTest extends ApplicationTest {
 
     @Test
     void unimplementedPageShowsPlaceholder() {
-        interact(() -> button("#myReviewsButton").fire());
+        interact(() -> button("#profileButton").fire());
 
         Label heading = (Label) stage.getScene().getRoot().lookup("#placeholderHeading");
-        assertEquals("Mine anmeldelser", heading.getText());
+        assertEquals("Profil", heading.getText());
+    }
+
+    /**
+     * Verifiserer at «Mine anmeldelser» åpnes fra hjemmesiden, og at siden ber om innlogging når
+     * ingen er logget inn.
+     */
+    @Test
+    void myReviewsAsksForLoginWithoutSession() {
+        interact(() -> button("#myReviewsButton").fire());
+
+        assertNotNull(stage.getScene().getRoot().lookup("#reviewList"));
+        Label status = (Label) stage.getScene().getRoot().lookup("#statusLabel");
+        assertEquals("Du må logge inn for å se dine anmeldelser.", status.getText());
     }
 
     /**
