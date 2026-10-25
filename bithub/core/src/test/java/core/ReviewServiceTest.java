@@ -81,12 +81,12 @@ class ReviewServiceTest {
     private final ReviewService service = new ReviewService(fakeRepository);
 
     @ParameterizedTest
-    @ValueSource(booleans = {false, true})
+    @ValueSource(booleans = { false, true })
     void submitReviewPreservesOwnerAndAnonymity(boolean anonymous) {
         User owner = new User("Ola Nordmann", "ola@example.com", "Passord123");
 
-        Review review = service.submitReview("IT1901", "Prosjektarbeid", owner, anonymous,
-                " 4 ", "  Bra fag  ");
+        Review review = service.submitReview("IT1901", "Prosjektarbeid", owner, anonymous, " 4 ",
+                "  Bra fag  ");
 
         assertSame(review, savedReviews.get(0));
         assertFalse(review.getId().isBlank());
@@ -100,10 +100,10 @@ class ReviewServiceTest {
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = {false, true})
+    @ValueSource(booleans = { false, true })
     void submitReviewWithoutOwnerAlwaysCreatesGuest(boolean anonymous) {
-        Review review = service.submitReview("IT1901", "Prosjektarbeid", null, anonymous,
-                "4", null);
+        Review review = service.submitReview("IT1901", "Prosjektarbeid", null, anonymous, "4",
+                null);
 
         assertSame(review, savedReviews.get(0));
         assertNull(review.getOwnerEmail());
@@ -115,7 +115,7 @@ class ReviewServiceTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    @ValueSource(strings = {"0", "6", "fire"})
+    @ValueSource(strings = { "0", "6", "fire" })
     void submitReviewWithOwnerRejectsInvalidRating(String rating) {
         User owner = new User("Ola Nordmann", "ola@example.com", "Passord123");
 
@@ -366,8 +366,8 @@ class ReviewServiceTest {
     }
 
     /**
-     * Verifiserer at eieren kan endre sin egen anmeldelse, og at id, eier og navn beholdes. E-posten
-     * sammenlignes uten å skille store og små bokstaver.
+     * Verifiserer at eieren kan endre sin egen anmeldelse, og at id, eier og navn beholdes.
+     * E-posten sammenlignes uten å skille store og små bokstaver.
      */
     @Test
     void ownerCanUpdateOwnReview() {
@@ -421,14 +421,13 @@ class ReviewServiceTest {
      */
     @ParameterizedTest
     @NullAndEmptySource
-    @ValueSource(strings = {"ola@example.com"})
+    @ValueSource(strings = { "ola@example.com" })
     void guestReviewCannotBeUpdatedOrDeleted(String ownerEmail) {
         storeReview("id-1", null);
 
         assertThrows(NotReviewOwnerException.class,
                 () -> service.updateReview("id-1", ownerEmail, "1", "", false));
-        assertThrows(NotReviewOwnerException.class,
-                () -> service.deleteReview("id-1", ownerEmail));
+        assertThrows(NotReviewOwnerException.class, () -> service.deleteReview("id-1", ownerEmail));
         assertTrue(updatedIds.isEmpty());
         assertTrue(deletedIds.isEmpty());
     }
@@ -440,7 +439,7 @@ class ReviewServiceTest {
      */
     @ParameterizedTest
     @NullAndEmptySource
-    @ValueSource(strings = {"finnes-ikke"})
+    @ValueSource(strings = { "finnes-ikke" })
     void unknownReviewIsNotFound(String reviewId) {
         storeReview("id-1", "ola@example.com");
 
@@ -457,7 +456,7 @@ class ReviewServiceTest {
      */
     @ParameterizedTest
     @NullAndEmptySource
-    @ValueSource(strings = {"0", "6", "fire"})
+    @ValueSource(strings = { "0", "6", "fire" })
     void updateRejectsInvalidRating(String rating) {
         storeReview("id-1", "ola@example.com");
 
@@ -489,7 +488,7 @@ class ReviewServiceTest {
      */
     private void storeReview(String id, String ownerEmail) {
         storedCourse = new Course("IT1901", "Informatikk prosjektarbeid I");
-        storedCourse.addReview(new Review(id, ownerEmail, ownerEmail == null ? "Gjest" : "Ola",
-                false, 4, "Bra"));
+        storedCourse.addReview(
+                new Review(id, ownerEmail, ownerEmail == null ? "Gjest" : "Ola", false, 4, "Bra"));
     }
 }
