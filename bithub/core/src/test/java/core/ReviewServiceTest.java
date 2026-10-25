@@ -29,6 +29,15 @@ class ReviewServiceTest {
      */
     private Course storedCourse;
 
+    private final List<String> updatedIds = new ArrayList<>();
+    private final List<String> deletedIds = new ArrayList<>();
+
+    /**
+     * Om den falske lagringen finner anmeldelsen når den skal endres eller slettes. Settes til
+     * false for å etterligne at anmeldelsen ble slettet rett etter eierskapssjekken.
+     */
+    private boolean storageFindsReview = true;
+
     /**
      * Falsk lagring som bare husker hva den har fått, og som returnerer {@link #storedCourse} ved
      * oppslag.
@@ -53,6 +62,19 @@ class ReviewServiceTest {
 
         @Override
         public void addCoursesIfMissing(List<Course> courses) {
+        }
+
+        @Override
+        public boolean updateReview(String reviewId, int rating, String comment,
+                boolean anonymous) {
+            updatedIds.add(reviewId);
+            return storageFindsReview;
+        }
+
+        @Override
+        public boolean deleteReview(String reviewId) {
+            deletedIds.add(reviewId);
+            return storageFindsReview;
         }
     };
 
@@ -341,5 +363,133 @@ class ReviewServiceTest {
         storedCourse.addReview(new Review("id-1", "ola@example.com", "Ola", false, 5, "Bra"));
 
         assertTrue(service.findReviewsByOwner(email).isEmpty());
+    }
+
+    /**
+     * Verifiserer at eieren kan endre sin egen anmeldelse, og at id, eier og navn beholdes. E-posten
+     * sammenlignes uten å skille store og små bokstaver.
+     */
+    @Test
+    void ownerCanUpdateOwnReview() {
+        storeReview("id-1", "ola@example.com");
+
+        Review updated = service.updateReview("id-1", " OLA@example.com ", " 2 ", "  Tungt  ",
+                true);
+
+        assertEquals(List.of("id-1"), updatedIds);
+        assertEquals("id-1", updated.getId());
+        assertEquals("ola@example.com", updated.getOwnerEmail());
+        assertEquals("Ola", updated.getReviewerName());
+        assertTrue(updated.isAnonymous());
+        assertEquals(2, updated.getRating());
+        assertEquals("Tungt", updated.getComment());
+    }
+
+    /**
+     * Verifiserer at eieren kan slette sin egen anmeldelse.
+     */
+    @Test
+    void ownerCanDeleteOwnReview() {
+        storeReview("id-1", "ola@example.com");
+
+        service.deleteReview("id-1", "ola@example.com");
+
+        assertEquals(List.of("id-1"), deletedIds);
+    }
+
+    /**
+     * Verifiserer at en annen bruker ikke kan endre eller slette anmeldelsen, og at lagringen da
+     * ikke blir kalt.
+     */
+    @Test
+    void otherUserCannotUpdateOrDeleteReview() {
+        storeReview("id-1", "ola@example.com");
+
+        assertThrows(NotReviewOwnerException.class,
+                () -> service.updateReview("id-1", "kari@example.com", "1", "", false));
+        assertThrows(NotReviewOwnerException.class,
+                () -> service.deleteReview("id-1", "kari@example.com"));
+        assertTrue(updatedIds.isEmpty());
+        assertTrue(deletedIds.isEmpty());
+    }
+
+    /**
+     * Verifiserer at gjesteanmeldelser uten eier ikke kan endres eller slettes, og at manglende
+     * e-post blir avvist.
+     *
+     * @param ownerEmail e-posten til den innloggede brukeren
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"ola@example.com"})
+    void guestReviewCannotBeUpdatedOrDeleted(String ownerEmail) {
+        storeReview("id-1", null);
+
+        assertThrows(NotReviewOwnerException.class,
+                () -> service.updateReview("id-1", ownerEmail, "1", "", false));
+        assertThrows(NotReviewOwnerException.class,
+                () -> service.deleteReview("id-1", ownerEmail));
+        assertTrue(updatedIds.isEmpty());
+        assertTrue(deletedIds.isEmpty());
+    }
+
+    /**
+     * Verifiserer at en ukjent id gir ReviewNotFoundException.
+     *
+     * @param reviewId id-en som ikke finnes
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"finnes-ikke"})
+    void unknownReviewIsNotFound(String reviewId) {
+        storeReview("id-1", "ola@example.com");
+
+        assertThrows(ReviewNotFoundException.class,
+                () -> service.updateReview(reviewId, "ola@example.com", "3", "", false));
+        assertThrows(ReviewNotFoundException.class,
+                () -> service.deleteReview(reviewId, "ola@example.com"));
+    }
+
+    /**
+     * Verifiserer at en ugyldig vurdering avvises før lagringen blir kalt.
+     *
+     * @param rating den ugyldige vurderingen
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"0", "6", "fire"})
+    void updateRejectsInvalidRating(String rating) {
+        storeReview("id-1", "ola@example.com");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.updateReview("id-1", "ola@example.com", rating, "", false));
+        assertTrue(updatedIds.isEmpty());
+    }
+
+    /**
+     * Verifiserer at det gir ReviewNotFoundException hvis anmeldelsen blir slettet mellom
+     * eierskapssjekken og endringen.
+     */
+    @Test
+    void reviewRemovedBeforeChangeIsNotFound() {
+        storeReview("id-1", "ola@example.com");
+        storageFindsReview = false;
+
+        assertThrows(ReviewNotFoundException.class,
+                () -> service.updateReview("id-1", "ola@example.com", "3", "", false));
+        assertThrows(ReviewNotFoundException.class,
+                () -> service.deleteReview("id-1", "ola@example.com"));
+    }
+
+    /**
+     * Legger én anmeldelse i emnet som den falske lagringen returnerer.
+     *
+     * @param id         id-en til anmeldelsen
+     * @param ownerEmail eieren, eller null for en gjesteanmeldelse
+     */
+    private void storeReview(String id, String ownerEmail) {
+        storedCourse = new Course("IT1901", "Informatikk prosjektarbeid I");
+        storedCourse.addReview(new Review(id, ownerEmail, ownerEmail == null ? "Gjest" : "Ola",
+                false, 4, "Bra"));
     }
 }
