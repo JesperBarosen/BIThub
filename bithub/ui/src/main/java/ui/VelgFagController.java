@@ -47,6 +47,8 @@ public class VelgFagController {
 
     private final FilteredList<Course> filteredCourses = new FilteredList<>(allCourses);
 
+    private boolean coursesLoaded;
+
     @FXML
     private void initialize() {
         courseComboBox.setButtonCell(courseCell());
@@ -54,6 +56,7 @@ public class VelgFagController {
         courseComboBox.setItems(filteredCourses);
         searchField.textProperty()
                 .addListener((observable, oldValue, newValue) -> filterCourses(newValue));
+        searchField.disableProperty().bind(taskRunner.runningProperty());
 
         courseComboBox.disableProperty().bind(taskRunner.runningProperty());
         nextButton.disableProperty()
@@ -73,6 +76,7 @@ public class VelgFagController {
     public void setReviewRepository(ReviewRepository reviewRepository) {
         Objects.requireNonNull(reviewRepository);
         taskRunner.cancel();
+        coursesLoaded = false;
 
         courseComboBox.getSelectionModel().clearSelection();
         allCourses.clear();
@@ -80,7 +84,8 @@ public class VelgFagController {
 
         taskRunner.execute(() -> reviewRepository.findAllCourses(), courses -> {
             allCourses.setAll(courses);
-            statusLabel.setText(courses.isEmpty() ? "Ingen emner er tilgjengelige." : "");
+            coursesLoaded = true;
+            updateSearchStatus();
         }, error -> statusLabel.setText("Kunne ikke hente emnene. Prøv igjen senere."));
     }
 
@@ -140,9 +145,38 @@ public class VelgFagController {
      */
     private void filterCourses(String searchText) {
         String query = searchText == null ? "" : searchText.strip().toLowerCase(Locale.ROOT);
+        Course selectedCourse = courseComboBox.getValue();
+
+        // Fjern valget før listen endres, så en ny indeks ikke gir feil emne.
+        courseComboBox.getSelectionModel().clearSelection();
+        courseComboBox.setValue(null);
+
         filteredCourses.setPredicate(
                 course -> course.getCourseCode().toLowerCase(Locale.ROOT).contains(query)
                         || course.getCourseName().toLowerCase(Locale.ROOT).contains(query));
+
+        if (selectedCourse != null && filteredCourses.contains(selectedCourse)) {
+            courseComboBox.getSelectionModel().select(selectedCourse);
+        }
+
+        updateSearchStatus();
+    }
+
+    /**
+     * Oppdaterer søkeresultatet uten å overskrive laste- eller feilmeldinger.
+     */
+    private void updateSearchStatus() {
+        if (!coursesLoaded) {
+            return;
+        }
+
+        if (allCourses.isEmpty()) {
+            statusLabel.setText("Ingen emner er tilgjengelige.");
+        } else if (filteredCourses.isEmpty()) {
+            statusLabel.setText("Ingen emner samsvarer med søket.");
+        } else {
+            statusLabel.setText("");
+        }
     }
 
     private ListCell<Course> courseCell() {
