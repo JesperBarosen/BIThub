@@ -2,7 +2,6 @@ package core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -101,16 +100,12 @@ class ReviewServiceTest {
 
     @ParameterizedTest
     @ValueSource(booleans = { false, true })
-    void submitReviewWithoutOwnerAlwaysCreatesGuest(boolean anonymous) {
-        Review review = service.submitReview("IT1901", "Prosjektarbeid", null, anonymous, "4",
-                null);
+    void submitReviewWithoutOwnerIsRejected(boolean anonymous) {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> service.submitReview("IT1901", "Prosjektarbeid", null, anonymous, "4", null));
 
-        assertSame(review, savedReviews.get(0));
-        assertNull(review.getOwnerEmail());
-        assertFalse(review.isAnonymous());
-        assertEquals(AuthorType.GUEST, review.getAuthorType());
-        assertEquals("Gjest", review.getDisplayName());
-        assertEquals("", review.getComment());
+        assertEquals("Du må logge inn for å skrive en anmeldelse.", e.getMessage());
+        assertTrue(savedReviews.isEmpty());
     }
 
     @ParameterizedTest
@@ -152,12 +147,13 @@ class ReviewServiceTest {
      */
     @Test
     void submitReviewSavesValidReview() {
-        service.submitReview("IT1901", "Informatikk prosjektarbeid", "Anonym", "4", "Bra fag");
+        service.submitReview("IT1901", "Informatikk prosjektarbeid", "kari@ntnu.no",
+                "Kari Nordmann", false, "4", "Bra fag");
 
         assertEquals(List.of("IT1901 - Informatikk prosjektarbeid"), savedCourses);
         assertEquals(1, savedReviews.size());
         Review review = savedReviews.get(0);
-        assertEquals("Anonym", review.getReviewerName());
+        assertEquals("Kari Nordmann", review.getReviewerName());
         assertEquals(4, review.getRating());
         assertEquals("Bra fag", review.getComment());
     }
@@ -168,8 +164,8 @@ class ReviewServiceTest {
      */
     @Test
     void submitReviewTrimsInput() {
-        service.submitReview("IT1901", "Prosjektarbeid", "Student", " 5 ", "  Lærerikt  ");
-        service.submitReview("IT1901", "Prosjektarbeid", "Student", "3", null);
+        submitAsStudent(" 5 ", "  Lærerikt  ");
+        submitAsStudent("3", null);
 
         assertEquals(5, savedReviews.get(0).getRating());
         assertEquals("Lærerikt", savedReviews.get(0).getComment());
@@ -183,7 +179,7 @@ class ReviewServiceTest {
     void submitReviewRejectsMissingRating() {
         for (String rating : new String[] { null, "", "   " }) {
             IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                    () -> service.submitReview("IT1901", "Prosjektarbeid", "Student", rating, ""));
+                    () -> submitAsStudent(rating, ""));
             assertEquals("Vurdering må fylles ut.", e.getMessage());
         }
         assertTrue(savedReviews.isEmpty());
@@ -195,7 +191,7 @@ class ReviewServiceTest {
     @Test
     void submitReviewRejectsNonNumericRating() {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> service.submitReview("IT1901", "Prosjektarbeid", "Student", "fire", ""));
+                () -> submitAsStudent("fire", ""));
         assertEquals("Vurdering må være et gyldig tall.", e.getMessage());
         assertTrue(savedReviews.isEmpty());
     }
@@ -207,7 +203,7 @@ class ReviewServiceTest {
     void submitReviewRejectsRatingOutsideRange() {
         for (String rating : new String[] { "0", "6", "-1" }) {
             IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                    () -> service.submitReview("IT1901", "Prosjektarbeid", "Student", rating, ""));
+                    () -> submitAsStudent(rating, ""));
             assertEquals("Vurdering må være et tall fra 1 til 5.", e.getMessage());
         }
         assertTrue(savedReviews.isEmpty());
@@ -218,14 +214,14 @@ class ReviewServiceTest {
      */
     @Test
     void submitReviewRejectsMissingCourseOrReviewer() {
-        assertThrows(IllegalArgumentException.class,
-                () -> service.submitReview("", "Prosjektarbeid", "Student", "4", ""));
+        assertThrows(IllegalArgumentException.class, () -> service.submitReview("",
+                "Prosjektarbeid", "student@ntnu.no", "Student", false, "4", ""));
 
-        assertThrows(IllegalArgumentException.class,
-                () -> service.submitReview("IT1901", "", "Student", "4", ""));
+        assertThrows(IllegalArgumentException.class, () -> service.submitReview("IT1901", "",
+                "student@ntnu.no", "Student", false, "4", ""));
 
-        assertThrows(IllegalArgumentException.class,
-                () -> service.submitReview("IT1901", "Prosjektarbeid", "", "4", ""));
+        assertThrows(IllegalArgumentException.class, () -> service.submitReview("IT1901",
+                "Prosjektarbeid", "student@ntnu.no", "", false, "4", ""));
         assertTrue(savedReviews.isEmpty());
     }
 
@@ -258,7 +254,8 @@ class ReviewServiceTest {
         });
 
         RuntimeException actual = assertThrows(RuntimeException.class,
-                () -> failingService.submitReview("IT1901", "Prosjektarbeid", "Student", "4", ""));
+                () -> failingService.submitReview("IT1901", "Prosjektarbeid", "student@ntnu.no",
+                        "Student", false, "4", ""));
         assertSame(failure, actual);
     }
 
@@ -618,5 +615,17 @@ class ReviewServiceTest {
         storedCourse = new Course("IT1901", "Informatikk prosjektarbeid I");
         storedCourse.addReview(
                 new Review(id, ownerEmail, ownerEmail == null ? "Gjest" : "Ola", false, 4, "Bra"));
+    }
+
+    /**
+     * Sender inn en anmeldelse av IT1901 som en innlogget student.
+     *
+     * @param rating  vurderingen som tekst
+     * @param comment kommentaren
+     * @return den lagrede anmeldelsen
+     */
+    private Review submitAsStudent(String rating, String comment) {
+        return service.submitReview("IT1901", "Prosjektarbeid", "student@ntnu.no", "Student", false,
+                rating, comment);
     }
 }
