@@ -49,6 +49,6 @@ public class HjemmesideController {
 
     @FXML
     private void handleProfile() {
-        navigation.showComingSoon(profileButton, "Profil");
+        navigation.showProfile(profileButton);
     }
 }

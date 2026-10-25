@@ -198,6 +198,50 @@ public final class Navigation {
     }
 
     /**
+     * Åpner profilsiden med navnet og e- posten til den innloggede brukeren.
+     * 
+     * @param source et element i skjermbildet som er åpent nå
+     * @throws IllegalStateException kastes hvis FXML- filen ikke kan lastes
+     */
+    public void showProfile(Node source) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("Profil.fxml"));
+        try {
+            final Parent root = loader.load();
+            ProfilController controller = loader.getController();
+            if (authenticationClient != null) {
+                controller.setAuthenticationClient(authenticationClient);
+            }
+            controller.setNavigation(this);
+            controller.setUserSession(userSession);
+            stageOf(source).setScene(new Scene(root));
+        } catch (IOException e) {
+            throw new IllegalStateException("Kunne ikke åpne profilen", e);
+        }
+    }
+
+    /**
+     * Åpner siden for å bytte passord.
+     * 
+     * @param source et element i skjermbildet som er åpent nå
+     * @throws IllegalStateException kastes hvis FXML- filen ikke kan lastes
+     */
+    public void showChangePassword(Node source) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("EndrePassord.fxml"));
+        try {
+            final Parent root = loader.load();
+            EndrePassordController controller = loader.getController();
+            if (authenticationClient != null) {
+                controller.setAuthenticationClient(authenticationClient);
+            }
+            controller.setNavigation(this);
+            controller.setUserSession(userSession);
+            stageOf(source).setScene(new Scene(root));
+        } catch (IOException e) {
+            throw new IllegalStateException("Kunne ikke åpne siden for passordbytte", e);
+        }
+    }
+
+    /**
      * Viser en midlertidig side for funksjoner som ikke er implementert.
      *
      * @param source et element i skjermbildet som er åpent nå
