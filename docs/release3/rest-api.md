@@ -18,13 +18,13 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 | GET | `/api/courses` | Alle emner | Nei | Ferdig (#151), brukes av klienten (#172) |
 | GET | `/api/courses/{code}` | Ett emne med anmeldelser og gjennomsnitt | Nei | Ferdig (#151), brukes av klienten (#172) |
 | POST | `/api/courses/{code}/reviews` | Ny anmeldelse | Valgfri | Ferdig (#151), eierskap og anonymitet (#176), brukes av klienten (#172) |
-| PUT | `/api/reviews/{id}` | Endre egen anmeldelse | Ja | Ferdig (#177) |
-| DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Ferdig (#177) |
+| PUT | `/api/reviews/{id}` | Endre egen anmeldelse | Ja | Ferdig (#177), brukes av klienten (#181) |
+| DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Ferdig (#177), brukes av klienten (#181) |
 | POST | `/api/users` | Registrere bruker | Nei | Ferdig (#174) |
 | POST | `/api/login` | Logge inn | Nei | Ferdig (#174) |
 | POST | `/api/logout` | Logge ut | Ja | Ferdig (#176) |
 | PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll (#176) |
-| GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174) |
+| GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174), brukes av klienten (#181) |
 
 ## Innlogging og token
 
