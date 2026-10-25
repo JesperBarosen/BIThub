@@ -145,7 +145,7 @@ public class VelgFagController {
      */
     private void filterCourses(String searchText) {
         String query = searchText == null ? "" : searchText.strip().toLowerCase(Locale.ROOT);
-        Course selectedCourse = courseComboBox.getValue();
+        final Course selectedCourse = courseComboBox.getValue();
 
         // Fjern valget før listen endres, så en ny indeks ikke gir feil emne.
         courseComboBox.getSelectionModel().clearSelection();
