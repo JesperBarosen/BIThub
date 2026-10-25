@@ -96,6 +96,7 @@ Unntak som gjelder én klasse, legger vi direkte i koden med `@SuppressFBWarning
 | `EI_EXPOSE_REP2` | Feltet `reviewRepository` i `core.ReviewService` | `ReviewService` skal bruke den samme lagringen som den får utenfra, ikke en kopi. |
 | `EI_EXPOSE_REP2` | Feltet `reviewRepository` i `ui.Navigation` | Navigasjonen sender den samme lagringen videre til kontrollerne. |
 | `EI_EXPOSE_REP2` | Feltet `reviewService` i klasser i `ui` og `rest.api` | SpotBugs regner `ReviewService` som en klasse som kan endres, fordi den har metoden `deleteReview` (#177). Tjenesten er delt, og kontrollerne skal bruke den direkte. |
+| `EI_EXPOSE_REP2` | Feltet `userSession` i klasser i `ui` | Alle skjermene skal dele den samme sesjonen med den innloggede brukeren, ikke en kopi. Ellers ville en skjerm ikke sett at brukeren har logget inn eller ut (#178). |
 
 **Med `@SuppressFBWarnings` i koden:**
 
