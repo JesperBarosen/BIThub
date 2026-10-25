@@ -118,6 +118,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     @Test
     @DisplayName("Skal vise feilmelding dersom rating ikke er et gyldig tall")
     void testHandleSendInnInvalidNumber() throws Exception {
+        signIn();
         TextField ratingField = (TextField) root.lookup("#ratingField");
         interact(() -> ratingField.setText("abc"));
 
@@ -137,6 +138,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     @Test
     @DisplayName("Skal vise feilmelding dersom rating er utenfor intervallet 1-5")
     void testHandleSendInnOutOfRangeNumber() throws Exception {
+        signIn();
         TextField ratingField = (TextField) root.lookup("#ratingField");
 
         // Test rating for lav (0)
@@ -252,28 +254,22 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester at en anmeldelse uten innlogging lagres som gjest, også om «Anonym?» er krysset av.
+     * Tester at en gjest ikke kan sende inn en anmeldelse, og at skjemaet beholdes.
      */
     @Test
-    @DisplayName("Skal lagre vurdering som gjest uten innlogging")
-    void testHandleSendInnWithoutLoginSavesGuestReview() throws Exception {
+    @DisplayName("Skal be gjester logge inn og ikke lagre noe")
+    void testHandleSendInnWithoutLoginAsksForLogin() throws Exception {
         interact(() -> controller.setEmneData("TDT4100 - Objektorientert programmering"));
 
         TextField ratingField = (TextField) root.lookup("#ratingField");
-        CheckBox anonymousCheckBox = (CheckBox) root.lookup("#anonymousCheckBox");
-
-        interact(() -> {
-            ratingField.setText("3");
-            anonymousCheckBox.setSelected(true);
-        });
+        interact(() -> ratingField.setText("3"));
 
         sendInn();
-        awaitStatusMessage("Vurderingen ble sendt inn!");
+        awaitStatusMessage("Du må logge inn for å skrive en anmeldelse.");
 
-        Review review = repository.findCourse("TDT4100").orElseThrow().getReviews().get(0);
-        Assertions.assertNull(review.getOwnerEmail());
-        Assertions.assertFalse(review.isAnonymous());
-        Assertions.assertEquals("Gjest", review.getReviewerName());
+        Assertions.assertEquals(Color.RED, ((Label) root.lookup("#statusLabel")).getTextFill());
+        Assertions.assertEquals("3", ratingField.getText());
+        Assertions.assertTrue(repository.findAllCourses().isEmpty());
     }
 
     /**
@@ -319,6 +315,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     @Test
     @DisplayName("Skal deaktivere innsending mens lagringen pågår")
     void disablesSubmissionWhileSaving() throws Exception {
+        signIn();
         DelayedReviewRepository delayedRepository = new DelayedReviewRepository();
 
         interact(() -> {
@@ -368,6 +365,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     @Test
     @DisplayName("Skal beholde skjemainnhold og aktivere innsending ved feil")
     void preservesInputWhenSubmissionFails() throws Exception {
+        signIn();
         DelayedReviewRepository delayedRepository = new DelayedReviewRepository();
 
         interact(() -> {
@@ -411,6 +409,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     @Test
     @DisplayName("Skal ignorere forsinket svar etter navigering til hjem")
     void ignoresLateResponseAfterNavigation() throws Exception {
+        signIn();
         DelayedReviewRepository delayedRepository = new DelayedReviewRepository();
 
         interact(() -> {
