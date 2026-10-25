@@ -10,7 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 
 /**
- * Håndterer innlogging og navigasjon til registreringsskjermen.
+ * Håndterer innlogging, navigasjon til registreringsskjermen og å fortsette som gjest.
  *
  * <p>Innlogging utføres i bakgrunnen slik at JavaFX ikke blokkeres. Sesjonen oppdateres først når
  * serveren bekrefter innloggingen.
@@ -28,6 +28,9 @@ public final class LoggInnController {
 
     @FXML
     private Button registerButton;
+
+    @FXML
+    private Button guestButton;
 
     @FXML
     private Label statusLabel;
@@ -126,6 +129,20 @@ public final class LoggInnController {
 
         taskRunner.cancel();
         navigation.showRegistration(registerButton);
+    }
+
+    /**
+     * Avbryter eventuell innlogging og åpner hjemmesiden uten innlogging. Gjester kan lese
+     * anmeldelser, men ikke skrive dem.
+     */
+    @FXML
+    private void handleGuest() {
+        if (navigation == null) {
+            throw new IllegalStateException("Navigasjonen er ikke konfigurert.");
+        }
+
+        taskRunner.cancel();
+        navigation.showHome(guestButton);
     }
 
     /**

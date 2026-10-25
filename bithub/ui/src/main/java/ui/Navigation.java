@@ -43,7 +43,7 @@ public final class Navigation {
 
     /**
      * Oppretter navigasjonen uten innlogging. Brukes av tester for skjermer som ikke trenger
-     * innlogging, og anmeldelser sendes da som gjest.
+     * innlogging, og appen oppfører seg da som for en gjest.
      *
      * @param reviewService    tjenesten for anmeldelser
      * @param reviewRepository lagringen fagvelgeren henter emnene fra
@@ -125,7 +125,8 @@ public final class Navigation {
     }
 
     /**
-     * Åpner hjemmesiden i det samme vinduet.
+     * Åpner hjemmesiden i det samme vinduet. Hvilke knapper som vises, avhenger av om noen er
+     * logget inn.
      *
      * @param source et element i skjermbildet som er åpent nå
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
@@ -287,6 +288,7 @@ public final class Navigation {
 
             if (loader.getController() instanceof HjemmesideController controller) {
                 controller.setNavigation(this);
+                controller.setUserSession(userSession);
             }
 
             stageOf(source).setScene(new Scene(root));
