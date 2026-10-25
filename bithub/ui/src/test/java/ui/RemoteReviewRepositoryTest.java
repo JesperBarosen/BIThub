@@ -12,6 +12,7 @@ import com.sun.net.httpserver.HttpServer;
 import core.AuthorType;
 import core.Course;
 import core.DefaultCourses;
+import core.NotReviewOwnerException;
 import core.Review;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -413,5 +414,159 @@ class RemoteReviewRepositoryTest {
     void testConstructorThrowsWhenBaseUrlIsInvalid() {
         assertThrows(IllegalArgumentException.class,
                 () -> new RemoteReviewRepository("http://ugyldig adresse"));
+    }
+
+    /**
+     * Verifiserer at egne anmeldelser hentes med token fra {@code GET /api/me/reviews}, og at de
+     * grupperes etter emne med eier og anonymitet.
+     */
+    @Test
+    void testFindReviewsByOwnerReadsOwnReviewsGroupedByCourse() {
+        respond("/api/me/reviews", 200, """
+                [
+                  {"id": "id-1", "courseCode": "IT1901",
+                   "courseName": "Informatikk prosjektarbeid I",
+                   "rating": 4, "comment": "Bra", "anonymous": true},
+                  {"id": "id-2", "courseCode": "TDT4100", "courseName": "Objektorientert",
+                   "rating": 2, "comment": "", "anonymous": false},
+                  {"id": "id-3", "courseCode": "IT1901",
+                   "courseName": "Informatikk prosjektarbeid I",
+                   "rating": 5, "comment": "Enda bedre", "anonymous": false}
+                ]
+                """);
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+        repository.setToken("abc-123");
+
+        List<Course> courses = repository.findReviewsByOwner("kari@ntnu.no");
+
+        assertEquals("GET", lastMethod);
+        assertEquals("Bearer abc-123", lastAuthorization);
+        assertEquals(2, courses.size());
+        assertEquals("IT1901", courses.get(0).getCourseCode());
+        assertEquals(2, courses.get(0).getReviews().size());
+        Review first = courses.get(0).getReviews().get(0);
+        assertEquals("id-1", first.getId());
+        assertEquals("kari@ntnu.no", first.getOwnerEmail());
+        assertTrue(first.isAnonymous());
+        assertEquals(4, first.getRating());
+        assertEquals("Bra", first.getComment());
+        assertEquals("TDT4100", courses.get(1).getCourseCode());
+        assertFalse(courses.get(1).getReviews().get(0).isAnonymous());
+    }
+
+    /**
+     * Verifiserer at henting av egne anmeldelser uten gyldig innlogging (401) gir
+     * UncheckedIOException.
+     */
+    @Test
+    void testFindReviewsByOwnerThrowsWhenNotLoggedIn() {
+        respond("/api/me/reviews", 401, """
+                {"status": 401, "error": "Unauthorized", "message": "Du må logge inn."}
+                """);
+
+        assertThrows(UncheckedIOException.class,
+                () -> new RemoteReviewRepository(serverUrl()).findReviewsByOwner("kari@ntnu.no"));
+    }
+
+    /**
+     * Verifiserer at en endring sendes med {@code PUT}, token og bare vurdering, kommentar og
+     * anonymitet.
+     *
+     * @throws IOException hvis JSON-en i forespørselen ikke kan leses
+     */
+    @Test
+    void testUpdateReviewPutsRatingCommentAndAnonymous() throws IOException {
+        respond("/api/reviews/id-1", 200, """
+                {"id": "id-1", "displayName": "Anonym", "authorType": "ANONYMOUS",
+                 "rating": 2, "comment": "Tungt"}
+                """);
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+        repository.setToken("abc-123");
+
+        assertTrue(repository.updateReview("id-1", 2, "Tungt", true));
+
+        assertEquals("PUT", lastMethod);
+        assertEquals("Bearer abc-123", lastAuthorization);
+        assertTrue(lastContentType.startsWith("application/json"));
+        JsonNode body = new ObjectMapper().readTree(lastBody);
+        assertEquals(3, body.size());
+        assertEquals(2, body.get("rating").asInt());
+        assertEquals("Tungt", body.get("comment").asText());
+        assertTrue(body.get("anonymous").asBoolean());
+    }
+
+    /**
+     * Verifiserer at sletting sendes med {@code DELETE} og token.
+     */
+    @Test
+    void testDeleteReviewSendsDelete() {
+        respond("/api/reviews/id-1", 204, "");
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+        repository.setToken("abc-123");
+
+        assertTrue(repository.deleteReview("id-1"));
+
+        assertEquals("DELETE", lastMethod);
+        assertEquals("Bearer abc-123", lastAuthorization);
+    }
+
+    /**
+     * Verifiserer at en anmeldelse serveren ikke finner (404), gir false ved endring og sletting.
+     */
+    @Test
+    void testUpdateAndDeleteReturnFalseWhenReviewIsUnknown() {
+        respond("/api/reviews/finnes-ikke", 404, """
+                {"status": 404, "error": "Not Found", "message": "Fant ingen anmeldelse."}
+                """);
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+
+        assertFalse(repository.updateReview("finnes-ikke", 3, "", false));
+        assertFalse(repository.deleteReview("finnes-ikke"));
+    }
+
+    /**
+     * Verifiserer at en anmeldelse som tilhører en annen (403), gir NotReviewOwnerException ved
+     * endring og sletting.
+     */
+    @Test
+    void testUpdateAndDeleteThrowWhenReviewBelongsToOther() {
+        respond("/api/reviews/id-2", 403, """
+                {"status": 403, "error": "Forbidden",
+                 "message": "Du har ikke tilgang til å gjøre denne endringen."}
+                """);
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+
+        assertThrows(NotReviewOwnerException.class,
+                () -> repository.updateReview("id-2", 3, "", false));
+        assertThrows(NotReviewOwnerException.class, () -> repository.deleteReview("id-2"));
+    }
+
+    /**
+     * Verifiserer at en ugyldig vurdering som serveren avviser (400), gir IllegalArgumentException
+     * med meldingen fra serveren.
+     */
+    @Test
+    void testUpdateReviewThrowsIllegalArgumentOnBadRequest() {
+        respond("/api/reviews/id-1", 400, """
+                {"status": 400, "error": "Bad Request",
+                 "message": "Vurdering må være et tall fra 1 til 5."}
+                """);
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> new RemoteReviewRepository(serverUrl()).updateReview("id-1", 3, "", false));
+        assertEquals("Vurdering må være et tall fra 1 til 5.", e.getMessage());
+    }
+
+    /**
+     * Verifiserer at endring og sletting uten id avvises uten å sende noe til serveren.
+     */
+    @Test
+    void testUpdateAndDeleteRejectMissingId() {
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> repository.updateReview(" ", 3, "", false));
+        assertThrows(IllegalArgumentException.class, () -> repository.deleteReview(null));
+        assertEquals(0, requestCount.get());
     }
 }
