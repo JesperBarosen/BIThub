@@ -191,6 +191,80 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
     }
 
     /**
+     * Henter én anmeldelse fra JSON-filen ut fra id-en.
+     *
+     * @param reviewId id-en til anmeldelsen
+     * @return anmeldelsen, eller tom hvis den ikke finnes
+     */
+    @Override
+    public Optional<Review> findReview(String reviewId) {
+        if (reviewId == null) {
+            return Optional.empty();
+        }
+        return readFromFile().stream().flatMap(course -> course.getReviews().stream())
+                .filter(review -> reviewId.equals(review.getId())).findFirst()
+                .map(ReviewHandler::toReview);
+    }
+
+    /**
+     * Endrer vurderingen, kommentaren og anonymiteten til en lagret anmeldelse. Id, eier og navn
+     * beholdes. Hele lesingen, endringen og skrivingen skjer med skrivelås, slik at samtidige
+     * endringer ikke overskriver hverandre.
+     *
+     * @param reviewId  id-en til anmeldelsen
+     * @param rating    den nye vurderingen fra 1 til 5
+     * @param comment   den nye kommentaren
+     * @param anonymous om anmeldelsen skal vises som anonym
+     * @return true hvis anmeldelsen ble endret, false hvis den ikke finnes
+     * @throws IllegalArgumentException hvis de nye verdiene er ugyldige
+     */
+    @Override
+    public boolean updateReview(String reviewId, int rating, String comment, boolean anonymous) {
+        return storage.update(() -> {
+            List<CourseDTO> courses = readFromFile();
+            Optional<ReviewDTO> stored = courses.stream()
+                    .flatMap(course -> course.getReviews().stream())
+                    .filter(review -> review.getId().equals(reviewId)).findFirst();
+            if (stored.isEmpty()) {
+                return false;
+            }
+
+            ReviewDTO review = stored.get();
+            // Validerer de nye verdiene med de samme reglene som når anmeldelsen lages.
+            new Review(review.getId(), review.getOwnerEmail(), review.getReviewerName(), anonymous,
+                    rating, comment);
+            review.setRating(rating);
+            review.setComment(comment == null ? "" : comment);
+            review.setAnonymous(anonymous);
+
+            storage.write(courses);
+            return true;
+        });
+    }
+
+    /**
+     * Sletter en lagret anmeldelse. Emnet beholdes selv om det ikke har flere anmeldelser. Hele
+     * lesingen, slettingen og skrivingen skjer med skrivelås.
+     *
+     * @param reviewId id-en til anmeldelsen
+     * @return true hvis anmeldelsen ble slettet, false hvis den ikke finnes
+     */
+    @Override
+    public boolean deleteReview(String reviewId) {
+        return storage.update(() -> {
+            List<CourseDTO> courses = readFromFile();
+            boolean removed = false;
+            for (CourseDTO course : courses) {
+                removed |= course.getReviews().removeIf(review -> review.getId().equals(reviewId));
+            }
+            if (removed) {
+                storage.write(courses);
+            }
+            return removed;
+        });
+    }
+
+    /**
      * Gjør om et lagret emne til domeneklassen, med alle anmeldelsene.
      *
      * @param courseDto emnet slik det er lagret i filen
@@ -199,11 +273,20 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
     private static Course toCourse(CourseDTO courseDto) {
         Course course = new Course(courseDto.getCourseCode(), courseDto.getCourseName());
         for (ReviewDTO reviewDto : courseDto.getReviews()) {
-            course.addReview(new Review(reviewDto.getId(), reviewDto.getOwnerEmail(),
-                    reviewDto.getReviewerName(), reviewDto.isAnonymous(), reviewDto.getRating(),
-                    reviewDto.getComment()));
+            course.addReview(toReview(reviewDto));
         }
         return course;
+    }
+
+    /**
+     * Gjør om en lagret anmeldelse til domeneklassen.
+     *
+     * @param reviewDto anmeldelsen slik den er lagret i filen
+     * @return anmeldelsen som domeneobjekt
+     */
+    private static Review toReview(ReviewDTO reviewDto) {
+        return new Review(reviewDto.getId(), reviewDto.getOwnerEmail(), reviewDto.getReviewerName(),
+                reviewDto.isAnonymous(), reviewDto.getRating(), reviewDto.getComment());
     }
 
     /**

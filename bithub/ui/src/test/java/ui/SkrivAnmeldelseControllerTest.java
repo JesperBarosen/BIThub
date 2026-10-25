@@ -170,6 +170,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     @Test
     @DisplayName("Skal lagre vurdering vellykket med anonym avhuking og nullstille felter")
     void testHandleSendInnSuccessAnonymous() throws Exception {
+        signIn();
         interact(() -> controller.setEmneData("TDT4120 - Algoritmer og datastrukturer"));
 
         TextField ratingField = (TextField) root.lookup("#ratingField");
@@ -202,17 +203,20 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
         Assertions.assertEquals("Algoritmer og datastrukturer", course.getCourseName());
         Assertions.assertEquals(1, course.getReviews().size());
         Review review = course.getReviews().get(0);
-        Assertions.assertEquals("Anonym", review.getReviewerName());
+        Assertions.assertEquals("kari@ntnu.no", review.getOwnerEmail());
+        Assertions.assertTrue(review.isAnonymous());
+        Assertions.assertEquals("Anonym", review.getDisplayName());
         Assertions.assertEquals(5, review.getRating());
         Assertions.assertEquals("Veldig bra emne!", review.getComment());
     }
 
     /**
-     * Tester vellykket innsending som ikke-anonym student.
+     * Tester vellykket innsending som innlogget bruker som ikke er anonym.
      */
     @Test
-    @DisplayName("Skal lagre vurdering vellykket som ikke-anonym student")
+    @DisplayName("Skal lagre vurdering vellykket med navnet til innlogget bruker")
     void testHandleSendInnSuccessNonAnonymous() throws Exception {
+        signIn();
         interact(() -> controller.setEmneData("TDT4100 - Objektorientert programmering"));
 
         TextField ratingField = (TextField) root.lookup("#ratingField");
@@ -240,9 +244,45 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
         Assertions.assertEquals("Objektorientert programmering", course.getCourseName());
         Assertions.assertEquals(1, course.getReviews().size());
         Review review = course.getReviews().get(0);
-        Assertions.assertEquals("Student", review.getReviewerName());
+        Assertions.assertEquals("Kari Nordmann", review.getReviewerName());
+        Assertions.assertEquals("kari@ntnu.no", review.getOwnerEmail());
+        Assertions.assertFalse(review.isAnonymous());
         Assertions.assertEquals(4, review.getRating());
         Assertions.assertEquals("Moro prosjekt.", review.getComment());
+    }
+
+    /**
+     * Tester at en anmeldelse uten innlogging lagres som gjest, også om «Anonym?» er krysset av.
+     */
+    @Test
+    @DisplayName("Skal lagre vurdering som gjest uten innlogging")
+    void testHandleSendInnWithoutLoginSavesGuestReview() throws Exception {
+        interact(() -> controller.setEmneData("TDT4100 - Objektorientert programmering"));
+
+        TextField ratingField = (TextField) root.lookup("#ratingField");
+        CheckBox anonymousCheckBox = (CheckBox) root.lookup("#anonymousCheckBox");
+
+        interact(() -> {
+            ratingField.setText("3");
+            anonymousCheckBox.setSelected(true);
+        });
+
+        sendInn();
+        awaitStatusMessage("Vurderingen ble sendt inn!");
+
+        Review review = repository.findCourse("TDT4100").orElseThrow().getReviews().get(0);
+        Assertions.assertNull(review.getOwnerEmail());
+        Assertions.assertFalse(review.isAnonymous());
+        Assertions.assertEquals("Gjest", review.getReviewerName());
+    }
+
+    /**
+     * Logger inn en testbruker i sesjonen som kontrolleren bruker.
+     */
+    private void signIn() {
+        UserSession session = new UserSession();
+        session.signIn("test-token", "Kari Nordmann", "kari@ntnu.no");
+        interact(() -> controller.setUserSession(session));
     }
 
     /**

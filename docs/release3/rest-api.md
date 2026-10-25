@@ -18,13 +18,13 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 | GET | `/api/courses` | Alle emner | Nei | Ferdig (#151), brukes av klienten (#172) |
 | GET | `/api/courses/{code}` | Ett emne med anmeldelser og gjennomsnitt | Nei | Ferdig (#151), brukes av klienten (#172) |
 | POST | `/api/courses/{code}/reviews` | Ny anmeldelse | Valgfri | Ferdig (#151), eierskap og anonymitet (#176), brukes av klienten (#172) |
-| PUT | `/api/reviews/{id}` | Endre egen anmeldelse | Ja | Planlagt i sprint 2 |
-| DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Planlagt i sprint 2 |
+| PUT | `/api/reviews/{id}` | Endre egen anmeldelse | Ja | Ferdig (#177), brukes av klienten (#181) |
+| DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Ferdig (#177), brukes av klienten (#181) |
 | POST | `/api/users` | Registrere bruker | Nei | Ferdig (#174) |
 | POST | `/api/login` | Logge inn | Nei | Ferdig (#174) |
 | POST | `/api/logout` | Logge ut | Ja | Ferdig (#176) |
 | PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll (#176) |
-| GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174) |
+| GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174), brukes av klienten (#181) |
 
 ## Innlogging og token
 
@@ -302,17 +302,14 @@ Feltet `anonymous` vises bare her, til eieren selv.
 
 Feil: `401`.
 
-## Felles tilgangskontroll og kobling til #177
+## Felles tilgangskontroll og eierskap
 
 Kontrollere som krever innlogging bruker `AuthenticationService.requireEmail(authorization)`.
 Metoden returnerer e-posten fra serverens tokenregister, eller kaster `NotLoggedInException`
 som gir `401` i det felles JSON-formatet. Utlogging fjerner tokenet fra det samme registeret.
 
-Ved endring og sletting av anmeldelser i #177 skal den verifiserte e-posten sammenlignes
-med anmeldelsens lagrede `ownerEmail`. Manglende eierskap skal gi `ForbiddenException`,
-som håndteres som `403`. Dette gjelder også anonyme anmeldelser; visningsnavnet er ikke
-grunnlag for tilgang. Gjesteanmeldelser har ingen eier og kan ikke endres av innloggede brukere.
-
-PUT og DELETE for anmeldelser er fortsatt planlagt. Når #177 kobles til, må testene bekrefte
-at bruker A ikke kan endre eller slette bruker Bs anmeldelser, og at manglende, ukjente og
-utloggede tokener avvises.
+Ved endring og sletting av anmeldelser (#177) sammenligner `ReviewService` den verifiserte
+e-posten med anmeldelsens lagrede `ownerEmail`. Manglende eierskap gir
+`NotReviewOwnerException`, og en ukjent id gir `ReviewNotFoundException`. `ApiExceptionHandler`
+gjør dem om til `403` og `404`. Dette gjelder også anonyme anmeldelser; visningsnavnet er ikke
+grunnlag for tilgang. Gjesteanmeldelser har ingen eier og kan ikke endres eller slettes av noen.
