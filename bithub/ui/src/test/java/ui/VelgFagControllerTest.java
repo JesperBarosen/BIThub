@@ -27,6 +27,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,7 +36,7 @@ import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
 /**
- * Tester emnevalg ved vellykket henting, venting, feil og navigering.
+ * Tester emnesøk og emnevalg ved vellykket henting, venting, feil og navigering.
  */
 class VelgFagControllerTest extends ApplicationTest {
 
@@ -52,8 +53,7 @@ class VelgFagControllerTest extends ApplicationTest {
         controller = loader.getController();
         repository = new InMemoryReviewRepository();
 
-        controller.setNavigation(
-                new Navigation(new ReviewService(repository), repository));
+        controller.setNavigation(new Navigation(new ReviewService(repository), repository));
 
         stage.setScene(new Scene(root));
         stage.show();
@@ -78,8 +78,8 @@ class VelgFagControllerTest extends ApplicationTest {
     void showsCoursesFromStorage() throws Exception {
         repository.addReview("TDT4100", "Objektorientert programmering",
                 new Review("Ola", 4, "Bra"));
-        repository.addCoursesIfMissing(
-                List.of(new Course("IT1901", "Informatikk prosjektarbeid I")));
+        repository
+                .addCoursesIfMissing(List.of(new Course("IT1901", "Informatikk prosjektarbeid I")));
 
         interact(() -> controller.setReviewRepository(repository));
         awaitLoadingFinished();
@@ -116,8 +116,8 @@ class VelgFagControllerTest extends ApplicationTest {
         CompletableFuture<List<Course>> response = new CompletableFuture<>();
 
         try {
-            interact(() -> controller.setReviewRepository(
-                    new CourseLoadingRepository(() -> response.join())));
+            interact(() -> controller
+                    .setReviewRepository(new CourseLoadingRepository(() -> response.join())));
 
             // JavaFX-tråden må kunne behandle dette mens hentingen fortsatt venter.
             interact(() -> {
@@ -148,16 +148,14 @@ class VelgFagControllerTest extends ApplicationTest {
     @Test
     void showsErrorWhenServerIsUnavailable() throws Exception {
         ReviewRepository unavailableRepository = new CourseLoadingRepository(() -> {
-            throw new UncheckedIOException(
-                    new ConnectException("Serveren er utilgjengelig."));
+            throw new UncheckedIOException(new ConnectException("Serveren er utilgjengelig."));
         });
 
         interact(() -> controller.setReviewRepository(unavailableRepository));
         awaitLoadingFinished();
 
         interact(() -> {
-            assertEquals("Kunne ikke hente emnene. Prøv igjen senere.",
-                    statusLabel().getText());
+            assertEquals("Kunne ikke hente emnene. Prøv igjen senere.", statusLabel().getText());
             assertTrue(courseComboBox().getItems().isEmpty());
             assertFalse(courseComboBox().isDisabled());
             assertTrue(button("#nextButton").isDisabled());
@@ -167,7 +165,7 @@ class VelgFagControllerTest extends ApplicationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"#homeButton", "#backButton"})
+    @ValueSource(strings = { "#homeButton", "#backButton" })
     void ignoresLateResponseAfterNavigation(String buttonId) throws Exception {
         CompletableFuture<List<Course>> response = new CompletableFuture<>();
         CountDownLatch started = new CountDownLatch(1);
@@ -188,8 +186,8 @@ class VelgFagControllerTest extends ApplicationTest {
             interact(() -> {
                 button(buttonId).fire();
                 assertNotSame(root, stage.getScene().getRoot());
-                assertTrue(stage.getScene().getRoot()
-                        .lookup("#writeReviewButton") instanceof Button);
+                assertTrue(
+                        stage.getScene().getRoot().lookup("#writeReviewButton") instanceof Button);
             });
 
             response.complete(DefaultCourses.all());
@@ -202,26 +200,113 @@ class VelgFagControllerTest extends ApplicationTest {
                 // Også den forlatte kontrolleren skal ignorere svaret.
                 assertTrue(courseComboBox().getItems().isEmpty());
                 assertEquals("Henter emner …", statusLabel().getText());
-                assertTrue(stage.getScene().getRoot()
-                        .lookup("#writeReviewButton") instanceof Button);
+                assertTrue(
+                        stage.getScene().getRoot().lookup("#writeReviewButton") instanceof Button);
             });
         } finally {
             response.complete(List.of());
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = { "IT", "it", "  it  " })
+    void filtersByCourseCode(String query) throws Exception {
+        loadSearchCourses();
+
+        interact(() -> searchField().setText(query));
+
+        assertVisibleCourseCodes("IT1901", "IT2805");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "prosjekt", "PROSJEKT", "  prosjekt  " })
+    void filtersByCourseName(String query) throws Exception {
+        loadSearchCourses();
+
+        interact(() -> searchField().setText(query));
+
+        assertVisibleCourseCodes("IT1901");
+    }
+
+    @Test
+    void updatesResultsWhileTyping() throws Exception {
+        loadSearchCourses();
+
+        interact(() -> searchField().setText("it"));
+        assertVisibleCourseCodes("IT1901", "IT2805");
+
+        interact(() -> searchField().appendText("19"));
+        assertVisibleCourseCodes("IT1901");
+    }
+
+    @Test
+    void showsNoCoursesWhenSearchHasNoMatches() throws Exception {
+        loadSearchCourses();
+
+        interact(() -> searchField().setText("zzzzzz"));
+
+        assertVisibleCourseCodes();
+    }
+
+    @Test
+    void restoresAllCoursesWhenSearchIsCleared() throws Exception {
+        loadSearchCourses();
+
+        interact(() -> searchField().setText("it19"));
+        assertVisibleCourseCodes("IT1901");
+
+        interact(() -> searchField().clear());
+
+        assertVisibleCourseCodes("TDT4100", "IT1901", "IT2805");
+    }
+
+    @Test
+    void showsAllCoursesWhenSearchContainsOnlySpaces() throws Exception {
+        loadSearchCourses();
+
+        interact(() -> searchField().setText("   "));
+
+        assertVisibleCourseCodes("TDT4100", "IT1901", "IT2805");
+    }
+
+    /**
+     * Laster faste testemner uten å være avhengig av server eller standardemner.
+     */
+    private void loadSearchCourses() throws Exception {
+        repository
+                .addCoursesIfMissing(List.of(new Course("TDT4100", "Objektorientert programmering"),
+                        new Course("IT1901", "Informatikk prosjektarbeid I"),
+                        new Course("IT2805", "Webteknologi")));
+
+        interact(() -> controller.setReviewRepository(repository));
+        awaitLoadingFinished();
+    }
+
+    /**
+     * Kontrollerer treffene og rekkefølgen ved å lese listen på JavaFX-tråden.
+     *
+     * @param expectedCodes emnekodene som skal vises, i forventet rekkefølge
+     */
+    private void assertVisibleCourseCodes(String... expectedCodes) {
+        interact(() -> assertEquals(List.of(expectedCodes),
+                courseComboBox().getItems().stream().map(Course::getCourseCode).toList()));
+    }
+
     /**
      * Venter uten å blokkere JavaFX-tråden, og leser UI-tilstanden på den tråden.
      */
     private void awaitLoadingFinished() throws Exception {
-        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
-                () -> WaitForAsyncUtils.asyncFx(
-                        () -> !courseComboBox().isDisabled()).get(5, TimeUnit.SECONDS));
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> WaitForAsyncUtils
+                .asyncFx(() -> !courseComboBox().isDisabled()).get(5, TimeUnit.SECONDS));
     }
 
     @SuppressWarnings("unchecked")
     private ComboBox<Course> courseComboBox() {
         return (ComboBox<Course>) root.lookup("#courseComboBox");
+    }
+
+    private TextField searchField() {
+        return (TextField) root.lookup("#searchField");
     }
 
     private Label statusLabel() {
