@@ -124,6 +124,28 @@ class ReviewServiceTest {
         assertTrue(savedReviews.isEmpty());
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void submitReviewFromClientKeepsLoggedInUserAndAnonymity(boolean anonymous) {
+        Review review = service.submitReview("IT1901", "Prosjektarbeid", "kari@ntnu.no",
+                "Kari Nordmann", anonymous, " 5 ", "  Lærerikt  ");
+
+        assertSame(review, savedReviews.get(0));
+        assertEquals("kari@ntnu.no", review.getOwnerEmail());
+        assertEquals("Kari Nordmann", review.getReviewerName());
+        assertEquals(anonymous, review.isAnonymous());
+        assertEquals(5, review.getRating());
+        assertEquals("Lærerikt", review.getComment());
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void submitReviewFromClientRequiresOwnerEmail(String ownerEmail) {
+        assertThrows(IllegalArgumentException.class, () -> service.submitReview("IT1901",
+                "Prosjektarbeid", ownerEmail, "Kari Nordmann", true, "4", ""));
+        assertTrue(savedReviews.isEmpty());
+    }
+
     /**
      * Verifiserer at en gyldig anmeldelse sendes videre til lagringen med riktig emne og riktige
      * verdier.
@@ -427,7 +449,8 @@ class ReviewServiceTest {
 
         assertThrows(NotReviewOwnerException.class,
                 () -> service.updateReview("id-1", ownerEmail, "1", "", false));
-        assertThrows(NotReviewOwnerException.class, () -> service.deleteReview("id-1", ownerEmail));
+        assertThrows(NotReviewOwnerException.class,
+                () -> service.deleteReview("id-1", ownerEmail));
         assertTrue(updatedIds.isEmpty());
         assertTrue(deletedIds.isEmpty());
     }
@@ -488,7 +511,7 @@ class ReviewServiceTest {
      */
     private void storeReview(String id, String ownerEmail) {
         storedCourse = new Course("IT1901", "Informatikk prosjektarbeid I");
-        storedCourse.addReview(
-                new Review(id, ownerEmail, ownerEmail == null ? "Gjest" : "Ola", false, 4, "Bra"));
+        storedCourse.addReview(new Review(id, ownerEmail, ownerEmail == null ? "Gjest" : "Ola",
+                false, 4, "Bra"));
     }
 }
