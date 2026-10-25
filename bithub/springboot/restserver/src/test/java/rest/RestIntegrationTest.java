@@ -90,6 +90,36 @@ class RestIntegrationTest {
         return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
+    private HttpResponse<String> delete(String path, String token)
+            throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder(uri(path))
+                .header("Authorization", "Bearer " + token)
+                .DELETE().build();
+        return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private String register(String name, String email) throws Exception {
+        String json = "{\"name\":\"" + name + "\",\"email\":\"" + email
+                + "\",\"password\":\"Passord123\"}";
+        HttpResponse<String> registered = post("/api/users", json);
+        assertEquals(201, registered.statusCode());
+        return MAPPER.readTree(registered.body()).get("token").asText();
+    }
+
+    private String createReview(String token, String json) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder(uri("/api/courses/IT1901/reviews"))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json)).build();
+        HttpResponse<String> created = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, created.statusCode());
+        return MAPPER.readTree(created.body()).get("id").asText();
+    }
+
+    private static core.Review savedReview(String id) {
+        return new ReviewHandler(coursesFile()).findReview(id).orElseThrow();
+    }
+
     /**
      * Verifiserer at utlogging over HTTP gjør tokenet ubrukelig på beskyttede endepunkter.
      *
@@ -440,5 +470,116 @@ class RestIntegrationTest {
         assertEquals(200, post("/api/login", oldLogin).statusCode());
         String newLogin = "{\"email\":\"user-b@example.com\",\"password\":\"NyttPassord123\"}";
         assertEquals(401, post("/api/login", newLogin).statusCode());
+    }
+
+    /**
+     * Verifiserer at eieren kan endre og slette sin egen anmeldelse, at endringen lagres i filen
+     * med samme eier, og at anmeldelsen er borte etter sletting.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void ownerCanUpdateAndDeleteOwnReview() throws Exception {
+        String token = register("Eier Nordmann", "crud-owner@example.com");
+        String id = createReview(token,
+                "{\"rating\":2,\"comment\":\"Første inntrykk\",\"anonymous\":false}");
+
+        HttpResponse<String> updated = put("/api/reviews/" + id,
+                "{\"rating\":5,\"comment\":\"Bedre enn ventet\",\"anonymous\":true}", token);
+        assertEquals(200, updated.statusCode());
+        JsonNode response = MAPPER.readTree(updated.body());
+        assertEquals(id, response.get("id").asText());
+        assertEquals("ANONYMOUS", response.get("authorType").asText());
+        assertEquals("Anonym", response.get("displayName").asText());
+        assertEquals(5, response.get("rating").asInt());
+        assertFalse(response.has("ownerEmail"));
+
+        core.Review saved = savedReview(id);
+        assertEquals("crud-owner@example.com", saved.getOwnerEmail());
+        assertEquals(5, saved.getRating());
+        assertEquals("Bedre enn ventet", saved.getComment());
+        assertTrue(saved.isAnonymous());
+
+        HttpResponse<String> deleted = delete("/api/reviews/" + id, token);
+        assertEquals(204, deleted.statusCode());
+        assertEquals("", deleted.body());
+        assertTrue(new ReviewHandler(coursesFile()).findReview(id).isEmpty());
+
+        assertEquals(404, delete("/api/reviews/" + id, token).statusCode());
+    }
+
+    /**
+     * Verifiserer at bruker A verken kan endre eller slette bruker Bs anmeldelse, og at
+     * anmeldelsen er uendret etterpå.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void anotherUserCannotUpdateOrDeleteReview() throws Exception {
+        String tokenA = register("Bruker A", "intruder-a@example.com");
+        String tokenB = register("Bruker B", "owner-b@example.com");
+        String id = createReview(tokenB,
+                "{\"rating\":4,\"comment\":\"Bs anmeldelse\",\"anonymous\":false}");
+
+        HttpResponse<String> updated = put("/api/reviews/" + id,
+                "{\"rating\":1,\"comment\":\"Endret av A\",\"anonymous\":false}", tokenA);
+        assertEquals(403, updated.statusCode());
+        assertEquals(403, MAPPER.readTree(updated.body()).get("status").asInt());
+
+        HttpResponse<String> deleted = delete("/api/reviews/" + id, tokenA);
+        assertEquals(403, deleted.statusCode());
+
+        core.Review saved = savedReview(id);
+        assertEquals("owner-b@example.com", saved.getOwnerEmail());
+        assertEquals(4, saved.getRating());
+        assertEquals("Bs anmeldelse", saved.getComment());
+    }
+
+    /**
+     * Verifiserer at en gjesteanmeldelse ikke kan endres eller slettes, heller ikke av en
+     * innlogget bruker.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void guestReviewCannotBeUpdatedOrDeleted() throws Exception {
+        HttpResponse<String> created = post("/api/courses/IT1901/reviews",
+                "{\"rating\":3,\"comment\":\"Skrevet som gjest\"}");
+        assertEquals(201, created.statusCode());
+        String id = MAPPER.readTree(created.body()).get("id").asText();
+        String token = register("Innlogget Bruker", "guest-test@example.com");
+
+        assertEquals(403, put("/api/reviews/" + id,
+                "{\"rating\":1,\"anonymous\":false}", token).statusCode());
+        assertEquals(403, delete("/api/reviews/" + id, token).statusCode());
+
+        core.Review saved = savedReview(id);
+        assertEquals(null, saved.getOwnerEmail());
+        assertEquals(3, saved.getRating());
+    }
+
+    /**
+     * Verifiserer at et token som er logget ut, ikke kan brukes til å endre eller slette egne
+     * anmeldelser.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void loggedOutTokenCannotUpdateOrDeleteReview() throws Exception {
+        String token = register("Utlogget Bruker", "logout-review@example.com");
+        String id = createReview(token, "{\"rating\":4,\"anonymous\":false}");
+
+        HttpRequest logout = HttpRequest.newBuilder(uri("/api/logout"))
+                .header("Authorization", "Bearer " + token)
+                .POST(HttpRequest.BodyPublishers.noBody()).build();
+        assertEquals(204, CLIENT.send(logout, HttpResponse.BodyHandlers.ofString()).statusCode());
+
+        HttpResponse<String> updated = put("/api/reviews/" + id,
+                "{\"rating\":1,\"anonymous\":false}", token);
+        assertEquals(401, updated.statusCode());
+        assertEquals(401, MAPPER.readTree(updated.body()).get("status").asInt());
+        assertEquals(401, delete("/api/reviews/" + id, token).statusCode());
+
+        assertEquals(4, savedReview(id).getRating());
     }
 }
