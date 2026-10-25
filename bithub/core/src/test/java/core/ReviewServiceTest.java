@@ -449,8 +449,7 @@ class ReviewServiceTest {
 
         assertThrows(NotReviewOwnerException.class,
                 () -> service.updateReview("id-1", ownerEmail, "1", "", false));
-        assertThrows(NotReviewOwnerException.class,
-                () -> service.deleteReview("id-1", ownerEmail));
+        assertThrows(NotReviewOwnerException.class, () -> service.deleteReview("id-1", ownerEmail));
         assertTrue(updatedIds.isEmpty());
         assertTrue(deletedIds.isEmpty());
     }
@@ -504,6 +503,112 @@ class ReviewServiceTest {
     }
 
     /**
+     * Verifiserer at tjenesten bruker lagringens egen henting av egne anmeldelser, slik klienten
+     * for serveren trenger.
+     */
+    @Test
+    void findReviewsByOwnerUsesRepository() {
+        Course ownCourse = new Course("IT1901", "Informatikk prosjektarbeid I");
+        List<String> askedFor = new ArrayList<>();
+        ReviewService ownReviewsService = new ReviewService(new ReviewRepository() {
+            @Override
+            public void addReview(String courseCode, String courseName, Review review) {
+            }
+
+            @Override
+            public Optional<Course> findCourse(String courseCode) {
+                return Optional.empty();
+            }
+
+            @Override
+            public List<Course> findAllCourses() {
+                return List.of();
+            }
+
+            @Override
+            public void addCoursesIfMissing(List<Course> courses) {
+            }
+
+            @Override
+            public List<Course> findReviewsByOwner(String ownerEmail) {
+                askedFor.add(ownerEmail);
+                return List.of(ownCourse);
+            }
+        });
+
+        assertEquals(List.of(ownCourse), ownReviewsService.findReviewsByOwner(" ola@example.com "));
+        assertEquals(List.of("ola@example.com"), askedFor);
+    }
+
+    /**
+     * Verifiserer at klienten kan endre en hentet anmeldelse, og at id, eier og navn beholdes.
+     */
+    @Test
+    void updateFetchedReviewKeepsIdOwnerAndName() {
+        Review review = new Review("id-1", "ola@example.com", "Ola", false, 4, "Bra");
+
+        Review updated = service.updateReview(review, " 2 ", "  Tungt  ", true);
+
+        assertEquals(List.of("id-1"), updatedIds);
+        assertEquals("id-1", updated.getId());
+        assertEquals("ola@example.com", updated.getOwnerEmail());
+        assertEquals("Ola", updated.getReviewerName());
+        assertTrue(updated.isAnonymous());
+        assertEquals(2, updated.getRating());
+        assertEquals("Tungt", updated.getComment());
+    }
+
+    /**
+     * Verifiserer at en ugyldig vurdering avvises før lagringen blir kalt.
+     *
+     * @param rating den ugyldige vurderingen
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = { "0", "6", "fire" })
+    void updateFetchedReviewRejectsInvalidRating(String rating) {
+        Review review = new Review("id-1", "ola@example.com", "Ola", false, 4, "Bra");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.updateReview(review, rating, "", false));
+        assertTrue(updatedIds.isEmpty());
+    }
+
+    /**
+     * Verifiserer at klienten kan slette en hentet anmeldelse.
+     */
+    @Test
+    void deleteFetchedReviewDeletesById() {
+        service.deleteReview(new Review("id-1", "ola@example.com", "Ola", false, 4, "Bra"));
+
+        assertEquals(List.of("id-1"), deletedIds);
+    }
+
+    /**
+     * Verifiserer at det gir ReviewNotFoundException hvis anmeldelsen er borte når klienten endrer
+     * eller sletter den.
+     */
+    @Test
+    void fetchedReviewThatIsGoneIsNotFound() {
+        Review review = new Review("id-1", "ola@example.com", "Ola", false, 4, "Bra");
+        storageFindsReview = false;
+
+        assertThrows(ReviewNotFoundException.class,
+                () -> service.updateReview(review, "3", "", false));
+        assertThrows(ReviewNotFoundException.class, () -> service.deleteReview(review));
+    }
+
+    /**
+     * Verifiserer at endring og sletting uten anmeldelse avvises.
+     */
+    @Test
+    void fetchedReviewMustBeGiven() {
+        assertThrows(NullPointerException.class,
+                () -> service.updateReview((Review) null, "3", "", false));
+        assertThrows(NullPointerException.class, () -> service.deleteReview((Review) null));
+    }
+
+    /**
      * Legger én anmeldelse i emnet som den falske lagringen returnerer.
      *
      * @param id         id-en til anmeldelsen
@@ -511,7 +616,7 @@ class ReviewServiceTest {
      */
     private void storeReview(String id, String ownerEmail) {
         storedCourse = new Course("IT1901", "Informatikk prosjektarbeid I");
-        storedCourse.addReview(new Review(id, ownerEmail, ownerEmail == null ? "Gjest" : "Ola",
-                false, 4, "Bra"));
+        storedCourse.addReview(
+                new Review(id, ownerEmail, ownerEmail == null ? "Gjest" : "Ola", false, 4, "Bra"));
     }
 }
