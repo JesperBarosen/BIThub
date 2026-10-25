@@ -54,8 +54,19 @@ public class VelgFagController {
         courseComboBox.setButtonCell(courseCell());
         courseComboBox.setCellFactory(listView -> courseCell());
         courseComboBox.setItems(filteredCourses);
-        searchField.textProperty()
-                .addListener((observable, oldValue, newValue) -> filterCourses(newValue));
+        courseComboBox.setVisibleRowCount(6);
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterCourses(newValue);
+
+            if (searchField.isFocused() && !taskRunner.runningProperty().get()) {
+                if (filteredCourses.isEmpty()) {
+                    courseComboBox.hide();
+                } else {
+                    courseComboBox.hide();
+                    courseComboBox.show();
+                }
+            }
+        });
         searchField.disableProperty().bind(taskRunner.runningProperty());
 
         courseComboBox.disableProperty().bind(taskRunner.runningProperty());
