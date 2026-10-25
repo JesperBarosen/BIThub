@@ -26,6 +26,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
@@ -85,6 +87,27 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
         ListView<Review> reviews = reviewList();
         assertEquals(2, reviews.getItems().size());
         assertEquals("Ola", reviews.getItems().get(0).getReviewerName());
+    }
+
+    /**
+     * Verifiserer at et langt emnenavn brytes over flere linjer og vises helt, uten «...», og at
+     * overskriften er sentrert.
+     */
+    @Test
+    void showsWholeLongCourseTitle() throws Exception {
+        final String title = "TDT4100 - Objektorientert programmering med et svært langt emnenavn";
+
+        interact(() -> controller.setCourse(new Course("TDT4100",
+                "Objektorientert programmering med et svært langt emnenavn")));
+        awaitReviewsLoaded();
+        WaitForAsyncUtils.waitForFxEvents();
+
+        interact(() -> {
+            Label courseTitle = label("#courseTitleLabel");
+            Text shownText = (Text) courseTitle.lookup(".text");
+            assertEquals(title, shownText.getText());
+            assertEquals(TextAlignment.CENTER, courseTitle.getTextAlignment());
+        });
     }
 
     /**
