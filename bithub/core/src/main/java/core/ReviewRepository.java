@@ -42,4 +42,48 @@ public interface ReviewRepository {
      * @param courses emnene som skal finnes i lagringen
      */
     void addCoursesIfMissing(List<Course> courses);
+
+    /**
+     * Henter én anmeldelse ut fra id-en.
+     *
+     * <p>Standardimplementasjonen leter gjennom alle emnene fra {@link #findAllCourses()}.
+     *
+     * @param reviewId id-en til anmeldelsen
+     * @return anmeldelsen, eller tom hvis den ikke finnes
+     */
+    default Optional<Review> findReview(String reviewId) {
+        if (reviewId == null) {
+            return Optional.empty();
+        }
+        return findAllCourses().stream().flatMap(course -> course.getReviews().stream())
+                .filter(review -> reviewId.equals(review.getId())).findFirst();
+    }
+
+    /**
+     * Endrer vurderingen, kommentaren og anonymiteten til en lagret anmeldelse. Id, eier og navn
+     * beholdes. Lagringer som ikke støtter endring, kaster {@link UnsupportedOperationException}.
+     *
+     * @param reviewId  id-en til anmeldelsen
+     * @param rating    den nye vurderingen fra 1 til 5
+     * @param comment   den nye kommentaren
+     * @param anonymous om anmeldelsen skal vises som anonym
+     * @return true hvis anmeldelsen ble endret, false hvis den ikke finnes
+     * @throws IllegalArgumentException hvis de nye verdiene er ugyldige
+     */
+    default boolean updateReview(String reviewId, int rating, String comment, boolean anonymous) {
+        throw new UnsupportedOperationException(
+                "Denne lagringen støtter ikke endring av anmeldelser.");
+    }
+
+    /**
+     * Sletter en lagret anmeldelse. Lagringer som ikke støtter sletting, kaster
+     * {@link UnsupportedOperationException}.
+     *
+     * @param reviewId id-en til anmeldelsen
+     * @return true hvis anmeldelsen ble slettet, false hvis den ikke finnes
+     */
+    default boolean deleteReview(String reviewId) {
+        throw new UnsupportedOperationException(
+                "Denne lagringen støtter ikke sletting av anmeldelser.");
+    }
 }

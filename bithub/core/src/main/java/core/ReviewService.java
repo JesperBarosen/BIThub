@@ -167,6 +167,72 @@ public final class ReviewService {
     }
 
     /**
+     * Endrer en egen anmeldelse. Id, eier og navn beholdes.
+     *
+     * @param reviewId   id-en til anmeldelsen
+     * @param ownerEmail e-posten til den innloggede brukeren, hentet fra tokenet på serveren
+     * @param ratingText den nye vurderingen som tekst
+     * @param comment    den nye kommentaren, null behandles som tom tekst
+     * @param anonymous  om anmeldelsen skal vises som anonym
+     * @return den oppdaterte anmeldelsen
+     * @throws ReviewNotFoundException  hvis anmeldelsen ikke finnes
+     * @throws NotReviewOwnerException  hvis anmeldelsen tilhører en annen eller er en
+     *                                  gjesteanmeldelse
+     * @throws IllegalArgumentException hvis vurderingen er ugyldig
+     */
+    public Review updateReview(String reviewId, String ownerEmail, String ratingText,
+            String comment, boolean anonymous) {
+        Review existing = requireOwnReview(reviewId, ownerEmail);
+        int rating = parseRating(ratingText);
+        String trimmedComment = comment == null ? "" : comment.trim();
+
+        if (!reviewRepository.updateReview(reviewId, rating, trimmedComment, anonymous)) {
+            throw new ReviewNotFoundException(reviewId);
+        }
+        return new Review(existing.getId(), existing.getOwnerEmail(), existing.getReviewerName(),
+                anonymous, rating, trimmedComment);
+    }
+
+    /**
+     * Sletter en egen anmeldelse.
+     *
+     * @param reviewId   id-en til anmeldelsen
+     * @param ownerEmail e-posten til den innloggede brukeren, hentet fra tokenet på serveren
+     * @throws ReviewNotFoundException hvis anmeldelsen ikke finnes
+     * @throws NotReviewOwnerException hvis anmeldelsen tilhører en annen eller er en
+     *                                 gjesteanmeldelse
+     */
+    public void deleteReview(String reviewId, String ownerEmail) {
+        requireOwnReview(reviewId, ownerEmail);
+        if (!reviewRepository.deleteReview(reviewId)) {
+            throw new ReviewNotFoundException(reviewId);
+        }
+    }
+
+    /**
+     * Henter anmeldelsen og sjekker at den tilhører brukeren. Gjesteanmeldelser har ingen eier, og
+     * kan derfor ikke endres av noen.
+     *
+     * <p>Eieren av en anmeldelse endres aldri. Hvis anmeldelsen slettes mellom sjekken og
+     * endringen, svarer lagringen {@code false}, og det gir {@link ReviewNotFoundException}.
+     *
+     * @param reviewId   id-en til anmeldelsen
+     * @param ownerEmail e-posten til den innloggede brukeren
+     * @return den lagrede anmeldelsen
+     * @throws ReviewNotFoundException hvis anmeldelsen ikke finnes
+     * @throws NotReviewOwnerException hvis brukeren ikke eier anmeldelsen
+     */
+    private Review requireOwnReview(String reviewId, String ownerEmail) {
+        Review review = reviewRepository.findReview(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId));
+        if (ownerEmail == null || review.getOwnerEmail() == null
+                || !review.getOwnerEmail().equalsIgnoreCase(ownerEmail.trim())) {
+            throw new NotReviewOwnerException();
+        }
+        return review;
+    }
+
+    /**
      * Gjør om vurderingen fra tekst til et tall fra 1 til 5.
      *
      * @param ratingText vurderingen slik brukeren skrev den inn

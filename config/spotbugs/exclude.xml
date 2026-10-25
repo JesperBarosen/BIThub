@@ -19,4 +19,12 @@
         <Class name="ui.Navigation" />
         <Field name="reviewRepository" />
     </Match>
+    <!-- SpotBugs regner ReviewService som endringsbar fordi den har deleteReview. Den er en
+         delt tjeneste som kontrollerne skal bruke direkte, ikke kopiere. Gjelder bare feltet
+         reviewService i ui og rest. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2" />
+        <Class name="~(ui|rest\.api)\..*" />
+        <Field name="reviewService" />
+    </Match>
 </FindBugsFilter>
