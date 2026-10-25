@@ -36,7 +36,7 @@ Hver anmeldelse (`ReviewDTO`) har disse feltene:
 | Felt | Innhold |
 |---|---|
 | `id` | Unik id (UUID), som brukes når anmeldelsen skal endres eller slettes |
-| `ownerEmail` | E-posten til brukeren som skrev den, eller `null` for gjester |
+| `ownerEmail` | E-posten til brukeren som skrev den, eller `null` for gjesteanmeldelser fra release 2 |
 | `reviewerName` | Navnet til den som skrev den |
 | `anonymous` | `true` hvis eieren vil være anonym |
 | `rating` | Vurdering fra 1 til 5 |
@@ -79,7 +79,7 @@ Ut fra `ownerEmail` og `anonymous` får anmeldelsen typen `USER`, `ANONYMOUS` el
 ]
 ```
 
-**Filer fra release 2:** anmeldelsene der har bare `reviewerName`, `rating` og `comment`. Når `ReviewHandler` leser en slik fil, får anmeldelser uten id en ny id, og filen lagres med en gang. De har ingen eier, så de blir gjesteanmeldelser.
+**Filer fra release 2:** anmeldelsene der har bare `reviewerName`, `rating` og `comment`. Når `ReviewHandler` leser en slik fil, får anmeldelser uten id en ny id, og filen lagres med en gang. De har ingen eier, så de blir gjesteanmeldelser. Fra #183 krever nye anmeldelser innlogging, så bare slike gamle anmeldelser er uten eier.
 
 ### 1.2 Brukere (`users.json`)
 
