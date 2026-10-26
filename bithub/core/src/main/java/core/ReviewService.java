@@ -1,6 +1,5 @@
 package core;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -153,17 +152,7 @@ public final class ReviewService {
         if (ownerEmail == null || ownerEmail.isBlank()) {
             return List.of();
         }
-        List<Course> result = new ArrayList<>();
-        for (Course course : reviewRepository.findAllCourses()) {
-            Course ownCourse = new Course(course.getCourseCode(), course.getCourseName());
-            course.getReviews().stream()
-                    .filter(review -> ownerEmail.equalsIgnoreCase(review.getOwnerEmail()))
-                    .forEach(ownCourse::addReview);
-            if (!ownCourse.getReviews().isEmpty()) {
-                result.add(ownCourse);
-            }
-        }
-        return result;
+        return reviewRepository.findReviewsByOwner(ownerEmail.trim());
     }
 
     /**
@@ -194,6 +183,35 @@ public final class ReviewService {
     }
 
     /**
+     * Endrer en av den innloggede brukerens anmeldelser fra klienten.
+     *
+     * <p>Klienten har hentet anmeldelsen fra «Mine anmeldelser», og serveren sjekker eierskapet ut
+     * fra tokenet. Derfor sjekkes ikke eieren her, bare den nye vurderingen. Id, eier og navn
+     * beholdes.
+     *
+     * @param review     anmeldelsen slik den ble hentet
+     * @param ratingText den nye vurderingen som tekst
+     * @param comment    den nye kommentaren, null behandles som tom tekst
+     * @param anonymous  om anmeldelsen skal vises som anonym
+     * @return den oppdaterte anmeldelsen
+     * @throws NullPointerException     hvis review er null
+     * @throws IllegalArgumentException hvis vurderingen er ugyldig
+     * @throws ReviewNotFoundException  hvis anmeldelsen ikke finnes lenger
+     */
+    public Review updateReview(Review review, String ratingText, String comment,
+            boolean anonymous) {
+        Objects.requireNonNull(review);
+        int rating = parseRating(ratingText);
+        String trimmedComment = comment == null ? "" : comment.trim();
+
+        if (!reviewRepository.updateReview(review.getId(), rating, trimmedComment, anonymous)) {
+            throw new ReviewNotFoundException(review.getId());
+        }
+        return new Review(review.getId(), review.getOwnerEmail(), review.getReviewerName(),
+                anonymous, rating, trimmedComment);
+    }
+
+    /**
      * Sletter en egen anmeldelse.
      *
      * @param reviewId   id-en til anmeldelsen
@@ -206,6 +224,21 @@ public final class ReviewService {
         requireOwnReview(reviewId, ownerEmail);
         if (!reviewRepository.deleteReview(reviewId)) {
             throw new ReviewNotFoundException(reviewId);
+        }
+    }
+
+    /**
+     * Sletter en av den innloggede brukerens anmeldelser fra klienten. Serveren sjekker eierskapet
+     * ut fra tokenet.
+     *
+     * @param review anmeldelsen slik den ble hentet
+     * @throws NullPointerException    hvis review er null
+     * @throws ReviewNotFoundException hvis anmeldelsen ikke finnes lenger
+     */
+    public void deleteReview(Review review) {
+        Objects.requireNonNull(review);
+        if (!reviewRepository.deleteReview(review.getId())) {
+            throw new ReviewNotFoundException(review.getId());
         }
     }
 

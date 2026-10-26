@@ -1,6 +1,7 @@
 package ui;
 
 import core.Course;
+import core.Review;
 import core.ReviewRepository;
 import core.ReviewService;
 import java.io.IOException;
@@ -220,6 +221,27 @@ public final class Navigation {
     }
 
     /**
+     * Åpner «Mine anmeldelser» og henter anmeldelsene til den innloggede brukeren.
+     *
+     * @param source et element i skjermbildet som er åpent nå
+     * @throws IllegalStateException hvis FXML-filen ikke kan lastes
+     */
+    public void showMyReviews(Node source) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MineAnmeldelser.fxml"));
+        try {
+            final Parent root = loader.load();
+            MineAnmeldelserController controller = loader.getController();
+            controller.setReviewService(reviewService);
+            controller.setUserSession(userSession);
+            controller.setNavigation(this);
+            stageOf(source).setScene(new Scene(root));
+            controller.loadReviews();
+        } catch (IOException e) {
+            throw new IllegalStateException("Kunne ikke åpne Mine anmeldelser", e);
+        }
+    }
+
+    /**
      * Åpner siden for å bytte passord.
      * 
      * @param source et element i skjermbildet som er åpent nå
@@ -238,6 +260,29 @@ public final class Navigation {
             stageOf(source).setScene(new Scene(root));
         } catch (IOException e) {
             throw new IllegalStateException("Kunne ikke åpne siden for passordbytte", e);
+        }
+    }
+
+    /**
+     * Åpner skjemaet for å endre en av brukerens egne anmeldelser.
+     *
+     * @param source     et element i skjermbildet som er åpent nå
+     * @param courseCode emnekoden til emnet anmeldelsen hører til
+     * @param courseName navnet på emnet
+     * @param review     anmeldelsen som skal endres
+     * @throws IllegalStateException hvis FXML-filen ikke kan lastes
+     */
+    public void showEditReview(Node source, String courseCode, String courseName, Review review) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("EndreEgenAnmeldelse.fxml"));
+        try {
+            final Parent root = loader.load();
+            EndreEgenAnmeldelseController controller = loader.getController();
+            controller.setReviewService(reviewService);
+            controller.setNavigation(this);
+            controller.setReview(courseCode, courseName, review);
+            stageOf(source).setScene(new Scene(root));
+        } catch (IOException e) {
+            throw new IllegalStateException("Kunne ikke åpne endring av anmeldelsen", e);
         }
     }
 

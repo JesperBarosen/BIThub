@@ -44,7 +44,7 @@ public class HjemmesideController {
 
     @FXML
     private void handleMyReviews() {
-        navigation.showComingSoon(myReviewsButton, "Mine anmeldelser");
+        navigation.showMyReviews(myReviewsButton);
     }
 
     @FXML

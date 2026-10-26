@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import core.Course;
+import core.NotReviewOwnerException;
 import core.Review;
 import core.ReviewRepository;
 import java.io.IOException;
@@ -16,7 +17,10 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -171,6 +175,75 @@ public final class RemoteReviewRepository implements ReviewRepository {
     }
 
     /**
+     * Henter den innloggede brukerens anmeldelser fra serveren med {@code GET /api/me/reviews}.
+     *
+     * <p>Serveren bestemmer brukeren ut fra tokenet, så e-posten brukes bare som eier på
+     * anmeldelsene som lages her. Serveren sender ikke navnet, og det vises ikke på «Mine
+     * anmeldelser», så e-posten brukes også som navn.
+     *
+     * @param ownerEmail e-posten til den innloggede brukeren
+     * @return emnene der brukeren har skrevet anmeldelser, med bare brukerens egne anmeldelser
+     * @throws UncheckedIOException hvis brukeren ikke er logget inn, serveren ikke svarer, eller
+     *                                  serveren svarer med en feil
+     */
+    @Override
+    public List<Course> findReviewsByOwner(String ownerEmail) {
+        HttpResponse<String> response = send(request("/api/me/reviews").GET().build());
+        checkStatus(response);
+
+        Map<String, Course> courses = new LinkedHashMap<>();
+        for (JsonNode reviewNode : readJson(response.body())) {
+            String courseCode = text(reviewNode, "courseCode");
+            String courseName = text(reviewNode, "courseName");
+            Course course = courses.computeIfAbsent(courseCode.toUpperCase(Locale.ROOT),
+                    key -> new Course(courseCode, courseName));
+            course.addReview(new Review(text(reviewNode, "id"), ownerEmail, ownerEmail,
+                    reviewNode.path("anonymous").asBoolean(), reviewNode.path("rating").asInt(),
+                    reviewNode.path("comment").asText("")));
+        }
+        return new ArrayList<>(courses.values());
+    }
+
+    /**
+     * Endrer en egen anmeldelse på serveren med {@code PUT /api/reviews/{id}}.
+     *
+     * @param reviewId  id-en til anmeldelsen
+     * @param rating    den nye vurderingen fra 1 til 5
+     * @param comment   den nye kommentaren
+     * @param anonymous om anmeldelsen skal vises som anonym
+     * @return true hvis anmeldelsen ble endret, false hvis serveren ikke finner den (404)
+     * @throws NotReviewOwnerException  hvis anmeldelsen tilhører en annen (403)
+     * @throws IllegalArgumentException hvis serveren avviser verdiene (400)
+     * @throws UncheckedIOException     hvis serveren ikke svarer eller svarer med en annen feil
+     */
+    @Override
+    public boolean updateReview(String reviewId, int rating, String comment, boolean anonymous) {
+        ObjectNode body = objectMapper.createObjectNode();
+        body.put("rating", rating);
+        body.put("comment", comment);
+        body.put("anonymous", anonymous);
+
+        HttpRequest request = request(reviewPath(reviewId))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(body.toString(), StandardCharsets.UTF_8))
+                .build();
+        return checkChangeStatus(send(request));
+    }
+
+    /**
+     * Sletter en egen anmeldelse på serveren med {@code DELETE /api/reviews/{id}}.
+     *
+     * @param reviewId id-en til anmeldelsen
+     * @return true hvis anmeldelsen ble slettet, false hvis serveren ikke finner den (404)
+     * @throws NotReviewOwnerException hvis anmeldelsen tilhører en annen (403)
+     * @throws UncheckedIOException    hvis serveren ikke svarer eller svarer med en annen feil
+     */
+    @Override
+    public boolean deleteReview(String reviewId) {
+        return checkChangeStatus(send(request(reviewPath(reviewId)).DELETE().build()));
+    }
+
+    /**
      * Gjør ingenting. Serveren legger inn standardemnene selv når den starter.
      *
      * @param courses emnene som skulle vært lagt inn
@@ -205,6 +278,41 @@ public final class RemoteReviewRepository implements ReviewRepository {
         String encoded = URLEncoder.encode(courseCode.strip(), StandardCharsets.UTF_8).replace("+",
                 "%20");
         return "/api/courses/" + encoded;
+    }
+
+    /**
+     * Lager stien til en anmeldelse, med id-en kodet slik at den er trygg i en URL.
+     *
+     * @param reviewId id-en til anmeldelsen
+     * @return stien, for eksempel "/api/reviews/c8f3d2e5"
+     * @throws IllegalArgumentException hvis id-en mangler
+     */
+    private static String reviewPath(String reviewId) {
+        if (reviewId == null || reviewId.isBlank()) {
+            throw new IllegalArgumentException("Anmeldelsen mangler id.");
+        }
+        return "/api/reviews/"
+                + URLEncoder.encode(reviewId.strip(), StandardCharsets.UTF_8).replace("+", "%20");
+    }
+
+    /**
+     * Sjekker svaret på en endring eller sletting.
+     *
+     * @param response svaret fra serveren
+     * @return true hvis endringen ble gjort, false hvis anmeldelsen ikke finnes (404)
+     * @throws NotReviewOwnerException  hvis anmeldelsen tilhører en annen (403)
+     * @throws IllegalArgumentException hvis serveren avviser verdiene (400)
+     * @throws UncheckedIOException     hvis statuskoden er en annen feil
+     */
+    private boolean checkChangeStatus(HttpResponse<String> response) {
+        if (response.statusCode() == 404) {
+            return false;
+        }
+        if (response.statusCode() == 403) {
+            throw new NotReviewOwnerException();
+        }
+        checkStatus(response);
+        return true;
     }
 
     /**
