@@ -19,16 +19,17 @@ public final class User {
      * @param email    e-postadresse som oppfyller formatkravet
      * @param password minst åtte tegn, kan ikke være null eller blankt
      * @throws IllegalArgumentException hvis en brukeropplysning er ugyldig
+     * @throws IllegalStateException    hvis hashing ikke kan utføres
      */
     public User(String name, String email, String password) {
         validateName(name);
         validateEmail(email);
 
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Password cannot be null or empty.");
+            throw new IllegalArgumentException("Passord kan ikke være null eller blankt.");
         }
         if (password.length() < 8) {
-            throw new IllegalArgumentException("Password must be at least 8 characters.");
+            throw new IllegalArgumentException("Passord må være minst 8 tegn.");
         }
 
         this.name = name;
@@ -51,16 +52,16 @@ public final class User {
         validateEmail(email);
 
         if (passwordHash == null) {
-            throw new IllegalArgumentException("Hash cannot be null.");
+            throw new IllegalArgumentException("Hash kan ikke være null.");
         }
         if (salt == null) {
-            throw new IllegalArgumentException("Salt cannot be null.");
+            throw new IllegalArgumentException("Salt kan ikke være null.");
         }
         if (Base64.getDecoder().decode(passwordHash).length != 32) {
-            throw new IllegalArgumentException("Hash must contain 32 bytes.");
+            throw new IllegalArgumentException("Hash må inneholde 32 bytes.");
         }
         if (Base64.getDecoder().decode(salt).length != 16) {
-            throw new IllegalArgumentException("Salt must contain 16 bytes.");
+            throw new IllegalArgumentException("Salt må inneholde 16 bytes.");
         }
 
         this.name = name;
@@ -71,26 +72,26 @@ public final class User {
 
     private static void validateName(String name) {
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Name cannot be null or empty.");
+            throw new IllegalArgumentException("Navn kan ikke være null eller tomt.");
         }
         if (name.length() < 3 || name.length() > 30) {
-            throw new IllegalArgumentException("Name must be between 3 and 30 characters.");
+            throw new IllegalArgumentException("Navn må være mellom 3 og 30 tegn.");
         }
         // Regex foreslått av ChatGPT for å tillate bokstaver fra alle språk,
         // samt mellomrom, bindestrek og apostrof mellom navnedeler.
         if (!name.matches("\\p{L}+(?:[ '-]\\p{L}+)*")) {
             throw new IllegalArgumentException(
-                    "Name can only contain letters, spaces, hyphens and apostrophes.");
+                    "Navn kan kun inneholde bokstaver, mellomrom, bindestrek og apostrof.");
         }
     }
 
     private static void validateEmail(String email) {
         if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email cannot be null or empty.");
+            throw new IllegalArgumentException("Email kan ikke være null eller tomt.");
         }
         // Regex foreslått av ChatGPT for enkel validering av e-postformat.
         if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
-            throw new IllegalArgumentException("Email must have a valid format.");
+            throw new IllegalArgumentException("E-post må ha et gyldig format.");
         }
     }
 

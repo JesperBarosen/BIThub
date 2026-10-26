@@ -33,12 +33,12 @@ public final class PasswordHasher {
      */
     public static boolean verifyPassword(String password, String salt, String expectedHash) {
         if (expectedHash == null) {
-            throw new IllegalArgumentException("Hash cannot be null.");
+            throw new IllegalArgumentException("Hash kan ikke være null.");
         }
 
         byte[] expectedBytes = Base64.getDecoder().decode(expectedHash);
         if (expectedBytes.length != HASH_LENGTH / Byte.SIZE) {
-            throw new IllegalArgumentException("Hash must contain 32 bytes.");
+            throw new IllegalArgumentException("Hash må inneholde 32 bytes.");
         }
 
         String actualHash = hashPassword(password, salt);
@@ -69,15 +69,15 @@ public final class PasswordHasher {
      */
     public static String hashPassword(String password, String salt) {
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Password cannot be null or blank.");
+            throw new IllegalArgumentException("Password kan ikke være null eller blankt.");
         }
         if (salt == null) {
-            throw new IllegalArgumentException("Salt cannot be null.");
+            throw new IllegalArgumentException("Salt kan ikke være null.");
         }
 
         byte[] saltBytes = Base64.getDecoder().decode(salt);
         if (saltBytes.length != SALT_LENGTH) {
-            throw new IllegalArgumentException("Salt must contain 16 bytes.");
+            throw new IllegalArgumentException("Salt må inneholde 16 bytes.");
         }
 
         char[] passwordChars = password.toCharArray();
@@ -89,7 +89,7 @@ public final class PasswordHasher {
             byte[] hash = factory.generateSecret(spec).getEncoded();
             return Base64.getEncoder().encodeToString(hash);
         } catch (GeneralSecurityException e) {
-            throw new IllegalStateException("Could not hash password.", e);
+            throw new IllegalStateException("Kunne ikke hashe passord", e);
         } finally {
             spec.clearPassword();
         }
