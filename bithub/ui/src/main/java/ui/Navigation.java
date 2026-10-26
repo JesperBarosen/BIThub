@@ -201,7 +201,7 @@ public final class Navigation {
 
     /**
      * Åpner profilsiden med navnet og e- posten til den innloggede brukeren.
-     * 
+     *
      * @param source et element i skjermbildet som er åpent nå
      * @throws IllegalStateException kastes hvis FXML- filen ikke kan lastes
      */
@@ -244,7 +244,7 @@ public final class Navigation {
 
     /**
      * Åpner siden for å bytte passord.
-     * 
+     *
      * @param source et element i skjermbildet som er åpent nå
      * @throws IllegalStateException kastes hvis FXML- filen ikke kan lastes
      */

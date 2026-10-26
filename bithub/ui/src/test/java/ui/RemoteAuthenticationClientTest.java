@@ -34,6 +34,7 @@ class RemoteAuthenticationClientTest {
     private volatile String receivedBody;
     private volatile String receivedContentType;
     private volatile String receivedAuthorization;
+    private volatile String receivedPath;
 
     /**
      * Starter en lokal testserver før hver test.
@@ -67,6 +68,7 @@ class RemoteAuthenticationClientTest {
     private void respond(String path, int status, String body) {
         server.createContext(path, exchange -> {
             receivedMethod = exchange.getRequestMethod();
+            receivedPath = exchange.getRequestURI().getRawPath();
             receivedBody = new String(exchange.getRequestBody().readAllBytes(),
                     StandardCharsets.UTF_8);
             receivedContentType = exchange.getRequestHeaders().getFirst("Content-Type");
@@ -199,5 +201,111 @@ class RemoteAuthenticationClientTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new RemoteAuthenticationClient("localhost:8080"));
         assertNotNull(new RemoteAuthenticationClient(serverUrl()));
+    }
+
+    @Test
+    void changePasswordSendsTokenAndPasswordsToEncodedPath() throws IOException {
+        respond("/api/users/", 204, "");
+
+        new RemoteAuthenticationClient(serverUrl()).changePassword("test-token", " kari@ntnu.no ",
+                "Gammelt123", "Nytt12345");
+
+        assertEquals("PUT", receivedMethod);
+        assertEquals("/api/users/kari%40ntnu.no/password", receivedPath);
+        assertEquals("Bearer test-token", receivedAuthorization);
+        assertEquals("application/json", receivedContentType);
+        JsonNode body = mapper.readTree(receivedBody);
+        assertEquals("Gammelt123", body.get("oldPassword").asText());
+        assertEquals("Nytt12345", body.get("newPassword").asText());
+        assertEquals(2, body.size());
+    }
+
+    @Test
+    void changePasswordShowsServerMessageForWrongPassword() {
+        respond("/api/users/", 400,
+                "{\"status\":400,\"message\":\"Det gamle passordet er feil.\"}");
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).changePassword("test-token",
+                        "kari@ntnu.no", "Feil12345", "Nytt12345"));
+
+        assertEquals("Det gamle passordet er feil.", error.getMessage());
+    }
+
+    @Test
+    void changePasswordShowsServerMessageForOtherUser() {
+        respond("/api/users/", 403,
+                "{\"status\":403,\"message\":\"Du kan bare endre ditt eget passord.\"}");
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).changePassword("test-token",
+                        "ola@ntnu.no", "Gammelt123", "Nytt12345"));
+
+        assertEquals("Du kan bare endre ditt eget passord.", error.getMessage());
+    }
+
+    @Test
+    void changePasswordAsksForNewLoginWhenTokenIsUnknown() {
+        respond("/api/users/", 401, "{\"status\":401,\"message\":\"Du må være logget inn.\"}");
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).changePassword("gammelt-token",
+                        "kari@ntnu.no", "Gammelt123", "Nytt12345"));
+
+        assertEquals("Du er ikke lenger logget inn. Logg inn på nytt for å bytte passord.",
+                error.getMessage());
+    }
+
+    @Test
+    void changePasswordTreatsServerErrorAsNetworkError() {
+        respond("/api/users/", 500, "{\"message\":\"Intern feil\"}");
+
+        assertThrows(UncheckedIOException.class, () -> new RemoteAuthenticationClient(serverUrl())
+                .changePassword("test-token", "kari@ntnu.no", "Gammelt123", "Nytt12345"));
+    }
+
+    @Test
+    void changePasswordRequiresTokenAndEmailWithoutRequest() {
+        RemoteAuthenticationClient client = new RemoteAuthenticationClient(serverUrl());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> client.changePassword(" ", "kari@ntnu.no", "Gammelt123", "Nytt12345"));
+        assertThrows(IllegalArgumentException.class,
+                () -> client.changePassword("test-token", null, "Gammelt123", "Nytt12345"));
+        assertNull(receivedMethod);
+    }
+
+    @Test
+    void logoutSendsTokenWithPost() {
+        respond("/api/logout", 204, "");
+
+        new RemoteAuthenticationClient(serverUrl()).logout("test-token");
+
+        assertEquals("POST", receivedMethod);
+        assertEquals("Bearer test-token", receivedAuthorization);
+    }
+
+    @Test
+    void logoutAcceptsUnknownToken() {
+        respond("/api/logout", 401, "{\"status\":401,\"message\":\"Du må være logget inn.\"}");
+
+        new RemoteAuthenticationClient(serverUrl()).logout("gammelt-token");
+
+        assertEquals("POST", receivedMethod);
+    }
+
+    @Test
+    void logoutTreatsServerErrorAsNetworkError() {
+        respond("/api/logout", 500, "{}");
+
+        assertThrows(UncheckedIOException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).logout("test-token"));
+    }
+
+    @Test
+    void logoutRequiresToken() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).logout(null));
+        assertNull(receivedMethod);
     }
 }

@@ -10,9 +10,9 @@ import javafx.scene.paint.Color;
 /**
  * Lar den innloggede brukeren bytte passord etter å ha skrevet inn det gamle passordet.
  * 
- * <p>Passordbyttet sendes til serveren i bakgrunnen med {@link BackgroundTaskRunner}
- * etter mønsteret i {@code docs/release3/javafx.md}. Bekreftelsen vises bare når
- * serveren har bekreftet byttet. Ved feil beholdes det brukeren har skrevet inn.
+ * <p>Passordbyttet sendes til serveren i bakgrunnen med {@link BackgroundTaskRunner} etter
+ * mønsteret i {@code docs/release3/javafx.md}. Bekreftelsen vises bare når serveren har bekreftet
+ * byttet. Ved feil beholdes det brukeren har skrevet inn.
  */
 public final class EndrePassordController {
 
@@ -47,7 +47,7 @@ public final class EndrePassordController {
     private AuthenticationClient authenticationClient;
 
     private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
-    
+
     /**
      * Deaktiverer skjemaet mens passordbyttet sendes.
      */
@@ -61,7 +61,7 @@ public final class EndrePassordController {
 
     /**
      * Setter navigasjonen som kontrolleren skal bruke.
-     * 
+     *
      * @param navigation navigasjonsobjektet
      * @throws NullPointerException kastes hvis navigation er null
      */
@@ -71,7 +71,7 @@ public final class EndrePassordController {
 
     /**
      * Setter sesjonen med tokenet og e- posten som brukes ved passordbyttet.
-     * 
+     *
      * @param userSession sesjonen som er felles for alle skjermene
      * @throws NullPointerException kastes hvis userSession er null
      */
@@ -79,9 +79,9 @@ public final class EndrePassordController {
         this.userSession = Objects.requireNonNull(userSession);
     }
 
-    /** 
+    /**
      * Setter tjenesten som sender passordbyttet til serveren.
-     * 
+     *
      * @param authenticationClient tjenesten for autentisering
      * @throws NullPointerException kastes hvis authenticationClient er null
      */
@@ -89,11 +89,11 @@ public final class EndrePassordController {
         this.authenticationClient = Objects.requireNonNull(authenticationClient);
     }
 
-    /** 
+    /**
      * Sjekker feltene og sender passordbyttet i bakgrunnen.
      *
-     * <p>Klienten sjekker bare det som gir raskere tilbakemelding til brukeren.
-     * Serveren sjekker det gamle passordet og validerer det nye på nytt.
+     * <p>Klienten sjekker bare det som gir raskere tilbakemelding til brukeren. Serveren sjekker
+     * det gamle passordet og validerer det nye på nytt.
      */
     @FXML
     private void handleChangePassword() {
