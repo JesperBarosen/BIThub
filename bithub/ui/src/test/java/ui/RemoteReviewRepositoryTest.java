@@ -20,6 +20,7 @@ import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -456,16 +457,17 @@ class RemoteReviewRepositoryTest {
 
     /**
      * Verifiserer at henting av egne anmeldelser uten gyldig innlogging (401) gir
-     * UncheckedIOException.
+     * IllegalArgumentException med beskjed om å logge inn på nytt.
      */
     @Test
     void testFindReviewsByOwnerThrowsWhenNotLoggedIn() {
         respond("/api/me/reviews", 401, """
-                {"status": 401, "error": "Unauthorized", "message": "Du må logge inn."}
+                {"status": 401, "error": "Unauthorized", "message": "Du må være logget inn."}
                 """);
 
-        assertThrows(UncheckedIOException.class,
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> new RemoteReviewRepository(serverUrl()).findReviewsByOwner("kari@ntnu.no"));
+        assertEquals(RemoteReviewRepository.NOT_LOGGED_IN_MESSAGE, e.getMessage());
     }
 
     /**
@@ -568,5 +570,148 @@ class RemoteReviewRepositoryTest {
                 () -> repository.updateReview(" ", 3, "", false));
         assertThrows(IllegalArgumentException.class, () -> repository.deleteReview(null));
         assertEquals(0, requestCount.get());
+    }
+
+    /**
+     * Verifiserer at en anmeldelse med et token serveren ikke kjenner lenger (401), for eksempel
+     * etter at serveren har startet på nytt, gir beskjed om å logge inn på nytt.
+     */
+    @Test
+    void testAddReviewWithUnknownTokenAsksForNewLogin() {
+        respond("/api/courses/IT1901/reviews", 401, """
+                {"status": 401, "error": "Unauthorized", "message": "Du må være logget inn."}
+                """);
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+        repository.setToken("gammelt-token");
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> repository.addReview("IT1901", "Prosjektarbeid",
+                        new Review("id-1", "kari@ntnu.no", "Kari", false, 4, "")));
+        assertEquals(RemoteReviewRepository.NOT_LOGGED_IN_MESSAGE, e.getMessage());
+        assertEquals("Bearer gammelt-token", lastAuthorization);
+    }
+
+    /**
+     * Verifiserer at endring og sletting med et ukjent token (401) også gir beskjed om å logge inn
+     * på nytt, og ikke behandles som at anmeldelsen mangler.
+     */
+    @Test
+    void testUpdateAndDeleteWithUnknownTokenAskForNewLogin() {
+        respond("/api/reviews/id-1", 401, """
+                {"status": 401, "error": "Unauthorized", "message": "Du må være logget inn."}
+                """);
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+
+        IllegalArgumentException update = assertThrows(IllegalArgumentException.class,
+                () -> repository.updateReview("id-1", 3, "", false));
+        IllegalArgumentException delete = assertThrows(IllegalArgumentException.class,
+                () -> repository.deleteReview("id-1"));
+        assertEquals(RemoteReviewRepository.NOT_LOGGED_IN_MESSAGE, update.getMessage());
+        assertEquals(RemoteReviewRepository.NOT_LOGGED_IN_MESSAGE, delete.getMessage());
+    }
+
+    /**
+     * Verifiserer at 403 utenfor endring og sletting gir IllegalArgumentException med meldingen fra
+     * serveren.
+     */
+    @Test
+    void testForbiddenGivesServerMessage() {
+        respond("/api/courses/IT1901/reviews", 403, """
+                {"status": 403, "error": "Forbidden", "message": "Du har ikke tilgang."}
+                """);
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> new RemoteReviewRepository(serverUrl()).addReview("IT1901", "Prosjektarbeid",
+                        new Review("Kari", 4, "")));
+        assertEquals("Du har ikke tilgang.", e.getMessage());
+    }
+
+    /**
+     * Verifiserer at et svar som kommer litt sent, men innenfor tidsgrensen, leses som vanlig.
+     */
+    @Test
+    void testSlowResponseWithinTimeoutIsRead() {
+        respondAfter("/api/courses", Duration.ofMillis(200), """
+                [{"code": "IT1901", "name": "Prosjektarbeid"}]
+                """);
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl(),
+                Duration.ofSeconds(5));
+
+        List<Course> courses = repository.findAllCourses();
+
+        assertEquals(1, courses.size());
+        assertEquals("IT1901", courses.get(0).getCourseCode());
+    }
+
+    /**
+     * Verifiserer at klienten gir opp når serveren ikke svarer innen tidsgrensen.
+     */
+    @Test
+    void testTimeoutGivesUncheckedIoException() {
+        respondAfter("/api/courses", Duration.ofSeconds(2), "[]");
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl(),
+                Duration.ofMillis(200));
+
+        UncheckedIOException e = assertThrows(UncheckedIOException.class,
+                repository::findAllCourses);
+        assertEquals("Serveren svarte ikke i tide.", e.getMessage());
+    }
+
+    /**
+     * Verifiserer at et svar som ikke er gyldig JSON, gir UncheckedIOException.
+     */
+    @Test
+    void testInvalidJsonGivesUncheckedIoException() {
+        respond("/api/courses", 200, "[{\"code\": \"IT1901\",");
+
+        assertThrows(UncheckedIOException.class,
+                new RemoteReviewRepository(serverUrl())::findAllCourses);
+    }
+
+    /**
+     * Verifiserer at et svar der et påkrevd felt mangler, gir UncheckedIOException i stedet for et
+     * emne eller en anmeldelse med tomme verdier.
+     */
+    @Test
+    void testMissingFieldGivesUncheckedIoException() {
+        respond("/api/courses", 200, """
+                [{"name": "Prosjektarbeid"}]
+                """);
+        respond("/api/courses/IT1901", 200, """
+                {"code": "IT1901", "name": "Prosjektarbeid",
+                 "reviews": [{"displayName": "Kari", "rating": 5, "comment": ""}]}
+                """);
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+
+        assertThrows(UncheckedIOException.class, repository::findAllCourses);
+        assertThrows(UncheckedIOException.class, () -> repository.findCourse("IT1901"));
+    }
+
+    /**
+     * Lar den falske serveren vente før den svarer med status 200, slik at forsinkede svar og
+     * tidsavbrudd kan testes.
+     *
+     * @param path  stien serveren svarer på
+     * @param delay hvor lenge serveren venter
+     * @param body  JSON-teksten serveren svarer med
+     */
+    private void respondAfter(String path, Duration delay, String body) {
+        server.createContext(path, exchange -> {
+            try {
+                Thread.sleep(delay.toMillis());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            try {
+                exchange.sendResponseHeaders(200, bytes.length);
+                try (OutputStream out = exchange.getResponseBody()) {
+                    out.write(bytes);
+                }
+            } catch (IOException e) {
+                // Klienten har gitt opp og lukket forbindelsen.
+            }
+        });
     }
 }

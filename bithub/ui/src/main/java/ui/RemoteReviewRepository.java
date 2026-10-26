@@ -14,6 +14,7 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -30,10 +31,13 @@ import java.util.Optional;
  * kan bruke serveren uten å vite at dataene kommer over HTTP. Formatet på forespørslene og svarene
  * er beskrevet i {@code docs/release3/rest-api.md}.
  *
- * <p>Feil håndteres slik: <ul> <li>{@code 400}, {@code 401}, {@code 403} og {@code 404} gir
+ * <p>Feil håndteres slik: <ul> <li>{@code 400}, {@code 403} og {@code 404} gir
  * {@link IllegalArgumentException} med meldingen fra serveren, unntatt {@code 404} i
- * {@link #findCourse(String)}, som gir et tomt resultat.</li> <li>Andre feilkoder, ugyldige svar,
- * nettverksfeil og tidsavbrudd gir {@link UncheckedIOException}.</li> </ul>
+ * {@link #findCourse(String)}, som gir et tomt resultat, og {@code 403} og {@code 404} ved endring
+ * og sletting.</li> <li>{@code 401} gir {@link IllegalArgumentException} med beskjed om å logge inn
+ * på nytt, siden tokenet er ukjent, for eksempel fordi serveren har startet på nytt.</li> <li>Andre
+ * feilkoder, ugyldige svar, nettverksfeil og tidsavbrudd gir {@link UncheckedIOException}.</li>
+ * </ul>
  */
 public final class RemoteReviewRepository implements ReviewRepository {
 
@@ -44,6 +48,11 @@ public final class RemoteReviewRepository implements ReviewRepository {
 
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
+
+    /**
+     * Meldingen når serveren ikke godtar tokenet (401).
+     */
+    static final String NOT_LOGGED_IN_MESSAGE = "Du er ikke lenger logget inn. Logg inn på nytt.";
 
     private final String baseUrl;
     private final Duration requestTimeout;
@@ -69,14 +78,15 @@ public final class RemoteReviewRepository implements ReviewRepository {
     }
 
     /**
-     * Oppretter et repository med egen tidsgrense per forespørsel. Brukes av testene, slik at
-     * tidsavbrudd kan testes uten å vente i ti sekunder.
+     * Oppretter et repository med en egen tidsgrense for hver forespørsel. Brukes av testene, slik
+     * at tidsavbrudd kan testes uten å vente i ti sekunder.
      *
      * @param baseUrl        adressen til serveren
-     * @param requestTimeout hvor lenge en forespørsel kan vente på svar
+     * @param requestTimeout hvor lenge klienten venter på svar
      * @throws IllegalArgumentException hvis adressen er null, blank eller ugyldig
      */
     RemoteReviewRepository(String baseUrl, Duration requestTimeout) {
+        this.requestTimeout = requestTimeout;
         if (baseUrl == null || baseUrl.isBlank()) {
             throw new IllegalArgumentException("Serveradressen kan ikke være tom.");
         }
@@ -84,7 +94,6 @@ public final class RemoteReviewRepository implements ReviewRepository {
         this.baseUrl = trimmed.endsWith("/") ? trimmed.substring(0, trimmed.length() - 1) : trimmed;
         // Sjekker adressen med en gang, slik at en skrivefeil oppdages ved oppstart.
         URI.create(this.baseUrl);
-        this.requestTimeout = requestTimeout;
         this.httpClient = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
     }
 
@@ -167,9 +176,8 @@ public final class RemoteReviewRepository implements ReviewRepository {
      * @param courseCode emnekoden
      * @param courseName navnet på emnet, brukes ikke fordi serveren kjenner emnet fra før
      * @param review     anmeldelsen som skal lagres
-     * @throws IllegalArgumentException hvis serveren avviser anmeldelsen (400), innloggingen er
-     *                                      ugyldig (401), brukeren mangler tilgang (403) eller
-     *                                      emnet ikke finnes (404)
+     * @throws IllegalArgumentException hvis serveren avviser anmeldelsen (400) eller emnet ikke
+     *                                      finnes (404)
      * @throws UncheckedIOException     hvis serveren ikke svarer eller svarer med en annen feil
      */
     @Override
@@ -340,6 +348,8 @@ public final class RemoteReviewRepository implements ReviewRepository {
     private HttpResponse<String> send(HttpRequest request) {
         try {
             return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (HttpTimeoutException e) {
+            throw new UncheckedIOException("Serveren svarte ikke i tide.", e);
         } catch (IOException e) {
             throw new UncheckedIOException("Fikk ikke kontakt med serveren.", e);
         } catch (InterruptedException e) {
@@ -350,8 +360,9 @@ public final class RemoteReviewRepository implements ReviewRepository {
     }
 
     /**
-     * Sjekker statuskoden i svaret. Feil fra klienten (400, 401, 403 og 404) gir meldingen fra
-     * serveren, mens andre feil behandles som at serveren ikke kunne svare.
+     * Sjekker statuskoden i svaret. Feil fra klienten (400, 403 og 404) gir meldingen fra serveren,
+     * og 401 gir beskjed om å logge inn på nytt. Andre feil behandles som at serveren ikke kunne
+     * svare.
      *
      * @param response svaret fra serveren
      * @throws IllegalArgumentException hvis statuskoden er 400, 401, 403 eller 404
@@ -362,7 +373,10 @@ public final class RemoteReviewRepository implements ReviewRepository {
         if (status >= 200 && status < 300) {
             return;
         }
-        if (status == 400 || status == 401 || status == 403 || status == 404) {
+        if (status == 401) {
+            throw new IllegalArgumentException(NOT_LOGGED_IN_MESSAGE);
+        }
+        if (status == 400 || status == 403 || status == 404) {
             throw new IllegalArgumentException(errorMessage(response));
         }
         throw new UncheckedIOException(
