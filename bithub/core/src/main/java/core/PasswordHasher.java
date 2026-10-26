@@ -38,7 +38,7 @@ public final class PasswordHasher {
 
         byte[] expectedBytes = Base64.getDecoder().decode(expectedHash);
         if (expectedBytes.length != HASH_LENGTH / Byte.SIZE) {
-            throw new IllegalArgumentException("Hash må inneholde 32 bytes.");
+            throw new IllegalArgumentException("Hash må inneholde 32 byte.");
         }
 
         String actualHash = hashPassword(password, salt);
@@ -69,7 +69,7 @@ public final class PasswordHasher {
      */
     public static String hashPassword(String password, String salt) {
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Password kan ikke være null eller blankt.");
+            throw new IllegalArgumentException("Passordet må fylles ut.");
         }
         if (salt == null) {
             throw new IllegalArgumentException("Salt kan ikke være null.");
@@ -77,7 +77,7 @@ public final class PasswordHasher {
 
         byte[] saltBytes = Base64.getDecoder().decode(salt);
         if (saltBytes.length != SALT_LENGTH) {
-            throw new IllegalArgumentException("Salt må inneholde 16 bytes.");
+            throw new IllegalArgumentException("Salt må inneholde 16 byte.");
         }
 
         char[] passwordChars = password.toCharArray();

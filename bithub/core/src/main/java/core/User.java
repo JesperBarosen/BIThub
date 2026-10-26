@@ -26,7 +26,7 @@ public final class User {
         validateEmail(email);
 
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Passord kan ikke være null eller blankt.");
+            throw new IllegalArgumentException("Passordet må fylles ut.");
         }
         if (password.length() < 8) {
             throw new IllegalArgumentException("Passord må være minst 8 tegn.");
@@ -58,10 +58,10 @@ public final class User {
             throw new IllegalArgumentException("Salt kan ikke være null.");
         }
         if (Base64.getDecoder().decode(passwordHash).length != 32) {
-            throw new IllegalArgumentException("Hash må inneholde 32 bytes.");
+            throw new IllegalArgumentException("Hash må inneholde 32 byte.");
         }
         if (Base64.getDecoder().decode(salt).length != 16) {
-            throw new IllegalArgumentException("Salt må inneholde 16 bytes.");
+            throw new IllegalArgumentException("Salt må inneholde 16 byte.");
         }
 
         this.name = name;
@@ -87,7 +87,7 @@ public final class User {
 
     private static void validateEmail(String email) {
         if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email kan ikke være null eller tomt.");
+            throw new IllegalArgumentException("E-postadressen kan ikke være null eller tomt.");
         }
         // Regex foreslått av ChatGPT for enkel validering av e-postformat.
         if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
