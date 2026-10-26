@@ -116,6 +116,9 @@ public class ApiExceptionHandler {
         return errorResponse(HttpStatus.FORBIDDEN, exception.getMessage());
     }
 
+    /**
+     * Samler statuskode, HTTP-statusnavn og norsk feilforklaring i det felles JSON-formatet.
+     */
     private static ResponseEntity<ErrorResponse> errorResponse(HttpStatus status, String message) {
         return ResponseEntity.status(status)
                 .body(new ErrorResponse(status.value(), status.getReasonPhrase(), message));

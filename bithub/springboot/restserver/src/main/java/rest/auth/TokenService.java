@@ -27,7 +27,7 @@ public class TokenService {
      * @throws NullPointerException hvis e-posten er {@code null}
      */
     public String createToken(String email) {
-        Objects.requireNonNull(email, "email");
+        Objects.requireNonNull(email, "E-postadressen må være oppgitt.");
         String token = UUID.randomUUID().toString();
         emailsByToken.put(token, email);
         return token;

@@ -50,6 +50,10 @@ public class AuthenticationService {
         }
     }
 
+    /**
+     * Henter tokenet fra en Bearer-header, eller returnerer null hvis headeren mangler
+     * eller bruker et annet format.
+     */
     private static String bearerToken(String authorization) {
         if (authorization == null || !authorization.startsWith(BEARER_PREFIX)) {
             return null;
