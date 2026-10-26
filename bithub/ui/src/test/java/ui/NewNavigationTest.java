@@ -75,12 +75,16 @@ class NewNavigationTest extends ApplicationTest {
         assertNotNull(stage.getScene().getRoot().lookup("#writeReviewButton"));
     }
 
+    /**
+     * Verifiserer at profilen åpnes fra hjemmesiden, og at siden sier fra når ingen er logget inn.
+     */
     @Test
-    void unimplementedPageShowsPlaceholder() {
+    void profileShowsMessageWithoutSession() {
         interact(() -> button("#profileButton").fire());
 
-        Label heading = (Label) stage.getScene().getRoot().lookup("#placeholderHeading");
-        assertEquals("Profil", heading.getText());
+        assertNotNull(stage.getScene().getRoot().lookup("#changePasswordButton"));
+        Label status = (Label) stage.getScene().getRoot().lookup("#statusLabel");
+        assertEquals("Du er ikke logget inn.", status.getText());
     }
 
     /**
