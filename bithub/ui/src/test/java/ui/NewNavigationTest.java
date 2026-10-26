@@ -36,13 +36,17 @@ class NewNavigationTest extends ApplicationTest {
         repository.addCoursesIfMissing(DefaultCourses.all());
 
         ReviewService reviewService = new ReviewService(repository);
-        Navigation navigation = new Navigation(reviewService, repository);
+        // Skriving krever innlogging, så testene kjører med en innlogget bruker.
+        UserSession userSession = new UserSession();
+        userSession.signIn("token-1", "Kari Nordmann", "kari@ntnu.no");
+        Navigation navigation = new Navigation(reviewService, repository, userSession, null);
 
         FXMLLoader loader = new FXMLLoader(App.class.getResource("Hjemmeside.fxml"));
         final Parent root = loader.load();
 
         HjemmesideController controller = loader.getController();
         controller.setNavigation(navigation);
+        controller.setUserSession(userSession);
 
         stage.setScene(new Scene(root));
         stage.show();
@@ -77,10 +81,20 @@ class NewNavigationTest extends ApplicationTest {
 
     @Test
     void unimplementedPageShowsPlaceholder() {
-        interact(() -> button("#myReviewsButton").fire());
+        interact(() -> button("#profileButton").fire());
 
         Label heading = (Label) stage.getScene().getRoot().lookup("#placeholderHeading");
-        assertEquals("Mine anmeldelser", heading.getText());
+        assertEquals("Profil", heading.getText());
+    }
+
+    /**
+     * Verifiserer at «Mine anmeldelser» åpnes fra hjemmesiden for en innlogget bruker.
+     */
+    @Test
+    void myReviewsOpensFromHomePage() {
+        interact(() -> button("#myReviewsButton").fire());
+
+        assertNotNull(stage.getScene().getRoot().lookup("#reviewList"));
     }
 
     /**

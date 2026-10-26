@@ -59,9 +59,10 @@ public final class Review {
     }
 
     /**
-     * Oppretter en ny anmeldelse uten eier som ikke er anonym, og gir den en ny tilfeldig id.
-     * Brukes for nye anmeldelser fra gjester. For anmeldelser som allerede har en id, for eksempel
-     * ved lesing fra fil, brukes {@link #Review(String, String, String, boolean, int, String)}.
+     * Oppretter en ny anmeldelse uten eier som ikke er anonym, og gir den en ny tilfeldig id. Slike
+     * gjesteanmeldelser finnes bare fra release 2, siden nye anmeldelser krever innlogging. Brukes
+     * derfor mest i tester. For anmeldelser som allerede har en id, for eksempel ved lesing fra
+     * fil, brukes {@link #Review(String, String, String, boolean, int, String)}.
      *
      * @param reviewerName navnet på anmelderen, kan ikke være null eller blankt
      * @param rating       vurderingen fra 1 til 5
