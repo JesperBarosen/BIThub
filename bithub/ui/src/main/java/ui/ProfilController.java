@@ -10,8 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 
 /**
- * Viser profilen til den innloggede brukeren og
- * lar brukeren gå til passordbytte eller logge ut.
+ * Viser profilen til den innloggede brukeren og lar brukeren gå til passordbytte eller logge ut.
  * 
  * <p>Navn og e- post hentes fra {@link UserSession} som fikk dem fra serveren ved innlogging.
  * Utlogging sendes til serveren i bakgrunnen med {@link BackgroundTaskRunner}.
@@ -53,12 +52,12 @@ public final class ProfilController {
     private void initialize() {
         logoutButton.disableProperty().bind(taskRunner.runningProperty());
         changePasswordButton.disableProperty()
-        .bind(taskRunner.runningProperty().or(loggedIn.not()));
+                .bind(taskRunner.runningProperty().or(loggedIn.not()));
     }
 
     /**
      * Setter navigasjonen som kontrolleren skal bruke.
-     * 
+     *
      * @param navigation navigasjonsobjektet
      * @throws NullPointerException kastes hvis navigation er null
      */
@@ -68,7 +67,7 @@ public final class ProfilController {
 
     /**
      * Setter sesjonen og viser navnet og e- posten til den innloggede brukeren.
-     * 
+     *
      * @param userSession sesjonen som er felles for alle skjermene
      * @throws NullPointerException kastes hvis userSession er null
      */
@@ -78,9 +77,9 @@ public final class ProfilController {
     }
 
     /**
-     * Setter tjenesten som logger ut på serveren. Uten tjenesten fjernes bare
-     * innloggingen i klienten.
-     * 
+     * Setter tjenesten som logger ut på serveren. Uten tjenesten fjernes bare innloggingen i
+     * klienten.
+     *
      * @param authenticationClient tjenesten for autentisering
      * @throws NullPointerException kastes hvis authenticationClient er null
      */
@@ -173,5 +172,5 @@ public final class ProfilController {
         statusLabel.setTextFill(color);
         statusLabel.setText(message);
     }
-    
+
 }

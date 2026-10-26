@@ -16,8 +16,8 @@ import java.time.Duration;
 /**
  * Registrerer, logger inn, bytter passord og logger ut brukere ved hjelp av REST- serveren.
  *
- * <p>Klassen håndterer HTTP og JSON, men lagrer ikke token eller passord.
- * Metodene skal kalles fra en bakgrunnstråd, ikke fra JavaFX-tråden.
+ * <p>Klassen håndterer HTTP og JSON, men lagrer ikke token eller passord. Metodene skal kalles fra
+ * en bakgrunnstråd, ikke fra JavaFX-tråden.
  */
 public final class RemoteAuthenticationClient implements AuthenticationClient {
 
@@ -46,11 +46,10 @@ public final class RemoteAuthenticationClient implements AuthenticationClient {
             throw new IllegalArgumentException("Serveradressen kan ikke være tom.");
         }
         String trimmed = baseUrl.strip();
-        this.baseUrl = trimmed.endsWith("/") ? trimmed.substring(0, trimmed.length() - 1)
-                : trimmed;
+        this.baseUrl = trimmed.endsWith("/") ? trimmed.substring(0, trimmed.length() - 1) : trimmed;
         URI uri = URI.create(this.baseUrl);
-        if (!("http".equalsIgnoreCase(uri.getScheme())
-                || "https".equalsIgnoreCase(uri.getScheme())) || uri.getHost() == null) {
+        if (!("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))
+                || uri.getHost() == null) {
             throw new IllegalArgumentException("Serveradressen må være en HTTP-adresse.");
         }
         this.httpClient = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
@@ -59,7 +58,7 @@ public final class RemoteAuthenticationClient implements AuthenticationClient {
     /**
      * Logger inn med e-post og passord.
      *
-     * @param email e-postadressen
+     * @param email    e-postadressen
      * @param password passordet
      * @return token, navn og e-post fra serveren
      */
@@ -74,8 +73,8 @@ public final class RemoteAuthenticationClient implements AuthenticationClient {
     /**
      * Registrerer en bruker og returnerer innloggingen fra samme kall.
      *
-     * @param name brukerens navn
-     * @param email e-postadressen
+     * @param name     brukerens navn
+     * @param email    e-postadressen
      * @param password passordet
      * @return token, navn og e-post fra serveren
      */
@@ -89,24 +88,24 @@ public final class RemoteAuthenticationClient implements AuthenticationClient {
     }
 
     /**
-     * Bytter passord med {@code PUT /api/users/{email}/password}. Serveren sjekker 
-     * at tokenet tilhører brukeren og at det gamle passordet stemmer. 
+     * Bytter passord med {@code PUT /api/users/{email}/password}. Serveren sjekker at tokenet
+     * tilhører brukeren og at det gamle passordet stemmer.
      * 
-     * <p>Metoden returnerer bare når serveren har bekreftet byttet 
-     * med {@code 204}. Alle andre svar gir et unntak slik at brukeren aldri får en
-     * falsk bekreftelse.
-     * 
-     * @param token tokenet fra innloggingen
-     * @param email e- postadressen til brukeren som er innlogget
+     * <p>Metoden returnerer bare når serveren har bekreftet byttet med {@code 204}. Alle andre svar
+     * gir et unntak slik at brukeren aldri får en falsk bekreftelse.
+     *
+     * @param token       tokenet fra innloggingen
+     * @param email       e- postadressen til brukeren som er innlogget
      * @param oldPassword det gamle passordet
      * @param newPassword det nye passordet
-     * @throws IllegalArgumentException kastes hvis tokenet eller e- posten mangler, hvis serveren avviser 
-     *                                  passordene (400), tilgangen (403) eller innloggingen (401)
-     * @throws UncheckedIOException kastes hvis serveren ikke svarer eller svarer med en annen feil                            
+     * @throws IllegalArgumentException kastes hvis tokenet eller e- posten mangler, hvis serveren
+     *                                      avviser passordene (400), tilgangen (403) eller
+     *                                      innloggingen (401)
+     * @throws UncheckedIOException     kastes hvis serveren ikke svarer eller svarer med en annen
+     *                                      feil
      */
-    @Override 
-    public void changePassword(String token, String email, String oldPassword,
-        String newPassword) {
+    @Override
+    public void changePassword(String token, String email, String oldPassword, String newPassword) {
         requireToken(token);
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("E- postadressen mangler");
@@ -115,8 +114,8 @@ public final class RemoteAuthenticationClient implements AuthenticationClient {
         body.put("oldPassword", oldPassword);
         body.put("newPassword", newPassword);
 
-        String encodedEmail = URLEncoder.encode(email.strip(), StandardCharsets.UTF_8)
-        .replace("+", "%20");
+        String encodedEmail = URLEncoder.encode(email.strip(), StandardCharsets.UTF_8).replace("+",
+                "%20");
         HttpRequest request = authorizedRequest("/api/users/" + encodedEmail + "/password", token)
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(body.toString(), StandardCharsets.UTF_8))
@@ -134,39 +133,40 @@ public final class RemoteAuthenticationClient implements AuthenticationClient {
             throw new IllegalArgumentException(
                     "Du er ikke lenger logget inn. Logg inn på nytt for å bytte passord.");
         }
-        throw new UncheckedIOException(new IOException("Serveren svarte med status " + status + "."));
+        throw new UncheckedIOException(
+                new IOException("Serveren svarte med status " + status + "."));
     }
 
     /**
      * Logger ut med {@code POST /api/logout}, slik at serveren sletter tokenet.
      * 
-     * <p>Svarer serveren med {@code 401} er tokenet allerede ukjent, for ekempel fordi
-     * den startet på nytt. Brukeren er da logget ut så det regnes ikke som en feil.
-     * 
-     * @param token tokenet fra innloggingen 
+     * <p>Svarer serveren med {@code 401} er tokenet allerede ukjent, for ekempel fordi den startet
+     * på nytt. Brukeren er da logget ut så det regnes ikke som en feil.
+     *
+     * @param token tokenet fra innloggingen
      * @throws IllegalArgumentException kastes hvis tokenet mangler
-     * @throws UncheckedIOException kastes hvis serveren ikke svarer eller svarer med en annen feil
+     * @throws UncheckedIOException     kastes hvis serveren ikke svarer eller svarer med en annen
+     *                                      feil
      */
-    @Override 
+    @Override
     public void logout(String token) {
         requireToken(token);
         HttpRequest request = authorizedRequest("/api/logout", token)
-                .POST(HttpRequest.BodyPublishers.noBody())
-                .build();
+                .POST(HttpRequest.BodyPublishers.noBody()).build();
 
         int status = send(request).statusCode();
         if (status == 204 || status == 401) {
             return;
         }
-        throw new UncheckedIOException(new IOException("Serveren svarte med status " + status + "."));
+        throw new UncheckedIOException(
+                new IOException("Serveren svarte med status " + status + "."));
     }
 
     /**
      * Lager en forespørsel som sender tokenet i {@code Authorization}-headeren.
      */
     private HttpRequest.Builder authorizedRequest(String path, String token) {
-        return HttpRequest.newBuilder(URI.create(baseUrl + path))
-                .timeout(REQUEST_TIMEOUT)
+        return HttpRequest.newBuilder(URI.create(baseUrl + path)).timeout(REQUEST_TIMEOUT)
                 .header("Accept", "application/json")
                 .header("Authorization", "Bearer " + token.strip());
     }
@@ -185,8 +185,7 @@ public final class RemoteAuthenticationClient implements AuthenticationClient {
      */
     private AuthenticationResult post(String path, ObjectNode body, int expectedStatus) {
         HttpRequest request = HttpRequest.newBuilder(URI.create(baseUrl + path))
-                .timeout(REQUEST_TIMEOUT)
-                .header("Accept", "application/json")
+                .timeout(REQUEST_TIMEOUT).header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body.toString(), StandardCharsets.UTF_8))
                 .build();
@@ -203,8 +202,8 @@ public final class RemoteAuthenticationClient implements AuthenticationClient {
                     new IOException("Serveren svarte med status " + status + "."));
         }
         JsonNode result = readJson(response.body());
-        return new AuthenticationResult(requiredText(result, "token"),
-                requiredText(result, "name"), requiredText(result, "email"));
+        return new AuthenticationResult(requiredText(result, "token"), requiredText(result, "name"),
+                requiredText(result, "email"));
     }
 
     /**
