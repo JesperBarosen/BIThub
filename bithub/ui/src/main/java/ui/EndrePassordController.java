@@ -70,7 +70,7 @@ public final class EndrePassordController {
     }
 
     /**
-     * Setter sesjonen med tokenet og e- posten som brukes ved passordbyttet.
+     * Setter sesjonen med tokenet og e-posten som brukes ved passordbyttet.
      *
      * @param userSession sesjonen som er felles for alle skjermene
      * @throws NullPointerException kastes hvis userSession er null
@@ -165,15 +165,29 @@ public final class EndrePassordController {
         navigation.showHome(homeButton);
     }
 
+    /**
+     * Viser en statusmelding i valgt farge.
+     *
+     * @param message meldingen som skal vises
+     * @param color tekstfargen som meldingen skal vises i
+     */
     private void showStatus(String message, Color color) {
         statusLabel.setTextFill(color);
         statusLabel.setText(message);
     }
 
+    /**
+     * Viser en feilmelding i rødt.
+     *
+     * @param message feilmeldingen som skal vises
+     */
     private void showError(String message) {
         showStatus(message, Color.RED);
     }
 
+    /**
+     * Tømmer alle passordfeltene.
+     */
     private void clearFields() {
         oldPasswordField.clear();
         newPasswordField.clear();

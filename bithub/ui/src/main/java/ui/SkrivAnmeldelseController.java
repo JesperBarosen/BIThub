@@ -117,7 +117,7 @@ public class SkrivAnmeldelseController {
      */
     public void setCourse(Course course) {
         if (course == null) {
-            throw new IllegalArgumentException("Course cannot be null.");
+            throw new IllegalArgumentException("Emnet kan ikke være null.");
         }
         this.courseCode = course.getCourseCode();
         this.courseName = course.getCourseName();
@@ -203,16 +203,29 @@ public class SkrivAnmeldelseController {
         return courseName;
     }
 
+    /**
+     * Viser en bekreftelse i grønt.
+     *
+     * @param message meldingen som skal vises
+     */
     private void showSuccessMessage(String message) {
         statusLabel.setTextFill(Color.GREEN);
         statusLabel.setText(message);
     }
 
+    /**
+     * Viser en feilmelding i rødt.
+     *
+     * @param message feilmeldingen som skal vises
+     */
     private void showErrorMessage(String message) {
         statusLabel.setTextFill(Color.RED);
         statusLabel.setText(message);
     }
 
+    /**
+     * Tømmer skjemaet slik at en ny anmeldelse kan skrives.
+     */
     private void clearFields() {
         ratingField.clear();
         commentArea.clear();

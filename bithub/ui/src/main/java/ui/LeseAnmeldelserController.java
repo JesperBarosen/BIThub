@@ -101,7 +101,7 @@ public class LeseAnmeldelserController {
      */
     public void setCourse(Course course) {
         if (reviewService == null) {
-            throw new IllegalStateException("ReviewService must be set before the course.");
+            throw new IllegalStateException("ReviewService må settes før emnet.");
         }
         if (course == null) {
             throw new IllegalArgumentException("Emnet kan ikke være null.");
@@ -155,12 +155,18 @@ public class LeseAnmeldelserController {
         return card;
     }
 
+    /**
+     * Avbryter ventingen og går tilbake til emnevelgeren.
+     */
     @FXML
     private void handleBack() {
         taskRunner.cancel();
         navigation.showCourseSelectionForReading(backButton);
     }
 
+    /**
+     * Avbryter ventingen og går til hjemmesiden.
+     */
     @FXML
     private void handleHome() {
         taskRunner.cancel();

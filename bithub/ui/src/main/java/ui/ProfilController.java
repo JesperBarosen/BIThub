@@ -168,6 +168,12 @@ public final class ProfilController {
         navigation.showHome(homeButton);
     }
 
+    /**
+     * Viser en statusmelding i valgt farge.
+     *
+     * @param message meldingen som skal vises
+     * @param color   tekstfargen
+     */
     private void showStatus(String message, Color color) {
         statusLabel.setTextFill(color);
         statusLabel.setText(message);
