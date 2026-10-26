@@ -22,8 +22,8 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 | DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Ferdig (#177) |
 | POST | `/api/users` | Registrere bruker | Nei | Ferdig (#174) |
 | POST | `/api/login` | Logge inn | Nei | Ferdig (#174) |
-| POST | `/api/logout` | Logge ut | Ja | Ferdig (#176) |
-| PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll (#176) |
+| POST | `/api/logout` | Logge ut | Ja | Ferdig (#176) | brukes av klienten (#179) | 
+| PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll (#176) | brukes av klienten (#179) |
 | GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174) |
 
 ## Innlogging og token
