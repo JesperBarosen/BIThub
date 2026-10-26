@@ -80,15 +80,16 @@ class NewNavigationTest extends ApplicationTest {
     }
 
     /**
-     * Verifiserer at profilen åpnes fra hjemmesiden, og at siden sier fra når ingen er logget inn.
+     * Verifiserer at profilen åpnes fra hjemmesiden og viser brukeren som er logget inn. Profilen
+     * uten innlogging testes i {@link ProfilControllerTest}.
      */
     @Test
-    void profileShowsMessageWithoutSession() {
+    void profileOpensFromHomePage() {
         interact(() -> button("#profileButton").fire());
 
         assertNotNull(stage.getScene().getRoot().lookup("#changePasswordButton"));
-        Label status = (Label) stage.getScene().getRoot().lookup("#statusLabel");
-        assertEquals("Du er ikke logget inn.", status.getText());
+        TextField name = (TextField) stage.getScene().getRoot().lookup("#nameField");
+        assertEquals("Kari Nordmann", name.getText());
     }
 
     /**
@@ -183,11 +184,9 @@ class NewNavigationTest extends ApplicationTest {
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> WaitForAsyncUtils.asyncFx(() -> {
             Label average = label("#averageLabel");
             Label count = label("#countLabel");
-            ListView<?> reviews =
-                    (ListView<?>) stage.getScene().getRoot().lookup("#reviewList");
+            ListView<?> reviews = (ListView<?>) stage.getScene().getRoot().lookup("#reviewList");
             return average != null && count != null && reviews != null
-                    && "4.00".equals(average.getText())
-                    && "1".equals(count.getText())
+                    && "4.00".equals(average.getText()) && "1".equals(count.getText())
                     && reviews.getItems().size() == 1;
         }).get(5, TimeUnit.SECONDS));
     }
