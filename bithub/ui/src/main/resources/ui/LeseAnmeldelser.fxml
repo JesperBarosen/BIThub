@@ -36,7 +36,7 @@
             <Insets left="15.0" right="15.0" top="15.0" />
          </padding>
          <children>
-            <Label fx:id="courseTitleLabel" text="Fagnavn" wrapText="true">
+            <Label fx:id="courseTitleLabel" alignment="CENTER" maxWidth="Infinity" minHeight="-Infinity" text="Fagnavn" textAlignment="CENTER" wrapText="true">
                <font>
                   <Font name="System Bold" size="24.0" />
                </font>
