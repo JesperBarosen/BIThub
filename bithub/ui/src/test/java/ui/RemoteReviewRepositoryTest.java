@@ -601,6 +601,7 @@ class RemoteReviewRepositoryTest {
                 {"status": 401, "error": "Unauthorized", "message": "Du må være logget inn."}
                 """);
         RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+        repository.setToken("gammelt-token");
 
         IllegalArgumentException update = assertThrows(IllegalArgumentException.class,
                 () -> repository.updateReview("id-1", 3, "", false));
