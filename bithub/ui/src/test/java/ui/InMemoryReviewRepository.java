@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 /**
  * Falsk lagring for ui-testene som holder emnene i minnet.
@@ -16,7 +17,7 @@ import java.util.Optional;
  * <p>ui avhenger ikke av file, så testene kan ikke bruke {@code ReviewHandler}. Denne klassen
  * oppfører seg som lagringen på serveren: emnekoder sammenlignes uten å skille store og små
  * bokstaver, emnene beholder rekkefølgen de ble lagt inn i, og et nytt emne opprettes når det får
- * sin første anmeldelse.
+ * sin første anmeldelse. Anmeldelser kan også endres og slettes.
  */
 final class InMemoryReviewRepository implements ReviewRepository {
 
@@ -52,6 +53,44 @@ final class InMemoryReviewRepository implements ReviewRepository {
             courses.putIfAbsent(key(course.getCourseCode()),
                     new Course(course.getCourseCode(), course.getCourseName()));
         }
+    }
+
+    @Override
+    public boolean updateReview(String reviewId, int rating, String comment, boolean anonymous) {
+        return replaceReview(reviewId, review -> new Review(review.getId(), review.getOwnerEmail(),
+                review.getReviewerName(), anonymous, rating, comment));
+    }
+
+    @Override
+    public boolean deleteReview(String reviewId) {
+        return replaceReview(reviewId, review -> null);
+    }
+
+    /**
+     * Bytter ut anmeldelsen med id-en, eller fjerner den hvis {@code change} gir null. Course har
+     * ingen metode for å fjerne anmeldelser, så emnet bygges opp på nytt.
+     *
+     * @param reviewId id-en til anmeldelsen
+     * @param change   lager den nye anmeldelsen, eller null for å slette den
+     * @return true hvis anmeldelsen fantes, ellers false
+     */
+    private boolean replaceReview(String reviewId, UnaryOperator<Review> change) {
+        for (Map.Entry<String, Course> entry : courses.entrySet()) {
+            Course course = entry.getValue();
+            if (course.getReviews().stream().noneMatch(review -> review.getId().equals(reviewId))) {
+                continue;
+            }
+            Course changed = new Course(course.getCourseCode(), course.getCourseName());
+            for (Review review : course.getReviews()) {
+                Review kept = review.getId().equals(reviewId) ? change.apply(review) : review;
+                if (kept != null) {
+                    changed.addReview(kept);
+                }
+            }
+            entry.setValue(changed);
+            return true;
+        }
+        return false;
     }
 
     /**

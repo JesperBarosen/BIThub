@@ -2,16 +2,19 @@ package ui;
 
 import core.Course;
 import core.ReviewRepository;
-import java.io.UncheckedIOException;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.TextField;
 
 /**
  * Lar brukeren velge et emne, enten for å skrive eller lese anmeldelser.
@@ -20,6 +23,9 @@ public class VelgFagController {
 
     @FXML
     private ComboBox<Course> courseComboBox;
+
+    @FXML
+    private TextField searchField;
 
     @FXML
     private Label statusLabel;
@@ -37,10 +43,31 @@ public class VelgFagController {
 
     private Navigation navigation;
 
+    private final ObservableList<Course> allCourses = FXCollections.observableArrayList();
+
+    private final FilteredList<Course> filteredCourses = new FilteredList<>(allCourses);
+
+    private boolean coursesLoaded;
+
     @FXML
     private void initialize() {
         courseComboBox.setButtonCell(courseCell());
         courseComboBox.setCellFactory(listView -> courseCell());
+        courseComboBox.setItems(filteredCourses);
+        courseComboBox.setVisibleRowCount(6);
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterCourses(newValue);
+
+            if (searchField.isFocused() && !taskRunner.runningProperty().get()) {
+                if (filteredCourses.isEmpty()) {
+                    courseComboBox.hide();
+                } else {
+                    courseComboBox.hide();
+                    courseComboBox.show();
+                }
+            }
+        });
+        searchField.disableProperty().bind(taskRunner.runningProperty());
 
         courseComboBox.disableProperty().bind(taskRunner.runningProperty());
         nextButton.disableProperty()
@@ -60,14 +87,16 @@ public class VelgFagController {
     public void setReviewRepository(ReviewRepository reviewRepository) {
         Objects.requireNonNull(reviewRepository);
         taskRunner.cancel();
+        coursesLoaded = false;
 
         courseComboBox.getSelectionModel().clearSelection();
-        courseComboBox.getItems().clear();
+        allCourses.clear();
         statusLabel.setText("Henter emner …");
 
         taskRunner.execute(() -> reviewRepository.findAllCourses(), courses -> {
-            courseComboBox.setItems(FXCollections.observableArrayList(courses));
-            statusLabel.setText(courses.isEmpty() ? "Ingen emner er tilgjengelige." : "");
+            allCourses.setAll(courses);
+            coursesLoaded = true;
+            updateSearchStatus();
         }, error -> statusLabel.setText("Kunne ikke hente emnene. Prøv igjen senere."));
     }
 
@@ -118,6 +147,47 @@ public class VelgFagController {
     private void handleHome() {
         taskRunner.cancel();
         navigation.showHome(homeButton);
+    }
+
+    /**
+     * Filtrerer de innlastede emnene på kode og navn uten nye serverkall.
+     *
+     * @param searchText teksten fra søkefeltet
+     */
+    private void filterCourses(String searchText) {
+        String query = searchText == null ? "" : searchText.strip().toLowerCase(Locale.ROOT);
+        final Course selectedCourse = courseComboBox.getValue();
+
+        // Fjern valget før listen endres, så en ny indeks ikke gir feil emne.
+        courseComboBox.getSelectionModel().clearSelection();
+        courseComboBox.setValue(null);
+
+        filteredCourses.setPredicate(
+                course -> course.getCourseCode().toLowerCase(Locale.ROOT).contains(query)
+                        || course.getCourseName().toLowerCase(Locale.ROOT).contains(query));
+
+        if (selectedCourse != null && filteredCourses.contains(selectedCourse)) {
+            courseComboBox.getSelectionModel().select(selectedCourse);
+        }
+
+        updateSearchStatus();
+    }
+
+    /**
+     * Oppdaterer søkeresultatet uten å overskrive laste- eller feilmeldinger.
+     */
+    private void updateSearchStatus() {
+        if (!coursesLoaded) {
+            return;
+        }
+
+        if (allCourses.isEmpty()) {
+            statusLabel.setText("Ingen emner er tilgjengelige.");
+        } else if (filteredCourses.isEmpty()) {
+            statusLabel.setText("Ingen emner samsvarer med søket.");
+        } else {
+            statusLabel.setText("");
+        }
     }
 
     private ListCell<Course> courseCell() {

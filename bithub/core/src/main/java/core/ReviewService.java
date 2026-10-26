@@ -1,9 +1,9 @@
 package core;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Håndterer innsending av anmeldelser.
@@ -27,21 +27,61 @@ public final class ReviewService {
     }
 
     /**
-     * Validerer og lagrer en anmeldelse for et emne.
+     * Validerer og lagrer en anmeldelse med eier bestemt av serveren.
      *
-     * @param courseCode   emnekoden til emnet
-     * @param courseName   navnet på emnet
-     * @param reviewerName navnet som skal vises på anmeldelsen
-     * @param ratingText   vurderingen slik brukeren skrev den inn
-     * @param comment      kommentaren til anmeldelsen, kan være tom
-     * @return den lagrede anmeldelsen, med id
-     * @throws IllegalArgumentException hvis emnet eller anmeldelsen er ugyldig
+     * <p>Bare innloggede brukere kan skrive anmeldelser, så alle nye anmeldelser får en eier.
+     * Anmeldelser uten eier finnes bare fra release 2, og vises som «Gjest».
+     *
+     * @param courseCode emnekoden
+     * @param courseName navnet på emnet
+     * @param owner      den verifiserte brukeren
+     * @param anonymous  om brukeren ønsker å være anonym
+     * @param ratingText vurderingen som tekst
+     * @param comment    kommentaren, null behandles som tom tekst
+     * @return den lagrede anmeldelsen med id og eierskap
+     * @throws IllegalArgumentException hvis brukeren mangler, eller emnet eller vurderingen er
+     *                                      ugyldig
      */
-    public Review submitReview(String courseCode, String courseName, String reviewerName,
+    public Review submitReview(String courseCode, String courseName, User owner, boolean anonymous,
             String ratingText, String comment) {
+        if (owner == null) {
+            throw new IllegalArgumentException("Du må logge inn for å skrive en anmeldelse.");
+        }
         int rating = parseRating(ratingText);
         Course course = new Course(courseCode, courseName);
-        Review review = new Review(reviewerName, rating, comment == null ? "" : comment.trim());
+        Review review = new Review(UUID.randomUUID().toString(), owner.getEmail(), owner.getName(),
+                anonymous, rating, comment == null ? "" : comment.trim());
+        reviewRepository.addReview(course.getCourseCode(), course.getCourseName(), review);
+        return review;
+    }
+
+    /**
+     * Validerer og lagrer en anmeldelse fra en innlogget bruker i klienten.
+     *
+     * <p>Klienten kjenner bare e-posten og navnet fra innloggingen, ikke hele brukeren. Serveren
+     * bestemmer likevel eieren selv ut fra tokenet, så e-posten og navnet brukes bare til å lage en
+     * gyldig anmeldelse. Det som sendes til serveren, er vurderingen, kommentaren og om anmeldelsen
+     * skal være anonym.
+     *
+     * @param courseCode   emnekoden
+     * @param courseName   navnet på emnet
+     * @param ownerEmail   e-posten til den innloggede brukeren
+     * @param reviewerName navnet til den innloggede brukeren
+     * @param anonymous    om anmeldelsen skal vises som anonym
+     * @param ratingText   vurderingen som tekst
+     * @param comment      kommentaren, null behandles som tom tekst
+     * @return den lagrede anmeldelsen
+     * @throws IllegalArgumentException hvis emnet, e-posten, navnet eller vurderingen er ugyldig
+     */
+    public Review submitReview(String courseCode, String courseName, String ownerEmail,
+            String reviewerName, boolean anonymous, String ratingText, String comment) {
+        if (ownerEmail == null || ownerEmail.isBlank()) {
+            throw new IllegalArgumentException("E-posten til den innloggede brukeren mangler.");
+        }
+        int rating = parseRating(ratingText);
+        Course course = new Course(courseCode, courseName);
+        Review review = new Review(UUID.randomUUID().toString(), ownerEmail, reviewerName,
+                anonymous, rating, comment == null ? "" : comment.trim());
         reviewRepository.addReview(course.getCourseCode(), course.getCourseName(), review);
         return review;
     }
@@ -96,17 +136,117 @@ public final class ReviewService {
         if (ownerEmail == null || ownerEmail.isBlank()) {
             return List.of();
         }
-        List<Course> result = new ArrayList<>();
-        for (Course course : reviewRepository.findAllCourses()) {
-            Course ownCourse = new Course(course.getCourseCode(), course.getCourseName());
-            course.getReviews().stream()
-                    .filter(review -> ownerEmail.equalsIgnoreCase(review.getOwnerEmail()))
-                    .forEach(ownCourse::addReview);
-            if (!ownCourse.getReviews().isEmpty()) {
-                result.add(ownCourse);
-            }
+        return reviewRepository.findReviewsByOwner(ownerEmail.trim());
+    }
+
+    /**
+     * Endrer en egen anmeldelse. Id, eier og navn beholdes.
+     *
+     * @param reviewId   id-en til anmeldelsen
+     * @param ownerEmail e-posten til den innloggede brukeren, hentet fra tokenet på serveren
+     * @param ratingText den nye vurderingen som tekst
+     * @param comment    den nye kommentaren, null behandles som tom tekst
+     * @param anonymous  om anmeldelsen skal vises som anonym
+     * @return den oppdaterte anmeldelsen
+     * @throws ReviewNotFoundException  hvis anmeldelsen ikke finnes
+     * @throws NotReviewOwnerException  hvis anmeldelsen tilhører en annen eller er en
+     *                                      gjesteanmeldelse
+     * @throws IllegalArgumentException hvis vurderingen er ugyldig
+     */
+    public Review updateReview(String reviewId, String ownerEmail, String ratingText,
+            String comment, boolean anonymous) {
+        Review existing = requireOwnReview(reviewId, ownerEmail);
+        int rating = parseRating(ratingText);
+        String trimmedComment = comment == null ? "" : comment.trim();
+
+        if (!reviewRepository.updateReview(reviewId, rating, trimmedComment, anonymous)) {
+            throw new ReviewNotFoundException(reviewId);
         }
-        return result;
+        return new Review(existing.getId(), existing.getOwnerEmail(), existing.getReviewerName(),
+                anonymous, rating, trimmedComment);
+    }
+
+    /**
+     * Endrer en av den innloggede brukerens anmeldelser fra klienten.
+     *
+     * <p>Klienten har hentet anmeldelsen fra «Mine anmeldelser», og serveren sjekker eierskapet ut
+     * fra tokenet. Derfor sjekkes ikke eieren her, bare den nye vurderingen. Id, eier og navn
+     * beholdes.
+     *
+     * @param review     anmeldelsen slik den ble hentet
+     * @param ratingText den nye vurderingen som tekst
+     * @param comment    den nye kommentaren, null behandles som tom tekst
+     * @param anonymous  om anmeldelsen skal vises som anonym
+     * @return den oppdaterte anmeldelsen
+     * @throws NullPointerException     hvis review er null
+     * @throws IllegalArgumentException hvis vurderingen er ugyldig
+     * @throws ReviewNotFoundException  hvis anmeldelsen ikke finnes lenger
+     */
+    public Review updateReview(Review review, String ratingText, String comment,
+            boolean anonymous) {
+        Objects.requireNonNull(review);
+        int rating = parseRating(ratingText);
+        String trimmedComment = comment == null ? "" : comment.trim();
+
+        if (!reviewRepository.updateReview(review.getId(), rating, trimmedComment, anonymous)) {
+            throw new ReviewNotFoundException(review.getId());
+        }
+        return new Review(review.getId(), review.getOwnerEmail(), review.getReviewerName(),
+                anonymous, rating, trimmedComment);
+    }
+
+    /**
+     * Sletter en egen anmeldelse.
+     *
+     * @param reviewId   id-en til anmeldelsen
+     * @param ownerEmail e-posten til den innloggede brukeren, hentet fra tokenet på serveren
+     * @throws ReviewNotFoundException hvis anmeldelsen ikke finnes
+     * @throws NotReviewOwnerException hvis anmeldelsen tilhører en annen eller er en
+     *                                     gjesteanmeldelse
+     */
+    public void deleteReview(String reviewId, String ownerEmail) {
+        requireOwnReview(reviewId, ownerEmail);
+        if (!reviewRepository.deleteReview(reviewId)) {
+            throw new ReviewNotFoundException(reviewId);
+        }
+    }
+
+    /**
+     * Sletter en av den innloggede brukerens anmeldelser fra klienten. Serveren sjekker eierskapet
+     * ut fra tokenet.
+     *
+     * @param review anmeldelsen slik den ble hentet
+     * @throws NullPointerException    hvis review er null
+     * @throws ReviewNotFoundException hvis anmeldelsen ikke finnes lenger
+     */
+    public void deleteReview(Review review) {
+        Objects.requireNonNull(review);
+        if (!reviewRepository.deleteReview(review.getId())) {
+            throw new ReviewNotFoundException(review.getId());
+        }
+    }
+
+    /**
+     * Henter anmeldelsen og sjekker at den tilhører brukeren. Gjesteanmeldelser har ingen eier, og
+     * kan derfor ikke endres av noen.
+     *
+     * <p>Eieren av en anmeldelse endres aldri. Hvis anmeldelsen slettes mellom sjekken og
+     * endringen, svarer lagringen {@code false}, og det gir {@link ReviewNotFoundException}.
+     *
+     * @param reviewId   id-en til anmeldelsen
+     * @param ownerEmail e-posten til den innloggede brukeren
+     * @return den lagrede anmeldelsen
+     * @throws ReviewNotFoundException hvis anmeldelsen ikke finnes
+     * @throws NotReviewOwnerException hvis brukeren ikke eier anmeldelsen
+     */
+    private Review requireOwnReview(String reviewId, String ownerEmail) {
+        Review review = reviewRepository.findReview(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId));
+        if (ownerEmail == null || review.getOwnerEmail() == null
+                || !review.getOwnerEmail().equalsIgnoreCase(ownerEmail.trim())) {
+            throw new NotReviewOwnerException();
+        }
+        return review;
     }
 
     /**

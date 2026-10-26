@@ -10,7 +10,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.ProfilController">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar" stylesheets="@Style.css">
          <children>
@@ -52,7 +52,7 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <TextField maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="nameField" editable="false" focusTraversable="false" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
                </children>
             </HBox>
             <HBox prefHeight="49.0" prefWidth="380.0">
@@ -62,30 +62,31 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <TextField maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="emailField" editable="false" focusTraversable="false" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
                </children>
             </HBox>
             <HBox prefHeight="26.0" prefWidth="380.0">
                <children>
-                  <Button mnemonicParsing="false" styleClass="profil-knapper" stylesheets="@Style.css" text="ENDRE PASSORD" />
+                  <Button fx:id="changePasswordButton" mnemonicParsing="false" onAction="#handleChangePassword" styleClass="profil-knapper" stylesheets="@Style.css" text="ENDRE PASSORD" />
                </children>
             </HBox>
             <HBox prefHeight="22.0" prefWidth="380.0">
                <children>
-                  <Button mnemonicParsing="false" styleClass="profil-knapper" stylesheets="@Style.css" text="LOGG UT" />
+                  <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogout" styleClass="profil-knapper" stylesheets="@Style.css" text="LOGG UT" />
                </children>
             </HBox>
+            <Label fx:id="statusLabel" maxWidth="380.0" text="" wrapText="true" />
          </children>
       </VBox>
       <HBox alignment="CENTER" prefHeight="70.0" prefWidth="200.0" styleClass="header-bar" stylesheets="@Style.css">
          <children>
-            <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="bunn-knapp" stylesheets="@Style.css" text="TILBAKE" HBox.hgrow="ALWAYS">
+            <Button fx:id="backButton" onAction="#handleBack" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="bunn-knapp" stylesheets="@Style.css" text="TILBAKE" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="System Bold" size="36.0" />
                </font>
             </Button>
             <Line endX="100.0" startX="100.0" startY="-67.57472229003906" />
-            <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="bunn-knapp" stylesheets="@Style.css" text="HJEM" HBox.hgrow="ALWAYS">
+            <Button fx:id="homeButton" onAction="#handleHome" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="bunn-knapp" stylesheets="@Style.css" text="HJEM" HBox.hgrow="ALWAYS">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>

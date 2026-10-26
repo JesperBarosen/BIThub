@@ -9,6 +9,7 @@ Dokumentet bygger på [persistence.md fra release 2](../release2/persistence.md)
 - En lesefeil tolkes ikke lenger som en tom fil (#147).
 - All lesing og skriving er beskyttet mot samtidige oppdateringer og skrivefeil (#149).
 - `UserHandler` implementerer `UserRepository` og kobles til `UserService` på REST-serveren (#155).
+- Anmeldelser kan endres og slettes, og begge operasjonene er beskyttet mot samtidige oppdateringer (#177).
 - Lesing og skriving flyttes til REST-serveren i release 3.
 
 ## 1. Filformat
@@ -35,7 +36,7 @@ Hver anmeldelse (`ReviewDTO`) har disse feltene:
 | Felt | Innhold |
 |---|---|
 | `id` | Unik id (UUID), som brukes når anmeldelsen skal endres eller slettes |
-| `ownerEmail` | E-posten til brukeren som skrev den, eller `null` for gjester |
+| `ownerEmail` | E-posten til brukeren som skrev den, eller `null` for gjesteanmeldelser fra release 2 |
 | `reviewerName` | Navnet til den som skrev den |
 | `anonymous` | `true` hvis eieren vil være anonym |
 | `rating` | Vurdering fra 1 til 5 |
@@ -78,7 +79,7 @@ Ut fra `ownerEmail` og `anonymous` får anmeldelsen typen `USER`, `ANONYMOUS` el
 ]
 ```
 
-**Filer fra release 2:** anmeldelsene der har bare `reviewerName`, `rating` og `comment`. Når `ReviewHandler` leser en slik fil, får anmeldelser uten id en ny id, og filen lagres med en gang. De har ingen eier, så de blir gjesteanmeldelser.
+**Filer fra release 2:** anmeldelsene der har bare `reviewerName`, `rating` og `comment`. Når `ReviewHandler` leser en slik fil, får anmeldelser uten id en ny id, og filen lagres med en gang. De har ingen eier, så de blir gjesteanmeldelser. Fra #183 krever nye anmeldelser innlogging, så bare slike gamle anmeldelser er uten eier.
 
 ### 1.2 Brukere (`users.json`)
 
@@ -142,11 +143,13 @@ Derfor går all lesing og skriving gjennom `JsonFileStorage`:
 - Hver fil har én lås (`ReentrantReadWriteLock`), som deles av alle instanser som bruker samme fil. To `ReviewHandler`-objekter med samme fil bruker altså samme lås.
 - En endring holder skrivelåsen gjennom hele operasjonen: les, endre og skriv. Ingen andre kan lese eller skrive filen imens.
 - Lesing uten endring bruker leselåsen, slik at flere kan lese samtidig.
-- Nye metoder som endrer data, for eksempel å endre eller slette anmeldelser i sprint 2, må gjøre hele operasjonen inne i `JsonFileStorage.update` og skrive med `JsonFileStorage.write`.
+- Alle metoder som endrer data, også endring og sletting av anmeldelser (#177), gjør hele operasjonen inne i `JsonFileStorage.update` og skriver med `JsonFileStorage.write`.
 
 `UserHandler` implementerer `UserRepository`. Metoden `save` bruker `addUserIfEmailAvailable`, som sjekker om e-postadressen finnes og lagrer brukeren under samme skrivelås. Hvis adressen allerede er registrert, kaster `save` en `DuplicateEmailException`.
 
 `UserService` gjør også en forhåndssjekk med `findByEmail`, men denne sjekken alene beskytter ikke mot samtidige registreringer. Den samlede sjekken og lagringen i `UserHandler` sikrer at to samtidige registreringer med samme e-post ikke begge lykkes.
+
+`ReviewHandler` endrer og sletter anmeldelser på samme måte. `updateReview` og `deleteReview` finner anmeldelsen, endrer eller fjerner den og skriver filen under samme skrivelås, og svarer `false` hvis id-en ikke finnes. `ReviewService` sjekker eierskapet før den kaller lagringen. Det er trygt selv om sjekken skjer utenfor låsen, fordi eieren og id-en til en anmeldelse aldri endres. Blir anmeldelsen slettet mellom sjekken og endringen, svarer lagringen `false`, og serveren svarer `404`.
 
 ### 3.2 Skrivefeil og lesefeil
 
@@ -166,6 +169,6 @@ Vi kjører derfor bare én REST-server. Når JavaFX-appen henter og lagrer data 
 
 Alle testene som skriver til fil, bruker `@TempDir` fra JUnit, så de skriver aldri til den ekte `~/.bithub`-mappen.
 
-- `ReviewHandlerTest` og `UserHandlerTest` tester lesing, skriving, ødelagt JSON, lesefeil og samtidige oppdateringer fra flere instanser og tråder.
+- `ReviewHandlerTest` og `UserHandlerTest` tester lesing, skriving, ødelagt JSON, lesefeil og samtidige oppdateringer fra flere instanser og tråder. `ReviewHandlerTest` tester også endring og sletting av anmeldelser, også når de skjer samtidig (#177).
 - `JsonFileStorageTest` tester at skriving går via en midlertidig fil, og at den opprinnelige filen er uendret når skrivingen feiler.
 - `RestApplicationTest` tester at Spring kobler brukerlagringen til `UserHandler`, og at registrering gjennom `UserService` skriver til den konfigurerte testfilen. Testen leser brukeren tilbake med en ny handler, kontrollerer at hash og salt er bevart, og tester innlogging med de lagrede brukerdataene.

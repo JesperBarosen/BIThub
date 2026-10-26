@@ -36,13 +36,17 @@ class NewNavigationTest extends ApplicationTest {
         repository.addCoursesIfMissing(DefaultCourses.all());
 
         ReviewService reviewService = new ReviewService(repository);
-        Navigation navigation = new Navigation(reviewService, repository);
+        // Skriving krever innlogging, så testene kjører med en innlogget bruker.
+        UserSession userSession = new UserSession();
+        userSession.signIn("token-1", "Kari Nordmann", "kari@ntnu.no");
+        Navigation navigation = new Navigation(reviewService, repository, userSession, null);
 
         FXMLLoader loader = new FXMLLoader(App.class.getResource("Hjemmeside.fxml"));
         final Parent root = loader.load();
 
         HjemmesideController controller = loader.getController();
         controller.setNavigation(navigation);
+        controller.setUserSession(userSession);
 
         stage.setScene(new Scene(root));
         stage.show();
@@ -75,12 +79,26 @@ class NewNavigationTest extends ApplicationTest {
         assertNotNull(stage.getScene().getRoot().lookup("#writeReviewButton"));
     }
 
+    /**
+     * Verifiserer at profilen åpnes fra hjemmesiden, og at siden sier fra når ingen er logget inn.
+     */
     @Test
-    void unimplementedPageShowsPlaceholder() {
+    void profileShowsMessageWithoutSession() {
+        interact(() -> button("#profileButton").fire());
+
+        assertNotNull(stage.getScene().getRoot().lookup("#changePasswordButton"));
+        Label status = (Label) stage.getScene().getRoot().lookup("#statusLabel");
+        assertEquals("Du er ikke logget inn.", status.getText());
+    }
+
+    /**
+     * Verifiserer at «Mine anmeldelser» åpnes fra hjemmesiden for en innlogget bruker.
+     */
+    @Test
+    void myReviewsOpensFromHomePage() {
         interact(() -> button("#myReviewsButton").fire());
 
-        Label heading = (Label) stage.getScene().getRoot().lookup("#placeholderHeading");
-        assertEquals("Mine anmeldelser", heading.getText());
+        assertNotNull(stage.getScene().getRoot().lookup("#reviewList"));
     }
 
     /**

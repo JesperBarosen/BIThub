@@ -17,20 +17,20 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 |---|---|---|---|---|
 | GET | `/api/courses` | Alle emner | Nei | Ferdig (#151), brukes av klienten (#172) |
 | GET | `/api/courses/{code}` | Ett emne med anmeldelser og gjennomsnitt | Nei | Ferdig (#151), brukes av klienten (#172) |
-| POST | `/api/courses/{code}/reviews` | Ny anmeldelse | Valgfri | Ferdig (#151), brukes av klienten (#172) |
-| PUT | `/api/reviews/{id}` | Endre egen anmeldelse | Ja | Planlagt i sprint 2 |
-| DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Planlagt i sprint 2 |
+| POST | `/api/courses/{code}/reviews` | Ny anmeldelse | Ja | Ferdig (#151), eierskap og anonymitet (#176), krever innlogging (#183), brukes av klienten (#172) |
+| PUT | `/api/reviews/{id}` | Endre egen anmeldelse | Ja | Ferdig (#177), brukes av klienten (#181) |
+| DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Ferdig (#177), brukes av klienten (#181) |
 | POST | `/api/users` | Registrere bruker | Nei | Ferdig (#174) |
 | POST | `/api/login` | Logge inn | Nei | Ferdig (#174) |
-| POST | `/api/logout` | Logge ut | Ja | Planlagt i sprint 2 |
-| PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll i (#176) |
-| GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174) |
+| POST | `/api/logout` | Logge ut | Ja | Ferdig (#176), brukes av klienten (#179) |
+| PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll (#176), brukes av klienten (#179) |
+| GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174), brukes av klienten (#181) |
 
 ## Innlogging og token
 
 Vi bruker en enkel tokenløsning uten egne sikkerhetsbiblioteker. Når brukeren registrerer seg eller logger inn, lager serveren et tilfeldig token (en UUID) og husker hvilken bruker det hører til. Tokenet lagres bare i minnet, så alle må logge inn på nytt når serveren starter på nytt.
 
-Klienten sender tokenet i headeren `Authorization` på alle forespørsler som krever innlogging, og når en innlogget bruker skriver en anmeldelse:
+Klienten sender tokenet i headeren `Authorization` på alle forespørsler som krever innlogging, også når brukeren skriver en anmeldelse:
 
 ```http
 Authorization: Bearer 3f1c9a2e-7b4d-4e8a-9c1f-2d6b5a8e0f13
@@ -145,15 +145,15 @@ Vi skiller mellom tre typer anmeldelser, som vises i feltet `authorType`:
 |---|---|---|---|
 | `USER` | Innlogget bruker som viser navnet sitt | Brukerens navn | Ja, av eieren |
 | `ANONYMOUS` | Innlogget bruker som har valgt å være anonym | `"Anonym"` | Ja, av eieren |
-| `GUEST` | Noen som ikke var logget inn | `"Gjest"` | Nei |
+| `GUEST` | Noen som ikke var logget inn, i release 2 | `"Gjest"` | Nei |
 
-En anonym anmeldelse har en eier på serveren, men svaret sier ingenting om hvem det er. En gjesteanmeldelse har ingen eier. Anmeldelser fra release 2, som ble skrevet før vi hadde innlogging, regnes også som gjesteanmeldelser.
+En anonym anmeldelse har en eier på serveren, men svaret sier ingenting om hvem det er. En gjesteanmeldelse har ingen eier. Fra #183 kan bare innloggede brukere skrive anmeldelser, så `GUEST` gjelder bare anmeldelser fra release 2, som ble skrevet før vi hadde innlogging. Gjester kan fortsatt lese alle anmeldelser.
 
 Feil: `404` hvis emnet ikke finnes.
 
 ### POST `/api/courses/{code}/reviews`
 
-Lager en ny anmeldelse. Med token blir anmeldelsen knyttet til den innloggede brukeren, og `anonymous` bestemmer om den vises som `USER` eller `ANONYMOUS`. Uten token blir den en gjesteanmeldelse (`GUEST`), og `anonymous` brukes ikke.
+Lager en ny anmeldelse og krever innlogging. Anmeldelsen blir knyttet til den innloggede brukeren, og `anonymous` bestemmer om den vises som `USER` eller `ANONYMOUS`. Uten token svarer serveren `401`, og ingenting lagres.
 
 Forespørsel:
 
@@ -177,9 +177,11 @@ Svar `201`: anmeldelsen slik den vises offentlig, med `id`.
 }
 ```
 
-Feil: `400` ved ugyldig vurdering eller kommentar, `401` hvis tokenet er sendt med, men er ukjent eller logget ut, `404` hvis emnet ikke finnes.
+Feil: `400` ved ugyldig vurdering eller kommentar, `401` hvis tokenet mangler, er ukjent eller er logget ut, `404` hvis emnet ikke finnes.
 
-I første versjon (#151) blir alle nye anmeldelser gjesteanmeldelser. Kobling til innlogget bruker legger vi til i sprint 2.
+Serveren henter eier og navn fra brukerregisteret etter at tokenet er kontrollert. Klienten
+kan ikke velge eier ved å sende navn eller e-post i JSON. Anonyme anmeldelser beholder eieren
+i lagringen og vises under egne anmeldelser, men offentlig vises bare «Anonym».
 
 ### PUT `/api/reviews/{id}`
 
@@ -250,13 +252,15 @@ Feil: `401` ved feil e-post eller passord. Svaret sier ikke hvilken av dem som v
 
 ### POST `/api/logout`
 
-Sletter tokenet på serveren.
+Sletter tokenet fra `Authorization: Bearer <token>` på serveren. Forespørselen trenger ingen body. Andre innlogginger beholdes, også for samme bruker. Det slettede tokenet kan ikke brukes til beskyttede kall eller til å logge ut på nytt.
 
 Svar `204`. Feil: `401`.
 
 ### PUT `/api/users/{email}/password`
 
-Bytter passord. E-posten i stien må tilhøre den innloggede brukeren.
+Bytter eget passord og krever `Authorization: Bearer <token>`. Serveren finner brukeren
+fra tokenet og kontrollerer at e-posten i stien tilhører samme bruker. Store og små
+bokstaver i e-postadressen behandles likt. Tilgangskontrollen skjer før passordet endres.
 
 Forespørsel:
 
@@ -269,11 +273,14 @@ Forespørsel:
 
 Svar `204`.
 
-Feil: `400` hvis det nye passordet er ugyldig eller det gamle er feil, `401`, `403` hvis e-posten tilhører en annen bruker.
+Feil: `400` hvis det nye passordet er ugyldig eller det gamle er feil, `401` hvis tokenet
+mangler, er ugyldig eller er logget ut, `403` hvis e-posten tilhører en annen bruker.
 
 ### GET `/api/me/reviews`
 
-Henter anmeldelsene den innloggede brukeren har skrevet, også de anonyme.
+Henter anmeldelsene den innloggede brukeren har skrevet, også de anonyme. Brukeren bestemmes
+av tokenet i `Authorization`-headeren. E-post i query-parametere kan ikke brukes til å hente
+en annen brukers anmeldelser.
 
 Svar `200`:
 
@@ -293,3 +300,15 @@ Svar `200`:
 Feltet `anonymous` vises bare her, til eieren selv.
 
 Feil: `401`.
+
+## Felles tilgangskontroll og eierskap
+
+Kontrollere som krever innlogging bruker `AuthenticationService.requireEmail(authorization)`.
+Metoden returnerer e-posten fra serverens tokenregister, eller kaster `NotLoggedInException`
+som gir `401` i det felles JSON-formatet. Utlogging fjerner tokenet fra det samme registeret.
+
+Ved endring og sletting av anmeldelser (#177) sammenligner `ReviewService` den verifiserte
+e-posten med anmeldelsens lagrede `ownerEmail`. Manglende eierskap gir
+`NotReviewOwnerException`, og en ukjent id gir `ReviewNotFoundException`. `ApiExceptionHandler`
+gjør dem om til `403` og `404`. Dette gjelder også anonyme anmeldelser; visningsnavnet er ikke
+grunnlag for tilgang. Gjesteanmeldelser har ingen eier og kan ikke endres eller slettes av noen.

@@ -1,6 +1,8 @@
 package rest.api;
 
 import core.DuplicateEmailException;
+import core.NotReviewOwnerException;
+import core.ReviewNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -48,6 +50,17 @@ public class ApiExceptionHandler {
     }
 
     /**
+     * Forklarer hvilken anmeldelse som ikke finnes.
+     *
+     * @param exception feilen med id-en til anmeldelsen
+     * @return feilsvar med status 404
+     */
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleReviewNotFound(ReviewNotFoundException exception) {
+        return errorResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    /**
      * Forteller at e-postadressen allerede er registrert.
      *
      * @param exception feilen fra core
@@ -79,6 +92,28 @@ public class ApiExceptionHandler {
     @ExceptionHandler(NotLoggedInException.class)
     public ResponseEntity<ErrorResponse> handleNotLoggedIn(NotLoggedInException exception) {
         return errorResponse(HttpStatus.UNAUTHORIZED, exception.getMessage());
+    }
+
+    /**
+     * Avviser endringer en innlogget bruker ikke har tilgang til.
+     *
+     * @param exception feilen ved manglende tilgang
+     * @return feilsvar med status 403
+     */
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException exception) {
+        return errorResponse(HttpStatus.FORBIDDEN, exception.getMessage());
+    }
+
+    /**
+     * Avviser endring eller sletting av andres anmeldelser og gjesteanmeldelser.
+     *
+     * @param exception feilen fra core
+     * @return feilsvar med status 403
+     */
+    @ExceptionHandler(NotReviewOwnerException.class)
+    public ResponseEntity<ErrorResponse> handleNotReviewOwner(NotReviewOwnerException exception) {
+        return errorResponse(HttpStatus.FORBIDDEN, exception.getMessage());
     }
 
     private static ResponseEntity<ErrorResponse> errorResponse(HttpStatus status, String message) {

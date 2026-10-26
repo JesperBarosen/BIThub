@@ -13,9 +13,12 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+   prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21"
+   xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.LoggInnController">
    <children>
-      <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar" stylesheets="@Style.css">
+      <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar"
+         stylesheets="@Style.css">
          <children>
             <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
             <Label alignment="CENTER" prefHeight="70.0" prefWidth="250.0" text="BIThub">
@@ -48,7 +51,7 @@
                   </Label>
                </children>
             </HBox>
-            <TextField />
+            <TextField fx:id="emailField" onAction="#handleLogin" />
             <HBox>
                <children>
                   <Label text="Passord: ">
@@ -58,21 +61,35 @@
                   </Label>
                </children>
             </HBox>
-            <PasswordField>
+            <PasswordField fx:id="passwordField" onAction="#handleLogin">
                <VBox.margin>
                   <Insets bottom="10.0" />
-               </VBox.margin></PasswordField>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="20.0" prefWidth="320.0" styleClass="logg-inn-knapp" stylesheets="@Style.css" text="Logg inn">
+               </VBox.margin>
+            </PasswordField>
+            <Button fx:id="loginButton" onAction="#handleLogin" maxWidth="1.7976931348623157E308"
+               mnemonicParsing="false" prefHeight="20.0" prefWidth="320.0"
+               styleClass="logg-inn-knapp" stylesheets="@Style.css" text="Logg inn">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
             </Button>
+            <Label fx:id="statusLabel" text="" wrapText="true" maxWidth="320.0" />
             <Hyperlink text="Glemt passord? ">
                <font>
                   <Font size="14.0" />
                </font>
             </Hyperlink>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="registrer-ny-bruker-knapp" stylesheets="@Style.css" text="Registrer ny bruker">
+            <Button fx:id="registerButton" onAction="#handleRegister"
+               maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+               styleClass="registrer-ny-bruker-knapp" stylesheets="@Style.css"
+               text="Registrer ny bruker">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Button>
+            <Button fx:id="guestButton" onAction="#handleGuest" maxWidth="1.7976931348623157E308"
+               mnemonicParsing="false" styleClass="tilbake-knapp-registrer-bruker"
+               stylesheets="@Style.css" text="Fortsett som gjest">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
@@ -91,7 +108,9 @@
                   <Font name="System Bold" size="12.0" />
                </font>
             </Text>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Skriv og se anmeldelser av fag innenfor Bachelor i Informatikk (BIT) på NTNU." wrappingWidth="370.0" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0"
+               text="Skriv og se anmeldelser av fag innenfor Bachelor i Informatikk (BIT) på NTNU."
+               wrappingWidth="370.0" />
             <HBox alignment="BASELINE_LEFT" prefWidth="200.0">
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Mer info om appen" />

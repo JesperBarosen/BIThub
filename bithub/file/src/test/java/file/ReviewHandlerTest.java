@@ -477,4 +477,168 @@ class ReviewHandlerTest {
         }
     }
 
+    /**
+     * Lager en anmeldelse med eier, slik den blir når en innlogget bruker skriver den.
+     *
+     * @param id      id-en til anmeldelsen
+     * @param owner   e-posten til eieren
+     * @param rating  vurderingen
+     * @param comment kommentaren
+     * @return anmeldelsen
+     */
+    private static Review ownedReview(String id, String owner, int rating, String comment) {
+        return new Review(id, owner, "Kari", false, rating, comment);
+    }
+
+    /**
+     * Verifiserer at findReview finner en lagret anmeldelse med id, og gir tomt svar for ukjent id
+     * og null.
+     */
+    @Test
+    void findReviewReturnsStoredReview() {
+        ReviewHandler handler = new ReviewHandler(tempDir.resolve("find-review.json"));
+        handler.addReview("IT1901", "Prosjektarbeid",
+                ownedReview("id-1", "kari@ntnu.no", 4, "Bra"));
+
+        Review review = handler.findReview("id-1").orElseThrow();
+
+        assertEquals("kari@ntnu.no", review.getOwnerEmail());
+        assertEquals(4, review.getRating());
+        assertTrue(handler.findReview("finnes-ikke").isEmpty());
+        assertTrue(handler.findReview(null).isEmpty());
+    }
+
+    /**
+     * Verifiserer at updateReview endrer vurdering, kommentar og anonymitet, og beholder id, eier
+     * og navn. Endringen skal være lagret i filen, slik at en ny ReviewHandler leser den.
+     */
+    @Test
+    void updateReviewChangesRatingCommentAndAnonymity() {
+        Path path = tempDir.resolve("update-review.json");
+        ReviewHandler handler = new ReviewHandler(path);
+        handler.addReview("IT1901", "Prosjektarbeid", ownedReview("id-1", "kari@ntnu.no", 2, "Ok"));
+
+        assertTrue(handler.updateReview("id-1", 5, "Mye bedre", true));
+
+        Review review = new ReviewHandler(path).findReview("id-1").orElseThrow();
+        assertEquals("id-1", review.getId());
+        assertEquals("kari@ntnu.no", review.getOwnerEmail());
+        assertEquals("Kari", review.getReviewerName());
+        assertEquals(5, review.getRating());
+        assertEquals("Mye bedre", review.getComment());
+        assertTrue(review.isAnonymous());
+    }
+
+    /**
+     * Verifiserer at updateReview gir false for en ukjent id, uten å endre filen.
+     */
+    @Test
+    void updateReviewReturnsFalseForUnknownId() {
+        ReviewHandler handler = new ReviewHandler(tempDir.resolve("update-unknown.json"));
+        handler.addReview("IT1901", "Prosjektarbeid", ownedReview("id-1", "kari@ntnu.no", 2, "Ok"));
+
+        assertFalse(handler.updateReview("finnes-ikke", 5, "Ny", false));
+        assertEquals(2, handler.findReview("id-1").orElseThrow().getRating());
+    }
+
+    /**
+     * Verifiserer at en ugyldig vurdering avvises, og at den lagrede anmeldelsen ikke endres.
+     */
+    @Test
+    void updateReviewRejectsInvalidRating() {
+        ReviewHandler handler = new ReviewHandler(tempDir.resolve("update-invalid.json"));
+        handler.addReview("IT1901", "Prosjektarbeid", ownedReview("id-1", "kari@ntnu.no", 2, "Ok"));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> handler.updateReview("id-1", 9, "Ugyldig", false));
+        assertEquals(2, handler.findReview("id-1").orElseThrow().getRating());
+    }
+
+    /**
+     * Verifiserer at deleteReview bare sletter den ene anmeldelsen, og at emnet beholdes.
+     */
+    @Test
+    void deleteReviewRemovesOnlyThatReview() {
+        Path path = tempDir.resolve("delete-review.json");
+        ReviewHandler handler = new ReviewHandler(path);
+        handler.addReview("IT1901", "Prosjektarbeid", ownedReview("id-1", "kari@ntnu.no", 4, "En"));
+        handler.addReview("IT1901", "Prosjektarbeid", ownedReview("id-2", "ola@ntnu.no", 3, "To"));
+
+        assertTrue(handler.deleteReview("id-1"));
+
+        Course course = new ReviewHandler(path).findCourse("IT1901").orElseThrow();
+        assertEquals(1, course.getReviews().size());
+        assertEquals("id-2", course.getReviews().get(0).getId());
+    }
+
+    /**
+     * Verifiserer at deleteReview gir false for en ukjent id.
+     */
+    @Test
+    void deleteReviewReturnsFalseForUnknownId() {
+        ReviewHandler handler = new ReviewHandler(tempDir.resolve("delete-unknown.json"));
+        handler.addReview("IT1901", "Prosjektarbeid", ownedReview("id-1", "kari@ntnu.no", 4, "En"));
+
+        assertFalse(handler.deleteReview("finnes-ikke"));
+        assertEquals(1, handler.findCourse("IT1901").orElseThrow().getReviews().size());
+    }
+
+    /**
+     * Kontrollerer at samtidige endringer og slettinger fra flere ReviewHandler-instanser ikke
+     * overskriver hverandre. Halvparten av anmeldelsene endres og resten slettes samtidig, og til
+     * slutt skal nøyaktig de endrede være igjen.
+     *
+     * @throws Exception hvis det er feil i en av trådene eller den ikke blir ferdig i tide
+     */
+    @Test
+    void testReviewsWhenUpdatedAndDeletedSimultaneously() throws Exception {
+        int numberOfReviews = 20;
+        Path path = tempDir.resolve("simultaneously-update-delete.json");
+        ReviewHandler setup = new ReviewHandler(path);
+        for (int i = 0; i < numberOfReviews; i++) {
+            setup.addReview("IT1901", "Prosjektarbeid",
+                    ownedReview("id-" + i, "kari@ntnu.no", 1, "Kommentar " + i));
+        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+        CountDownLatch ready = new CountDownLatch(8);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<Boolean>> futures = new ArrayList<>();
+
+        try {
+            for (int i = 0; i < numberOfReviews; i++) {
+                final String reviewId = "id-" + i;
+                final boolean update = i % 2 == 0;
+
+                futures.add(executor.submit(() -> {
+                    ready.countDown();
+                    start.await();
+
+                    ReviewHandler handler = new ReviewHandler(path);
+                    return update ? handler.updateReview(reviewId, 5, "Endret", false)
+                            : handler.deleteReview(reviewId);
+                }));
+            }
+
+            assertTrue(ready.await(10, TimeUnit.SECONDS), "Alle trådene skulle bli klare");
+
+            start.countDown();
+
+            for (Future<Boolean> future : futures) {
+                assertTrue(future.get(10, TimeUnit.SECONDS));
+            }
+
+            List<Review> reviews = new ReviewHandler(path).findCourse("IT1901").orElseThrow()
+                    .getReviews();
+
+            assertEquals(numberOfReviews / 2, reviews.size());
+            for (Review review : reviews) {
+                assertEquals(5, review.getRating());
+                assertEquals("Endret", review.getComment());
+            }
+        } finally {
+            start.countDown();
+            executor.shutdownNow();
+        }
+    }
 }

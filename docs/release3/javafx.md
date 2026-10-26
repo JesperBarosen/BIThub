@@ -19,6 +19,18 @@ Dette dokumentet beskriver mønsteret innført i issue #173. Det skal gjenbrukes
 
 Implementerte eksempler: `VelgFagController` og `LeseAnmeldelserController`.
 
+### Emnesøk og innlasting
+
+`VelgFagController` filtrerer innlastede emner lokalt med en
+`FilteredList`, uten nye REST-kall når søket endres. Søkefeltet er
+deaktivert mens emnene hentes. Ved ny innlasting beholdes søket og
+brukes på de nye emnene, mens tidligere emnevalg fjernes.
+
+Når søket endres, beholdes valgt emne bare hvis det fortsatt finnes
+blant treffene. Ellers fjernes valget og «Gå videre» deaktiveres.
+Statusmeldingen skiller mellom tom emnelagring og søk uten treff.
+Endringer i søket overskriver ikke laste- eller feilmeldinger.
+
 ## Mønster ved innsending og endring
 
 1. Les og kopier skjemaverdiene til lokale variabler **før** bakgrunnskallet starter. Ikke les JavaFX-felter fra bakgrunnstråden.
@@ -44,7 +56,8 @@ Implementert eksempel: `SkrivAnmeldelseController`. Ikke send automatisk på nyt
 Testene bruker falske repository-implementasjoner med kontrollert forsinkelse, slik at de ikke avhenger av at REST-serveren kjører:
 
 - `BackgroundTaskRunnerTest`: Bakgrunnstråd, callback på JavaFX-tråden, avvisning av duplikatkall og ignorering av sent svar etter avbrudd.
-- `VelgFagControllerTest`: Lastetilstand, utilgjengelig server og navigering med et utestående kall.
+- `VelgFagControllerTest`: Filtrering på emnekode og navn, tomt søk,  søk uten treff, bevaring og fjerning av emnevalg, statusmeldinger,
+  søk ved ny innlasting, utilgjengelig server og navigering med et utestående kall. Søket endres på JavaFX-tråden uten å styre mus eller tastatur.
 - `LeseAnmeldelserControllerTest`: Henting av anmeldelser, lastetilstand, feil og sent svar etter navigering.
 - `SkrivAnmeldelseControllerTest`: Bekreftet innsending, dobbel innsending, bevaring av skjemainnhold ved feil og navigering under lagring.
 
