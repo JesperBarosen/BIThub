@@ -36,13 +36,17 @@ class NewNavigationTest extends ApplicationTest {
         repository.addCoursesIfMissing(DefaultCourses.all());
 
         ReviewService reviewService = new ReviewService(repository);
-        Navigation navigation = new Navigation(reviewService, repository);
+        // Skriving krever innlogging, så testene kjører med en innlogget bruker.
+        UserSession userSession = new UserSession();
+        userSession.signIn("token-1", "Kari Nordmann", "kari@ntnu.no");
+        Navigation navigation = new Navigation(reviewService, repository, userSession, null);
 
         FXMLLoader loader = new FXMLLoader(App.class.getResource("Hjemmeside.fxml"));
         final Parent root = loader.load();
 
         HjemmesideController controller = loader.getController();
         controller.setNavigation(navigation);
+        controller.setUserSession(userSession);
 
         stage.setScene(new Scene(root));
         stage.show();
@@ -84,16 +88,13 @@ class NewNavigationTest extends ApplicationTest {
     }
 
     /**
-     * Verifiserer at «Mine anmeldelser» åpnes fra hjemmesiden, og at siden ber om innlogging når
-     * ingen er logget inn.
+     * Verifiserer at «Mine anmeldelser» åpnes fra hjemmesiden for en innlogget bruker.
      */
     @Test
-    void myReviewsAsksForLoginWithoutSession() {
+    void myReviewsOpensFromHomePage() {
         interact(() -> button("#myReviewsButton").fire());
 
         assertNotNull(stage.getScene().getRoot().lookup("#reviewList"));
-        Label status = (Label) stage.getScene().getRoot().lookup("#statusLabel");
-        assertEquals("Du må logge inn for å se dine anmeldelser.", status.getText());
     }
 
     /**

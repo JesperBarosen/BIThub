@@ -27,46 +27,30 @@ public final class ReviewService {
     }
 
     /**
-     * Validerer og lagrer en anmeldelse for et emne. Denne varianten beholdes for klienten frem til
-     * innlogging er koblet til brukergrensesnittet. REST-serveren bruker varianten med verifisert
-     * eier og anonymitet.
-     *
-     * @param courseCode   emnekoden til emnet
-     * @param courseName   navnet på emnet
-     * @param reviewerName navnet som skal vises på anmeldelsen
-     * @param ratingText   vurderingen slik brukeren skrev den inn
-     * @param comment      kommentaren til anmeldelsen, kan være tom
-     * @return den lagrede anmeldelsen, med id
-     * @throws IllegalArgumentException hvis emnet eller anmeldelsen er ugyldig
-     */
-    public Review submitReview(String courseCode, String courseName, String reviewerName,
-            String ratingText, String comment) {
-        int rating = parseRating(ratingText);
-        Course course = new Course(courseCode, courseName);
-        Review review = new Review(reviewerName, rating, comment == null ? "" : comment.trim());
-        reviewRepository.addReview(course.getCourseCode(), course.getCourseName(), review);
-        return review;
-    }
-
-    /**
      * Validerer og lagrer en anmeldelse med eier bestemt av serveren.
+     *
+     * <p>Bare innloggede brukere kan skrive anmeldelser, så alle nye anmeldelser får en eier.
+     * Anmeldelser uten eier finnes bare fra release 2, og vises som «Gjest».
      *
      * @param courseCode emnekoden
      * @param courseName navnet på emnet
-     * @param owner      den verifiserte brukeren, eller null for en gjest
-     * @param anonymous  om en innlogget bruker ønsker å være anonym; ignoreres for gjester
+     * @param owner      den verifiserte brukeren
+     * @param anonymous  om brukeren ønsker å være anonym
      * @param ratingText vurderingen som tekst
      * @param comment    kommentaren, null behandles som tom tekst
      * @return den lagrede anmeldelsen med id og eierskap
-     * @throws IllegalArgumentException hvis emnet eller vurderingen er ugyldig
+     * @throws IllegalArgumentException hvis brukeren mangler, eller emnet eller vurderingen er
+     *                                      ugyldig
      */
     public Review submitReview(String courseCode, String courseName, User owner, boolean anonymous,
             String ratingText, String comment) {
+        if (owner == null) {
+            throw new IllegalArgumentException("Du må logge inn for å skrive en anmeldelse.");
+        }
         int rating = parseRating(ratingText);
         Course course = new Course(courseCode, courseName);
-        Review review = new Review(UUID.randomUUID().toString(),
-                owner == null ? null : owner.getEmail(), owner == null ? "Gjest" : owner.getName(),
-                owner != null && anonymous, rating, comment == null ? "" : comment.trim());
+        Review review = new Review(UUID.randomUUID().toString(), owner.getEmail(), owner.getName(),
+                anonymous, rating, comment == null ? "" : comment.trim());
         reviewRepository.addReview(course.getCourseCode(), course.getCourseName(), review);
         return review;
     }
@@ -166,7 +150,7 @@ public final class ReviewService {
      * @return den oppdaterte anmeldelsen
      * @throws ReviewNotFoundException  hvis anmeldelsen ikke finnes
      * @throws NotReviewOwnerException  hvis anmeldelsen tilhører en annen eller er en
-     *                                  gjesteanmeldelse
+     *                                      gjesteanmeldelse
      * @throws IllegalArgumentException hvis vurderingen er ugyldig
      */
     public Review updateReview(String reviewId, String ownerEmail, String ratingText,
@@ -218,7 +202,7 @@ public final class ReviewService {
      * @param ownerEmail e-posten til den innloggede brukeren, hentet fra tokenet på serveren
      * @throws ReviewNotFoundException hvis anmeldelsen ikke finnes
      * @throws NotReviewOwnerException hvis anmeldelsen tilhører en annen eller er en
-     *                                 gjesteanmeldelse
+     *                                     gjesteanmeldelse
      */
     public void deleteReview(String reviewId, String ownerEmail) {
         requireOwnReview(reviewId, ownerEmail);

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.Course;
 import core.DefaultCourses;
+import core.ReviewRepository;
 import file.ReviewHandler;
 import file.UserHandler;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -37,8 +39,8 @@ import org.springframework.test.context.DynamicPropertySource;
 /**
  * Integrasjonstester som starter hele serveren på en ledig port og sender ekte HTTP-forespørsler.
  *
- * <p>Serveren bruker ekte tjenester i core og ekte lagring i file, men skriver til filer i
- * en midlertidig mappe, slik at testene aldri endrer dataene i {@code ~/.bithub}.
+ * <p>Serveren bruker ekte tjenester i core og ekte lagring i file, men skriver til filer i en
+ * midlertidig mappe, slik at testene aldri endrer dataene i {@code ~/.bithub}.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RestIntegrationTest {
@@ -52,6 +54,9 @@ class RestIntegrationTest {
 
     @LocalServerPort
     private int port;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     /**
      * Lar serveren bruke filer i den midlertidige mappen i stedet for standardfilene.
@@ -81,6 +86,15 @@ class RestIntegrationTest {
         return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
+    private HttpResponse<String> post(String path, String json, String token)
+            throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder(uri(path))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .POST(HttpRequest.BodyPublishers.ofString(json)).build();
+        return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
     private HttpResponse<String> put(String path, String json, String token)
             throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder(uri(path))
@@ -93,8 +107,7 @@ class RestIntegrationTest {
     private HttpResponse<String> delete(String path, String token)
             throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder(uri(path))
-                .header("Authorization", "Bearer " + token)
-                .DELETE().build();
+                .header("Authorization", "Bearer " + token).DELETE().build();
         return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
@@ -161,8 +174,8 @@ class RestIntegrationTest {
                 .header("Authorization", "Bearer " + token)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString("{\"rating\":4}")).build();
-        assertEquals(401, CLIENT.send(reviewRequest, HttpResponse.BodyHandlers.ofString())
-                .statusCode());
+        assertEquals(401,
+                CLIENT.send(reviewRequest, HttpResponse.BodyHandlers.ofString()).statusCode());
         assertEquals(before, savedReviewCount("IT1901"));
     }
 
@@ -173,7 +186,7 @@ class RestIntegrationTest {
      * @throws Exception hvis en forespørsel feiler
      */
     @ParameterizedTest
-    @ValueSource(booleans = {false, true})
+    @ValueSource(booleans = { false, true })
     void submittedReviewBelongsToAuthenticatedUser(boolean anonymous) throws Exception {
         final String email = "review-" + anonymous + "@example.com";
         String registration = "{\"name\":\"Ola Nordmann\",\"email\":\"" + email
@@ -198,8 +211,8 @@ class RestIntegrationTest {
         assertFalse(response.has("reviewerName"));
 
         core.Review saved = new ReviewHandler(coursesFile()).findCourse("IT1901").orElseThrow()
-                .getReviews().stream().filter(review -> id.equals(review.getId()))
-                .findFirst().orElseThrow();
+                .getReviews().stream().filter(review -> id.equals(review.getId())).findFirst()
+                .orElseThrow();
         assertEquals(email, saved.getOwnerEmail());
         assertEquals("Ola Nordmann", saved.getReviewerName());
         assertEquals(anonymous, saved.isAnonymous());
@@ -240,8 +253,8 @@ class RestIntegrationTest {
             HttpRequest reviewRequest = HttpRequest.newBuilder(uri("/api/courses/IT1901/reviews"))
                     .header("Authorization", "Bearer " + token)
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(
-                            "{\"rating\":4,\"anonymous\":true}")).build();
+                    .POST(HttpRequest.BodyPublishers.ofString("{\"rating\":4,\"anonymous\":true}"))
+                    .build();
             HttpResponse<String> created = CLIENT.send(reviewRequest,
                     HttpResponse.BodyHandlers.ofString());
             assertEquals(201, created.statusCode());
@@ -251,8 +264,9 @@ class RestIntegrationTest {
         for (int i = 0; i < 2; i++) {
             // En ekstra e-post i forespørselen skal ikke kunne overstyre tokenets identitet.
             String otherEmail = "isolation-" + (1 - i) + "@example.com";
-            HttpRequest ownRequest = HttpRequest.newBuilder(uri("/api/me/reviews?email="
-                    + otherEmail + "&ownerEmail=" + otherEmail))
+            HttpRequest ownRequest = HttpRequest
+                    .newBuilder(uri(
+                            "/api/me/reviews?email=" + otherEmail + "&ownerEmail=" + otherEmail))
                     .header("Authorization", "Bearer " + tokens.get(i)).GET().build();
             HttpResponse<String> response = CLIENT.send(ownRequest,
                     HttpResponse.BodyHandlers.ofString());
@@ -276,8 +290,7 @@ class RestIntegrationTest {
 
     private static long savedUserCount(String email) {
         return new UserHandler(tempDir.resolve("users.json")).getUsers().stream()
-                .filter(user -> user.getEmail().equals(email))
-                .count();
+                .filter(user -> user.getEmail().equals(email)).count();
     }
 
     /**
@@ -306,15 +319,16 @@ class RestIntegrationTest {
      */
     @Test
     void submittedReviewIsSavedToFileAndReturnedByGet() throws Exception {
+        String token = register("Kari Nordmann", "kari-it1604@example.com");
         HttpResponse<String> created = post("/api/courses/IT1604/reviews",
-                "{\"rating\":5,\"comment\":\"Spennende emne\"}");
+                "{\"rating\":5,\"comment\":\"Spennende emne\"}", token);
 
         assertEquals(201, created.statusCode());
         JsonNode review = MAPPER.readTree(created.body());
         final String id = review.get("id").asText();
         assertFalse(id.isBlank());
-        assertEquals("GUEST", review.get("authorType").asText());
-        assertEquals("Gjest", review.get("displayName").asText());
+        assertEquals("USER", review.get("authorType").asText());
+        assertEquals("Kari Nordmann", review.get("displayName").asText());
 
         HttpResponse<String> fetched = get("/api/courses/it1604");
         assertEquals(200, fetched.statusCode());
@@ -328,7 +342,26 @@ class RestIntegrationTest {
         Course saved = new ReviewHandler(coursesFile()).findCourse("IT1604").orElseThrow();
         assertEquals(1, saved.getReviews().size());
         assertEquals(id, saved.getReviews().get(0).getId());
+        assertEquals("kari-it1604@example.com", saved.getReviews().get(0).getOwnerEmail());
         assertEquals("Spennende emne", saved.getReviews().get(0).getComment());
+    }
+
+    /**
+     * Verifiserer at en gjest uten token ikke kan skrive en anmeldelse. Serveren svarer 401, og
+     * ingenting lagres.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void reviewWithoutTokenReturnsUnauthorizedAndSavesNothing() throws Exception {
+        final int before = savedReviewCount("EXPH0300");
+
+        HttpResponse<String> response = post("/api/courses/EXPH0300/reviews",
+                "{\"rating\":4,\"comment\":\"Skrevet som gjest\"}");
+
+        assertEquals(401, response.statusCode());
+        assertEquals(401, MAPPER.readTree(response.body()).get("status").asInt());
+        assertEquals(before, savedReviewCount("EXPH0300"));
     }
 
     /**
@@ -339,8 +372,10 @@ class RestIntegrationTest {
     @Test
     void invalidRatingReturnsBadRequestAndSavesNothing() throws Exception {
         final int before = savedReviewCount("BI2081");
+        String token = register("Ugyldig Vurdering", "invalid-rating@example.com");
 
-        HttpResponse<String> response = post("/api/courses/BI2081/reviews", "{\"rating\":6}");
+        HttpResponse<String> response = post("/api/courses/BI2081/reviews", "{\"rating\":6}",
+                token);
 
         assertEquals(400, response.statusCode());
         JsonNode error = MAPPER.readTree(response.body());
@@ -377,7 +412,8 @@ class RestIntegrationTest {
         assertEquals("Fant ikke emnet TDT9999.",
                 MAPPER.readTree(fetched.body()).get("message").asText());
 
-        HttpResponse<String> posted = post("/api/courses/TDT9999/reviews", "{\"rating\":4}");
+        String token = register("Ukjent Emne", "unknown-course@example.com");
+        HttpResponse<String> posted = post("/api/courses/TDT9999/reviews", "{\"rating\":4}", token);
         assertEquals(404, posted.statusCode());
         assertEquals(404, MAPPER.readTree(posted.body()).get("status").asInt());
         assertTrue(new ReviewHandler(coursesFile()).findCourse("TDT9999").isEmpty());
@@ -509,8 +545,8 @@ class RestIntegrationTest {
     }
 
     /**
-     * Verifiserer at bruker A verken kan endre eller slette bruker Bs anmeldelse, og at
-     * anmeldelsen er uendret etterpå.
+     * Verifiserer at bruker A verken kan endre eller slette bruker Bs anmeldelse, og at anmeldelsen
+     * er uendret etterpå.
      *
      * @throws Exception hvis en av forespørslene feiler
      */
@@ -536,21 +572,21 @@ class RestIntegrationTest {
     }
 
     /**
-     * Verifiserer at en gjesteanmeldelse ikke kan endres eller slettes, heller ikke av en
-     * innlogget bruker.
+     * Verifiserer at en gjesteanmeldelse fra release 2 ikke kan endres eller slettes, heller ikke
+     * av en innlogget bruker. Slike anmeldelser kan ikke lages over API-et lenger, så den legges
+     * rett i lagringen.
      *
      * @throws Exception hvis en av forespørslene feiler
      */
     @Test
     void guestReviewCannotBeUpdatedOrDeleted() throws Exception {
-        HttpResponse<String> created = post("/api/courses/IT1901/reviews",
-                "{\"rating\":3,\"comment\":\"Skrevet som gjest\"}");
-        assertEquals(201, created.statusCode());
-        String id = MAPPER.readTree(created.body()).get("id").asText();
+        core.Review guestReview = new core.Review("Gjest", 3, "Skrevet som gjest");
+        reviewRepository.addReview("IT1901", "Informatikk prosjektarbeid I", guestReview);
+        String id = guestReview.getId();
         String token = register("Innlogget Bruker", "guest-test@example.com");
 
-        assertEquals(403, put("/api/reviews/" + id,
-                "{\"rating\":1,\"anonymous\":false}", token).statusCode());
+        assertEquals(403, put("/api/reviews/" + id, "{\"rating\":1,\"anonymous\":false}", token)
+                .statusCode());
         assertEquals(403, delete("/api/reviews/" + id, token).statusCode());
 
         core.Review saved = savedReview(id);

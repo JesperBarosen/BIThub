@@ -71,8 +71,8 @@ public class SkrivAnmeldelseController {
     }
 
     /**
-     * Setter sesjonen med den innloggede brukeren. Uten innlogget bruker sendes anmeldelsen som
-     * gjest.
+     * Setter sesjonen med den innloggede brukeren. Uten innlogget bruker sendes ingen anmeldelse,
+     * siden gjester bare kan lese anmeldelser.
      *
      * @param userSession sesjonen som husker den innloggede brukeren
      * @throws NullPointerException hvis userSession er null
@@ -127,9 +127,9 @@ public class SkrivAnmeldelseController {
     /**
      * Sender anmeldelsen i bakgrunnen uten å blokkere JavaFX-tråden.
      *
-     * <p>For en innlogget bruker sendes avkrysningen «Anonym?» med, og serveren kobler anmeldelsen
-     * til brukeren ut fra tokenet. Uten innlogging sendes anmeldelsen som gjest. Skjemainnholdet
-     * beholdes ved feil og tømmes først etter bekreftet innsending.
+     * <p>Avkrysningen «Anonym?» sendes med, og serveren kobler anmeldelsen til brukeren ut fra
+     * tokenet. Uten innlogging vises en melding om å logge inn, og ingenting sendes.
+     * Skjemainnholdet beholdes ved feil og tømmes først etter bekreftet innsending.
      */
     @FXML
     private void handleSendInn() {
@@ -137,10 +137,14 @@ public class SkrivAnmeldelseController {
             return;
         }
 
-        boolean loggedIn = userSession.isLoggedIn();
+        if (!userSession.isLoggedIn()) {
+            showErrorMessage("Du må logge inn for å skrive en anmeldelse.");
+            return;
+        }
+
         String ownerEmail = userSession.getEmail();
-        String reviewerName = loggedIn ? userSession.getName() : "Gjest";
-        boolean anonymous = loggedIn && anonymousCheckBox.isSelected();
+        String reviewerName = userSession.getName();
+        boolean anonymous = anonymousCheckBox.isSelected();
         String selectedCourseCode = courseCode;
         String selectedCourseName = courseName;
         String rating = ratingField.getText();
@@ -149,12 +153,8 @@ public class SkrivAnmeldelseController {
         statusLabel.setTextFill(Color.BLACK);
         statusLabel.setText("Sender anmeldelsen ...");
 
-        taskRunner.execute(() -> loggedIn
-                ? reviewService.submitReview(selectedCourseCode, selectedCourseName, ownerEmail,
-                        reviewerName, anonymous, rating, comment)
-                : reviewService.submitReview(selectedCourseCode, selectedCourseName, reviewerName,
-                        rating, comment),
-                review -> {
+        taskRunner.execute(() -> reviewService.submitReview(selectedCourseCode, selectedCourseName,
+                ownerEmail, reviewerName, anonymous, rating, comment), review -> {
                     showSuccessMessage("Vurderingen ble sendt inn!");
                     clearFields();
                 }, error -> {

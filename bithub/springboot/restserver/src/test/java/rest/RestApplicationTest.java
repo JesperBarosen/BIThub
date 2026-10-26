@@ -46,8 +46,8 @@ class RestApplicationTest {
             assertTrue(serverContext.getWebServer().getPort() > 0);
 
             ReviewService service = context.getBean(ReviewService.class);
-            service.submitReview("IT1901", "Informatikk prosjektarbeid I", "Testbruker", "4",
-                    "Bra fag");
+            service.submitReview("IT1901", "Informatikk prosjektarbeid I", "test@ntnu.no",
+                    "Testbruker", false, "4", "Bra fag");
 
             assertTrue(Files.isRegularFile(reviewsFile));
             // En ny leser bekrefter at anmeldelsen faktisk finnes i testfilen.

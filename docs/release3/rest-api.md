@@ -17,7 +17,7 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 |---|---|---|---|---|
 | GET | `/api/courses` | Alle emner | Nei | Ferdig (#151), brukes av klienten (#172) |
 | GET | `/api/courses/{code}` | Ett emne med anmeldelser og gjennomsnitt | Nei | Ferdig (#151), brukes av klienten (#172) |
-| POST | `/api/courses/{code}/reviews` | Ny anmeldelse | Valgfri | Ferdig (#151), eierskap og anonymitet (#176), brukes av klienten (#172) |
+| POST | `/api/courses/{code}/reviews` | Ny anmeldelse | Ja | Ferdig (#151), eierskap og anonymitet (#176), krever innlogging (#183), brukes av klienten (#172) |
 | PUT | `/api/reviews/{id}` | Endre egen anmeldelse | Ja | Ferdig (#177), brukes av klienten (#181) |
 | DELETE | `/api/reviews/{id}` | Slette egen anmeldelse | Ja | Ferdig (#177), brukes av klienten (#181) |
 | POST | `/api/users` | Registrere bruker | Nei | Ferdig (#174) |
@@ -30,7 +30,7 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 
 Vi bruker en enkel tokenløsning uten egne sikkerhetsbiblioteker. Når brukeren registrerer seg eller logger inn, lager serveren et tilfeldig token (en UUID) og husker hvilken bruker det hører til. Tokenet lagres bare i minnet, så alle må logge inn på nytt når serveren starter på nytt.
 
-Klienten sender tokenet i headeren `Authorization` på alle forespørsler som krever innlogging, og når en innlogget bruker skriver en anmeldelse:
+Klienten sender tokenet i headeren `Authorization` på alle forespørsler som krever innlogging, også når brukeren skriver en anmeldelse:
 
 ```http
 Authorization: Bearer 3f1c9a2e-7b4d-4e8a-9c1f-2d6b5a8e0f13
@@ -145,15 +145,15 @@ Vi skiller mellom tre typer anmeldelser, som vises i feltet `authorType`:
 |---|---|---|---|
 | `USER` | Innlogget bruker som viser navnet sitt | Brukerens navn | Ja, av eieren |
 | `ANONYMOUS` | Innlogget bruker som har valgt å være anonym | `"Anonym"` | Ja, av eieren |
-| `GUEST` | Noen som ikke var logget inn | `"Gjest"` | Nei |
+| `GUEST` | Noen som ikke var logget inn, i release 2 | `"Gjest"` | Nei |
 
-En anonym anmeldelse har en eier på serveren, men svaret sier ingenting om hvem det er. En gjesteanmeldelse har ingen eier. Anmeldelser fra release 2, som ble skrevet før vi hadde innlogging, regnes også som gjesteanmeldelser.
+En anonym anmeldelse har en eier på serveren, men svaret sier ingenting om hvem det er. En gjesteanmeldelse har ingen eier. Fra #183 kan bare innloggede brukere skrive anmeldelser, så `GUEST` gjelder bare anmeldelser fra release 2, som ble skrevet før vi hadde innlogging. Gjester kan fortsatt lese alle anmeldelser.
 
 Feil: `404` hvis emnet ikke finnes.
 
 ### POST `/api/courses/{code}/reviews`
 
-Lager en ny anmeldelse. Med token blir anmeldelsen knyttet til den innloggede brukeren, og `anonymous` bestemmer om den vises som `USER` eller `ANONYMOUS`. Uten token blir den en gjesteanmeldelse (`GUEST`), og `anonymous` brukes ikke.
+Lager en ny anmeldelse og krever innlogging. Anmeldelsen blir knyttet til den innloggede brukeren, og `anonymous` bestemmer om den vises som `USER` eller `ANONYMOUS`. Uten token svarer serveren `401`, og ingenting lagres.
 
 Forespørsel:
 
@@ -177,12 +177,11 @@ Svar `201`: anmeldelsen slik den vises offentlig, med `id`.
 }
 ```
 
-Feil: `400` ved ugyldig vurdering eller kommentar, `401` hvis tokenet er sendt med, men er ukjent eller logget ut, `404` hvis emnet ikke finnes.
+Feil: `400` ved ugyldig vurdering eller kommentar, `401` hvis tokenet mangler, er ukjent eller er logget ut, `404` hvis emnet ikke finnes.
 
 Serveren henter eier og navn fra brukerregisteret etter at tokenet er kontrollert. Klienten
 kan ikke velge eier ved å sende navn eller e-post i JSON. Anonyme anmeldelser beholder eieren
 i lagringen og vises under egne anmeldelser, men offentlig vises bare «Anonym».
-En sendt, ugyldig Authorization-header gir `401`; forespørselen lagres ikke som gjest.
 
 ### PUT `/api/reviews/{id}`
 
