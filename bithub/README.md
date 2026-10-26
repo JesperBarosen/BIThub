@@ -26,12 +26,19 @@ Informasjon om appen finnes via lenken nederst på innloggings- og hjemskjermen.
 - **Skrive anmeldelser:** Velge et fag og skrive en anmeldelse med vurdering fra 1 til 5, kommentar og anonymitet.
 - **Lagre anmeldelser:** Anmeldelser valideres og lagres automatisk i en JSON-fil.
 
+### Implementert til release 3
+
+- **Søk etter fag:** Filtrer emnelisten på emnekode eller emnenavn mens
+  du skriver. Søket ignorerer store og små bokstaver og mellomrom før
+  og etter søket. Trefflisten åpnes automatisk og viser opptil seks
+  emner om gangen, med rulling ved flere treff. Tomt søk viser alle
+  emner. Søkefeltet brukes både når man skal lese og skrive anmeldelser.
+
 ### Planlagt til release 3
 
 - **Innlogging og registrering:** Koble brukere til appen og lage sidene for dem.
 - **Profil:** Lage en profilside hvor det er mulig å endre navn og passord.
 - **Mine anmeldelser:** Implementere slik at dine tidligere skrevne anmeldelser dukker opp her.
-- **Søk etter fag:** Søke opp fag i stedet for å bla i listen.
 
 ## Brukerlagring på REST-serveren
 
