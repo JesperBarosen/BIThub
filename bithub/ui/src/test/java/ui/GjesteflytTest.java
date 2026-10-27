@@ -20,6 +20,10 @@ import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
+import ui.client.AuthenticationClient;
+import ui.client.AuthenticationResult;
+import ui.client.InMemoryReviewRepository;
+import ui.session.UserSession;
 
 /**
  * TestFX-tester for gjesteflyten: fortsette som gjest fra innloggingen, lese anmeldelser, og logge

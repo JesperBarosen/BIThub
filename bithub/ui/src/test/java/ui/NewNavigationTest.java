@@ -19,6 +19,9 @@ import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
+import ui.client.InMemoryReviewRepository;
+import ui.controller.HjemmesideController;
+import ui.session.UserSession;
 
 /**
  * Tester navigasjonen i de nye FXML-skjermbildene.
@@ -81,7 +84,7 @@ class NewNavigationTest extends ApplicationTest {
 
     /**
      * Verifiserer at profilen åpnes fra hjemmesiden og viser brukeren som er logget inn. Profilen
-     * uten innlogging testes i {@link ProfilControllerTest}.
+     * uten innlogging testes i {@code ui.controller.ProfilControllerTest}.
      */
     @Test
     void profileOpensFromHomePage() {

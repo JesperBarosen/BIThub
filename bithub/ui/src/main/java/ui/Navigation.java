@@ -15,6 +15,19 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import ui.client.AuthenticationClient;
+import ui.client.AuthenticationResult;
+import ui.controller.EndreEgenAnmeldelseController;
+import ui.controller.EndrePassordController;
+import ui.controller.HjemmesideController;
+import ui.controller.LeseAnmeldelserController;
+import ui.controller.LoggInnController;
+import ui.controller.MineAnmeldelserController;
+import ui.controller.ProfilController;
+import ui.controller.RegistrerBrukerController;
+import ui.controller.SkrivAnmeldelseController;
+import ui.controller.VelgFagController;
+import ui.session.UserSession;
 
 /**
  * Samler navigasjon mellom skjermbildene som finnes i appen.
