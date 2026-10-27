@@ -87,7 +87,7 @@ public final class User {
 
     private static void validateEmail(String email) {
         if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("E-postadressen kan ikke være null eller tomt.");
+            throw new IllegalArgumentException("E-postadressen kan ikke være null eller tom.");
         }
         // Regex foreslått av ChatGPT for enkel validering av e-postformat.
         if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
