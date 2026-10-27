@@ -123,7 +123,7 @@ public final class UserHandler implements DataHandler<UserDTO>, UserRepository {
      */
     public boolean addUserIfEmailAvailable(User user) {
         if (user == null) {
-            throw new IllegalArgumentException("Brukeren kan ikke være null");
+            throw new IllegalArgumentException("Brukeren kan ikke være null.");
         }
 
         return storage.update(() -> {

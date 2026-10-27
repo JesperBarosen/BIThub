@@ -89,7 +89,7 @@ public final class PasswordHasher {
             byte[] hash = factory.generateSecret(spec).getEncoded();
             return Base64.getEncoder().encodeToString(hash);
         } catch (GeneralSecurityException e) {
-            throw new IllegalStateException("Kunne ikke hashe passord", e);
+            throw new IllegalStateException("Kunne ikke hashe passord.", e);
         } finally {
             spec.clearPassword();
         }
