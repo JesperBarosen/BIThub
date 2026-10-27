@@ -21,10 +21,10 @@ public final class Course {
      */
     public Course(String courseCode, String courseName) {
         if (courseCode == null || courseCode.isBlank()) {
-            throw new IllegalArgumentException("Course code cannot be null or empty.");
+            throw new IllegalArgumentException("Emnekoden kan ikke være null eller blank.");
         }
         if (courseName == null || courseName.isBlank()) {
-            throw new IllegalArgumentException("Course name cannot be null or empty.");
+            throw new IllegalArgumentException("Emnenavnet kan ikke være null eller blank.");
         }
         this.courseCode = courseCode;
         this.courseName = courseName;
@@ -57,7 +57,7 @@ public final class Course {
      */
     public void addReview(Review review) {
         if (review == null) {
-            throw new IllegalArgumentException("Review cannot be null.");
+            throw new IllegalArgumentException("Anmeldelsen kan ikke være null.");
         }
         reviews.add(review);
     }

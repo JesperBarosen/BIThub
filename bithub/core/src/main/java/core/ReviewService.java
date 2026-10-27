@@ -98,7 +98,7 @@ public final class ReviewService {
      */
     public Course getCourseWithReviews(Course course) {
         if (course == null) {
-            throw new IllegalArgumentException("Course cannot be null.");
+            throw new IllegalArgumentException("Emnet kan ikke være null.");
         }
         return reviewRepository.findCourse(course.getCourseCode())
                 .orElseGet(() -> new Course(course.getCourseCode(), course.getCourseName()));

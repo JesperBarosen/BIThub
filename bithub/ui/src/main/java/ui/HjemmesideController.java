@@ -65,21 +65,33 @@ public class HjemmesideController {
         loginButton.setVisible(!loggedIn);
     }
 
+    /**
+     * Åpner emnevelgeren for å lese anmeldelser.
+     */
     @FXML
     private void handleReadReviews() {
         navigation.showCourseSelectionForReading(readReviewsButton);
     }
 
+    /**
+     * Åpner emnevelgeren for å skrive en anmeldelse.
+     */
     @FXML
     private void handleWriteReview() {
         navigation.showCourseSelection(writeReviewButton);
     }
 
+    /**
+     * Åpner siden med brukerens egne anmeldelser.
+     */
     @FXML
     private void handleMyReviews() {
         navigation.showMyReviews(myReviewsButton);
     }
 
+    /**
+     * Åpner profilsiden.
+     */
     @FXML
     private void handleProfile() {
         navigation.showProfile(profileButton);

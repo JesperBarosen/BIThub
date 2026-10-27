@@ -295,16 +295,31 @@ public class MineAnmeldelserController {
         navigation.showHome(homeButton);
     }
 
+    /**
+     * Viser en informasjonsmelding i svart.
+     *
+     * @param message meldingen som skal vises
+     */
     private void showInfoMessage(String message) {
         statusLabel.setTextFill(Color.BLACK);
         statusLabel.setText(message);
     }
 
+    /**
+     * Viser en bekreftelse i grønt.
+     *
+     * @param message meldingen som skal vises
+     */
     private void showSuccessMessage(String message) {
         statusLabel.setTextFill(Color.GREEN);
         statusLabel.setText(message);
     }
 
+    /**
+     * Viser en feilmelding i rødt.
+     *
+     * @param message feilmeldingen som skal vises
+     */
     private void showErrorMessage(String message) {
         statusLabel.setTextFill(Color.RED);
         statusLabel.setText(message);

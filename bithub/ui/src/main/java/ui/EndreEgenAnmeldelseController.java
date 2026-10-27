@@ -174,6 +174,11 @@ public class EndreEgenAnmeldelseController {
         navigation.showHome(homeButton);
     }
 
+    /**
+     * Viser en feilmelding i rødt.
+     *
+     * @param message feilmeldingen som skal vises
+     */
     private void showErrorMessage(String message) {
         statusLabel.setTextFill(Color.RED);
         statusLabel.setText(message);

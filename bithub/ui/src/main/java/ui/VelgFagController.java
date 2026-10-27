@@ -49,6 +49,9 @@ public class VelgFagController {
 
     private boolean coursesLoaded;
 
+    /**
+     * Setter opp emnelisten og søkefeltet, og deaktiverer feltene og knappen mens emnene hentes.
+     */
     @FXML
     private void initialize() {
         courseComboBox.setButtonCell(courseCell());
@@ -121,6 +124,9 @@ public class VelgFagController {
         this.navigation = Objects.requireNonNull(navigation);
     }
 
+    /**
+     * Åpner det valgte emnet, eller ber brukeren velge et emne først.
+     */
     @FXML
     private void handleNext() {
         if (taskRunner.runningProperty().get()) {
@@ -137,12 +143,18 @@ public class VelgFagController {
         onCourseSelected.accept(nextButton, selectedCourse);
     }
 
+    /**
+     * Avbryter eventuell henting og går tilbake til hjemmesiden.
+     */
     @FXML
     private void handleBack() {
         taskRunner.cancel();
         navigation.showHome(backButton);
     }
 
+    /**
+     * Avbryter eventuell henting og går til hjemmesiden.
+     */
     @FXML
     private void handleHome() {
         taskRunner.cancel();
@@ -190,6 +202,11 @@ public class VelgFagController {
         }
     }
 
+    /**
+     * Lager en celle som viser emnet som «KODE - navn».
+     *
+     * @return cellen som brukes i emnelisten
+     */
     private ListCell<Course> courseCell() {
         return new ListCell<>() {
             @Override

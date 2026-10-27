@@ -37,7 +37,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
      */
     public ReviewHandler(Path path) {
         if (path == null) {
-            throw new IllegalArgumentException("Path cannot be null");
+            throw new IllegalArgumentException("Sti kan ikke være null.");
         }
         this.path = path;
         this.objectMapper = new ObjectMapper();

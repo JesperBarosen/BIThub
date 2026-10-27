@@ -37,7 +37,7 @@ public final class UserHandler implements DataHandler<UserDTO>, UserRepository {
      */
     public UserHandler(Path path) {
         if (path == null) {
-            throw new IllegalArgumentException("Path cannot be null");
+            throw new IllegalArgumentException("Sti kan ikke være null.");
         }
 
         this.path = path;
@@ -101,7 +101,7 @@ public final class UserHandler implements DataHandler<UserDTO>, UserRepository {
      */
     public void addUser(User user) {
         if (user == null) {
-            throw new IllegalArgumentException("User cannot be null");
+            throw new IllegalArgumentException("Brukeren kan ikke være null.");
         }
 
         storage.update(() -> {
@@ -123,7 +123,7 @@ public final class UserHandler implements DataHandler<UserDTO>, UserRepository {
      */
     public boolean addUserIfEmailAvailable(User user) {
         if (user == null) {
-            throw new IllegalArgumentException("User cannot be null");
+            throw new IllegalArgumentException("Brukeren kan ikke være null.");
         }
 
         return storage.update(() -> {

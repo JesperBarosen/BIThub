@@ -41,7 +41,7 @@ final class JsonFileStorage {
      */
     JsonFileStorage(Path path, ObjectMapper objectMapper) {
         if (path == null || objectMapper == null) {
-            throw new IllegalArgumentException("Path og ObjectMapper kan ikke være null");
+            throw new IllegalArgumentException("Filsti og ObjectMapper kan ikke være null.");
         }
 
         Path normalized = path.toAbsolutePath().normalize();
