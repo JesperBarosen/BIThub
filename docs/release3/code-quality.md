@@ -13,7 +13,7 @@ Vi tester hvert lag for seg, og har i tillegg tester som sjekker at lagene virke
 | Modul | Hva som testes | Eksempler |
 |---|---|---|
 | `core` | Domeneklassene og tjenestene, med en falsk lagring | [`ReviewServiceTest`](../../bithub/core/src/test/java/core/service/ReviewServiceTest.java), [`UserServiceTest`](../../bithub/core/src/test/java/core/service/UserServiceTest.java), [`PasswordHasherTest`](../../bithub/core/src/test/java/core/service/PasswordHasherTest.java) |
-| `file` | Lesing og skriving av JSON, feil ved lesing og skriving, og samtidige endringer | [`ReviewHandlerTest`](../../bithub/file/src/test/java/file/ReviewHandlerTest.java), [`UserHandlerTest`](../../bithub/file/src/test/java/file/UserHandlerTest.java), [`JsonFileStorageTest`](../../bithub/file/src/test/java/file/JsonFileStorageTest.java) |
+| `file` | Lesing og skriving av JSON, feil ved lesing og skriving, og samtidige endringer | [`ReviewHandlerTest`](../../bithub/file/src/test/java/file/ReviewHandlerTest.java), [`UserHandlerTest`](../../bithub/file/src/test/java/file/UserHandlerTest.java), [`JsonFileStorageTest`](../../bithub/file/src/test/java/file/storage/JsonFileStorageTest.java) |
 | `ui` | Kontrollerne med TestFX, bakgrunnskall og REST-klienten mot en falsk server | [`SkrivAnmeldelseControllerTest`](../../bithub/ui/src/test/java/ui/SkrivAnmeldelseControllerTest.java), [`BackgroundTaskRunnerTest`](../../bithub/ui/src/test/java/ui/BackgroundTaskRunnerTest.java), [`RemoteReviewRepositoryTest`](../../bithub/ui/src/test/java/ui/RemoteReviewRepositoryTest.java) |
 | `springboot/restserver` | Endepunktene med `MockMvc`, og hele serveren med ekte HTTP | [`ReviewControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/ReviewControllerTest.java), [`UserControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/UserControllerTest.java), [`RestIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestIntegrationTest.java) |
 
@@ -103,6 +103,7 @@ Unntak som gjelder én klasse, legger vi direkte i koden med `@SuppressFBWarning
 | Advarsel | Hvor | Begrunnelse |
 |---|---|---|
 | `EI_EXPOSE_REP` | `CourseDTO.getReviews()` | Jackson trenger direkte tilgang til listen for å lese og skrive JSON, og klassen brukes bare til lagring. |
+| `EI_EXPOSE_REP2` | Konstruktøren til `file.storage.JsonFileStorage` | Deler handlerens `ObjectMapper` slik at lesing og skriving bruker samme JSON-konfigurasjon. Konstruktøren er offentlig etter pakkeflyttingen i #204. |
 | `EI_EXPOSE_REP2` | Konstruktøren til `AuthenticationService` | Tokenregisteret må deles, slik at utlogging gjelder alle endepunkter (#176). |
 | `EI_EXPOSE_REP2` | Konstruktøren til `UserController` | Spring deler `TokenService`, slik at utlogging gjelder alle kall (#176). |
 

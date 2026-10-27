@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mockStatic;
 import core.exception.DuplicateEmailException;
 import core.model.User;
 import core.repository.UserRepository;
+import file.dto.UserDTO;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;

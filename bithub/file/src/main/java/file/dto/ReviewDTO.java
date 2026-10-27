@@ -1,4 +1,4 @@
-package file;
+package file.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 

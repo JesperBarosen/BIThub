@@ -1,6 +1,7 @@
-package file;
+package file.storage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.AtomicMoveNotSupportedException;
@@ -20,7 +21,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <p>Låsingen gjelder bare innenfor én prosess. To prosesser som skriver til samme fil, er ikke
  * beskyttet mot hverandre.
  */
-final class JsonFileStorage {
+public final class JsonFileStorage {
 
     private static final ConcurrentHashMap<Path, ReentrantReadWriteLock> LOCKS =
         new ConcurrentHashMap<>();
@@ -39,7 +40,11 @@ final class JsonFileStorage {
      * @throws IllegalArgumentException hvis stien eller ObjectMapper er null, eller stien ikke
      *                                      peker på en fil i en mappe
      */
-    JsonFileStorage(Path path, ObjectMapper objectMapper) {
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "Deler handlerens ObjectMapper slik at lesing og skriving bruker "
+                    + "samme JSON-konfigurasjon.")
+    public JsonFileStorage(Path path, ObjectMapper objectMapper) {
         if (path == null || objectMapper == null) {
             throw new IllegalArgumentException("Filsti og ObjectMapper kan ikke være null.");
         }
@@ -70,7 +75,7 @@ final class JsonFileStorage {
      * @return resultatet av leseoperasjonen
      * @throws UncheckedIOException hvis lesingen feiler
      */
-    <T> T read(IoCallable<T> operation) {
+    public <T> T read(IoCallable<T> operation) {
         lock.readLock().lock();
         try {
             return operation.call();
@@ -92,7 +97,7 @@ final class JsonFileStorage {
      * @return resultatet av oppdateringen
      * @throws UncheckedIOException hvis oppdateringen feiler
      */
-    <T> T update(IoCallable<T> operation) {
+    public <T> T update(IoCallable<T> operation) {
         lock.writeLock().lock();
         try {
             return operation.call();
@@ -113,7 +118,7 @@ final class JsonFileStorage {
      * @param data dataene som skal lagres som JSON
      * @throws UncheckedIOException hvis skrivingen eller filbyttet feiler
      */
-    void write(Object data) {
+    public void write(Object data) {
         Path temporaryFile = null;
         try {
             if (Files.isDirectory(path)) {
@@ -151,7 +156,7 @@ final class JsonFileStorage {
      * @param <T> typen data operasjonen returnerer
      */
     @FunctionalInterface
-    interface IoCallable<T> {
+    public interface IoCallable<T> {
 
         /**
          * Utfører operasjonen.

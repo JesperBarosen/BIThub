@@ -4,6 +4,8 @@ module bithub.file {
     requires static com.github.spotbugs.annotations;
 
     exports file;
+    exports file.dto;
+    exports file.storage;
 
-    opens file to com.fasterxml.jackson.databind;
+    opens file.dto to com.fasterxml.jackson.databind;
 }
