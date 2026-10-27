@@ -1,4 +1,4 @@
-package core;
+package core.exception;
 
 /**
  * Signalerer at en bruker prøver å endre eller slette en anmeldelse som ikke er brukerens egen.

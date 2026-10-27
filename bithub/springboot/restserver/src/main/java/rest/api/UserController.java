@@ -1,8 +1,8 @@
 package rest.api;
 
-import core.ReviewService;
-import core.User;
-import core.UserService;
+import core.model.User;
+import core.service.ReviewService;
+import core.service.UserService;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -59,7 +59,7 @@ public class UserController {
      * @param request navn, e-post og passord fra klienten
      * @return token, navn og e-post til den nye brukeren
      * @throws IllegalArgumentException hvis opplysningene er ugyldige
-     * @throws core.DuplicateEmailException hvis e-posten allerede er registrert
+     * @throws core.exception.DuplicateEmailException hvis e-posten allerede er registrert
      */
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)

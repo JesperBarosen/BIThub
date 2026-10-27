@@ -1,8 +1,8 @@
 package ui;
 
-import core.Course;
-import core.Review;
-import core.ReviewService;
+import core.model.Course;
+import core.model.Review;
+import core.service.ReviewService;
 import java.util.Locale;
 import java.util.Objects;
 import javafx.fxml.FXML;

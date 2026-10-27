@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import core.Course;
-import core.NotReviewOwnerException;
-import core.Review;
-import core.ReviewService;
+import core.exception.NotReviewOwnerException;
+import core.model.Course;
+import core.model.Review;
+import core.service.ReviewService;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;

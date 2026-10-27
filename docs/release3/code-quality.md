@@ -12,7 +12,7 @@ Vi tester hvert lag for seg, og har i tillegg tester som sjekker at lagene virke
 
 | Modul | Hva som testes | Eksempler |
 |---|---|---|
-| `core` | Domeneklassene og tjenestene, med en falsk lagring | [`ReviewServiceTest`](../../bithub/core/src/test/java/core/ReviewServiceTest.java), [`UserServiceTest`](../../bithub/core/src/test/java/core/UserServiceTest.java), [`PasswordHasherTest`](../../bithub/core/src/test/java/core/PasswordHasherTest.java) |
+| `core` | Domeneklassene og tjenestene, med en falsk lagring | [`ReviewServiceTest`](../../bithub/core/src/test/java/core/service/ReviewServiceTest.java), [`UserServiceTest`](../../bithub/core/src/test/java/core/service/UserServiceTest.java), [`PasswordHasherTest`](../../bithub/core/src/test/java/core/service/PasswordHasherTest.java) |
 | `file` | Lesing og skriving av JSON, feil ved lesing og skriving, og samtidige endringer | [`ReviewHandlerTest`](../../bithub/file/src/test/java/file/ReviewHandlerTest.java), [`UserHandlerTest`](../../bithub/file/src/test/java/file/UserHandlerTest.java), [`JsonFileStorageTest`](../../bithub/file/src/test/java/file/JsonFileStorageTest.java) |
 | `ui` | Kontrollerne med TestFX, bakgrunnskall og REST-klienten mot en falsk server | [`SkrivAnmeldelseControllerTest`](../../bithub/ui/src/test/java/ui/SkrivAnmeldelseControllerTest.java), [`BackgroundTaskRunnerTest`](../../bithub/ui/src/test/java/ui/BackgroundTaskRunnerTest.java), [`RemoteReviewRepositoryTest`](../../bithub/ui/src/test/java/ui/RemoteReviewRepositoryTest.java) |
 | `springboot/restserver` | Endepunktene med `MockMvc`, og hele serveren med ekte HTTP | [`ReviewControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/ReviewControllerTest.java), [`UserControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/UserControllerTest.java), [`RestIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestIntegrationTest.java) |
@@ -93,7 +93,7 @@ Unntak som gjelder én klasse, legger vi direkte i koden med `@SuppressFBWarning
 
 | Advarsel | Hvor | Begrunnelse |
 |---|---|---|
-| `EI_EXPOSE_REP2` | Feltet `reviewRepository` i `core.ReviewService` | `ReviewService` skal bruke den samme lagringen som den får utenfra, ikke en kopi. |
+| `EI_EXPOSE_REP2` | Feltet `reviewRepository` i `core.service.ReviewService` | `ReviewService` skal bruke den samme lagringen som den får utenfra, ikke en kopi. |
 | `EI_EXPOSE_REP2` | Feltet `reviewRepository` i `ui.Navigation` | Navigasjonen sender den samme lagringen videre til kontrollerne. |
 | `EI_EXPOSE_REP2` | Feltet `reviewService` i klasser i `ui` og `rest.api` | SpotBugs regner `ReviewService` som en klasse som kan endres, fordi den har metoden `deleteReview` (#177). Tjenesten er delt, og kontrollerne skal bruke den direkte. |
 | `EI_EXPOSE_REP2` | Feltet `userSession` i klasser i `ui` | Alle skjermene skal dele den samme sesjonen med den innloggede brukeren, ikke en kopi. Ellers ville en skjerm ikke sett at brukeren har logget inn eller ut (#178). |

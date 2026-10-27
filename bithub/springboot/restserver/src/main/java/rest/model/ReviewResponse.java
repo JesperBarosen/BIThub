@@ -1,7 +1,7 @@
 package rest.model;
 
-import core.AuthorType;
-import core.Review;
+import core.model.AuthorType;
+import core.model.Review;
 
 /**
  * En anmeldelse slik den vises offentlig i REST-API-et. Eieren er aldri med i svaret, slik at

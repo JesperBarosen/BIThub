@@ -1,5 +1,11 @@
-package core;
+package core.service;
 
+import core.exception.NotReviewOwnerException;
+import core.exception.ReviewNotFoundException;
+import core.model.Course;
+import core.model.Review;
+import core.model.User;
+import core.repository.ReviewRepository;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;

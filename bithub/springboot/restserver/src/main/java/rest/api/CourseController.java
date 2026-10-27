@@ -1,6 +1,6 @@
 package rest.api;
 
-import core.ReviewService;
+import core.service.ReviewService;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -1,4 +1,4 @@
-package core;
+package core.exception;
 
 /**
  * Signalerer at det ikke finnes noen anmeldelse med den oppgitte id-en.

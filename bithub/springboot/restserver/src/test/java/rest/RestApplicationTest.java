@@ -5,12 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import core.Course;
-import core.Review;
-import core.ReviewService;
-import core.User;
-import core.UserRepository;
-import core.UserService;
+import core.model.Course;
+import core.model.Review;
+import core.model.User;
+import core.repository.UserRepository;
+import core.service.ReviewService;
+import core.service.UserService;
 import file.ReviewHandler;
 import file.UserHandler;
 import java.nio.file.Files;

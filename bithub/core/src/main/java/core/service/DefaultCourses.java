@@ -1,5 +1,6 @@
-package core;
+package core.service;
 
+import core.model.Course;
 import java.util.List;
 
 /**

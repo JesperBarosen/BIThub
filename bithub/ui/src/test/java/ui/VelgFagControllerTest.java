@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import core.Course;
-import core.DefaultCourses;
-import core.Review;
-import core.ReviewRepository;
-import core.ReviewService;
+import core.model.Course;
+import core.model.Review;
+import core.repository.ReviewRepository;
+import core.service.DefaultCourses;
+import core.service.ReviewService;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.ConnectException;

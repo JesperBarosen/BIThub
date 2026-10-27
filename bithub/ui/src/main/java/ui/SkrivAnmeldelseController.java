@@ -1,7 +1,7 @@
 package ui;
 
-import core.Course;
-import core.ReviewService;
+import core.model.Course;
+import core.service.ReviewService;
 import java.util.Objects;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

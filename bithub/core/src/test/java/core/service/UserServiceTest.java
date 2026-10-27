@@ -1,4 +1,4 @@
-package core;
+package core.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import core.exception.DuplicateEmailException;
+import core.model.User;
+import core.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

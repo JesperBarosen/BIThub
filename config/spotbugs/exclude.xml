@@ -10,7 +10,7 @@
          Unntaket gjelder bare dette ene feltet. -->
     <Match>
         <Bug pattern="EI_EXPOSE_REP2" />
-        <Class name="core.ReviewService" />
+        <Class name="core.service.ReviewService" />
         <Field name="reviewRepository" />
     </Match>
     <!-- Navigation bruker repository-et som en injisert avhengighet. -->

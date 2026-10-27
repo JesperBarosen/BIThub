@@ -10,10 +10,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import core.NotReviewOwnerException;
-import core.Review;
-import core.ReviewNotFoundException;
-import core.ReviewService;
+import core.exception.NotReviewOwnerException;
+import core.exception.ReviewNotFoundException;
+import core.model.Review;
+import core.service.ReviewService;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -1,7 +1,7 @@
 package ui;
 
-import core.Course;
-import core.ReviewRepository;
+import core.model.Course;
+import core.repository.ReviewRepository;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiConsumer;

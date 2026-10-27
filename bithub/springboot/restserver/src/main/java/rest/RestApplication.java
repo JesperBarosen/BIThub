@@ -1,10 +1,10 @@
 package rest;
 
-import core.DefaultCourses;
-import core.ReviewRepository;
-import core.ReviewService;
-import core.UserRepository;
-import core.UserService;
+import core.repository.ReviewRepository;
+import core.repository.UserRepository;
+import core.service.DefaultCourses;
+import core.service.ReviewService;
+import core.service.UserService;
 import file.ReviewHandler;
 import file.UserHandler;
 import java.nio.file.Path;

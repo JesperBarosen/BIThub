@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import core.Course;
-import core.Review;
-import core.ReviewRepository;
-import core.ReviewService;
+import core.model.Course;
+import core.model.Review;
+import core.repository.ReviewRepository;
+import core.service.ReviewService;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;

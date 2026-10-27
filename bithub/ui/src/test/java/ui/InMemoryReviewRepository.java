@@ -1,8 +1,8 @@
 package ui;
 
-import core.Course;
-import core.Review;
-import core.ReviewRepository;
+import core.model.Course;
+import core.model.Review;
+import core.repository.ReviewRepository;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;

@@ -1,4 +1,4 @@
-package core;
+package core.exception;
 
 /**
  * Signalerer at e-postadressen allerede er registrert.

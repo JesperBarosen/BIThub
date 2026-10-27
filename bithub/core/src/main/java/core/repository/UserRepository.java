@@ -1,5 +1,8 @@
-package core;
+package core.repository;
 
+import core.exception.DuplicateEmailException;
+import core.model.User;
+import core.service.UserService;
 import java.util.Optional;
 
 /**

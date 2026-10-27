@@ -153,9 +153,9 @@ lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
 
 ### Kommentarer til diagrammet
 
-- **`ui → core`:** `SkrivAnmeldelseController` kjenner kun `core.ReviewService`. Den vet ingenting om
+- **`ui → core`:** `SkrivAnmeldelseController` kjenner kun `core.service.ReviewService`. Den vet ingenting om
   at anmeldelsen til slutt havner i en JSON-fil.
-- **`core → file` (via grensesnitt):** `ReviewService` kjenner kun `core.ReviewRepository`.
+- **`core → file` (via grensesnitt):** `ReviewService` kjenner kun `core.repository.ReviewRepository`.
   `ReviewHandler` i `file`-modulen implementerer dette grensesnittet, så `core` er ikke
   avhengig av `file`.
 - **Kobling ved oppstart:** Det er `App.start(...)` som oppretter
@@ -189,10 +189,10 @@ lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
   åpner den samme `VelgFag`-siden som brukes når man skriver en anmeldelse, men gir
   `VelgFagController` beskjed om å kalle `Navigation::showReviews` når et fag er valgt.
   Kontrolleren vet ikke selv hvilken side som åpnes.
-- **`ui → core`:** `LeseAnmeldelserController` kjenner kun `core.ReviewService`. Den ber om
+- **`ui → core`:** `LeseAnmeldelserController` kjenner kun `core.service.ReviewService`. Den ber om
   emnet med `getCourseWithReviews` og vet ikke at anmeldelsene kommer fra en JSON-fil.
 - **`core → file` (via grensesnitt):** `ReviewService` kaller `findCourse` på
-  `core.ReviewRepository`. `ReviewHandler` i `file` implementerer metoden, leser filen og
+  `core.repository.ReviewRepository`. `ReviewHandler` i `file` implementerer metoden, leser filen og
   gjør `CourseDTO` om til `Course`. DTO-en brukes bare inne i `file`.
 - **Fag uten anmeldelser:** Finnes ikke faget i filen, returnerer `findCourse` en tom
   `Optional`, og `ReviewService` lager et tomt `Course`. Kontrolleren trenger derfor ikke å

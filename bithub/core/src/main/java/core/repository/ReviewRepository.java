@@ -1,5 +1,7 @@
-package core;
+package core.repository;
 
+import core.model.Course;
+import core.model.Review;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

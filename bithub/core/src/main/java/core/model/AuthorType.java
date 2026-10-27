@@ -1,4 +1,4 @@
-package core;
+package core.model;
 
 /**
  * Hvilken type forfatter en anmeldelse har.

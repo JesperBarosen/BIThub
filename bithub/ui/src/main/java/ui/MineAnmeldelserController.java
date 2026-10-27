@@ -1,10 +1,10 @@
 package ui;
 
-import core.Course;
-import core.NotReviewOwnerException;
-import core.Review;
-import core.ReviewNotFoundException;
-import core.ReviewService;
+import core.exception.NotReviewOwnerException;
+import core.exception.ReviewNotFoundException;
+import core.model.Course;
+import core.model.Review;
+import core.service.ReviewService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

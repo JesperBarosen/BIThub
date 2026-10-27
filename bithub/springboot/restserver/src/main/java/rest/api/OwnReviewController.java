@@ -1,7 +1,7 @@
 package rest.api;
 
-import core.Review;
-import core.ReviewService;
+import core.model.Review;
+import core.service.ReviewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;

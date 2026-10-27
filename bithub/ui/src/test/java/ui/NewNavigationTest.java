@@ -3,9 +3,9 @@ package ui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import core.Course;
-import core.DefaultCourses;
-import core.ReviewService;
+import core.model.Course;
+import core.service.DefaultCourses;
+import core.service.ReviewService;
 import java.util.concurrent.TimeUnit;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

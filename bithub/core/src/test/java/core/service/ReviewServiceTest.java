@@ -1,4 +1,4 @@
-package core;
+package core.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -6,6 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import core.exception.NotReviewOwnerException;
+import core.exception.ReviewNotFoundException;
+import core.model.AuthorType;
+import core.model.Course;
+import core.model.Review;
+import core.model.User;
+import core.repository.ReviewRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

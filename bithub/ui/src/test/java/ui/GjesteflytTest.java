@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import core.Course;
-import core.DefaultCourses;
-import core.Review;
-import core.ReviewService;
+import core.model.Course;
+import core.model.Review;
+import core.service.DefaultCourses;
+import core.service.ReviewService;
 import java.util.concurrent.TimeUnit;
 import javafx.scene.Node;
 import javafx.scene.control.Button;

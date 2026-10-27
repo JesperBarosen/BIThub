@@ -1,10 +1,10 @@
 package rest.api;
 
-import core.Course;
-import core.Review;
-import core.ReviewService;
-import core.User;
-import core.UserService;
+import core.model.Course;
+import core.model.Review;
+import core.model.User;
+import core.service.ReviewService;
+import core.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

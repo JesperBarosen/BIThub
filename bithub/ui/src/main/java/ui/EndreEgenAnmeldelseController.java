@@ -1,9 +1,9 @@
 package ui;
 
-import core.NotReviewOwnerException;
-import core.Review;
-import core.ReviewNotFoundException;
-import core.ReviewService;
+import core.exception.NotReviewOwnerException;
+import core.exception.ReviewNotFoundException;
+import core.model.Review;
+import core.service.ReviewService;
 import java.util.Objects;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

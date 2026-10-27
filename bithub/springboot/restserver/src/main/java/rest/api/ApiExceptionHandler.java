@@ -1,8 +1,8 @@
 package rest.api;
 
-import core.DuplicateEmailException;
-import core.NotReviewOwnerException;
-import core.ReviewNotFoundException;
+import core.exception.DuplicateEmailException;
+import core.exception.NotReviewOwnerException;
+import core.exception.ReviewNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;

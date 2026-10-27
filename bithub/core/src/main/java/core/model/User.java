@@ -1,5 +1,6 @@
-package core;
+package core.model;
 
+import core.service.PasswordHasher;
 import java.util.Base64;
 
 /**

@@ -1,9 +1,9 @@
 package ui;
 
-import core.Course;
-import core.Review;
-import core.ReviewRepository;
-import core.ReviewService;
+import core.model.Course;
+import core.model.Review;
+import core.repository.ReviewRepository;
+import core.service.ReviewService;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.function.BiConsumer;
