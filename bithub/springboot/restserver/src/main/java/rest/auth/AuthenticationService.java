@@ -2,7 +2,7 @@ package rest.auth;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.springframework.stereotype.Service;
-import rest.api.NotLoggedInException;
+import rest.exception.NotLoggedInException;
 
 /**
  * Felles kontroll av innlogging for REST-endepunktene.

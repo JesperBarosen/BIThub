@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import rest.auth.AuthenticationService;
+import rest.exception.CourseNotFoundException;
+import rest.exception.NotLoggedInException;
 import rest.model.NewReviewRequest;
 import rest.model.ReviewResponse;
 

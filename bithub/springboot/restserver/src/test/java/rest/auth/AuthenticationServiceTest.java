@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import rest.api.NotLoggedInException;
+import rest.exception.NotLoggedInException;
 
 /**
  * Tester kontrollen med et ekte tokenregister, inkludert utlogging og ugyldige headere.

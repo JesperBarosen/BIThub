@@ -8,6 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import rest.exception.CourseNotFoundException;
+import rest.exception.ForbiddenException;
+import rest.exception.InvalidCredentialsException;
+import rest.exception.NotLoggedInException;
 import rest.model.ErrorResponse;
 
 /**
