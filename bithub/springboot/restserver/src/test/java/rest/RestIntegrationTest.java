@@ -210,9 +210,9 @@ class RestIntegrationTest {
         assertFalse(response.has("ownerEmail"));
         assertFalse(response.has("reviewerName"));
 
-        core.model.Review saved = new ReviewHandler(coursesFile()).findCourse("IT1901").orElseThrow()
-                .getReviews().stream().filter(review -> id.equals(review.getId())).findFirst()
-                .orElseThrow();
+        core.model.Review saved = new ReviewHandler(coursesFile()).findCourse("IT1901")
+                .orElseThrow().getReviews().stream().filter(review -> id.equals(review.getId()))
+                .findFirst().orElseThrow();
         assertEquals(email, saved.getOwnerEmail());
         assertEquals("Ola Nordmann", saved.getReviewerName());
         assertEquals(anonymous, saved.isAnonymous());
