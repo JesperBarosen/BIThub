@@ -17,10 +17,10 @@ import ui.util.BackgroundTaskRunner;
 /**
  * Kontroller for skjemaet der brukeren skriver og sender inn en anmeldelse.
  */
-public class SkrivAnmeldelseController {
+public class WriteReviewController {
 
     @FXML
-    private Label emneTittelLabel;
+    private Label courseTitleLabel;
 
     @FXML
     private TextField ratingField;
@@ -35,7 +35,7 @@ public class SkrivAnmeldelseController {
     private Label statusLabel;
 
     @FXML
-    private Button sendInnButton;
+    private Button submitButton;
 
     @FXML
     private Button backButton;
@@ -56,7 +56,7 @@ public class SkrivAnmeldelseController {
      */
     @FXML
     private void initialize() {
-        sendInnButton.disableProperty().bind(taskRunner.runningProperty());
+        submitButton.disableProperty().bind(taskRunner.runningProperty());
         ratingField.disableProperty().bind(taskRunner.runningProperty());
         commentArea.disableProperty().bind(taskRunner.runningProperty());
         anonymousCheckBox.disableProperty().bind(taskRunner.runningProperty());
@@ -96,19 +96,19 @@ public class SkrivAnmeldelseController {
     /**
      * Viser et emne angitt som tekst ("KODE - NAVN").
      *
-     * @param emneData emnekode og emnenavn skilt med " - "
+     * @param courseData emnekode og emnenavn skilt med " - "
      */
-    public void setEmneData(String emneData) {
-        if (emneData == null || emneData.isBlank()) {
+    public void setCourseData(String courseData) {
+        if (courseData == null || courseData.isBlank()) {
             return;
         }
 
-        String[] parts = emneData.split(" - ", 2);
+        String[] parts = courseData.split(" - ", 2);
         if (parts.length == 2) {
             setCourse(new Course(parts[0].trim(), parts[1].trim()));
         } else {
-            this.courseName = emneData.trim();
-            emneTittelLabel.setText(emneData);
+            this.courseName = courseData.trim();
+            courseTitleLabel.setText(courseData);
         }
     }
 
@@ -124,7 +124,7 @@ public class SkrivAnmeldelseController {
         }
         this.courseCode = course.getCourseCode();
         this.courseName = course.getCourseName();
-        emneTittelLabel.setText(courseCode + " - " + courseName);
+        courseTitleLabel.setText(courseCode + " - " + courseName);
     }
 
     /**
@@ -135,7 +135,7 @@ public class SkrivAnmeldelseController {
      * Skjemainnholdet beholdes ved feil og tømmes først etter bekreftet innsending.
      */
     @FXML
-    private void handleSendInn() {
+    private void handleSubmit() {
         if (taskRunner.runningProperty().get()) {
             return;
         }

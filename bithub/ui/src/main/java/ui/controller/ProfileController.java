@@ -19,7 +19,7 @@ import ui.util.BackgroundTaskRunner;
  * <p>Navn og e- post hentes fra {@link UserSession} som fikk dem fra serveren ved innlogging.
  * Utlogging sendes til serveren i bakgrunnen med {@link BackgroundTaskRunner}.
  */
-public final class ProfilController {
+public final class ProfileController {
 
     @FXML
     private TextField nameField;

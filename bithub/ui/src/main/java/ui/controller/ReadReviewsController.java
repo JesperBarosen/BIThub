@@ -20,7 +20,7 @@ import ui.util.BackgroundTaskRunner;
  * <p>Kontrolleren henter emnet gjennom {@link ReviewService}, slik at den ikke vet hvordan
  * anmeldelsene er lagret.
  */
-public class LeseAnmeldelserController {
+public class ReadReviewsController {
 
     @FXML
     private Label courseTitleLabel;

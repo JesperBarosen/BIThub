@@ -14,7 +14,7 @@
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
    prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21"
-   xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controller.EndreEgenAnmeldelseController">
+   xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controller.EditReviewController">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar"
          stylesheets="@Style.css">
@@ -42,7 +42,7 @@
             <Insets top="5.0" />
          </padding>
          <children>
-            <Label fx:id="emneTittelLabel" alignment="CENTER" prefHeight="110.0" prefWidth="400.0"
+            <Label fx:id="courseTitleLabel" alignment="CENTER" prefHeight="110.0" prefWidth="400.0"
                text="Fagnavn" textAlignment="CENTER" wrapText="true">
                <font>
                   <Font name="System Bold" size="28.0" />

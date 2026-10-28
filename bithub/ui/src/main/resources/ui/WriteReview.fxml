@@ -14,7 +14,7 @@
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
    prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21"
-   xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controller.SkrivAnmeldelseController">
+   xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controller.WriteReviewController">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar"
          stylesheets="@Style.css">
@@ -42,7 +42,7 @@
             <Insets top="5.0" />
          </padding>
          <children>
-            <Label fx:id="emneTittelLabel" alignment="CENTER" prefHeight="207.0" prefWidth="400.0"
+            <Label fx:id="courseTitleLabel" alignment="CENTER" prefHeight="207.0" prefWidth="400.0"
                text="Fagnavn" textAlignment="CENTER" wrapText="true" VBox.vgrow="ALWAYS">
                <font>
                   <Font name="System Bold" size="28.0" />
@@ -127,7 +127,7 @@
             <HBox>
                <children>
                   <!-- La til onAction-->
-                  <Button fx:id="sendInnButton" mnemonicParsing="false" onAction="#handleSendInn"
+                  <Button fx:id="submitButton" mnemonicParsing="false" onAction="#handleSubmit"
                      styleClass="send-inn-knapp" stylesheets="@Style.css" text="SEND INN">
                      <font>
                         <Font name="System Bold" size="18.0" />

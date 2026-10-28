@@ -28,15 +28,15 @@ import ui.client.InMemoryReviewRepository;
 import ui.session.UserSession;
 
 /**
- * TestFX-tester for {@link EndreEgenAnmeldelseController}. Anmeldelsene lagres i minnet, slik at
+ * TestFX-tester for {@link EditReviewController}. Anmeldelsene lagres i minnet, slik at
  * testene ikke trenger serveren.
  */
-class EndreEgenAnmeldelseControllerTest extends ApplicationTest {
+class EditReviewControllerTest extends ApplicationTest {
 
     private static final String OWNER = "ola@example.com";
 
     private Stage stage;
-    private EndreEgenAnmeldelseController controller;
+    private EditReviewController controller;
     private InMemoryReviewRepository repository;
     private Review review;
 
@@ -58,7 +58,7 @@ class EndreEgenAnmeldelseControllerTest extends ApplicationTest {
         userSession.signIn("token-1", "Ola Nordmann", OWNER);
         final Navigation navigation = new Navigation(reviewService, repository, userSession, null);
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/EndreEgenAnmeldelse.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/EditReview.fxml"));
         final Parent root = loader.load();
         controller = loader.getController();
         controller.setReviewService(reviewService);
@@ -74,7 +74,7 @@ class EndreEgenAnmeldelseControllerTest extends ApplicationTest {
      */
     @Test
     void formIsFilledWithReview() {
-        assertEquals("IT1901 - Informatikk prosjektarbeid I", label("#emneTittelLabel").getText());
+        assertEquals("IT1901 - Informatikk prosjektarbeid I", label("#courseTitleLabel").getText());
         assertEquals("4", ratingField().getText());
         assertEquals("Bra fag", commentArea().getText());
         assertFalse(anonymousCheckBox().isSelected());

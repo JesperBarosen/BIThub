@@ -21,7 +21,7 @@ import ui.util.BackgroundTaskRunner;
 /**
  * Lar brukeren velge et emne, enten for å skrive eller lese anmeldelser.
  */
-public class VelgFagController {
+public class CourseSelectionController {
 
     @FXML
     private ComboBox<Course> courseComboBox;
