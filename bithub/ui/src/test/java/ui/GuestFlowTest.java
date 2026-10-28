@@ -32,7 +32,7 @@ import ui.session.UserSession;
  * <p>Appen settes opp slik App gjør, men med lagring i minnet og en falsk autentiseringstjeneste,
  * slik at testene ikke trenger serveren.
  */
-class GjesteflytTest extends ApplicationTest {
+class GuestFlowTest extends ApplicationTest {
 
     private Stage stage;
     private UserSession userSession;

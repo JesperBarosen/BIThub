@@ -21,10 +21,10 @@ import ui.util.BackgroundTaskRunner;
  * <p>Skjemaet fylles ut med anmeldelsen slik den er nå. Endringen sendes i bakgrunnen med
  * {@link BackgroundTaskRunner}, og skjemainnholdet beholdes hvis endringen feiler.
  */
-public class EndreEgenAnmeldelseController {
+public class EditReviewController {
 
     @FXML
-    private Label emneTittelLabel;
+    private Label courseTitleLabel;
 
     @FXML
     private TextField ratingField;
@@ -98,7 +98,7 @@ public class EndreEgenAnmeldelseController {
      */
     public void setReview(String courseCode, String courseName, Review review) {
         this.review = Objects.requireNonNull(review);
-        emneTittelLabel.setText(courseCode + " - " + courseName);
+        courseTitleLabel.setText(courseCode + " - " + courseName);
         ratingField.setText(String.valueOf(review.getRating()));
         commentArea.setText(review.getComment());
         anonymousCheckBox.setSelected(review.isAnonymous());

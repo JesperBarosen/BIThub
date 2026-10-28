@@ -18,7 +18,7 @@ import ui.util.BackgroundTaskRunner;
  * mønsteret i {@code docs/release3/javafx.md}. Bekreftelsen vises bare når serveren har bekreftet
  * byttet. Ved feil beholdes det brukeren har skrevet inn.
  */
-public final class EndrePassordController {
+public final class ChangePasswordController {
 
     /**
      * Samme minstelengde som {@code core.model.User} krever, slik at feilmeldingen kan vises på

@@ -26,7 +26,7 @@ public final class RecordingAuthenticationClient implements AuthenticationClient
 
     @Override
     public AuthenticationResult login(String email, String password) {
-        throw new UnsupportedOperationException("Innlogging testes i LoggInnControllerTest.");
+        throw new UnsupportedOperationException("Innlogging testes i LoginControllerTest.");
     }
 
     @Override

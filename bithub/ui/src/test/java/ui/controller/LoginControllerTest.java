@@ -32,7 +32,7 @@ import ui.session.UserSession;
 /**
  * Tester innloggingsskjermen med en falsk autentiseringstjeneste.
  */
-class LoggInnControllerTest extends ApplicationTest {
+class LoginControllerTest extends ApplicationTest {
 
     private Stage stage;
     private UserSession userSession;
@@ -48,10 +48,10 @@ class LoggInnControllerTest extends ApplicationTest {
         ReviewService reviewService = new ReviewService(repository);
         Navigation navigation = new Navigation(reviewService, repository);
 
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("LoggInn.fxml"));
+        FXMLLoader loader = new FXMLLoader(App.class.getResource("Login.fxml"));
         final Parent root = loader.load();
 
-        LoggInnController controller = loader.getController();
+        LoginController controller = loader.getController();
         controller.setAuthenticationClient(authenticationClient);
         controller.setNavigation(navigation);
         controller.setLoginSuccessHandler(

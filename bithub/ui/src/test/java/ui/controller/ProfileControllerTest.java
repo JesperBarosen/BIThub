@@ -30,7 +30,7 @@ import ui.session.UserSession;
 /**
  * Tester profilsiden med en falsk autentiseringstjeneste, uten REST- server.
  */
-class ProfilControllerTest extends ApplicationTest {
+class ProfileControllerTest extends ApplicationTest {
 
     private Stage stage;
     private UserSession userSession;
@@ -53,9 +53,9 @@ class ProfilControllerTest extends ApplicationTest {
         navigation = new Navigation(new ReviewService(repository), repository, userSession,
                 authenticationClient);
 
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("Profil.fxml"));
+        FXMLLoader loader = new FXMLLoader(App.class.getResource("Profile.fxml"));
         final Parent root = loader.load();
-        ProfilController controller = loader.getController();
+        ProfileController controller = loader.getController();
         controller.setAuthenticationClient(authenticationClient);
         controller.setNavigation(navigation);
         controller.setUserSession(userSession);

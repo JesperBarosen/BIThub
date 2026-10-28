@@ -13,7 +13,7 @@ import ui.session.UserSession;
  * <p>Gjester kan bare lese anmeldelser. For dem skjules knappene for å skrive anmeldelser, «Mine
  * anmeldelser» og profilen, og det vises en knapp for å logge inn eller registrere seg i stedet.
  */
-public class HjemmesideController {
+public class HomeController {
 
     @FXML
     private Button readReviewsButton;

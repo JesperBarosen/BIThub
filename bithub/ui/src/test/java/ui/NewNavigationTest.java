@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 import ui.client.InMemoryReviewRepository;
-import ui.controller.HjemmesideController;
+import ui.controller.HomeController;
 import ui.session.UserSession;
 
 /**
@@ -44,10 +44,10 @@ class NewNavigationTest extends ApplicationTest {
         userSession.signIn("token-1", "Kari Nordmann", "kari@ntnu.no");
         Navigation navigation = new Navigation(reviewService, repository, userSession, null);
 
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("Hjemmeside.fxml"));
+        FXMLLoader loader = new FXMLLoader(App.class.getResource("Home.fxml"));
         final Parent root = loader.load();
 
-        HjemmesideController controller = loader.getController();
+        HomeController controller = loader.getController();
         controller.setNavigation(navigation);
         controller.setUserSession(userSession);
 
@@ -71,7 +71,7 @@ class NewNavigationTest extends ApplicationTest {
             button("#nextButton").fire();
         });
 
-        Label title = (Label) stage.getScene().getRoot().lookup("#emneTittelLabel");
+        Label title = (Label) stage.getScene().getRoot().lookup("#courseTitleLabel");
         assertNotNull(title);
         assertEquals("IT1901 - Informatikk prosjektarbeid I", title.getText());
 
@@ -84,7 +84,7 @@ class NewNavigationTest extends ApplicationTest {
 
     /**
      * Verifiserer at profilen åpnes fra hjemmesiden og viser brukeren som er logget inn. Profilen
-     * uten innlogging testes i {@code ui.controller.ProfilControllerTest}.
+     * uten innlogging testes i {@code ui.controller.ProfileControllerTest}.
      */
     @Test
     void profileOpensFromHomePage() {
@@ -121,7 +121,7 @@ class NewNavigationTest extends ApplicationTest {
 
         interact(() -> {
             ((TextField) stage.getScene().getRoot().lookup("#ratingField")).setText("4");
-            button("#sendInnButton").fire();
+            button("#submitButton").fire();
         });
         awaitReviewSaved();
         interact(() -> button("#homeButton").fire());

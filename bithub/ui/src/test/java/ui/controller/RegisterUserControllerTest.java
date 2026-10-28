@@ -29,7 +29,7 @@ import ui.session.UserSession;
 /**
  * Tester registreringsskjermen med en falsk autentiseringstjeneste.
  */
-class RegistrerBrukerControllerTest extends ApplicationTest {
+class RegisterUserControllerTest extends ApplicationTest {
 
     private Stage stage;
     private UserSession userSession;
@@ -228,7 +228,7 @@ class RegistrerBrukerControllerTest extends ApplicationTest {
 
         @Override
         public AuthenticationResult login(String email, String password) {
-            throw new UnsupportedOperationException("Innlogging testes i LoggInnControllerTest.");
+            throw new UnsupportedOperationException("Innlogging testes i LoginControllerTest.");
         }
 
         @Override

@@ -20,7 +20,7 @@ import ui.util.BackgroundTaskRunner;
  * inn i det samme kallet, så appen går rett til hjemmesiden etter vellykket registrering. Navn,
  * e-post og passord valideres på serveren; her sjekkes bare at feltene er fylt ut og like.
  */
-public final class RegistrerBrukerController {
+public final class RegisterUserController {
 
     @FXML
     private TextField nameField;

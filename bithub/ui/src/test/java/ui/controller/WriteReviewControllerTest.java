@@ -34,19 +34,19 @@ import ui.client.InMemoryReviewRepository;
 import ui.session.UserSession;
 
 /**
- * Enhetstester og UI-tester for {@link SkrivAnmeldelseController} ved bruk av TestFX.
+ * Enhetstester og UI-tester for {@link WriteReviewController} ved bruk av TestFX.
  *
  * <p>Sjekker at data blir satt og oppdelt korrekt, at validering av innsending gir riktige feil- og
  * suksessmeldinger, og at skjemaet nullstilles ved suksess.
  */
-public class SkrivAnmeldelseControllerTest extends ApplicationTest {
+public class WriteReviewControllerTest extends ApplicationTest {
 
-    private SkrivAnmeldelseController controller;
+    private WriteReviewController controller;
     private Parent root;
     private InMemoryReviewRepository repository;
 
     /**
-     * Klargjør og viser grensesnittet SkrivAnmeldelse.fxml før hver test. Anmeldelsene lagres i
+     * Klargjør og viser grensesnittet WriteReview.fxml før hver test. Anmeldelsene lagres i
      * minnet, slik at testene ikke trenger serveren.
      *
      * @param stage Hovedscenen for TestFX
@@ -54,7 +54,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
      */
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/SkrivAnmeldelse.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/WriteReview.fxml"));
         root = loader.load();
         controller = loader.getController();
 
@@ -66,50 +66,50 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} håndterer null og blanke
+     * Tester at {@link WriteReviewController#setCourseData(String)} håndterer null og blanke
      * strenger uten feil.
      */
     @Test
-    @DisplayName("Skal ignorere null og blank emneData")
-    void testSetEmneDataWithNullOrBlank() {
-        interact(() -> controller.setEmneData(null));
+    @DisplayName("Skal ignorere null og blank courseData")
+    void testSetCourseDataWithNullOrBlank() {
+        interact(() -> controller.setCourseData(null));
         Assertions.assertEquals("", controller.getCourseCode());
         Assertions.assertEquals("", controller.getCourseName());
 
-        interact(() -> controller.setEmneData("   "));
+        interact(() -> controller.setCourseData("   "));
         Assertions.assertEquals("", controller.getCourseCode());
         Assertions.assertEquals("", controller.getCourseName());
     }
 
     /**
-     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} deler opp emnekode og
+     * Tester at {@link WriteReviewController#setCourseData(String)} deler opp emnekode og
      * emnenavn korrekt ved formatet "KODE - NAVN".
      */
     @Test
     @DisplayName("Skal splitte emnekode og emnenavn når formatet inneholder bindestrek")
-    void testSetEmneDataWithCodeAndName() {
+    void testSetCourseDataWithCodeAndName() {
         String testData = "TDT4100 - Objektorientert programmering";
 
-        interact(() -> controller.setEmneData(testData));
+        interact(() -> controller.setCourseData(testData));
 
-        Label emneTittelLabel = (Label) root.lookup("#emneTittelLabel");
-        Assertions.assertNotNull(emneTittelLabel,
-                "emneTittelLabel ble ikke funnet i SkrivAnmeldelse.fxml");
-        Assertions.assertEquals(testData, emneTittelLabel.getText());
+        Label courseTitleLabel = (Label) root.lookup("#courseTitleLabel");
+        Assertions.assertNotNull(courseTitleLabel,
+                "courseTitleLabel ble ikke funnet i WriteReview.fxml");
+        Assertions.assertEquals(testData, courseTitleLabel.getText());
         Assertions.assertEquals("TDT4100", controller.getCourseCode());
         Assertions.assertEquals("Objektorientert programmering", controller.getCourseName());
     }
 
     /**
-     * Tester at {@link SkrivAnmeldelseController#setEmneData(String)} setter emnenavn når formatet
+     * Tester at {@link WriteReviewController#setCourseData(String)} setter emnenavn når formatet
      * ikke har bindestrek.
      */
     @Test
     @DisplayName("Skal sette kun emnenavn dersom formatet mangler bindestrek")
-    void testSetEmneDataWithoutDash() {
+    void testSetCourseDataWithoutDash() {
         String testData = "Programmering";
 
-        interact(() -> controller.setEmneData(testData));
+        interact(() -> controller.setCourseData(testData));
 
         Assertions.assertEquals("", controller.getCourseCode());
         Assertions.assertEquals("Programmering", controller.getCourseName());
@@ -120,12 +120,12 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
      */
     @Test
     @DisplayName("Skal vise feilmelding dersom rating ikke er et gyldig tall")
-    void testHandleSendInnInvalidNumber() throws Exception {
+    void testHandleSubmitInvalidNumber() throws Exception {
         signIn();
         TextField ratingField = (TextField) root.lookup("#ratingField");
         interact(() -> ratingField.setText("abc"));
 
-        sendInn();
+        submit();
         awaitStatusMessage("Vurdering må være et gyldig tall.");
 
         interact(() -> {
@@ -140,13 +140,13 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
      */
     @Test
     @DisplayName("Skal vise feilmelding dersom rating er utenfor intervallet 1-5")
-    void testHandleSendInnOutOfRangeNumber() throws Exception {
+    void testHandleSubmitOutOfRangeNumber() throws Exception {
         signIn();
         TextField ratingField = (TextField) root.lookup("#ratingField");
 
         // Test rating for lav (0)
         interact(() -> ratingField.setText("0"));
-        sendInn();
+        submit();
         awaitStatusMessage("Vurdering må være et tall fra 1 til 5.");
 
         interact(() -> {
@@ -158,7 +158,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
 
         // Test rating for høy (6)
         interact(() -> ratingField.setText("6"));
-        sendInn();
+        submit();
         awaitStatusMessage("Vurdering må være et tall fra 1 til 5.");
 
         interact(() -> {
@@ -174,9 +174,9 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
      */
     @Test
     @DisplayName("Skal lagre vurdering vellykket med anonym avhuking og nullstille felter")
-    void testHandleSendInnSuccessAnonymous() throws Exception {
+    void testHandleSubmitSuccessAnonymous() throws Exception {
         signIn();
-        interact(() -> controller.setEmneData("TDT4120 - Algoritmer og datastrukturer"));
+        interact(() -> controller.setCourseData("TDT4120 - Algoritmer og datastrukturer"));
 
         TextField ratingField = (TextField) root.lookup("#ratingField");
         TextArea commentArea = (TextArea) root.lookup("#commentArea");
@@ -188,7 +188,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
             anonymousCheckBox.setSelected(true);
         });
 
-        sendInn();
+        submit();
         awaitStatusMessage("Vurderingen ble sendt inn!");
 
         interact(() -> {
@@ -220,9 +220,9 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
      */
     @Test
     @DisplayName("Skal lagre vurdering vellykket med navnet til innlogget bruker")
-    void testHandleSendInnSuccessNonAnonymous() throws Exception {
+    void testHandleSubmitSuccessNonAnonymous() throws Exception {
         signIn();
-        interact(() -> controller.setEmneData("TDT4100 - Objektorientert programmering"));
+        interact(() -> controller.setCourseData("TDT4100 - Objektorientert programmering"));
 
         TextField ratingField = (TextField) root.lookup("#ratingField");
         TextArea commentArea = (TextArea) root.lookup("#commentArea");
@@ -234,7 +234,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
             anonymousCheckBox.setSelected(false);
         });
 
-        sendInn();
+        submit();
         awaitStatusMessage("Vurderingen ble sendt inn!");
 
         interact(() -> {
@@ -261,13 +261,13 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
      */
     @Test
     @DisplayName("Skal be gjester logge inn og ikke lagre noe")
-    void testHandleSendInnWithoutLoginAsksForLogin() throws Exception {
-        interact(() -> controller.setEmneData("TDT4100 - Objektorientert programmering"));
+    void testHandleSubmitWithoutLoginAsksForLogin() throws Exception {
+        interact(() -> controller.setCourseData("TDT4100 - Objektorientert programmering"));
 
         TextField ratingField = (TextField) root.lookup("#ratingField");
         interact(() -> ratingField.setText("3"));
 
-        sendInn();
+        submit();
         awaitStatusMessage("Du må logge inn for å skrive en anmeldelse.");
 
         Assertions.assertEquals(Color.RED, ((Label) root.lookup("#statusLabel")).getTextFill());
@@ -287,10 +287,10 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
     /**
      * Utfører innsending gjennom FXML-handlingen.
      */
-    private void sendInn() {
+    private void submit() {
         // Tester FXML-handlingen uten å være avhengig av museklikk eller vindusfokus.
         interact(() -> {
-            Button button = (Button) root.lookup("#sendInnButton");
+            Button button = (Button) root.lookup("#submitButton");
             Assertions.assertNotNull(button);
             Assertions.assertFalse(button.isDisabled());
             button.fire();
@@ -305,7 +305,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
      */
     private void awaitStatusMessage(String expectedMessage) throws Exception {
         Label statusLabel = (Label) root.lookup("#statusLabel");
-        Button sendButton = (Button) root.lookup("#sendInnButton");
+        Button sendButton = (Button) root.lookup("#submitButton");
 
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> WaitForAsyncUtils.asyncFx(
                 () -> expectedMessage.equals(statusLabel.getText()) && !sendButton.isDisabled())
@@ -323,17 +323,17 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
 
         interact(() -> {
             controller.setReviewService(new ReviewService(delayedRepository));
-            controller.setEmneData("IT1901 - Informatikk prosjektarbeid I");
+            controller.setCourseData("IT1901 - Informatikk prosjektarbeid I");
             ((TextField) root.lookup("#ratingField")).setText("5");
             ((TextArea) root.lookup("#commentArea")).setText("Bra emne");
         });
 
         try {
-            sendInn();
+            submit();
             Assertions.assertTrue(delayedRepository.started.await(5, TimeUnit.SECONDS));
 
             interact(() -> {
-                Button sendButton = (Button) root.lookup("#sendInnButton");
+                Button sendButton = (Button) root.lookup("#submitButton");
 
                 Assertions.assertTrue(sendButton.isDisabled());
                 Assertions.assertTrue(root.lookup("#ratingField").isDisabled());
@@ -373,14 +373,14 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
 
         interact(() -> {
             controller.setReviewService(new ReviewService(delayedRepository));
-            controller.setEmneData("IT1901 - Informatikk prosjektarbeid I");
+            controller.setCourseData("IT1901 - Informatikk prosjektarbeid I");
             ((TextField) root.lookup("#ratingField")).setText("4");
             ((TextArea) root.lookup("#commentArea")).setText("Bra emne");
             ((CheckBox) root.lookup("#anonymousCheckBox")).setSelected(true);
         });
 
         try {
-            sendInn();
+            submit();
             Assertions.assertTrue(delayedRepository.started.await(5, TimeUnit.SECONDS));
             delayedRepository.release.completeExceptionally(
                     new UncheckedIOException(new ConnectException("Serveren svarer ikke.")));
@@ -393,7 +393,7 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
                 Assertions.assertEquals("Bra emne",
                         ((TextArea) root.lookup("#commentArea")).getText());
                 Assertions.assertTrue(((CheckBox) root.lookup("#anonymousCheckBox")).isSelected());
-                Assertions.assertFalse(root.lookup("#sendInnButton").isDisabled());
+                Assertions.assertFalse(root.lookup("#submitButton").isDisabled());
                 Assertions.assertFalse(root.lookup("#ratingField").isDisabled());
                 Assertions.assertFalse(root.lookup("#commentArea").isDisabled());
                 Assertions.assertEquals(Color.RED,
@@ -418,13 +418,13 @@ public class SkrivAnmeldelseControllerTest extends ApplicationTest {
         interact(() -> {
             controller.setReviewService(new ReviewService(delayedRepository));
             controller.setNavigation(new Navigation(new ReviewService(repository), repository));
-            controller.setEmneData("IT1901 - Informatikk prosjektarbeid I");
+            controller.setCourseData("IT1901 - Informatikk prosjektarbeid I");
             ((TextField) root.lookup("#ratingField")).setText("5");
             ((TextArea) root.lookup("#commentArea")).setText("Bra emne");
         });
 
         try {
-            sendInn();
+            submit();
             Assertions.assertTrue(delayedRepository.started.await(5, TimeUnit.SECONDS));
 
             interact(() -> {

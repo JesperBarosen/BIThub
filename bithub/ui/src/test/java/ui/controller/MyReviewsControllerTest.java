@@ -34,17 +34,17 @@ import ui.client.InMemoryReviewRepository;
 import ui.session.UserSession;
 
 /**
- * TestFX-tester for {@link MineAnmeldelserController}.
+ * TestFX-tester for {@link MyReviewsController}.
  *
  * <p>Anmeldelsene lagres i minnet, og spørsmålet før sletting byttes ut, slik at testene ikke
  * trenger serveren eller en dialogboks.
  */
-class MineAnmeldelserControllerTest extends ApplicationTest {
+class MyReviewsControllerTest extends ApplicationTest {
 
     private static final String OWNER = "ola@example.com";
 
     private Stage stage;
-    private MineAnmeldelserController controller;
+    private MyReviewsController controller;
     private InMemoryReviewRepository repository;
     private UserSession userSession;
     private ReviewService reviewService;
@@ -52,7 +52,7 @@ class MineAnmeldelserControllerTest extends ApplicationTest {
     private boolean confirmDelete = true;
 
     /**
-     * Laster MineAnmeldelser.fxml med en innlogget bruker og lagring i minnet.
+     * Laster MyReviews.fxml med en innlogget bruker og lagring i minnet.
      *
      * @param stage vinduet testene kjører i
      * @throws IOException hvis FXML-filen ikke kan lastes
@@ -67,7 +67,7 @@ class MineAnmeldelserControllerTest extends ApplicationTest {
         final Navigation navigation = new Navigation(reviewService, repository, userSession,
                 null);
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/MineAnmeldelser.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/MyReviews.fxml"));
         final Parent root = loader.load();
         controller = loader.getController();
         controller.setReviewService(reviewService);
@@ -100,7 +100,7 @@ class MineAnmeldelserControllerTest extends ApplicationTest {
         loadReviews();
 
         assertEquals("2", label("#countLabel").getText());
-        List<MineAnmeldelserController.OwnReview> items = reviewList().getItems();
+        List<MyReviewsController.OwnReview> items = reviewList().getItems();
         assertEquals(2, items.size());
         assertEquals("id-1", items.get(0).review().getId());
         assertEquals("IT1901", items.get(0).courseCode());
@@ -224,7 +224,7 @@ class MineAnmeldelserControllerTest extends ApplicationTest {
 
         Parent root = stage.getScene().getRoot();
         assertEquals("IT1901 - Informatikk prosjektarbeid I",
-                ((Label) root.lookup("#emneTittelLabel")).getText());
+                ((Label) root.lookup("#courseTitleLabel")).getText());
         assertEquals("4", ((TextField) root.lookup("#ratingField")).getText());
         assertTrue(((CheckBox) root.lookup("#anonymousCheckBox")).isSelected());
     }
@@ -286,8 +286,8 @@ class MineAnmeldelserControllerTest extends ApplicationTest {
     }
 
     @SuppressWarnings("unchecked")
-    private ListView<MineAnmeldelserController.OwnReview> reviewList() {
-        return (ListView<MineAnmeldelserController.OwnReview>) stage.getScene().getRoot()
+    private ListView<MyReviewsController.OwnReview> reviewList() {
+        return (ListView<MyReviewsController.OwnReview>) stage.getScene().getRoot()
                 .lookup("#reviewList");
     }
 

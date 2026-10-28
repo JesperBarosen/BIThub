@@ -42,9 +42,9 @@ import ui.client.InMemoryReviewRepository;
 /**
  * Tester emnesøk og emnevalg ved vellykket henting, venting, feil og navigering.
  */
-class VelgFagControllerTest extends ApplicationTest {
+class CourseSelectionControllerTest extends ApplicationTest {
 
-    private VelgFagController controller;
+    private CourseSelectionController controller;
     private InMemoryReviewRepository repository;
     private Parent root;
     private Stage stage;
@@ -52,7 +52,7 @@ class VelgFagControllerTest extends ApplicationTest {
     @Override
     public void start(Stage stage) throws IOException {
         this.stage = stage;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/VelgFag.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/CourseSelection.fxml"));
         root = loader.load();
         controller = loader.getController();
         repository = new InMemoryReviewRepository();

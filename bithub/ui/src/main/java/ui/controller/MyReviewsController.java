@@ -31,7 +31,7 @@ import ui.util.BackgroundTaskRunner;
  * <p>Anmeldelsene hentes og slettes i bakgrunnen med {@link BackgroundTaskRunner}, slik at skjermen
  * ikke fryser mens appen venter på serveren.
  */
-public class MineAnmeldelserController {
+public class MyReviewsController {
 
     @FXML
     private Label countLabel;
@@ -54,7 +54,7 @@ public class MineAnmeldelserController {
     private ReviewService reviewService;
     private Navigation navigation;
     private UserSession userSession = new UserSession();
-    private Predicate<String> deleteConfirmation = MineAnmeldelserController::confirmWithDialog;
+    private Predicate<String> deleteConfirmation = MyReviewsController::confirmWithDialog;
 
     private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
 

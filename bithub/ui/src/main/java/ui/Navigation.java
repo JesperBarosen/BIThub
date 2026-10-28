@@ -17,16 +17,16 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import ui.client.AuthenticationClient;
 import ui.client.AuthenticationResult;
-import ui.controller.EndreEgenAnmeldelseController;
-import ui.controller.EndrePassordController;
-import ui.controller.HjemmesideController;
-import ui.controller.LeseAnmeldelserController;
-import ui.controller.LoggInnController;
-import ui.controller.MineAnmeldelserController;
-import ui.controller.ProfilController;
-import ui.controller.RegistrerBrukerController;
-import ui.controller.SkrivAnmeldelseController;
-import ui.controller.VelgFagController;
+import ui.controller.ChangePasswordController;
+import ui.controller.CourseSelectionController;
+import ui.controller.EditReviewController;
+import ui.controller.HomeController;
+import ui.controller.LoginController;
+import ui.controller.MyReviewsController;
+import ui.controller.ProfileController;
+import ui.controller.ReadReviewsController;
+import ui.controller.RegisterUserController;
+import ui.controller.WriteReviewController;
 import ui.session.UserSession;
 
 /**
@@ -90,10 +90,10 @@ public final class Navigation {
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     public void showLogin(Stage stage) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("LoggInn.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("Login.fxml"));
         try {
             final Parent root = loader.load();
-            LoggInnController controller = loader.getController();
+            LoginController controller = loader.getController();
             if (authenticationClient != null) {
                 controller.setAuthenticationClient(authenticationClient);
             }
@@ -122,10 +122,10 @@ public final class Navigation {
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     public void showRegistration(Node source) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("RegistrerBruker.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("RegisterUser.fxml"));
         try {
             final Parent root = loader.load();
-            RegistrerBrukerController controller = loader.getController();
+            RegisterUserController controller = loader.getController();
             if (authenticationClient != null) {
                 controller.setAuthenticationClient(authenticationClient);
             }
@@ -145,7 +145,7 @@ public final class Navigation {
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     public void showHome(Node source) {
-        showFxml(source, "Hjemmeside.fxml");
+        showFxml(source, "Home.fxml");
     }
 
     /**
@@ -177,10 +177,10 @@ public final class Navigation {
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     public void showReviews(Node source, Course course) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("LeseAnmeldelser.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ReadReviews.fxml"));
         try {
             final Parent root = loader.load();
-            LeseAnmeldelserController controller = loader.getController();
+            ReadReviewsController controller = loader.getController();
             controller.setReviewService(reviewService);
             controller.setCourse(course);
             controller.setNavigation(this);
@@ -198,10 +198,10 @@ public final class Navigation {
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     public void showReviewForm(Node source, Course course) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("SkrivAnmeldelse.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("WriteReview.fxml"));
         try {
             final Parent root = loader.load();
-            SkrivAnmeldelseController controller = loader.getController();
+            WriteReviewController controller = loader.getController();
             controller.setReviewService(reviewService);
             controller.setUserSession(userSession);
             controller.setNavigation(this);
@@ -219,10 +219,10 @@ public final class Navigation {
      * @throws IllegalStateException kastes hvis FXML- filen ikke kan lastes
      */
     public void showProfile(Node source) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("Profil.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("Profile.fxml"));
         try {
             final Parent root = loader.load();
-            ProfilController controller = loader.getController();
+            ProfileController controller = loader.getController();
             if (authenticationClient != null) {
                 controller.setAuthenticationClient(authenticationClient);
             }
@@ -241,10 +241,10 @@ public final class Navigation {
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     public void showMyReviews(Node source) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("MineAnmeldelser.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MyReviews.fxml"));
         try {
             final Parent root = loader.load();
-            MineAnmeldelserController controller = loader.getController();
+            MyReviewsController controller = loader.getController();
             controller.setReviewService(reviewService);
             controller.setUserSession(userSession);
             controller.setNavigation(this);
@@ -262,10 +262,10 @@ public final class Navigation {
      * @throws IllegalStateException kastes hvis FXML- filen ikke kan lastes
      */
     public void showChangePassword(Node source) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("EndrePassord.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ChangePassword.fxml"));
         try {
             final Parent root = loader.load();
-            EndrePassordController controller = loader.getController();
+            ChangePasswordController controller = loader.getController();
             if (authenticationClient != null) {
                 controller.setAuthenticationClient(authenticationClient);
             }
@@ -287,10 +287,10 @@ public final class Navigation {
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     public void showEditReview(Node source, String courseCode, String courseName, Review review) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("EndreEgenAnmeldelse.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("EditReview.fxml"));
         try {
             final Parent root = loader.load();
-            EndreEgenAnmeldelseController controller = loader.getController();
+            EditReviewController controller = loader.getController();
             controller.setReviewService(reviewService);
             controller.setNavigation(this);
             controller.setReview(courseCode, courseName, review);
@@ -325,16 +325,16 @@ public final class Navigation {
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     private void openCourseSelection(Node source, BiConsumer<Node, Course> onCourseSelected) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("VelgFag.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("CourseSelection.fxml"));
         try {
             final Parent root = loader.load();
-            VelgFagController controller = loader.getController();
+            CourseSelectionController controller = loader.getController();
             controller.setNavigation(this);
             controller.setOnCourseSelected(onCourseSelected);
             controller.setReviewRepository(reviewRepository);
             stageOf(source).setScene(new Scene(root));
         } catch (IOException e) {
-            throw new IllegalStateException("Kunne ikke åpne VelgFag.fxml", e);
+            throw new IllegalStateException("Kunne ikke åpne CourseSelection.fxml", e);
         }
     }
 
@@ -343,7 +343,7 @@ public final class Navigation {
         try {
             final Parent root = loader.load();
 
-            if (loader.getController() instanceof HjemmesideController controller) {
+            if (loader.getController() instanceof HomeController controller) {
                 controller.setNavigation(this);
                 controller.setUserSession(userSession);
             }

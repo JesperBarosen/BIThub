@@ -36,20 +36,20 @@ import ui.Navigation;
 import ui.client.InMemoryReviewRepository;
 
 /**
- * UI-tester for {@link LeseAnmeldelserController} ved bruk av TestFX.
+ * UI-tester for {@link ReadReviewsController} ved bruk av TestFX.
  *
  * <p>Anmeldelsene lagres i en {@link InMemoryReviewRepository}, slik at testene viser at lagrede
  * anmeldelser hentes og vises i UI uten at serveren må kjøre.
  */
-class LeseAnmeldelserControllerTest extends ApplicationTest {
+class ReadReviewsControllerTest extends ApplicationTest {
 
-    private LeseAnmeldelserController controller;
+    private ReadReviewsController controller;
     private InMemoryReviewRepository repository;
     private Parent root;
     private Stage stage;
 
     /**
-     * Laster LeseAnmeldelser.fxml og kobler kontrolleren til en tjeneste som lagrer i minnet.
+     * Laster ReadReviews.fxml og kobler kontrolleren til en tjeneste som lagrer i minnet.
      *
      * @param stage hovedvinduet for TestFX
      * @throws IOException hvis FXML-filen ikke kan lastes
@@ -57,7 +57,7 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
     @Override
     public void start(Stage stage) throws IOException {
         this.stage = stage;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/LeseAnmeldelser.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/ReadReviews.fxml"));
         root = loader.load();
         controller = loader.getController();
 
@@ -244,9 +244,9 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
     @Test
     void reviewCardShowsNameRatingAndComment() {
         assertEquals(List.of("OLA", "VURDERING: 4/5", "KOMMENTAR:", "Bra fag"), labelTexts(
-                LeseAnmeldelserController.createReviewCard(new Review("Ola", 4, "Bra fag"))));
+                ReadReviewsController.createReviewCard(new Review("Ola", 4, "Bra fag"))));
         assertEquals(List.of("ANONYM", "VURDERING: 2/5"), labelTexts(
-                LeseAnmeldelserController.createReviewCard(new Review("Anonym", 2, ""))));
+                ReadReviewsController.createReviewCard(new Review("Anonym", 2, ""))));
     }
 
     /**
@@ -265,7 +265,7 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
      */
     @Test
     void requiresReviewService() {
-        LeseAnmeldelserController withoutService = new LeseAnmeldelserController();
+        ReadReviewsController withoutService = new ReadReviewsController();
         assertThrows(IllegalStateException.class,
                 () -> withoutService.setCourse(new Course("IT1901", "Prosjektarbeid")));
         assertThrows(NullPointerException.class, () -> withoutService.setReviewService(null));
@@ -280,10 +280,10 @@ class LeseAnmeldelserControllerTest extends ApplicationTest {
         assertNotNull(lookup("#courseComboBox").tryQuery().orElse(null));
 
         interact(() -> {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/LeseAnmeldelser.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/ReadReviews.fxml"));
             try {
                 Parent page = loader.load();
-                LeseAnmeldelserController pageController = loader.getController();
+                ReadReviewsController pageController = loader.getController();
                 pageController.setReviewService(new ReviewService(repository));
                 pageController
                         .setNavigation(new Navigation(new ReviewService(repository), repository));

@@ -19,7 +19,7 @@ import ui.util.BackgroundTaskRunner;
  * <p>Innlogging utføres i bakgrunnen slik at JavaFX ikke blokkeres. Sesjonen oppdateres først når
  * serveren bekrefter innloggingen.
  */
-public final class LoggInnController {
+public final class LoginController {
 
     @FXML
     private TextField emailField;

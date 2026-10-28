@@ -28,7 +28,7 @@ import ui.session.UserSession;
 /**
  * Tester siden for passordbytte med en falsk autentiseringstjeneste, uten REST-server.
  */
-class EndrePassordControllerTest extends ApplicationTest {
+class ChangePasswordControllerTest extends ApplicationTest {
 
     private Stage stage;
     private UserSession userSession;
@@ -45,9 +45,9 @@ class EndrePassordControllerTest extends ApplicationTest {
         Navigation navigation = new Navigation(new ReviewService(repository), repository,
                 userSession, authenticationClient);
 
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("EndrePassord.fxml"));
+        FXMLLoader loader = new FXMLLoader(App.class.getResource("ChangePassword.fxml"));
         final Parent root = loader.load();
-        EndrePassordController controller = loader.getController();
+        ChangePasswordController controller = loader.getController();
         controller.setAuthenticationClient(authenticationClient);
         controller.setNavigation(navigation);
         controller.setUserSession(userSession);
