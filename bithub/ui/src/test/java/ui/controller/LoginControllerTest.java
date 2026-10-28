@@ -74,6 +74,12 @@ class LoginControllerTest extends ApplicationTest {
     }
 
     @Test
+    void loginScreenHasNoForgotPasswordLink() {
+        assertEquals(1, stage.getScene().getRoot().lookupAll(".hyperlink").size(),
+                "Bare lenken «her.» til infosiden skal være igjen.");
+    }
+
+    @Test
     void successfulLoginStoresSessionAndOpensHome() throws Exception {
         enterCredentials();
 
