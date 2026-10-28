@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -81,6 +82,44 @@ class RegisterUserControllerTest extends ApplicationTest {
 
         assertEquals("Passordene er ikke like.", statusLabel().getText());
         assertEquals(0, authenticationClient.registerCalls.get());
+    }
+
+    @Test
+    void showPasswordShowsBothPasswordFields() {
+        fillValidForm();
+
+        interact(() -> checkBox("#showPasswordCheckBox").fire());
+
+        assertFalse(passwordField("#passwordField").isVisible());
+        assertFalse(passwordField("#repeatPasswordField").isVisible());
+        assertTrue(textField("#shownPasswordField").isVisible());
+        assertTrue(textField("#shownRepeatPasswordField").isVisible());
+        assertEquals("Hemmelig123", textField("#shownPasswordField").getText());
+        assertEquals("Hemmelig123", textField("#shownRepeatPasswordField").getText());
+
+        interact(() -> checkBox("#showPasswordCheckBox").fire());
+
+        assertTrue(passwordField("#passwordField").isVisible());
+        assertTrue(passwordField("#repeatPasswordField").isVisible());
+        assertFalse(textField("#shownPasswordField").isVisible());
+        assertFalse(textField("#shownRepeatPasswordField").isVisible());
+    }
+
+    @Test
+    void registrationWorksWhilePasswordIsShown() throws Exception {
+        interact(() -> {
+            checkBox("#showPasswordCheckBox").fire();
+            textField("#nameField").setText("Kari Nordmann");
+            textField("#emailField").setText("kari@ntnu.no");
+            textField("#repeatEmailField").setText("kari@ntnu.no");
+            textField("#shownPasswordField").setText("Hemmelig123");
+            textField("#shownRepeatPasswordField").setText("Hemmelig123");
+            button("#registerButton").fire();
+        });
+        awaitHome();
+
+        assertTrue(userSession.isLoggedIn());
+        assertEquals("kari@ntnu.no", authenticationClient.lastEmail);
     }
 
     @Test
@@ -204,6 +243,10 @@ class RegisterUserControllerTest extends ApplicationTest {
 
     private PasswordField passwordField(String selector) {
         return (PasswordField) stage.getScene().getRoot().lookup(selector);
+    }
+
+    private CheckBox checkBox(String selector) {
+        return (CheckBox) stage.getScene().getRoot().lookup(selector);
     }
 
     private Button button(String selector) {

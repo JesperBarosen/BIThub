@@ -11,10 +11,12 @@ import java.io.UncheckedIOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -143,6 +145,44 @@ class LoginControllerTest extends ApplicationTest {
     }
 
     @Test
+    void showPasswordShowsAndHidesPasswordWithoutLosingText() {
+        interact(() -> passwordField().setText("Hemmelig123"));
+
+        assertTrue(passwordField().isVisible());
+        assertFalse(shownPasswordField().isVisible());
+        assertFalse(showPasswordCheckBox().isSelected());
+
+        interact(() -> showPasswordCheckBox().fire());
+
+        assertFalse(passwordField().isVisible());
+        assertTrue(shownPasswordField().isVisible());
+        assertEquals("Hemmelig123", shownPasswordField().getText());
+
+        interact(() -> {
+            shownPasswordField().setText("Hemmelig456");
+            showPasswordCheckBox().fire();
+        });
+
+        assertTrue(passwordField().isVisible());
+        assertFalse(shownPasswordField().isVisible());
+        assertEquals("Hemmelig456", passwordField().getText());
+    }
+
+    @Test
+    void loginWorksWhilePasswordIsShown() throws Exception {
+        interact(() -> {
+            showPasswordCheckBox().fire();
+            emailField().setText("kari@ntnu.no");
+            shownPasswordField().setText("Hemmelig123");
+            shownPasswordField().fireEvent(new ActionEvent());
+        });
+        awaitHome();
+
+        assertEquals("test-token", userSession.getToken());
+        assertEquals(1, authenticationClient.loginCalls.get());
+    }
+
+    @Test
     void registerButtonOpensRegistrationScreen() {
         Parent previousRoot = stage.getScene().getRoot();
 
@@ -188,6 +228,14 @@ class LoginControllerTest extends ApplicationTest {
 
     private PasswordField passwordField() {
         return (PasswordField) stage.getScene().getRoot().lookup("#passwordField");
+    }
+
+    private TextField shownPasswordField() {
+        return (TextField) stage.getScene().getRoot().lookup("#shownPasswordField");
+    }
+
+    private CheckBox showPasswordCheckBox() {
+        return (CheckBox) stage.getScene().getRoot().lookup("#showPasswordCheckBox");
     }
 
     private Button button(String selector) {

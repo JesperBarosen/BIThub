@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
@@ -61,11 +62,16 @@
                   </Label>
                </children>
             </HBox>
-            <PasswordField fx:id="passwordField" onAction="#handleLogin">
+            <PasswordField fx:id="passwordField" onAction="#handleLogin" />
+            <TextField fx:id="shownPasswordField" />
+            <HBox>
+               <children>
+                  <CheckBox fx:id="showPasswordCheckBox" mnemonicParsing="false" text="Vis passord" />
+               </children>
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin>
-            </PasswordField>
+            </HBox>
             <Button fx:id="loginButton" onAction="#handleLogin" maxWidth="1.7976931348623157E308"
                mnemonicParsing="false" prefHeight="20.0" prefWidth="320.0"
                styleClass="logg-inn-knapp" stylesheets="@Style.css" text="Logg inn">
