@@ -21,7 +21,8 @@ import ui.util.BackgroundTaskRunner;
 public final class EndrePassordController {
 
     /**
-     * Samme minstelengde som {@code core.model.User} krever, slik at feilmeldingen kan vises på norsk.
+     * Samme minstelengde som {@code core.model.User} krever, slik at feilmeldingen kan vises på
+     * norsk.
      */
     private static final int MIN_PASSWORD_LENGTH = 8;
 
