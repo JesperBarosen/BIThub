@@ -54,8 +54,8 @@ Klientene i ui testes mot en falsk server laget med `com.sun.net.httpserver.Http
 
 | Testklasse | Hva den tester |
 |---|---|
-| [`RemoteReviewRepositoryTest`](../../bithub/ui/src/test/java/ui/RemoteReviewRepositoryTest.java) | Forespørslene og JSON-en klienten sender, at tokenet sendes, 400, 401, 403, 404 og 500, forsinket svar, tidsavbrudd, ugyldig JSON, manglende felt og at serveren ikke svarer |
-| [`RemoteAuthenticationClientTest`](../../bithub/ui/src/test/java/ui/RemoteAuthenticationClientTest.java) | Registrering, innlogging, passordbytte og utlogging: JSON, token i headeren, kodet e-post i stien, 400, 401, 403, 409 og 500, og at serveren ikke svarer |
+| [`RemoteReviewRepositoryTest`](../../bithub/ui/src/test/java/ui/client/RemoteReviewRepositoryTest.java) | Forespørslene og JSON-en klienten sender, at tokenet sendes, 400, 401, 403, 404 og 500, forsinket svar, tidsavbrudd, ugyldig JSON, manglende felt og at serveren ikke svarer |
+| [`RemoteAuthenticationClientTest`](../../bithub/ui/src/test/java/ui/client/RemoteAuthenticationClientTest.java) | Registrering, innlogging, passordbytte og utlogging: JSON, token i headeren, kodet e-post i stien, 400, 401, 403, 409 og 500, og at serveren ikke svarer |
 | [`RemoteClientIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RemoteClientIntegrationTest.java) | De samme klientene mot den ekte serveren, se avsnitt 1 |
 
 Klienten gjør om feilsvar slik at skjermene kan vise en melding:

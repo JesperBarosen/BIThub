@@ -1,7 +1,7 @@
 package rest.model;
 
-import core.Course;
-import core.Review;
+import core.model.Course;
+import core.model.Review;
 
 /**
  * En anmeldelse slik eieren selv ser den. I motsetning til {@link ReviewResponse} viser den om

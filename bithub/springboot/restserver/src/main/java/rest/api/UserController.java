@@ -1,8 +1,8 @@
 package rest.api;
 
-import core.ReviewService;
-import core.User;
-import core.UserService;
+import core.model.User;
+import core.service.ReviewService;
+import core.service.UserService;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import rest.auth.AuthenticationService;
 import rest.auth.TokenService;
+import rest.exception.ForbiddenException;
+import rest.exception.InvalidCredentialsException;
+import rest.exception.NotLoggedInException;
 import rest.model.AuthResponse;
 import rest.model.ChangePasswordRequest;
 import rest.model.LoginRequest;
@@ -59,7 +62,7 @@ public class UserController {
      * @param request navn, e-post og passord fra klienten
      * @return token, navn og e-post til den nye brukeren
      * @throws IllegalArgumentException hvis opplysningene er ugyldige
-     * @throws core.DuplicateEmailException hvis e-posten allerede er registrert
+     * @throws core.exception.DuplicateEmailException hvis e-posten allerede er registrert
      */
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)

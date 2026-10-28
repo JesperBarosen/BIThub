@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import core.Course;
-import core.DefaultCourses;
-import core.ReviewRepository;
+import core.model.Course;
+import core.repository.ReviewRepository;
+import core.service.DefaultCourses;
 import file.ReviewHandler;
 import file.UserHandler;
 import java.io.IOException;
@@ -129,7 +129,7 @@ class RestIntegrationTest {
         return MAPPER.readTree(created.body()).get("id").asText();
     }
 
-    private static core.Review savedReview(String id) {
+    private static core.model.Review savedReview(String id) {
         return new ReviewHandler(coursesFile()).findReview(id).orElseThrow();
     }
 
@@ -210,9 +210,9 @@ class RestIntegrationTest {
         assertFalse(response.has("ownerEmail"));
         assertFalse(response.has("reviewerName"));
 
-        core.Review saved = new ReviewHandler(coursesFile()).findCourse("IT1901").orElseThrow()
-                .getReviews().stream().filter(review -> id.equals(review.getId())).findFirst()
-                .orElseThrow();
+        core.model.Review saved = new ReviewHandler(coursesFile()).findCourse("IT1901")
+                .orElseThrow().getReviews().stream().filter(review -> id.equals(review.getId()))
+                .findFirst().orElseThrow();
         assertEquals(email, saved.getOwnerEmail());
         assertEquals("Ola Nordmann", saved.getReviewerName());
         assertEquals(anonymous, saved.isAnonymous());
@@ -530,7 +530,7 @@ class RestIntegrationTest {
         assertEquals(5, response.get("rating").asInt());
         assertFalse(response.has("ownerEmail"));
 
-        core.Review saved = savedReview(id);
+        core.model.Review saved = savedReview(id);
         assertEquals("crud-owner@example.com", saved.getOwnerEmail());
         assertEquals(5, saved.getRating());
         assertEquals("Bedre enn ventet", saved.getComment());
@@ -565,7 +565,7 @@ class RestIntegrationTest {
         HttpResponse<String> deleted = delete("/api/reviews/" + id, tokenA);
         assertEquals(403, deleted.statusCode());
 
-        core.Review saved = savedReview(id);
+        core.model.Review saved = savedReview(id);
         assertEquals("owner-b@example.com", saved.getOwnerEmail());
         assertEquals(4, saved.getRating());
         assertEquals("Bs anmeldelse", saved.getComment());
@@ -580,7 +580,7 @@ class RestIntegrationTest {
      */
     @Test
     void guestReviewCannotBeUpdatedOrDeleted() throws Exception {
-        core.Review guestReview = new core.Review("Gjest", 3, "Skrevet som gjest");
+        core.model.Review guestReview = new core.model.Review("Gjest", 3, "Skrevet som gjest");
         reviewRepository.addReview("IT1901", "Informatikk prosjektarbeid I", guestReview);
         String id = guestReview.getId();
         String token = register("Innlogget Bruker", "guest-test@example.com");
@@ -589,7 +589,7 @@ class RestIntegrationTest {
                 .statusCode());
         assertEquals(403, delete("/api/reviews/" + id, token).statusCode());
 
-        core.Review saved = savedReview(id);
+        core.model.Review saved = savedReview(id);
         assertEquals(null, saved.getOwnerEmail());
         assertEquals(3, saved.getRating());
     }

@@ -1,8 +1,12 @@
 package ui;
 
-import core.ReviewService;
+import core.service.ReviewService;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import ui.client.AuthenticationClient;
+import ui.client.RemoteAuthenticationClient;
+import ui.client.RemoteReviewRepository;
+import ui.session.UserSession;
 
 /**
  * Starter BIThub-applikasjonen.

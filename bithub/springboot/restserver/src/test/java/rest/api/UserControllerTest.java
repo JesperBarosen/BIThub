@@ -11,12 +11,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import core.Course;
-import core.DuplicateEmailException;
-import core.Review;
-import core.ReviewService;
-import core.User;
-import core.UserService;
+import core.exception.DuplicateEmailException;
+import core.model.Course;
+import core.model.Review;
+import core.model.User;
+import core.service.ReviewService;
+import core.service.UserService;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;

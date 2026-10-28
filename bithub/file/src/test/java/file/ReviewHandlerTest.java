@@ -8,10 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 
-import core.AuthorType;
-import core.Course;
-import core.DefaultCourses;
-import core.Review;
+import core.model.AuthorType;
+import core.model.Course;
+import core.model.Review;
+import core.service.DefaultCourses;
+import file.dto.CourseDTO;
+import file.dto.ReviewDTO;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;

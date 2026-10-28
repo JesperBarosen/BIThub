@@ -12,9 +12,9 @@ Vi tester hvert lag for seg, og har i tillegg tester som sjekker at lagene virke
 
 | Modul | Hva som testes | Eksempler |
 |---|---|---|
-| `core` | Domeneklassene og tjenestene, med en falsk lagring | [`ReviewServiceTest`](../../bithub/core/src/test/java/core/ReviewServiceTest.java), [`UserServiceTest`](../../bithub/core/src/test/java/core/UserServiceTest.java), [`PasswordHasherTest`](../../bithub/core/src/test/java/core/PasswordHasherTest.java) |
-| `file` | Lesing og skriving av JSON, feil ved lesing og skriving, og samtidige endringer | [`ReviewHandlerTest`](../../bithub/file/src/test/java/file/ReviewHandlerTest.java), [`UserHandlerTest`](../../bithub/file/src/test/java/file/UserHandlerTest.java), [`JsonFileStorageTest`](../../bithub/file/src/test/java/file/JsonFileStorageTest.java) |
-| `ui` | Kontrollerne med TestFX, bakgrunnskall og REST-klienten mot en falsk server | [`SkrivAnmeldelseControllerTest`](../../bithub/ui/src/test/java/ui/SkrivAnmeldelseControllerTest.java), [`BackgroundTaskRunnerTest`](../../bithub/ui/src/test/java/ui/BackgroundTaskRunnerTest.java), [`RemoteReviewRepositoryTest`](../../bithub/ui/src/test/java/ui/RemoteReviewRepositoryTest.java) |
+| `core` | Domeneklassene og tjenestene, med en falsk lagring | [`ReviewServiceTest`](../../bithub/core/src/test/java/core/service/ReviewServiceTest.java), [`UserServiceTest`](../../bithub/core/src/test/java/core/service/UserServiceTest.java), [`PasswordHasherTest`](../../bithub/core/src/test/java/core/service/PasswordHasherTest.java) |
+| `file` | Lesing og skriving av JSON, feil ved lesing og skriving, og samtidige endringer | [`ReviewHandlerTest`](../../bithub/file/src/test/java/file/ReviewHandlerTest.java), [`UserHandlerTest`](../../bithub/file/src/test/java/file/UserHandlerTest.java), [`JsonFileStorageTest`](../../bithub/file/src/test/java/file/storage/JsonFileStorageTest.java) |
+| `ui` | Kontrollerne med TestFX, bakgrunnskall og REST-klienten mot en falsk server | [`SkrivAnmeldelseControllerTest`](../../bithub/ui/src/test/java/ui/controller/SkrivAnmeldelseControllerTest.java), [`BackgroundTaskRunnerTest`](../../bithub/ui/src/test/java/ui/util/BackgroundTaskRunnerTest.java), [`RemoteReviewRepositoryTest`](../../bithub/ui/src/test/java/ui/client/RemoteReviewRepositoryTest.java) |
 | `springboot/restserver` | Endepunktene med `MockMvc`, og hele serveren med ekte HTTP | [`ReviewControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/ReviewControllerTest.java), [`UserControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/UserControllerTest.java), [`RestIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestIntegrationTest.java) |
 
 ### core
@@ -31,7 +31,7 @@ Serveren kan få flere forespørsler samtidig. Vi tester derfor at data ikke gå
 
 Brukergrensesnittet testes med TestFX. Testene sjekker hver kontroller, for eksempel feilmeldinger og innsending i `SkrivAnmeldelseController`, visning av anmeldelser og gjennomsnitt i `LeseAnmeldelserController`, og navigasjonen mellom sidene i `NewNavigationTest`.
 
-`ui` avhenger ikke av `file` (#175). UI-testene bruker derfor [`InMemoryReviewRepository`](../../bithub/ui/src/test/java/ui/InMemoryReviewRepository.java), en falsk lagring som holder emnene i minnet og oppfører seg som lagringen på serveren. Da tester UI-testene bare brukergrensesnittet, og de trenger verken filer eller en server som kjører. Kontrolltestene bruker også falske lagringer som svarer med forsinkelse eller feil, slik at vi kan teste lastetilstand og feilmeldinger.
+`ui` avhenger ikke av `file` (#175). UI-testene bruker derfor [`InMemoryReviewRepository`](../../bithub/ui/src/test/java/ui/client/InMemoryReviewRepository.java), en falsk lagring som holder emnene i minnet og oppfører seg som lagringen på serveren. Da tester UI-testene bare brukergrensesnittet, og de trenger verken filer eller en server som kjører. Kontrolltestene bruker også falske lagringer som svarer med forsinkelse eller feil, slik at vi kan teste lastetilstand og feilmeldinger.
 
 `BackgroundTaskRunnerTest` sjekker at REST-kall kjører på en bakgrunnstråd, at svaret kommer tilbake på JavaFX-tråden, og at et sent svar ignoreres etter at brukeren har navigert bort (#173). Mønsteret er beskrevet i [javafx.md](javafx.md).
 
@@ -93,7 +93,7 @@ Unntak som gjelder én klasse, legger vi direkte i koden med `@SuppressFBWarning
 
 | Advarsel | Hvor | Begrunnelse |
 |---|---|---|
-| `EI_EXPOSE_REP2` | Feltet `reviewRepository` i `core.ReviewService` | `ReviewService` skal bruke den samme lagringen som den får utenfra, ikke en kopi. |
+| `EI_EXPOSE_REP2` | Feltet `reviewRepository` i `core.service.ReviewService` | `ReviewService` skal bruke den samme lagringen som den får utenfra, ikke en kopi. |
 | `EI_EXPOSE_REP2` | Feltet `reviewRepository` i `ui.Navigation` | Navigasjonen sender den samme lagringen videre til kontrollerne. |
 | `EI_EXPOSE_REP2` | Feltet `reviewService` i klasser i `ui` og `rest.api` | SpotBugs regner `ReviewService` som en klasse som kan endres, fordi den har metoden `deleteReview` (#177). Tjenesten er delt, og kontrollerne skal bruke den direkte. |
 | `EI_EXPOSE_REP2` | Feltet `userSession` i klasser i `ui` | Alle skjermene skal dele den samme sesjonen med den innloggede brukeren, ikke en kopi. Ellers ville en skjerm ikke sett at brukeren har logget inn eller ut (#178). |
@@ -103,6 +103,7 @@ Unntak som gjelder én klasse, legger vi direkte i koden med `@SuppressFBWarning
 | Advarsel | Hvor | Begrunnelse |
 |---|---|---|
 | `EI_EXPOSE_REP` | `CourseDTO.getReviews()` | Jackson trenger direkte tilgang til listen for å lese og skrive JSON, og klassen brukes bare til lagring. |
+| `EI_EXPOSE_REP2` | Konstruktøren til `file.storage.JsonFileStorage` | Deler handlerens `ObjectMapper` slik at lesing og skriving bruker samme JSON-konfigurasjon. Konstruktøren er offentlig etter pakkeflyttingen i #204. |
 | `EI_EXPOSE_REP2` | Konstruktøren til `AuthenticationService` | Tokenregisteret må deles, slik at utlogging gjelder alle endepunkter (#176). |
 | `EI_EXPOSE_REP2` | Konstruktøren til `UserController` | Spring deler `TokenService`, slik at utlogging gjelder alle kall (#176). |
 

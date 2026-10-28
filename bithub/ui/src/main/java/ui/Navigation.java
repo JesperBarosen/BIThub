@@ -1,9 +1,9 @@
 package ui;
 
-import core.Course;
-import core.Review;
-import core.ReviewRepository;
-import core.ReviewService;
+import core.model.Course;
+import core.model.Review;
+import core.repository.ReviewRepository;
+import core.service.ReviewService;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -15,6 +15,19 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import ui.client.AuthenticationClient;
+import ui.client.AuthenticationResult;
+import ui.controller.EndreEgenAnmeldelseController;
+import ui.controller.EndrePassordController;
+import ui.controller.HjemmesideController;
+import ui.controller.LeseAnmeldelserController;
+import ui.controller.LoggInnController;
+import ui.controller.MineAnmeldelserController;
+import ui.controller.ProfilController;
+import ui.controller.RegistrerBrukerController;
+import ui.controller.SkrivAnmeldelseController;
+import ui.controller.VelgFagController;
+import ui.session.UserSession;
 
 /**
  * Samler navigasjon mellom skjermbildene som finnes i appen.

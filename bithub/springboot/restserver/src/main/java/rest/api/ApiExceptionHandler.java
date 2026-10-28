@@ -1,13 +1,17 @@
 package rest.api;
 
-import core.DuplicateEmailException;
-import core.NotReviewOwnerException;
-import core.ReviewNotFoundException;
+import core.exception.DuplicateEmailException;
+import core.exception.NotReviewOwnerException;
+import core.exception.ReviewNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import rest.exception.CourseNotFoundException;
+import rest.exception.ForbiddenException;
+import rest.exception.InvalidCredentialsException;
+import rest.exception.NotLoggedInException;
 import rest.model.ErrorResponse;
 
 /**

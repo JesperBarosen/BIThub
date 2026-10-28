@@ -1,6 +1,6 @@
 package rest.model;
 
-import core.User;
+import core.model.User;
 
 /**
  * Svar etter registrering eller innlogging. Inneholder tokenet klienten skal sende videre, men

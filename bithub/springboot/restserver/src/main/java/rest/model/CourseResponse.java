@@ -1,6 +1,6 @@
 package rest.model;
 
-import core.Course;
+import core.model.Course;
 
 /**
  * Et emne i listen over emner, uten anmeldelsene.

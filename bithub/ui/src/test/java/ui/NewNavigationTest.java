@@ -3,9 +3,9 @@ package ui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import core.Course;
-import core.DefaultCourses;
-import core.ReviewService;
+import core.model.Course;
+import core.service.DefaultCourses;
+import core.service.ReviewService;
 import java.util.concurrent.TimeUnit;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -19,6 +19,9 @@ import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
+import ui.client.InMemoryReviewRepository;
+import ui.controller.HjemmesideController;
+import ui.session.UserSession;
 
 /**
  * Tester navigasjonen i de nye FXML-skjermbildene.
@@ -81,7 +84,7 @@ class NewNavigationTest extends ApplicationTest {
 
     /**
      * Verifiserer at profilen åpnes fra hjemmesiden og viser brukeren som er logget inn. Profilen
-     * uten innlogging testes i {@link ProfilControllerTest}.
+     * uten innlogging testes i {@code ui.controller.ProfilControllerTest}.
      */
     @Test
     void profileOpensFromHomePage() {

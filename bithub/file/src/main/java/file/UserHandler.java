@@ -2,9 +2,12 @@ package file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import core.DuplicateEmailException;
-import core.User;
-import core.UserRepository;
+import core.exception.DuplicateEmailException;
+import core.model.User;
+import core.repository.UserRepository;
+import file.dto.UserDTO;
+import file.storage.DataHandler;
+import file.storage.JsonFileStorage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
