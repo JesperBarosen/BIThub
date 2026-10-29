@@ -9,9 +9,12 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+   prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21"
+   xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar" stylesheets="@Style.css">
+      <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar"
+         stylesheets="@Style.css">
          <children>
             <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
             <Label alignment="CENTER" prefHeight="70.0" prefWidth="250.0" text="BIThub">
@@ -39,7 +42,8 @@
                   </Label>
                </children>
             </HBox>
-            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="363.0" prefWidth="360.0" styleClass="info-scrollpane" stylesheets="@Style.css">
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="363.0" prefWidth="360.0"
+               styleClass="info-scrollpane" stylesheets="@Style.css">
                <content>
                   <VBox spacing="10.0">
                      <padding>
@@ -72,7 +76,7 @@
                                     <Insets bottom="2.0" left="5.0" />
                                  </VBox.margin>
                               </Label>
-                              <Label text="3. Anonymitet">
+                              <Label text="3. Glemt passord">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -80,7 +84,7 @@
                                     <Insets bottom="2.0" left="5.0" />
                                  </VBox.margin>
                               </Label>
-                              <Label text="4. Retningslinjer for anmeldelser">
+                              <Label text="4. Anonymitet">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -88,7 +92,7 @@
                                     <Insets bottom="2.0" left="5.0" />
                                  </VBox.margin>
                               </Label>
-                              <Label text="5. Om prosjektet">
+                              <Label text="5. Retningslinjer for anmeldelser">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -96,7 +100,15 @@
                                     <Insets bottom="2.0" left="5.0" />
                                  </VBox.margin>
                               </Label>
-                              <Label text="6. Om app-utviklerne">
+                              <Label text="6. Om prosjektet">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets bottom="2.0" left="5.0" />
+                                 </VBox.margin>
+                              </Label>
+                              <Label text="7. Om app-utviklerne">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -109,33 +121,59 @@
                         <Label text="1. Hva er BIThub?">
                            <font>
                               <Font name="System Bold" size="12.0" />
-                           </font></Label>
-                        <Label text="BIThub er en app som er laget for deg som enten vil få eller gi innsikt i hvordan fagene i Bachelor i informatikk er. Her kan du lese studenters personlige erfaringer med fagene, samt skrive dine egne. Ved hjelp av denne appen og tidligere studenter, kan både nåværende studenter, fremtidige studenter og forelesere gjøre klokere valg i fremtiden." wrapText="true" />
+                           </font>
+                        </Label>
+                        <Label
+                           text="BIThub er en app som er laget for deg som enten vil få eller gi innsikt i hvordan fagene i Bachelor i informatikk er. Her kan du lese studenters personlige erfaringer med fagene, samt skrive dine egne. Ved hjelp av denne appen og tidligere studenter, kan både nåværende studenter, fremtidige studenter og forelesere gjøre klokere valg i fremtiden."
+                           wrapText="true" />
                         <Label text="2. Hvordan fungerer appen?">
                            <font>
                               <Font name="System Bold" size="12.0" />
-                           </font></Label>
-                        <Label text="BIThub er laget slik at den er enkel å bruke for alle. Etter at du har registrert deg og logget inn, kommer du til hjem-skjermen. Her har du tre valg: «Les anmeldelser», «Skriv anmeldelse» og «Mine anmeldelser». Velger du «Les anmeldelser», kommer du til en skjerm der du velger hvilket fag du vil se anmeldelser av. Når du har valgt fag, ser du den gjennomsnittlige vurderingen og alle anmeldelsene andre studenter har skrevet. Velger du «Skriv anmeldelse», velger du først fag, og deretter kan du skrive din egen anmeldelse med en vurdering fra 1 til 5 og en kommentar før du sender den inn. Under «Mine anmeldelser» kan du se, redigere og slette anmeldelsene du har skrevet. Ved å trykke på profilsymbolet øverst til høyre kan du endre navn, e-post og brukernavn, eller logge ut. &#10;&#10;Vil du bare lese, kan du trykke «Fortsett som gjest» på innloggingsskjermen. Som gjest kan du lese alle anmeldelsene, men du må logge inn for å skrive en anmeldelse. Du kan logge inn eller registrere deg fra hjem-skjermen når som helst." wrapText="true" />
-                        <Label text="3. Anonymitet">
+                           </font>
+                        </Label>
+                        <Label
+                           text="BIThub er laget slik at den er enkel å bruke for alle. Etter at du har registrert deg og logget inn, kommer du til hjem-skjermen. Her har du tre valg: «Les anmeldelser», «Skriv anmeldelse» og «Mine anmeldelser». Velger du «Les anmeldelser», kommer du til en skjerm der du velger hvilket fag du vil se anmeldelser av. Når du har valgt fag, ser du den gjennomsnittlige vurderingen og alle anmeldelsene andre studenter har skrevet. Velger du «Skriv anmeldelse», velger du først fag, og deretter kan du skrive din egen anmeldelse med en vurdering fra 1 til 5 og en kommentar før du sender den inn. Under «Mine anmeldelser» kan du se, redigere og slette anmeldelsene du har skrevet. Ved å trykke på profilsymbolet øverst til høyre kommer du til profilsiden. Der ser du navnet og e-posten din, og du kan endre passord eller logge ut. Navn og e-post kan ikke endres. &#10;&#10;Vil du bare lese, kan du trykke «Fortsett som gjest» på innloggingsskjermen. Som gjest kan du lese alle anmeldelsene, men du må logge inn for å skrive en anmeldelse. Du kan logge inn eller registrere deg fra hjem-skjermen når som helst."
+                           wrapText="true" />
+                        <Label text="3. Glemt passord">
                            <font>
                               <Font name="System Bold" size="12.0" />
-                           </font></Label>
-                        <Label text="Når du skriver en anmeldelse, kan du velge om den skal publiseres med navnet ditt eller anonymt. Velger du anonym, vises anmeldelsen som «Anonym» for alle andre brukere, slik at du kan dele ærlige erfaringer uten at andre ser hvem du er. Anmeldelsen er fortsatt knyttet til kontoen din, slik at du kan finne den igjen under «Mine anmeldelser» og redigere eller slette den senere. Du kan også endre om den skal være anonym eller ikke etter den er laget. &#10;&#10;Anonym er ikke det samme som gjest. En anonym anmeldelse er skrevet av en innlogget bruker som har valgt å skjule navnet sitt. Anmeldelser som vises som «Gjest», ble skrevet før man måtte logge inn, og har ingen eier. De kan derfor ikke endres eller slettes." wrapText="true" />
-                        <Label text="4. Retningslinjer for anmeldelser">
+                           </font>
+                        </Label>
+                        <Label
+                           text="BIThub kan ikke tilbakestille passord, fordi det ville krevd at appen sender e-post. Er du logget inn, kan du bytte passord ved å trykke på profilsymbolet øverst til høyre og velge «ENDRE PASSORD». Har du glemt passordet og ikke kommer inn, kan du kontakte en av oss som har laget appen. Du finner navnene våre under «Om app-utviklerne»."
+                           wrapText="true" />
+                        <Label text="4. Anonymitet">
                            <font>
                               <Font name="System Bold" size="12.0" />
-                           </font></Label>
-                        <Label text="For at BIThub skal være nyttig og trygg for alle, ber vi deg følge disse retningslinjene når du skriver en anmeldelse: &#10; • Skriv om dine egne erfaringer med faget. &#10; • Vær ærlig, men saklig. Kritikk er lov, men hold en respektfull tone. &#10; • Ikke skriv personangrep eller nedsettende kommentarer om forelesere, studentassistenter eller medstudenter. &#10; • Ikke del løsningsforslag, eksamensoppgaver eller annet materiale som ikke er ment for deling. &#10; • Fokuser på det som kan hjelpe andre, for eksempel arbeidsmengde, vanskelighetsgrad og hva du lærte. &#10; • Husk at retningslinjene gjelder også når du skriver anonymt." wrapText="true" />
-                        <Label text="5. Om prosjektet">
+                           </font>
+                        </Label>
+                        <Label
+                           text="Når du skriver en anmeldelse, kan du velge om den skal publiseres med navnet ditt eller anonymt. Velger du anonym, vises anmeldelsen som «Anonym» for alle andre brukere, slik at du kan dele ærlige erfaringer uten at andre ser hvem du er. Anmeldelsen er fortsatt knyttet til kontoen din, slik at du kan finne den igjen under «Mine anmeldelser» og redigere eller slette den senere. Du kan også endre om den skal være anonym eller ikke etter den er laget. &#10;&#10;Anonym er ikke det samme som gjest. En anonym anmeldelse er skrevet av en innlogget bruker som har valgt å skjule navnet sitt. Anmeldelser som vises som «Gjest», ble skrevet før man måtte logge inn, og har ingen eier. De kan derfor ikke endres eller slettes."
+                           wrapText="true" />
+                        <Label text="5. Retningslinjer for anmeldelser">
                            <font>
                               <Font name="System Bold" size="12.0" />
-                           </font></Label>
-                        <Label text="BIThub er utviklet som et gruppeprosjekt i emnet IT1901 Informatikk prosjektarbeid I ved NTNU høsten 2026. Målet med emnet er å lære hvordan man utvikler programvare i team, med planlegging, kodegjennomgang og testing. Appen er delt opp i egne deler for brukergrensesnitt, logikk og lagring av data. Vi har jobbet med appen i flere runder, og den blir utvidet med ny funksjonalitet underveis i semesteret." wrapText="true" />
-                        <Label text="6. Om app-utviklerne">
+                           </font>
+                        </Label>
+                        <Label
+                           text="For at BIThub skal være nyttig og trygg for alle, ber vi deg følge disse retningslinjene når du skriver en anmeldelse: &#10; • Skriv om dine egne erfaringer med faget. &#10; • Vær ærlig, men saklig. Kritikk er lov, men hold en respektfull tone. &#10; • Ikke skriv personangrep eller nedsettende kommentarer om forelesere, studentassistenter eller medstudenter. &#10; • Ikke del løsningsforslag, eksamensoppgaver eller annet materiale som ikke er ment for deling. &#10; • Fokuser på det som kan hjelpe andre, for eksempel arbeidsmengde, vanskelighetsgrad og hva du lærte. &#10; • Husk at retningslinjene gjelder også når du skriver anonymt."
+                           wrapText="true" />
+                        <Label text="6. Om prosjektet">
                            <font>
                               <Font name="System Bold" size="12.0" />
-                           </font></Label>
-                        <Label text="BIThub er laget av Jesper Barosen, Nicole Bobier, Tias Bugge, Mathea Kalley, William Reitan  og Rebecca Selfors, som studerer Bachelor i informatikk ved NTNU. Vi har selv opplevd hvor vanskelig det kan være å velge fag uten å vite hva man går til. Derfor ønsket vi å lage et sted der studenter kan dele erfaringene sine og hjelpe hverandre med å ta gode valg." wrapText="true" />
+                           </font>
+                        </Label>
+                        <Label
+                           text="BIThub er utviklet som et gruppeprosjekt i emnet IT1901 Informatikk prosjektarbeid I ved NTNU høsten 2026. Målet med emnet er å lære hvordan man utvikler programvare i team, med planlegging, kodegjennomgang og testing. Appen er delt opp i egne deler for brukergrensesnitt, logikk og lagring av data. Vi har jobbet med appen i flere runder, og den blir utvidet med ny funksjonalitet underveis i semesteret."
+                           wrapText="true" />
+                        <Label text="7. Om app-utviklerne">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Label
+                           text="BIThub er laget av Jesper Barosen, Nicole Bobier, Tias Bugge, Mathea Kalley, William Reitan  og Rebecca Selfors, som studerer Bachelor i informatikk ved NTNU. Vi har selv opplevd hvor vanskelig det kan være å velge fag uten å vite hva man går til. Derfor ønsket vi å lage et sted der studenter kan dele erfaringene sine og hjelpe hverandre med å ta gode valg."
+                           wrapText="true" />
                      </children>
                   </VBox>
                </content>
@@ -145,7 +183,8 @@
             </ScrollPane>
             <HBox prefHeight="22.0" prefWidth="380.0">
                <children>
-                  <Button mnemonicParsing="false" styleClass="profil-knapper" stylesheets="@Style.css" text="TILBAKE" />
+                  <Button mnemonicParsing="false" styleClass="profil-knapper"
+                     stylesheets="@Style.css" text="TILBAKE" />
                </children>
             </HBox>
          </children>

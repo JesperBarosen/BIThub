@@ -80,11 +80,6 @@
                </font>
             </Button>
             <Label fx:id="statusLabel" text="" wrapText="true" maxWidth="320.0" />
-            <Hyperlink text="Glemt passord? ">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Hyperlink>
             <Button fx:id="registerButton" onAction="#handleRegister"
                maxWidth="1.7976931348623157E308" mnemonicParsing="false"
                styleClass="registrer-ny-bruker-knapp" stylesheets="@Style.css"

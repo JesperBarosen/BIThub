@@ -1,14 +1,14 @@
 # REST-API for BIThub
 
-Her beskriver vi forespørslene som REST-serveren vår i modulen `springboot/restserver` støtter. JavaFX-klienten bruker bare disse forespørslene for å hente og lagre data. Vi oppdaterer dokumentet hver gang et endepunkt blir lagt til eller endret.
+Her beskriver vi forespørslene som REST-serveren vår i modulen [`springboot/restserver`](../../bithub/springboot/restserver) støtter. JavaFX-klienten bruker bare disse forespørslene for å hente og lagre data. Vi oppdaterer dokumentet hver gang et endepunkt blir lagt til eller endret.
 
 Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og alle forespørsler og svar med innhold bruker JSON (`Content-Type: application/json`).
 
 ## Ansvar
 
-- **rest** tar imot forespørsler, sjekker innlogging og gjør om mellom JSON og objektene i core. All forretningslogikk ligger i tjenestene i core (`ReviewService` og `UserService`).
+- **rest** tar imot forespørsler, sjekker innlogging og gjør om mellom JSON og objektene i core. All forretningslogikk ligger i tjenestene i core ([`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) og [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java)).
 - Serveren validerer alle forespørsler selv. Vi stoler ikke på at klienten har sjekket noe, fordi hvem som helst kan sende HTTP-forespørsler direkte.
-- JSON-feltene i API-et er egne modeller i `springboot/restserver`. De er ikke de samme klassene som lagres i filene (`CourseDTO`, `ReviewDTO`, `UserDTO`), slik at vi kan endre lagringen uten å endre API-et.
+- JSON-feltene i API-et er egne modeller i [`springboot/restserver`](../../bithub/springboot/restserver). De er ikke de samme klassene som lagres i filene ([`CourseDTO`](../../bithub/file/src/main/java/file/dto/CourseDTO.java), [`ReviewDTO`](../../bithub/file/src/main/java/file/dto/ReviewDTO.java), [`UserDTO`](../../bithub/file/src/main/java/file/dto/UserDTO.java)), slik at vi kan endre lagringen uten å endre API-et.
 - Passord, passordhash, salt og e-posten til eieren av en anonym anmeldelse sendes aldri ut fra serveren.
 
 ## Oversikt
@@ -67,7 +67,7 @@ Alle feil fra serveren har samme format, slik at klienten kan vise meldingen dir
 
 ## Valideringsregler
 
-Reglene ligger i core (`User`, `Review` og `ReviewService`), og serveren svarer `400` når en av dem brytes.
+Reglene ligger i core ([`User`](../../bithub/core/src/main/java/core/model/User.java), [`Review`](../../bithub/core/src/main/java/core/model/Review.java) og [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java)), og serveren svarer `400` når en av dem brytes.
 
 | Felt | Gyldig når |
 |---|---|
@@ -143,17 +143,17 @@ Vi skiller mellom tre typer anmeldelser, som vises i feltet `authorType`:
 
 | `authorType` | Hvem skrev den | `displayName` | Kan endres og slettes |
 |---|---|---|---|
-| `USER` | Innlogget bruker som viser navnet sitt | Brukerens navn | Ja, av eieren |
-| `ANONYMOUS` | Innlogget bruker som har valgt å være anonym | `"Anonym"` | Ja, av eieren |
-| `GUEST` | Noen som ikke var logget inn, i release 2 | `"Gjest"` | Nei |
+| [`USER`](../../bithub/core/src/main/java/core/model/AuthorType.java#L9) | Innlogget bruker som viser navnet sitt | Brukerens navn | Ja, av eieren |
+| [`ANONYMOUS`](../../bithub/core/src/main/java/core/model/AuthorType.java#L12) | Innlogget bruker som har valgt å være anonym | `"Anonym"` | Ja, av eieren |
+| [`GUEST`](../../bithub/core/src/main/java/core/model/AuthorType.java#L15) | Noen som ikke var logget inn, i release 2 | `"Gjest"` | Nei |
 
-En anonym anmeldelse har en eier på serveren, men svaret sier ingenting om hvem det er. En gjesteanmeldelse har ingen eier. Fra #183 kan bare innloggede brukere skrive anmeldelser, så `GUEST` gjelder bare anmeldelser fra release 2, som ble skrevet før vi hadde innlogging. Gjester kan fortsatt lese alle anmeldelser.
+En anonym anmeldelse har en eier på serveren, men svaret sier ingenting om hvem det er. En gjesteanmeldelse har ingen eier. Fra #183 kan bare innloggede brukere skrive anmeldelser, så [`GUEST`](../../bithub/core/src/main/java/core/model/AuthorType.java#L15) gjelder bare anmeldelser fra release 2, som ble skrevet før vi hadde innlogging. Gjester kan fortsatt lese alle anmeldelser.
 
 Feil: `404` hvis emnet ikke finnes.
 
 ### POST `/api/courses/{code}/reviews`
 
-Lager en ny anmeldelse og krever innlogging. Anmeldelsen blir knyttet til den innloggede brukeren, og `anonymous` bestemmer om den vises som `USER` eller `ANONYMOUS`. Uten token svarer serveren `401`, og ingenting lagres.
+Lager en ny anmeldelse og krever innlogging. Anmeldelsen blir knyttet til den innloggede brukeren, og `anonymous` bestemmer om den vises som [`USER`](../../bithub/core/src/main/java/core/model/AuthorType.java#L9) eller [`ANONYMOUS`](../../bithub/core/src/main/java/core/model/AuthorType.java#L12). Uten token svarer serveren `401`, og ingenting lagres.
 
 Forespørsel:
 
@@ -303,12 +303,12 @@ Feil: `401`.
 
 ## Felles tilgangskontroll og eierskap
 
-Kontrollere som krever innlogging bruker `AuthenticationService.requireEmail(authorization)`.
-Metoden returnerer e-posten fra serverens tokenregister, eller kaster `NotLoggedInException`
+Kontrollere som krever innlogging bruker [`AuthenticationService.requireEmail(authorization)`](../../bithub/springboot/restserver/src/main/java/rest/auth/AuthenticationService.java#L36).
+Metoden returnerer e-posten fra serverens tokenregister, eller kaster [`NotLoggedInException`](../../bithub/springboot/restserver/src/main/java/rest/exception/NotLoggedInException.java)
 som gir `401` i det felles JSON-formatet. Utlogging fjerner tokenet fra det samme registeret.
 
-Ved endring og sletting av anmeldelser (#177) sammenligner `ReviewService` den verifiserte
+Ved endring og sletting av anmeldelser (#177) sammenligner [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) den verifiserte
 e-posten med anmeldelsens lagrede `ownerEmail`. Manglende eierskap gir
-`NotReviewOwnerException`, og en ukjent id gir `ReviewNotFoundException`. `ApiExceptionHandler`
+[`NotReviewOwnerException`](../../bithub/core/src/main/java/core/exception/NotReviewOwnerException.java), og en ukjent id gir [`ReviewNotFoundException`](../../bithub/core/src/main/java/core/exception/ReviewNotFoundException.java). [`ApiExceptionHandler`](../../bithub/springboot/restserver/src/main/java/rest/api/ApiExceptionHandler.java)
 gjør dem om til `403` og `404`. Dette gjelder også anonyme anmeldelser; visningsnavnet er ikke
 grunnlag for tilgang. Gjesteanmeldelser har ingen eier og kan ikke endres eller slettes av noen.
