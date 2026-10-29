@@ -8,30 +8,30 @@ Dokumentet bygger på [persistence.md fra release 2](../release2/persistence.md)
 - Brukere lagres med passordhash og salt i stedet for passord i klartekst (#148).
 - En lesefeil tolkes ikke lenger som en tom fil (#147).
 - All lesing og skriving er beskyttet mot samtidige oppdateringer og skrivefeil (#149).
-- `UserHandler` implementerer `UserRepository` og kobles til `UserService` på REST-serveren (#155).
+- [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) implementerer [`UserRepository`](../../bithub/core/src/main/java/core/repository/UserRepository.java) og kobles til [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) på REST-serveren (#155).
 - Anmeldelser kan endres og slettes, og begge operasjonene er beskyttet mot samtidige oppdateringer (#177).
 - Lesing og skriving flyttes til REST-serveren i release 3.
 
 ## 1. Filformat
 
-Vi lagrer data som **JSON** med biblioteket **Jackson**. JSON er standardisert og lett å lese, og passer godt til objekter med lister, for eksempel et emne med anmeldelser. Jackson gjør om mellom JSON og egne DTO-klasser (`CourseDTO`, `ReviewDTO` og `UserDTO`). DTO-ene beskriver hvordan dataene ser ut i filene, slik at domeneklassene i `core` kan være uforanderlige og uavhengige av Jackson.
+Vi lagrer data som **JSON** med biblioteket **Jackson**. JSON er standardisert og lett å lese, og passer godt til objekter med lister, for eksempel et emne med anmeldelser. Jackson gjør om mellom JSON og egne DTO-klasser ([`CourseDTO`](../../bithub/file/src/main/java/file/dto/CourseDTO.java), [`ReviewDTO`](../../bithub/file/src/main/java/file/dto/ReviewDTO.java) og [`UserDTO`](../../bithub/file/src/main/java/file/dto/UserDTO.java)). DTO-ene beskriver hvordan dataene ser ut i filene, slik at domeneklassene i `core` kan være uforanderlige og uavhengige av Jackson.
 
 Som standard lagres dataene i mappen `.bithub` i hjemmemappen til brukeren som kjører programmet:
 
 | Fil | Innhold | Klasse |
 |---|---|---|
-| `courses.json` | Emner med anmeldelser | `ReviewHandler` |
-| `users.json` | Brukere med passordhash og salt | `UserHandler` |
+| `courses.json` | Emner med anmeldelser | [`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) |
+| `users.json` | Brukere med passordhash og salt | [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) |
 
-Filene leses og skrives bare av modulen `file`. `core` kjenner bare grensesnittene `ReviewRepository` og `UserRepository`, så lagringen kan byttes ut uten å endre `core`.
+Filene leses og skrives bare av modulen `file`. `core` kjenner bare grensesnittene [`ReviewRepository`](../../bithub/core/src/main/java/core/repository/ReviewRepository.java) og [`UserRepository`](../../bithub/core/src/main/java/core/repository/UserRepository.java), så lagringen kan byttes ut uten å endre `core`.
 
-På REST-serveren oppretter `RestApplication` en `UserHandler` som `UserRepository` og gir den til `UserService` gjennom Spring-beans. Standardfilen for brukere er `.bithub/users.json` i hjemmemappen til brukeren som kjører serveren. Filstien kan overstyres med Spring-innstillingen `bithub.users-file`, for eksempel for å bruke en egen testfil.
+På REST-serveren oppretter [`RestApplication`](../../bithub/springboot/restserver/src/main/java/rest/RestApplication.java) en [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) som [`UserRepository`](../../bithub/core/src/main/java/core/repository/UserRepository.java) og gir den til [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) gjennom Spring-beans. Standardfilen for brukere er `.bithub/users.json` i hjemmemappen til brukeren som kjører serveren. Filstien kan overstyres med Spring-innstillingen `bithub.users-file`, for eksempel for å bruke en egen testfil.
 
 ### 1.1 Emner og anmeldelser (`courses.json`)
 
-Filen er en liste med emner (`CourseDTO`). Hvert emne har en emnekode (`courseCode`), et navn (`courseName`) og en liste med anmeldelser (`reviews`).
+Filen er en liste med emner ([`CourseDTO`](../../bithub/file/src/main/java/file/dto/CourseDTO.java)). Hvert emne har en emnekode (`courseCode`), et navn (`courseName`) og en liste med anmeldelser (`reviews`).
 
-Hver anmeldelse (`ReviewDTO`) har disse feltene:
+Hver anmeldelse ([`ReviewDTO`](../../bithub/file/src/main/java/file/dto/ReviewDTO.java)) har disse feltene:
 
 | Felt | Innhold |
 |---|---|
@@ -42,7 +42,7 @@ Hver anmeldelse (`ReviewDTO`) har disse feltene:
 | `rating` | Vurdering fra 1 til 5 |
 | `comment` | Kommentar, kan være tom |
 
-Ut fra `ownerEmail` og `anonymous` får anmeldelsen typen `USER`, `ANONYMOUS` eller `GUEST`. E-posten til eieren lagres i filen, men skal ikke sendes ut i offentlige REST-svar (se [rest-api.md](rest-api.md)).
+Ut fra `ownerEmail` og `anonymous` får anmeldelsen typen [`USER`](../../bithub/core/src/main/java/core/model/AuthorType.java#L9), [`ANONYMOUS`](../../bithub/core/src/main/java/core/model/AuthorType.java#L12) eller [`GUEST`](../../bithub/core/src/main/java/core/model/AuthorType.java#L15). E-posten til eieren lagres i filen, men skal ikke sendes ut i offentlige REST-svar (se [rest-api.md](rest-api.md)).
 
 ```json
 [
@@ -79,11 +79,11 @@ Ut fra `ownerEmail` og `anonymous` får anmeldelsen typen `USER`, `ANONYMOUS` el
 ]
 ```
 
-**Filer fra release 2:** anmeldelsene der har bare `reviewerName`, `rating` og `comment`. Når `ReviewHandler` leser en slik fil, får anmeldelser uten id en ny id, og filen lagres med en gang. De har ingen eier, så de blir gjesteanmeldelser. Fra #183 krever nye anmeldelser innlogging, så bare slike gamle anmeldelser er uten eier.
+**Filer fra release 2:** anmeldelsene der har bare `reviewerName`, `rating` og `comment`. Når [`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) leser en slik fil, får anmeldelser uten id en ny id, og filen lagres med en gang. De har ingen eier, så de blir gjesteanmeldelser. Fra #183 krever nye anmeldelser innlogging, så bare slike gamle anmeldelser er uten eier.
 
 ### 1.2 Brukere (`users.json`)
 
-Hver bruker (`UserDTO`) har navn (`name`), e-post (`email`), passordhash (`passwordHash`) og salt (`salt`). Passordet lagres aldri i klartekst. Når en bruker lages, lages et tilfeldig salt på 16 byte, og passordet hashes med PBKDF2 (`PBKDF2WithHmacSHA256`) til 32 byte. Hash og salt lagres som Base64. Ved innlogging hashes passordet på nytt med samme salt og sammenlignes med den lagrede hashen.
+Hver bruker ([`UserDTO`](../../bithub/file/src/main/java/file/dto/UserDTO.java)) har navn (`name`), e-post (`email`), passordhash (`passwordHash`) og salt (`salt`). Passordet lagres aldri i klartekst. Når en bruker lages, lages et tilfeldig salt på 16 byte, og passordet hashes med PBKDF2 (`PBKDF2WithHmacSHA256`) til 32 byte. Hash og salt lagres som Base64. Ved innlogging hashes passordet på nytt med samme salt og sammenlignes med den lagrede hashen.
 
 ```json
 [
@@ -96,9 +96,9 @@ Hver bruker (`UserDTO`) har navn (`name`), e-post (`email`), passordhash (`passw
 ]
 ```
 
-`UserService` gjør e-postadresser om til små bokstaver og fjerner mellomrom rundt adressen før registrering og oppslag (#152). Dermed behandles `Kari@Example.com` og `kari@example.com` som samme adresse.
+[`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) gjør e-postadresser om til små bokstaver og fjerner mellomrom rundt adressen før registrering og oppslag (#152). Dermed behandles `Kari@Example.com` og `kari@example.com` som samme adresse.
 
-`UserHandler` gjør om mellom `UserDTO` i filen og `User` i domenelaget. Ved lesing brukes den lagrede hashen og saltet til å gjenopprette brukeren, uten å hashe passordet på nytt.
+[`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) gjør om mellom [`UserDTO`](../../bithub/file/src/main/java/file/dto/UserDTO.java) i filen og [`User`](../../bithub/core/src/main/java/core/model/User.java) i domenelaget. Ved lesing brukes den lagrede hashen og saltet til å gjenopprette brukeren, uten å hashe passordet på nytt.
 
 ## 2. Lagringsmodell: dokumentmetafor og implisitt lagring
 
@@ -118,11 +118,11 @@ Vi bruker fortsatt **implisitt lagring**, slik vi begrunnet i release 2. Appen e
 
 - **Lesing:** Når brukeren velger et emne, hentes anmeldelsene i bakgrunnen og vises med gjennomsnitt og antall.
 - **Skriving:** Når brukeren trykker «SEND INN», lagres anmeldelsen uten at brukeren blir spurt om filnavn.
-- **Brukere:** Registrering gjennom `UserService` lagrer brukeren i `users.json`, og innlogging leser brukerdata fra samme fil.
+- **Brukere:** Registrering gjennom [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) lagrer brukeren i `users.json`, og innlogging leser brukerdata fra samme fil.
 
-I release 3 flytter vi lesing og skriving til REST-serveren. Serverkoblingen mellom `UserService` og `UserHandler` er på plass i #155. REST-endepunkter for registrering, innlogging og passordbytte er nå på plass i #174.
+I release 3 flytter vi lesing og skriving til REST-serveren. Serverkoblingen mellom [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) og [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) er på plass i #155. REST-endepunkter for registrering, innlogging og passordbytte er nå på plass i #174.
 
-Når JavaFX-appen er koblet til serveren, sender den forespørsler, og serveren bruker `ReviewHandler` og `UserHandler`. For brukeren er lagringen fortsatt implisitt.
+Når JavaFX-appen er koblet til serveren, sender den forespørsler, og serveren bruker [`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) og [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java). For brukeren er lagringen fortsatt implisitt.
 
 ### 2.3 Begrensninger
 
@@ -138,22 +138,22 @@ Passord i klartekst var en begrensning i release 2. Den er løst med hash og sal
 
 REST-serveren kan behandle flere forespørsler samtidig. En endring leser hele filen, endrer listen og skriver hele filen tilbake. Uten beskyttelse kan to forespørsler lese samme fil, og den som skriver sist, overskriver endringen til den andre.
 
-Derfor går all lesing og skriving gjennom `JsonFileStorage`:
+Derfor går all lesing og skriving gjennom [`JsonFileStorage`](../../bithub/file/src/main/java/file/storage/JsonFileStorage.java):
 
-- Hver fil har én lås (`ReentrantReadWriteLock`), som deles av alle instanser som bruker samme fil. To `ReviewHandler`-objekter med samme fil bruker altså samme lås.
+- Hver fil har én lås (`ReentrantReadWriteLock`), som deles av alle instanser som bruker samme fil. To [`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java)-objekter med samme fil bruker altså samme lås.
 - En endring holder skrivelåsen gjennom hele operasjonen: les, endre og skriv. Ingen andre kan lese eller skrive filen imens.
 - Lesing uten endring bruker leselåsen, slik at flere kan lese samtidig.
-- Alle metoder som endrer data, også endring og sletting av anmeldelser (#177), gjør hele operasjonen inne i `JsonFileStorage.update` og skriver med `JsonFileStorage.write`.
+- Alle metoder som endrer data, også endring og sletting av anmeldelser (#177), gjør hele operasjonen inne i [`JsonFileStorage.update`](../../bithub/file/src/main/java/file/storage/JsonFileStorage.java#L100) og skriver med [`JsonFileStorage.write`](../../bithub/file/src/main/java/file/storage/JsonFileStorage.java#L121).
 
-`UserHandler` implementerer `UserRepository`. Metoden `save` bruker `addUserIfEmailAvailable`, som sjekker om e-postadressen finnes og lagrer brukeren under samme skrivelås. Hvis adressen allerede er registrert, kaster `save` en `DuplicateEmailException`.
+[`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) implementerer [`UserRepository`](../../bithub/core/src/main/java/core/repository/UserRepository.java). Metoden [`save`](../../bithub/file/src/main/java/file/UserHandler.java#L154) bruker [`addUserIfEmailAvailable`](../../bithub/file/src/main/java/file/UserHandler.java#L127), som sjekker om e-postadressen finnes og lagrer brukeren under samme skrivelås. Hvis adressen allerede er registrert, kaster [`save`](../../bithub/file/src/main/java/file/UserHandler.java#L154) en [`DuplicateEmailException`](../../bithub/core/src/main/java/core/exception/DuplicateEmailException.java).
 
-`UserService` gjør også en forhåndssjekk med `findByEmail`, men denne sjekken alene beskytter ikke mot samtidige registreringer. Den samlede sjekken og lagringen i `UserHandler` sikrer at to samtidige registreringer med samme e-post ikke begge lykkes.
+[`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) gjør også en forhåndssjekk med [`findByEmail`](../../bithub/core/src/main/java/core/repository/UserRepository.java#L36), men denne sjekken alene beskytter ikke mot samtidige registreringer. Den samlede sjekken og lagringen i [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) sikrer at to samtidige registreringer med samme e-post ikke begge lykkes.
 
-`ReviewHandler` endrer og sletter anmeldelser på samme måte. `updateReview` og `deleteReview` finner anmeldelsen, endrer eller fjerner den og skriver filen under samme skrivelås, og svarer `false` hvis id-en ikke finnes. `ReviewService` sjekker eierskapet før den kaller lagringen. Det er trygt selv om sjekken skjer utenfor låsen, fordi eieren og id-en til en anmeldelse aldri endres. Blir anmeldelsen slettet mellom sjekken og endringen, svarer lagringen `false`, og serveren svarer `404`.
+[`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) endrer og sletter anmeldelser på samme måte. [`updateReview`](../../bithub/file/src/main/java/file/ReviewHandler.java#L226) og [`deleteReview`](../../bithub/file/src/main/java/file/ReviewHandler.java#L257) finner anmeldelsen, endrer eller fjerner den og skriver filen under samme skrivelås, og svarer `false` hvis id-en ikke finnes. [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) sjekker eierskapet før den kaller lagringen. Det er trygt selv om sjekken skjer utenfor låsen, fordi eieren og id-en til en anmeldelse aldri endres. Blir anmeldelsen slettet mellom sjekken og endringen, svarer lagringen `false`, og serveren svarer `404`.
 
 ### 3.2 Skrivefeil og lesefeil
 
-Vi skriver aldri rett til den opprinnelige filen. `JsonFileStorage.write` skriver først til en midlertidig fil i samme mappe, og flytter den deretter over den opprinnelige filen. Flyttingen er atomisk der filsystemet støtter det.
+Vi skriver aldri rett til den opprinnelige filen. [`JsonFileStorage.write`](../../bithub/file/src/main/java/file/storage/JsonFileStorage.java#L121) skriver først til en midlertidig fil i samme mappe, og flytter den deretter over den opprinnelige filen. Flyttingen er atomisk der filsystemet støtter det.
 
 Feiler skrivingen til den midlertidige filen, for eksempel fordi disken er full eller dataene ikke kan gjøres om til JSON, er den opprinnelige filen uendret. Den midlertidige filen forsøkes slettet ved feil. Hvis filsystemet ikke støtter atomisk flytting, kan vi ikke gi samme garanti ved feil under selve erstatningen av originalfilen.
 
@@ -169,6 +169,6 @@ Vi kjører derfor bare én REST-server. Når JavaFX-appen henter og lagrer data 
 
 Alle testene som skriver til fil, bruker `@TempDir` fra JUnit, så de skriver aldri til den ekte `~/.bithub`-mappen.
 
-- `ReviewHandlerTest` og `UserHandlerTest` tester lesing, skriving, ødelagt JSON, lesefeil og samtidige oppdateringer fra flere instanser og tråder. `ReviewHandlerTest` tester også endring og sletting av anmeldelser, også når de skjer samtidig (#177).
-- `JsonFileStorageTest` tester at skriving går via en midlertidig fil, og at den opprinnelige filen er uendret når skrivingen feiler.
-- `RestApplicationTest` tester at Spring kobler brukerlagringen til `UserHandler`, og at registrering gjennom `UserService` skriver til den konfigurerte testfilen. Testen leser brukeren tilbake med en ny handler, kontrollerer at hash og salt er bevart, og tester innlogging med de lagrede brukerdataene.
+- [`ReviewHandlerTest`](../../bithub/file/src/test/java/file/ReviewHandlerTest.java) og [`UserHandlerTest`](../../bithub/file/src/test/java/file/UserHandlerTest.java) tester lesing, skriving, ødelagt JSON, lesefeil og samtidige oppdateringer fra flere instanser og tråder. [`ReviewHandlerTest`](../../bithub/file/src/test/java/file/ReviewHandlerTest.java) tester også endring og sletting av anmeldelser, også når de skjer samtidig (#177).
+- [`JsonFileStorageTest`](../../bithub/file/src/test/java/file/storage/JsonFileStorageTest.java) tester at skriving går via en midlertidig fil, og at den opprinnelige filen er uendret når skrivingen feiler.
+- [`RestApplicationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestApplicationTest.java) tester at Spring kobler brukerlagringen til [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java), og at registrering gjennom [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) skriver til den konfigurerte testfilen. Testen leser brukeren tilbake med en ny handler, kontrollerer at hash og salt er bevart, og tester innlogging med de lagrede brukerdataene.
