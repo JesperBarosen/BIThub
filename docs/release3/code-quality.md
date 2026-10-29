@@ -2,11 +2,11 @@
 
 Dette dokumentet beskriver hvordan vi sikrer kodekvaliteten i BIThub. Vi bruker automatiserte tester og kodeanalyse gjennom Maven for å oppdage feil og holde kodebasen konsistent.
 
-BIThub består av fire Maven-moduler: `core`, `file`, `ui` og `springboot/restserver`. Alle kontrollene i dette dokumentet gjelder alle fire.
+BIThub består av fire Maven-moduler: `core`, `file`, `ui` og [`springboot/restserver`](../../bithub/springboot/restserver). Alle kontrollene i dette dokumentet gjelder alle fire.
 
 ## Testing
 
-Tester sjekker at eksisterende funksjonalitet fortsetter å virke når prosjektet endres. Alle modulene har tester. Vi bruker JUnit 5 i alle modulene, TestFX for brukergrensesnittet i `ui`, Mockito der vi trenger å simulere feil eller tjenester, og Spring Boot Test i `springboot/restserver`.
+Tester sjekker at eksisterende funksjonalitet fortsetter å virke når prosjektet endres. Alle modulene har tester. Vi bruker JUnit 5 i alle modulene, TestFX for brukergrensesnittet i `ui`, Mockito der vi trenger å simulere feil eller tjenester, og Spring Boot Test i [`springboot/restserver`](../../bithub/springboot/restserver).
 
 Vi tester hvert lag for seg, og har i tillegg tester som sjekker at lagene virker sammen. Ingen av testene trenger at serveren startes først.
 
@@ -14,32 +14,32 @@ Vi tester hvert lag for seg, og har i tillegg tester som sjekker at lagene virke
 |---|---|---|
 | `core` | Domeneklassene og tjenestene, med en falsk lagring | [`ReviewServiceTest`](../../bithub/core/src/test/java/core/service/ReviewServiceTest.java), [`UserServiceTest`](../../bithub/core/src/test/java/core/service/UserServiceTest.java), [`PasswordHasherTest`](../../bithub/core/src/test/java/core/service/PasswordHasherTest.java) |
 | `file` | Lesing og skriving av JSON, feil ved lesing og skriving, og samtidige endringer | [`ReviewHandlerTest`](../../bithub/file/src/test/java/file/ReviewHandlerTest.java), [`UserHandlerTest`](../../bithub/file/src/test/java/file/UserHandlerTest.java), [`JsonFileStorageTest`](../../bithub/file/src/test/java/file/storage/JsonFileStorageTest.java) |
-| `ui` | Kontrollerne med TestFX, bakgrunnskall og REST-klienten mot en falsk server | [`SkrivAnmeldelseControllerTest`](../../bithub/ui/src/test/java/ui/controller/SkrivAnmeldelseControllerTest.java), [`BackgroundTaskRunnerTest`](../../bithub/ui/src/test/java/ui/util/BackgroundTaskRunnerTest.java), [`RemoteReviewRepositoryTest`](../../bithub/ui/src/test/java/ui/client/RemoteReviewRepositoryTest.java) |
-| `springboot/restserver` | Endepunktene med `MockMvc`, og hele serveren med ekte HTTP | [`ReviewControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/ReviewControllerTest.java), [`UserControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/UserControllerTest.java), [`RestIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestIntegrationTest.java) |
+| `ui` | Kontrollerne med TestFX, bakgrunnskall og REST-klienten mot en falsk server | [`WriteReviewControllerTest`](../../bithub/ui/src/test/java/ui/controller/WriteReviewControllerTest.java), [`BackgroundTaskRunnerTest`](../../bithub/ui/src/test/java/ui/util/BackgroundTaskRunnerTest.java), [`RemoteReviewRepositoryTest`](../../bithub/ui/src/test/java/ui/client/RemoteReviewRepositoryTest.java) |
+| [`springboot/restserver`](../../bithub/springboot/restserver) | Endepunktene med `MockMvc`, og hele serveren med ekte HTTP | [`ReviewControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/ReviewControllerTest.java), [`UserControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/UserControllerTest.java), [`RestIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestIntegrationTest.java) |
 
 ### core
 
-Domeneklassene og tjenestene testes med enhetstester. `ReviewServiceTest` og `UserServiceTest` bruker egne falske lagringer i stedet for ekte filer, slik at testene bare sjekker logikken i domenelaget. Det gjelder blant annet validering av vurderinger, at bare eieren kan endre og slette en anmeldelse, og at passord lagres som hash med salt.
+Domeneklassene og tjenestene testes med enhetstester. [`ReviewServiceTest`](../../bithub/core/src/test/java/core/service/ReviewServiceTest.java) og [`UserServiceTest`](../../bithub/core/src/test/java/core/service/UserServiceTest.java) bruker egne falske lagringer i stedet for ekte filer, slik at testene bare sjekker logikken i domenelaget. Det gjelder blant annet validering av vurderinger, at bare eieren kan endre og slette en anmeldelse, og at passord lagres som hash med salt.
 
 ### file
 
-Lagringen testes for lesing, skriving og feiltilfeller, som tomme filer, ugyldig JSON og feil ved skriving. For å teste feil ved lesing og skriving bruker vi Mockito til å la `Files` kaste `IOException`, siden slike feil er vanskelige å fremprovosere med ekte filer. `ReviewStorageTest` sjekker at `ReviewService` og `ReviewHandler` virker sammen, og at en anmeldelse som sendes inn faktisk blir lagret til fil.
+Lagringen testes for lesing, skriving og feiltilfeller, som tomme filer, ugyldig JSON og feil ved skriving. For å teste feil ved lesing og skriving bruker vi Mockito til å la `Files` kaste `IOException`, siden slike feil er vanskelige å fremprovosere med ekte filer. [`ReviewStorageTest`](../../bithub/file/src/test/java/file/ReviewStorageTest.java) sjekker at [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) og [`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) virker sammen, og at en anmeldelse som sendes inn faktisk blir lagret til fil.
 
-Serveren kan få flere forespørsler samtidig. Vi tester derfor at data ikke går tapt når flere tråder skriver til samme fil. `ReviewHandlerTest` sender inn 20 anmeldelser samtidig, og endrer og sletter 20 anmeldelser samtidig (#149, #177). `UserHandlerTest` og `JsonFileStorageTest` tester samtidig registrering og at fila ikke blir ødelagt hvis skrivingen feiler halvveis.
+Serveren kan få flere forespørsler samtidig. Vi tester derfor at data ikke går tapt når flere tråder skriver til samme fil. [`ReviewHandlerTest`](../../bithub/file/src/test/java/file/ReviewHandlerTest.java) sender inn 20 anmeldelser samtidig, og endrer og sletter 20 anmeldelser samtidig (#149, #177). [`UserHandlerTest`](../../bithub/file/src/test/java/file/UserHandlerTest.java) og [`JsonFileStorageTest`](../../bithub/file/src/test/java/file/storage/JsonFileStorageTest.java) tester samtidig registrering og at fila ikke blir ødelagt hvis skrivingen feiler halvveis.
 
 ### ui
 
-Brukergrensesnittet testes med TestFX. Testene sjekker hver kontroller, for eksempel feilmeldinger og innsending i `SkrivAnmeldelseController`, visning av anmeldelser og gjennomsnitt i `LeseAnmeldelserController`, og navigasjonen mellom sidene i `NewNavigationTest`.
+Brukergrensesnittet testes med TestFX. Testene sjekker hver kontroller, for eksempel feilmeldinger og innsending i [`WriteReviewController`](../../bithub/ui/src/main/java/ui/controller/WriteReviewController.java), visning av anmeldelser og gjennomsnitt i [`ReadReviewsController`](../../bithub/ui/src/main/java/ui/controller/ReadReviewsController.java), og navigasjonen mellom sidene i [`NewNavigationTest`](../../bithub/ui/src/test/java/ui/NewNavigationTest.java).
 
 `ui` avhenger ikke av `file` (#175). UI-testene bruker derfor [`InMemoryReviewRepository`](../../bithub/ui/src/test/java/ui/client/InMemoryReviewRepository.java), en falsk lagring som holder emnene i minnet og oppfører seg som lagringen på serveren. Da tester UI-testene bare brukergrensesnittet, og de trenger verken filer eller en server som kjører. Kontrolltestene bruker også falske lagringer som svarer med forsinkelse eller feil, slik at vi kan teste lastetilstand og feilmeldinger.
 
-`BackgroundTaskRunnerTest` sjekker at REST-kall kjører på en bakgrunnstråd, at svaret kommer tilbake på JavaFX-tråden, og at et sent svar ignoreres etter at brukeren har navigert bort (#173). Mønsteret er beskrevet i [javafx.md](javafx.md).
+[`BackgroundTaskRunnerTest`](../../bithub/ui/src/test/java/ui/util/BackgroundTaskRunnerTest.java) sjekker at REST-kall kjører på en bakgrunnstråd, at svaret kommer tilbake på JavaFX-tråden, og at et sent svar ignoreres etter at brukeren har navigert bort (#173). Mønsteret er beskrevet i [javafx.md](javafx.md).
 
-`RemoteReviewRepositoryTest` tester REST-klienten mot en falsk server som startes på en ledig port i testen. Testene sjekker forespørslene klienten sender, at svarene leses riktig, og at feilsvar og en server som er nede gir forståelige feil.
+[`RemoteReviewRepositoryTest`](../../bithub/ui/src/test/java/ui/client/RemoteReviewRepositoryTest.java) tester REST-klienten mot en falsk server som startes på en ledig port i testen. Testene sjekker forespørslene klienten sender, at svarene leses riktig, og at feilsvar og en server som er nede gir forståelige feil.
 
 ### springboot/restserver
 
-`MockMvc`-testene tester hvert endepunkt med falske tjenester, inkludert statuskodene for feil (400, 401, 403, 404 og 409). De er raske og viser presist hvilken del som feiler. `RestIntegrationTest` starter hele serveren på en ledig port med ekte tjenester og ekte lagring, og sender ekte HTTP-forespørsler. Den viser at HTTP, JSON, kontrollerne, tjenestene i `core` og lagringen i `file` virker sammen. Testene for serveren og klienten er beskrevet i detalj i [rest-tester.md](rest-tester.md).
+`MockMvc`-testene tester hvert endepunkt med falske tjenester, inkludert statuskodene for feil (400, 401, 403, 404 og 409). De er raske og viser presist hvilken del som feiler. [`RestIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestIntegrationTest.java) starter hele serveren på en ledig port med ekte tjenester og ekte lagring, og sender ekte HTTP-forespørsler. Den viser at HTTP, JSON, kontrollerne, tjenestene i `core` og lagringen i `file` virker sammen. Testene for serveren og klienten er beskrevet i detalj i [rest-tester.md](rest-tester.md).
 
 ### Felles regler for testene
 
@@ -69,13 +69,13 @@ Checkstyle er integrert i Maven og bruker regelsettet i [`config/checkstyle/chec
 
 Vi bruker Maven Checkstyle Plugin versjon 3.6.0 med Checkstyle versjon 10.26.1. Både produksjonskode og testkode sjekkes, slik at testene holder samme kvalitet som resten av koden. Checkstyle kjører målet `check` i `verify`-fasen, og kan også kjøres for seg fra `bithub/` med `mvn checkstyle:check`.
 
-VS Code bruker samme regelsett gjennom `java.checkstyle.configuration` i `.vscode/settings.json`. Rotmappen til repoet må åpnes i VS Code for at prosjektinnstillingene skal brukes.
+VS Code bruker samme regelsett gjennom `java.checkstyle.configuration` i [`.vscode/settings.json`](../../.vscode/settings.json). Rotmappen til repoet må åpnes i VS Code for at prosjektinnstillingene skal brukes.
 
-Formateringen styres av `.vscode/java-formatter.xml`, med fire mellomrom, mellomrom i stedet for tabulatorer og en linjelengde på 100 tegn. Det samkjører formateringen med Checkstyle-reglene. Automatisk formatering retter mange stilbrudd, men blant annet manglende Javadoc må vi fikse selv. HTML-formatering i Javadoc er slått av, fordi formatteren ellers flytter `<p>` til en egen linje, mens Checkstyle krever at `<p>` står rett foran teksten i avsnittet.
+Formateringen styres av [`.vscode/java-formatter.xml`](../../.vscode/java-formatter.xml), med fire mellomrom, mellomrom i stedet for tabulatorer og en linjelengde på 100 tegn. Det samkjører formateringen med Checkstyle-reglene. Automatisk formatering retter mange stilbrudd, men blant annet manglende Javadoc må vi fikse selv. HTML-formatering i Javadoc er slått av, fordi formatteren ellers flytter `<p>` til en egen linje, mens Checkstyle krever at `<p>` står rett foran teksten i avsnittet.
 
 Med dagens oppsett rapporteres regelbrudd som warnings uten at bygget feiler. `BUILD SUCCESS` betyr derfor ikke at koden er uten Checkstyle-warnings. Vi har en egen regel om at en pull request ikke skal innføre nye Checkstyle-warnings. Den som oppretter pull requesten, sjekker Checkstyle-rapporten før review, og reviewer sjekker at det er gjort.
 
-DTO-klassene i `file` (`CourseDTO`, `ReviewDTO` og `UserDTO`) har `@SuppressWarnings("checkstyle:AbbreviationAsWordInName")`. «DTO» er en vanlig forkortelse, og navnene er lettere å kjenne igjen med store bokstaver.
+DTO-klassene i `file` ([`CourseDTO`](../../bithub/file/src/main/java/file/dto/CourseDTO.java), [`ReviewDTO`](../../bithub/file/src/main/java/file/dto/ReviewDTO.java) og [`UserDTO`](../../bithub/file/src/main/java/file/dto/UserDTO.java)) har `@SuppressWarnings("checkstyle:AbbreviationAsWordInName")`. «DTO» er en vanlig forkortelse, og navnene er lettere å kjenne igjen med store bokstaver.
 
 ## SpotBugs
 
@@ -89,23 +89,23 @@ De fleste unntakene gjelder `EI_EXPOSE_REP2`. SpotBugs advarer når et objekt so
 
 Unntak som gjelder én klasse, legger vi direkte i koden med `@SuppressFBWarnings`, slik at begrunnelsen står ved siden av koden. Unntak som gjelder flere klasser, legger vi i [`config/spotbugs/exclude.xml`](../../config/spotbugs/exclude.xml).
 
-**I `config/spotbugs/exclude.xml`:**
+**I [`config/spotbugs/exclude.xml`](../../config/spotbugs/exclude.xml):**
 
 | Advarsel | Hvor | Begrunnelse |
 |---|---|---|
-| `EI_EXPOSE_REP2` | Feltet `reviewRepository` i `core.service.ReviewService` | `ReviewService` skal bruke den samme lagringen som den får utenfra, ikke en kopi. |
-| `EI_EXPOSE_REP2` | Feltet `reviewRepository` i `ui.Navigation` | Navigasjonen sender den samme lagringen videre til kontrollerne. |
-| `EI_EXPOSE_REP2` | Feltet `reviewService` i klasser i `ui` og `rest.api` | SpotBugs regner `ReviewService` som en klasse som kan endres, fordi den har metoden `deleteReview` (#177). Tjenesten er delt, og kontrollerne skal bruke den direkte. |
+| `EI_EXPOSE_REP2` | Feltet `reviewRepository` i [`core.service.ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) | [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) skal bruke den samme lagringen som den får utenfra, ikke en kopi. |
+| `EI_EXPOSE_REP2` | Feltet `reviewRepository` i [`ui.Navigation`](../../bithub/ui/src/main/java/ui/Navigation.java) | Navigasjonen sender den samme lagringen videre til kontrollerne. |
+| `EI_EXPOSE_REP2` | Feltet `reviewService` i klasser i `ui` og [`rest.api`](../../bithub/springboot/restserver/src/main/java/rest/api) | SpotBugs regner [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) som en klasse som kan endres, fordi den har metoden [`deleteReview`](../../bithub/core/src/main/java/core/service/ReviewService.java#L213) (#177). Tjenesten er delt, og kontrollerne skal bruke den direkte. |
 | `EI_EXPOSE_REP2` | Feltet `userSession` i klasser i `ui` | Alle skjermene skal dele den samme sesjonen med den innloggede brukeren, ikke en kopi. Ellers ville en skjerm ikke sett at brukeren har logget inn eller ut (#178). |
 
 **Med `@SuppressFBWarnings` i koden:**
 
 | Advarsel | Hvor | Begrunnelse |
 |---|---|---|
-| `EI_EXPOSE_REP` | `CourseDTO.getReviews()` | Jackson trenger direkte tilgang til listen for å lese og skrive JSON, og klassen brukes bare til lagring. |
-| `EI_EXPOSE_REP2` | Konstruktøren til `file.storage.JsonFileStorage` | Deler handlerens `ObjectMapper` slik at lesing og skriving bruker samme JSON-konfigurasjon. Konstruktøren er offentlig etter pakkeflyttingen i #204. |
-| `EI_EXPOSE_REP2` | Konstruktøren til `AuthenticationService` | Tokenregisteret må deles, slik at utlogging gjelder alle endepunkter (#176). |
-| `EI_EXPOSE_REP2` | Konstruktøren til `UserController` | Spring deler `TokenService`, slik at utlogging gjelder alle kall (#176). |
+| `EI_EXPOSE_REP` | [`CourseDTO.getReviews()`](../../bithub/file/src/main/java/file/dto/CourseDTO.java#L88) | Jackson trenger direkte tilgang til listen for å lese og skrive JSON, og klassen brukes bare til lagring. |
+| `EI_EXPOSE_REP2` | Konstruktøren til [`file.storage.JsonFileStorage`](../../bithub/file/src/main/java/file/storage/JsonFileStorage.java) | Deler handlerens `ObjectMapper` slik at lesing og skriving bruker samme JSON-konfigurasjon. Konstruktøren er offentlig etter pakkeflyttingen i #204. |
+| `EI_EXPOSE_REP2` | Konstruktøren til [`AuthenticationService`](../../bithub/springboot/restserver/src/main/java/rest/auth/AuthenticationService.java) | Tokenregisteret må deles, slik at utlogging gjelder alle endepunkter (#176). |
+| `EI_EXPOSE_REP2` | Konstruktøren til [`UserController`](../../bithub/springboot/restserver/src/main/java/rest/api/UserController.java) | Spring deler [`TokenService`](../../bithub/springboot/restserver/src/main/java/rest/auth/TokenService.java), slik at utlogging gjelder alle kall (#176). |
 
 ## Maven og automatisert kvalitetssikring
 
