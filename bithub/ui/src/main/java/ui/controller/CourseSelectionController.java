@@ -57,7 +57,13 @@ public class CourseSelectionController {
     @FXML
     private void initialize() {
         courseComboBox.setButtonCell(courseCell());
-        courseComboBox.setCellFactory(listView -> courseCell());
+        courseComboBox.setCellFactory(listView -> {
+            ListCell<Course> cell = courseCell();
+            // Lange emnenavn brytes, så listen ikke blir bredere enn feltet.
+            cell.setWrapText(true);
+            cell.setPrefWidth(0);
+            return cell;
+        });
         courseComboBox.setItems(filteredCourses);
         courseComboBox.setVisibleRowCount(6);
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
