@@ -46,6 +46,9 @@ public class WriteReviewController {
     private String courseCode = "";
     private String courseName = "";
     private ReviewService reviewService;
+    @FXML
+    private Button profileButton;
+
     private Navigation navigation;
     private UserSession userSession = new UserSession();
 
@@ -85,12 +88,13 @@ public class WriteReviewController {
     }
 
     /**
-     * Setter navigasjonen som kontrolleren skal bruke.
+     * Setter navigasjonen som kontrolleren skal bruke. Profilknappen kobles samtidig.
      *
      * @param navigation navigasjonsobjektet
      */
     public void setNavigation(Navigation navigation) {
         this.navigation = Objects.requireNonNull(navigation);
+        navigation.connectProfileButton(profileButton, taskRunner::cancel);
     }
 
     /**

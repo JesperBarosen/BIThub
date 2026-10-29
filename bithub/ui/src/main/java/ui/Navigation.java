@@ -12,8 +12,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import ui.client.AuthenticationClient;
 import ui.client.AuthenticationResult;
@@ -301,20 +299,21 @@ public final class Navigation {
     }
 
     /**
-     * Viser en midlertidig side for funksjoner som ikke er implementert.
+     * Kobler profilknappen på en side. Knappen er skjult for gjester og åpner profilen for en
+     * innlogget bruker. Den skjules uten å ta bort plassen, så overskriften står på samme sted.
      *
-     * @param source et element i skjermbildet som er åpent nå
-     * @param title  overskriften som skal vises
+     * @param profileButton profilknappen på siden
+     * @param beforeLeave   det som skal gjøres før siden byttes, for eksempel å avbryte et kall
+     * @throws NullPointerException hvis profileButton eller beforeLeave er null
      */
-    public void showComingSoon(Node source, String title) {
-        Label heading = new Label(title);
-        heading.setId("placeholderHeading");
-        Label message = new Label("Denne siden er ikke laget ennå.");
-        Button homeButton = new Button("HJEM");
-        VBox root = new VBox(20, heading, message, homeButton);
-        root.setStyle("-fx-alignment: center; -fx-padding: 30;");
-        homeButton.setOnAction(event -> showHome(homeButton));
-        stageOf(source).setScene(new Scene(root, 400, 600));
+    public void connectProfileButton(Button profileButton, Runnable beforeLeave) {
+        Objects.requireNonNull(profileButton);
+        Objects.requireNonNull(beforeLeave);
+        profileButton.setVisible(userSession.isLoggedIn());
+        profileButton.setOnAction(event -> {
+            beforeLeave.run();
+            showProfile(profileButton);
+        });
     }
 
     /**

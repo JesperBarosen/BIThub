@@ -62,6 +62,9 @@ public final class ChangePasswordController {
     @FXML
     private Button homeButton;
 
+    @FXML
+    private Button profileButton;
+
     private Navigation navigation;
     private UserSession userSession;
     private AuthenticationClient authenticationClient;
@@ -84,13 +87,14 @@ public final class ChangePasswordController {
     }
 
     /**
-     * Setter navigasjonen som kontrolleren skal bruke.
+     * Setter navigasjonen som kontrolleren skal bruke. Profilknappen kobles samtidig.
      *
      * @param navigation navigasjonsobjektet
      * @throws NullPointerException kastes hvis navigation er null
      */
     public void setNavigation(Navigation navigation) {
         this.navigation = Objects.requireNonNull(navigation);
+        navigation.connectProfileButton(profileButton, taskRunner::cancel);
     }
 
     /**
@@ -193,7 +197,7 @@ public final class ChangePasswordController {
      * Viser en statusmelding i valgt farge.
      *
      * @param message meldingen som skal vises
-     * @param color tekstfargen som meldingen skal vises i
+     * @param color   tekstfargen som meldingen skal vises i
      */
     private void showStatus(String message, Color color) {
         statusLabel.setTextFill(color);

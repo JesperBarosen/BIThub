@@ -2,12 +2,17 @@ package ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.model.Course;
+import core.model.Review;
 import core.service.DefaultCourses;
 import core.service.ReviewService;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -29,6 +34,7 @@ import ui.session.UserSession;
 class NewNavigationTest extends ApplicationTest {
 
     private Stage stage;
+    private Navigation navigation;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -42,7 +48,7 @@ class NewNavigationTest extends ApplicationTest {
         // Skriving krever innlogging, så testene kjører med en innlogget bruker.
         UserSession userSession = new UserSession();
         userSession.signIn("token-1", "Kari Nordmann", "kari@ntnu.no");
-        Navigation navigation = new Navigation(reviewService, repository, userSession, null);
+        navigation = new Navigation(reviewService, repository, userSession, null);
 
         FXMLLoader loader = new FXMLLoader(App.class.getResource("Home.fxml"));
         final Parent root = loader.load();
@@ -93,6 +99,35 @@ class NewNavigationTest extends ApplicationTest {
         assertNotNull(stage.getScene().getRoot().lookup("#changePasswordButton"));
         TextField name = (TextField) stage.getScene().getRoot().lookup("#nameField");
         assertEquals("Kari Nordmann", name.getText());
+    }
+
+    /**
+     * Verifiserer at profilknappen åpner profilen fra alle sidene der en innlogget bruker ser den,
+     * og at knappen er deaktivert på selve profilsiden.
+     */
+    @Test
+    void profileOpensFromEveryPage() {
+        Course course = DefaultCourses.all().get(4);
+        Review review = new Review("id-1", "kari@ntnu.no", "Kari Nordmann", false, 4, "Bra fag");
+        List<Consumer<Node>> pages = List.of(
+                navigation::showCourseSelection,
+                navigation::showCourseSelectionForReading,
+                source -> navigation.showReviews(source, course),
+                source -> navigation.showReviewForm(source, course),
+                navigation::showMyReviews,
+                source -> navigation.showEditReview(source, course.getCourseCode(),
+                        course.getCourseName(), review),
+                navigation::showChangePassword);
+
+        for (Consumer<Node> page : pages) {
+            interact(() -> page.accept(stage.getScene().getRoot()));
+            Button profileButton = button("#profileButton");
+            assertTrue(profileButton.isVisible());
+
+            interact(profileButton::fire);
+            assertNotNull(stage.getScene().getRoot().lookup("#changePasswordButton"));
+            assertTrue(button("#profileButton").isDisabled());
+        }
     }
 
     /**
