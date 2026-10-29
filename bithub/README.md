@@ -42,9 +42,9 @@ Informasjon om appen finnes via lenken nederst på innloggings- og hjemskjermen.
 
 ## Brukerlagring på REST-serveren
 
-Serveren kobler `UserService` i `core` til `UserHandler` i `file` gjennom
-grensesnittet `UserRepository`. Koblingen konfigureres med Spring-beans i
-`RestApplication`.
+Serveren kobler [`UserService`](core/src/main/java/core/service/UserService.java) i `core` til [`UserHandler`](file/src/main/java/file/UserHandler.java) i `file` gjennom
+grensesnittet [`UserRepository`](core/src/main/java/core/repository/UserRepository.java). Koblingen konfigureres med Spring-beans i
+[`RestApplication`](springboot/restserver/src/main/java/rest/RestApplication.java).
 
 Brukere lagres som JSON med navn, e-post, passordhash og salt. Standardfilen
 er `.bithub/users.json` i hjemmemappen til brukeren som kjører serveren.
@@ -138,7 +138,7 @@ Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal s
 **Brukerhistorie 1:** «Som student, skal jeg kunne skrive anmeldelser av fag, for å kunne
 hjelpe andre studenter med for eksempel å velge riktig valgfag for dem.»
 
-Diagrammet dekker flyten fra brukeren velger fag i `VelgFagController`, til anmeldelsen er
+Diagrammet dekker flyten fra brukeren velger fag i [`CourseSelectionController`](ui/src/main/java/ui/controller/CourseSelectionController.java), til anmeldelsen er
 validert i `core` og lagret som JSON av `file`-modulen.
 
 ### Sekvensdiagram for brukerhistorie 1:
@@ -153,16 +153,18 @@ lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
 
 ### Kommentarer til diagrammet
 
-- **`ui → core`:** `SkrivAnmeldelseController` kjenner kun `core.service.ReviewService`. Den vet ingenting om
+- **`ui → core`:** [`WriteReviewController`](ui/src/main/java/ui/controller/WriteReviewController.java) kjenner kun [`core.service.ReviewService`](core/src/main/java/core/service/ReviewService.java). Den vet ingenting om
   at anmeldelsen til slutt havner i en JSON-fil.
-- **`core → file` (via grensesnitt):** `ReviewService` kjenner kun `core.repository.ReviewRepository`.
-  `ReviewHandler` i `file`-modulen implementerer dette grensesnittet, så `core` er ikke
+- **`core → file` (via grensesnitt):** [`ReviewService`](core/src/main/java/core/service/ReviewService.java) kjenner kun [`core.repository.ReviewRepository`](core/src/main/java/core/repository/ReviewRepository.java).
+  [`ReviewHandler`](file/src/main/java/file/ReviewHandler.java) i `file`-modulen implementerer dette grensesnittet, så `core` er ikke
   avhengig av `file`.
-- **Kobling ved oppstart:** Det er `App.start(...)` som oppretter
-  `new ReviewService(new ReviewHandler())` og gir tjenesten videre til `Navigation`. Dette
-  er eneste sted i `ui` som kjenner den konkrete `file`-klassen.
+- **Kobling ved oppstart:** [`App.start(...)`](ui/src/main/java/ui/App.java#L30)
+  setter opp [`RemoteReviewRepository`](ui/src/main/java/ui/client/RemoteReviewRepository.java)
+  og [`ReviewService`](core/src/main/java/core/service/ReviewService.java),
+  og gir tjenesten videre til [`Navigation`](ui/src/main/java/ui/Navigation.java).
+  Klienten kommuniserer med REST-serveren og er ikke avhengig av `file`.
 - **Validering ligger i `core`:** Både format på vurdering (1–5, gyldig tall) og selve
-  `Review`-objektet valideres i `core` (`ReviewService.parseRating` og `Review`-konstruktøren),
+  [`Review`](core/src/main/java/core/model/Review.java)-objektet valideres i `core` ([`ReviewService.parseRating`](core/src/main/java/core/service/ReviewService.java#L265) og [`Review`](core/src/main/java/core/model/Review.java)-konstruktøren),
   ikke i kontrolleren. Kontrolleren viser bare feilmeldingen den får tilbake.
 
 ## Brukerhistorie 2
@@ -171,7 +173,7 @@ lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
 
 Diagrammet dekker flyten fra foreleseren trykker «Les anmeldelser» på hjemmesiden, til
 anmeldelsene er hentet fra JSON-filen i `file`, gjort om til domeneobjekter og vist med
-gjennomsnitt og antall i `LeseAnmeldelserController`.
+gjennomsnitt og antall i [`ReadReviewsController`](ui/src/main/java/ui/controller/ReadReviewsController.java).
 
 ### Sekvensdiagram for brukerhistorie 2:
 
@@ -185,19 +187,19 @@ lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
 
 ### Kommentarer til diagrammet
 
-- **Samme fagvelger for lesing og skriving:** `Navigation.showCourseSelectionForReading`
-  åpner den samme `VelgFag`-siden som brukes når man skriver en anmeldelse, men gir
-  `VelgFagController` beskjed om å kalle `Navigation::showReviews` når et fag er valgt.
+- **Samme fagvelger for lesing og skriving:** [`Navigation.showCourseSelectionForReading`](ui/src/main/java/ui/Navigation.java#L168)
+  åpner den samme [`CourseSelection`](ui/src/main/resources/ui/CourseSelection.fxml)-siden som brukes når man skriver en anmeldelse, men gir
+  [`CourseSelectionController`](ui/src/main/java/ui/controller/CourseSelectionController.java) beskjed om å kalle [`Navigation::showReviews`](ui/src/main/java/ui/Navigation.java#L179) når et fag er valgt.
   Kontrolleren vet ikke selv hvilken side som åpnes.
-- **`ui → core`:** `LeseAnmeldelserController` kjenner kun `core.service.ReviewService`. Den ber om
-  emnet med `getCourseWithReviews` og vet ikke at anmeldelsene kommer fra en JSON-fil.
-- **`core → file` (via grensesnitt):** `ReviewService` kaller `findCourse` på
-  `core.repository.ReviewRepository`. `ReviewHandler` i `file` implementerer metoden, leser filen og
-  gjør `CourseDTO` om til `Course`. DTO-en brukes bare inne i `file`.
-- **Fag uten anmeldelser:** Finnes ikke faget i filen, returnerer `findCourse` en tom
-  `Optional`, og `ReviewService` lager et tomt `Course`. Kontrolleren trenger derfor ikke å
+- **`ui → core`:** [`ReadReviewsController`](ui/src/main/java/ui/controller/ReadReviewsController.java) kjenner kun [`core.service.ReviewService`](core/src/main/java/core/service/ReviewService.java). Den ber om
+  emnet med [`getCourseWithReviews`](core/src/main/java/core/service/ReviewService.java#L105) og vet ikke at anmeldelsene kommer fra en JSON-fil.
+- **`core → file` (via grensesnitt):** [`ReviewService`](core/src/main/java/core/service/ReviewService.java) kaller [`findCourse`](core/src/main/java/core/repository/ReviewRepository.java#L32) på
+  [`core.repository.ReviewRepository`](core/src/main/java/core/repository/ReviewRepository.java). [`ReviewHandler`](file/src/main/java/file/ReviewHandler.java) i `file` implementerer metoden, leser filen og
+  gjør [`CourseDTO`](file/src/main/java/file/dto/CourseDTO.java) om til [`Course`](core/src/main/java/core/model/Course.java). DTO-en brukes bare inne i `file`.
+- **Fag uten anmeldelser:** Finnes ikke faget i filen, returnerer [`findCourse`](core/src/main/java/core/repository/ReviewRepository.java#L32) en tom
+  `Optional`, og [`ReviewService`](core/src/main/java/core/service/ReviewService.java) lager et tomt [`Course`](core/src/main/java/core/model/Course.java). Kontrolleren trenger derfor ikke å
   håndtere at faget mangler.
-- **Gjennomsnittet regnes ut i `core`:** `Course.getAverageRating()` står for utregningen.
+- **Gjennomsnittet regnes ut i `core`:** [`Course.getAverageRating()`](core/src/main/java/core/model/Course.java#L82) står for utregningen.
   Kontrolleren formaterer bare tallet med to desimaler.
 
 ## Brukerhistorie 3

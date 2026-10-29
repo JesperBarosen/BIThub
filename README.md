@@ -14,8 +14,8 @@ Se [bithub/README.md](bithub/README.md) for beskrivelse av appen og dens funksjo
 Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og består av fire moduler: tre lag (core, file og ui) og REST-serveren. Hver modul er en egen Maven-modul, og core, file og ui er i tillegg egne Java-moduler (`module-info.java`), slik at avhengighetene mellom lagene er eksplisitte.
 
 - **core** (`bithub.core`) er domenelaget og er ikke avhengig av noen av de andre modulene.
-- **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core`, implementerer `ReviewRepository` og gjør dataene om til og fra JSON med Jackson.
-- **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene og `ReviewService`, og henter dataene fra REST-serveren med `RemoteReviewRepository`. `ui` er ikke avhengig av `file`.
+- **file** (`bithub.file`) er persistenslaget. Det bruker domeneklassene fra `core`, implementerer [`ReviewRepository`](bithub/core/src/main/java/core/repository/ReviewRepository.java) og gjør dataene om til og fra JSON med Jackson.
+- **ui** (`bithub.ui`) er brukergrensesnittlaget. Det bruker `core` for domeneobjektene og [`ReviewService`](bithub/core/src/main/java/core/service/ReviewService.java), og henter dataene fra REST-serveren med [`RemoteReviewRepository`](bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java). `ui` er ikke avhengig av `file`.
 - **springboot/restserver** (`rest`) er REST-serveren. Den bruker `core` og `file`, og er den eneste som leser og skriver JSON-filene.
 
 ### Pakkediagram
@@ -25,7 +25,7 @@ Kodingsprosjektet ligger i mappen [`bithub/`](bithub/) og består av fire module
 Kildefilen til diagrammet ligger i [`arkitektur/pakkeDiagram.puml`](arkitektur/pakkeDiagram.puml).
 
 Pilene viser avhengighetene mellom modulene: `ui` er avhengig av `core`, JavaFX, Jackson og
-`java.net.http`, men ikke av `file`. `ui` snakker med `springboot/restserver` over HTTP. Serveren
+`java.net.http`, men ikke av `file`. `ui` snakker med [`springboot/restserver`](bithub/springboot/restserver) over HTTP. Serveren
 er avhengig av `core`, `file` og Spring Boot, `file` er avhengig av `core` og Jackson, og `core` er
 ikke avhengig av noen av de andre modulene.
 
@@ -35,9 +35,9 @@ ikke avhengig av noen av de andre modulene.
 
 Kildefilen til diagrammet ligger i [`arkitektur/klassediagramCore.puml`](arkitektur/klassediagramCore.puml).
 
-- Et `Course` har en liste med `Review`, og regner ut gjennomsnittlig vurdering.
-- `ReviewService` validerer og sender anmeldelser videre, men kjenner bare til grensesnittet
-  `ReviewRepository`. Slik er ikke `core` avhengig av hvordan dataene lagres.
+- Et [`Course`](bithub/core/src/main/java/core/model/Course.java) har en liste med [`Review`](bithub/core/src/main/java/core/model/Review.java), og regner ut gjennomsnittlig vurdering.
+- [`ReviewService`](bithub/core/src/main/java/core/service/ReviewService.java) validerer og sender anmeldelser videre, men kjenner bare til grensesnittet
+  [`ReviewRepository`](bithub/core/src/main/java/core/repository/ReviewRepository.java). Slik er ikke `core` avhengig av hvordan dataene lagres.
 
 ### Klassediagram for file
 
@@ -45,13 +45,13 @@ Kildefilen til diagrammet ligger i [`arkitektur/klassediagramCore.puml`](arkitek
 
 Kildefilen til diagrammet ligger i [`arkitektur/klassediagramFile.puml`](arkitektur/klassediagramFile.puml).
 
-- `ReviewHandler` og `UserHandler` implementerer `DataHandler` og leser og skriver JSON med Jackson.
-- `ReviewHandler` implementerer også `ReviewRepository` fra `core`, og gjør om mellom
-  domeneklassene (`Course`, `Review`) og objektene som lagres i filen (`CourseDTO`, `ReviewDTO`).
+- [`ReviewHandler`](bithub/file/src/main/java/file/ReviewHandler.java) og [`UserHandler`](bithub/file/src/main/java/file/UserHandler.java) implementerer [`DataHandler`](bithub/file/src/main/java/file/storage/DataHandler.java) og leser og skriver JSON med Jackson.
+- [`ReviewHandler`](bithub/file/src/main/java/file/ReviewHandler.java) implementerer også [`ReviewRepository`](bithub/core/src/main/java/core/repository/ReviewRepository.java) fra `core`, og gjør om mellom
+  domeneklassene ([`Course`](bithub/core/src/main/java/core/model/Course.java), [`Review`](bithub/core/src/main/java/core/model/Review.java)) og objektene som lagres i filen ([`CourseDTO`](bithub/file/src/main/java/file/dto/CourseDTO.java), [`ReviewDTO`](bithub/file/src/main/java/file/dto/ReviewDTO.java)).
 
 ### REST-API
 
-Appen deles i en REST-server (modulen `springboot/restserver`) og JavaFX-klienten. Alle forespørslene serveren støtter, med eksempler på forespørsel og svar, statuskoder og innlogging, er beskrevet i [docs/release3/rest-api.md](docs/release3/rest-api.md).
+Appen deles i en REST-server (modulen [`springboot/restserver`](bithub/springboot/restserver)) og JavaFX-klienten. Alle forespørslene serveren støtter, med eksempler på forespørsel og svar, statuskoder og innlogging, er beskrevet i [docs/release3/rest-api.md](docs/release3/rest-api.md).
 
 ## Mappestruktur i kodingsprosjektet
 
