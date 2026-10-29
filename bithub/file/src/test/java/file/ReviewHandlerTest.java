@@ -331,7 +331,7 @@ class ReviewHandlerTest {
         handler.addCoursesIfMissing(DefaultCourses.all());
 
         List<Course> courses = new ReviewHandler(file).findAllCourses();
-        assertEquals(5, courses.size());
+        assertEquals(DefaultCourses.all().size(), courses.size());
         assertEquals(DefaultCourses.all().stream().map(Course::getCourseCode).toList(),
                 courses.stream().map(Course::getCourseCode).toList());
         assertTrue(courses.stream().allMatch(course -> course.getReviews().isEmpty()));
@@ -371,11 +371,36 @@ class ReviewHandlerTest {
         new ReviewHandler(file).addCoursesIfMissing(DefaultCourses.all());
 
         List<Course> courses = new ReviewHandler(file).findAllCourses();
-        assertEquals(5, courses.size());
+        assertEquals(DefaultCourses.all().size(), courses.size());
         Course course = handler.findCourse("IT1901").orElseThrow();
         assertEquals(2, course.getReviews().size());
         assertEquals("Ola", course.getReviews().get(0).getReviewerName());
         assertEquals("Kari", course.getReviews().get(1).getReviewerName());
+    }
+
+    /**
+     * Verifiserer at en fil med emnelisten fra før får de nye standardemnene, at alle emnene
+     * hentes sortert på emnekode, og at anmeldelser og navn som finnes fra før, beholdes.
+     */
+    @Test
+    void newDefaultCoursesAreAddedSortedToExistingFile() {
+        Path file = tempDir.resolve("courses.json");
+        ReviewHandler handler = new ReviewHandler(file);
+        handler.addCoursesIfMissing(List.of(new Course("BI2081", "Natur, miljø og bærekraft"),
+                new Course("EXPH0300", "Examen philosophicum"),
+                new Course("HMS0002", "HMS-kurs for 1. årsstudenter"),
+                new Course("IT1604", "Digitalt samfunn"),
+                new Course("IT1901", "Informatikk prosjektarbeid I")));
+        handler.addReview("IT1901", "Informatikk prosjektarbeid I", new Review("Ola", 5, "Bra"));
+
+        new ReviewHandler(file).addCoursesIfMissing(DefaultCourses.all());
+
+        List<Course> courses = new ReviewHandler(file).findAllCourses();
+        assertEquals(DefaultCourses.all().stream().map(Course::getCourseCode).toList(),
+                courses.stream().map(Course::getCourseCode).toList());
+        assertEquals(1, handler.findCourse("IT1901").orElseThrow().getReviews().size());
+        assertEquals("Examen philosophicum",
+                handler.findCourse("EXPH0300").orElseThrow().getCourseName());
     }
 
     /**
