@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
@@ -10,9 +11,12 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controller.RegisterUserController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+   prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21"
+   xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controller.RegisterUserController">
    <children>
-      <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar" stylesheets="@Style.css">
+      <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar"
+         stylesheets="@Style.css">
          <children>
             <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
             <Label alignment="CENTER" prefHeight="70.0" prefWidth="250.0" text="BIThub">
@@ -76,6 +80,7 @@
                </children>
             </HBox>
             <PasswordField fx:id="passwordField" />
+            <TextField fx:id="shownPasswordField" />
             <HBox>
                <children>
                   <Label text="Gjenta passord:">
@@ -85,20 +90,31 @@
                   </Label>
                </children>
             </HBox>
-            <PasswordField fx:id="repeatPasswordField" onAction="#handleRegister">
+            <PasswordField fx:id="repeatPasswordField" onAction="#handleRegister" />
+            <TextField fx:id="shownRepeatPasswordField" />
+            <HBox>
+               <children>
+                  <CheckBox fx:id="showPasswordCheckBox" mnemonicParsing="false" text="Vis passord" />
+               </children>
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin>
-            </PasswordField>
-            <Button fx:id="registerButton" onAction="#handleRegister" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="20.0" prefWidth="320.0" styleClass="lag-ny-bruker-knapp" stylesheets="@Style.css" text="Lag ny bruker">
+            </HBox>
+            <Button fx:id="registerButton" onAction="#handleRegister"
+               maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="20.0"
+               prefWidth="320.0" styleClass="lag-ny-bruker-knapp" stylesheets="@Style.css"
+               text="Lag ny bruker">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
             </Button>
-            <Label fx:id="statusLabel" alignment="CENTER" maxWidth="320.0" minHeight="-Infinity" text="" textAlignment="CENTER" wrapText="true" />
+            <Label fx:id="statusLabel" alignment="CENTER" maxWidth="320.0" minHeight="-Infinity"
+               text="" textAlignment="CENTER" wrapText="true" />
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Button fx:id="backButton" onAction="#handleBack" mnemonicParsing="false" styleClass="tilbake-knapp-registrer-bruker" stylesheets="@Style.css" text="← Tilbake">
+                  <Button fx:id="backButton" onAction="#handleBack" mnemonicParsing="false"
+                     styleClass="tilbake-knapp-registrer-bruker" stylesheets="@Style.css"
+                     text="← Tilbake">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>

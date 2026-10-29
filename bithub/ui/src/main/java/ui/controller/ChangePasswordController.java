@@ -3,13 +3,16 @@ package ui.controller;
 import java.util.Objects;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import ui.Navigation;
 import ui.client.AuthenticationClient;
 import ui.session.UserSession;
 import ui.util.BackgroundTaskRunner;
+import ui.util.PasswordVisibility;
 
 /**
  * Lar den innloggede brukeren bytte passord etter å ha skrevet inn det gamle passordet.
@@ -36,6 +39,18 @@ public final class ChangePasswordController {
     private PasswordField repeatPasswordField;
 
     @FXML
+    private TextField shownOldPasswordField;
+
+    @FXML
+    private TextField shownNewPasswordField;
+
+    @FXML
+    private TextField shownRepeatPasswordField;
+
+    @FXML
+    private CheckBox showPasswordCheckBox;
+
+    @FXML
     private Button changeButton;
 
     @FXML
@@ -54,7 +69,7 @@ public final class ChangePasswordController {
     private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
 
     /**
-     * Deaktiverer skjemaet mens passordbyttet sendes.
+     * Deaktiverer skjemaet mens passordbyttet sendes, og kobler til «Vis passord».
      */
     @FXML
     private void initialize() {
@@ -62,6 +77,10 @@ public final class ChangePasswordController {
         oldPasswordField.disableProperty().bind(taskRunner.runningProperty());
         newPasswordField.disableProperty().bind(taskRunner.runningProperty());
         repeatPasswordField.disableProperty().bind(taskRunner.runningProperty());
+        PasswordVisibility.connect(showPasswordCheckBox, oldPasswordField, shownOldPasswordField);
+        PasswordVisibility.connect(showPasswordCheckBox, newPasswordField, shownNewPasswordField);
+        PasswordVisibility.connect(showPasswordCheckBox, repeatPasswordField,
+                shownRepeatPasswordField);
     }
 
     /**

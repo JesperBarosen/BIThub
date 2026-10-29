@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -12,6 +13,7 @@ import ui.Navigation;
 import ui.client.AuthenticationClient;
 import ui.client.AuthenticationResult;
 import ui.util.BackgroundTaskRunner;
+import ui.util.PasswordVisibility;
 
 /**
  * Håndterer innlogging, navigasjon til registreringsskjermen og å fortsette som gjest.
@@ -26,6 +28,12 @@ public final class LoginController {
 
     @FXML
     private PasswordField passwordField;
+
+    @FXML
+    private TextField shownPasswordField;
+
+    @FXML
+    private CheckBox showPasswordCheckBox;
 
     @FXML
     private Button loginButton;
@@ -46,13 +54,14 @@ public final class LoginController {
     private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
 
     /**
-     * Binder skjemafeltene til lastetilstanden.
+     * Binder skjemafeltene til lastetilstanden og kobler til «Vis passord».
      */
     @FXML
     private void initialize() {
         loginButton.disableProperty().bind(taskRunner.runningProperty());
         emailField.disableProperty().bind(taskRunner.runningProperty());
         passwordField.disableProperty().bind(taskRunner.runningProperty());
+        PasswordVisibility.connect(showPasswordCheckBox, passwordField, shownPasswordField);
 
         statusLabel.setVisible(false);
         statusLabel.managedProperty().bind(statusLabel.visibleProperty());

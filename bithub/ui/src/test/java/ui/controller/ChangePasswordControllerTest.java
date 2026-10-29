@@ -14,8 +14,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
@@ -70,8 +72,7 @@ class ChangePasswordControllerTest extends ApplicationTest {
         fill("Gammelt123", "Nytt12345", "Nytt12346");
         interact(() -> button("#changeButton").fire());
 
-        assertEquals("Det nye passordet er ikke likt i begge feltene.",
-                statusLabel().getText());
+        assertEquals("Det nye passordet er ikke likt i begge feltene.", statusLabel().getText());
         assertEquals(0, authenticationClient.changePasswordCalls.get());
     }
 
@@ -92,6 +93,42 @@ class ChangePasswordControllerTest extends ApplicationTest {
         assertEquals("Det nye passordet må være forskjellig fra det gamle.",
                 statusLabel().getText());
         assertEquals(0, authenticationClient.changePasswordCalls.get());
+    }
+
+    @Test
+    void showPasswordShowsAllThreePasswordFields() {
+        fill("Gammelt123", "Nytt12345", "Nytt12345");
+
+        interact(() -> checkBox("#showPasswordCheckBox").fire());
+
+        assertFalse(passwordField("#oldPasswordField").isVisible());
+        assertTrue(textField("#shownOldPasswordField").isVisible());
+        assertEquals("Gammelt123", textField("#shownOldPasswordField").getText());
+        assertEquals("Nytt12345", textField("#shownNewPasswordField").getText());
+        assertEquals("Nytt12345", textField("#shownRepeatPasswordField").getText());
+
+        interact(() -> checkBox("#showPasswordCheckBox").fire());
+
+        assertTrue(passwordField("#oldPasswordField").isVisible());
+        assertTrue(passwordField("#newPasswordField").isVisible());
+        assertTrue(passwordField("#repeatPasswordField").isVisible());
+        assertFalse(textField("#shownNewPasswordField").isVisible());
+    }
+
+    @Test
+    void changeWorksWhilePasswordIsShown() throws Exception {
+        interact(() -> {
+            checkBox("#showPasswordCheckBox").fire();
+            textField("#shownOldPasswordField").setText("Gammelt123");
+            textField("#shownNewPasswordField").setText("Nytt12345");
+            textField("#shownRepeatPasswordField").setText("Nytt12345");
+            button("#changeButton").fire();
+        });
+        awaitStatus("Passordet er endret.");
+
+        assertEquals("Gammelt123", authenticationClient.receivedOldPassword);
+        assertEquals("Nytt12345", authenticationClient.receivedNewPassword);
+        assertEquals("", textField("#shownNewPasswordField").getText());
     }
 
     @Test
@@ -192,6 +229,14 @@ class ChangePasswordControllerTest extends ApplicationTest {
 
     private PasswordField passwordField(String selector) {
         return (PasswordField) stage.getScene().getRoot().lookup(selector);
+    }
+
+    private TextField textField(String selector) {
+        return (TextField) stage.getScene().getRoot().lookup(selector);
+    }
+
+    private CheckBox checkBox(String selector) {
+        return (CheckBox) stage.getScene().getRoot().lookup(selector);
     }
 
     private Button button(String selector) {
