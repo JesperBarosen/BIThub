@@ -158,9 +158,11 @@ lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
 - **`core → file` (via grensesnitt):** [`ReviewService`](core/src/main/java/core/service/ReviewService.java) kjenner kun [`core.repository.ReviewRepository`](core/src/main/java/core/repository/ReviewRepository.java).
   [`ReviewHandler`](file/src/main/java/file/ReviewHandler.java) i `file`-modulen implementerer dette grensesnittet, så `core` er ikke
   avhengig av `file`.
-- **Kobling ved oppstart:** Det er [`App.start(...)`](ui/src/main/java/ui/App.java#L30) som oppretter
-  `new ReviewService(new ReviewHandler())` og gir tjenesten videre til [`Navigation`](ui/src/main/java/ui/Navigation.java). Dette
-  er eneste sted i `ui` som kjenner den konkrete `file`-klassen.
+- **Kobling ved oppstart:** [`App.start(...)`](ui/src/main/java/ui/App.java#L30)
+  setter opp [`RemoteReviewRepository`](ui/src/main/java/ui/client/RemoteReviewRepository.java)
+  og [`ReviewService`](core/src/main/java/core/service/ReviewService.java),
+  og gir tjenesten videre til [`Navigation`](ui/src/main/java/ui/Navigation.java).
+  Klienten kommuniserer med REST-serveren og er ikke avhengig av `file`.
 - **Validering ligger i `core`:** Både format på vurdering (1–5, gyldig tall) og selve
   [`Review`](core/src/main/java/core/model/Review.java)-objektet valideres i `core` ([`ReviewService.parseRating`](core/src/main/java/core/service/ReviewService.java#L265) og [`Review`](core/src/main/java/core/model/Review.java)-konstruktøren),
   ikke i kontrolleren. Kontrolleren viser bare feilmeldingen den får tilbake.
