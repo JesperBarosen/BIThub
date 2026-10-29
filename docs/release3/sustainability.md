@@ -6,19 +6,19 @@ Dette dokumentet er en refleksjon over bærekraften i BIThub. Vi har brukt Susta
 
 <a href="bilder_release3/SusAD_diagram.png"><img src="bilder_release3/SusAD_diagram.png" alt="SusAD-diagram for BIThub" width="800"></a>
 
-Diagrammet er laget i SusAD-malen fra faget. Filen [susad.pptx](bilder_release3/susad.pptx) er laget i PowerPoint. Gule lapper er positive virkninger, og røde er negative. En pil betyr at én virkning påvirker en annen.
+Diagrammet er laget i SusAD-malen fra faget. Hvis det skal endres, kan [susad.pptx](bilder_release3/susad.pptx) åpnes i PowerPoint og bildet eksporteres på nytt. Gule lapper er positive virkninger, og røde er negative. En pil betyr at én virkning påvirker en annen.
 
 | ID | Virkning | Dimensjon | Nivå | Påvirker | Påvirkes av |
 |---|---|---|---|---|---|
 | 1 | Bedre grunnlag for å velge emner (+) | Individuell | Umiddelbar | 7 | |
 | 2 | Tryggere å være ærlig anonymt (+) | Individuell | Umiddelbar | 5 | |
-| 3 | Passord lagres som hash med salt (+) | Teknisk | Umiddelbar | | |
-| 4 | Bare innloggede kan skrive (+) | Sosial | Muliggjørende | 6 | |
-| 5 | Usaklige eller sårende anmeldelser (−) | Sosial | Muliggjørende | | 2 |
+| 3 | Passord lagres som hash med salt (+) | Teknisk | Umiddelbar | 9 | |
+| 4 | Bare innloggede kan skrive (+) | Sosial | Muliggjørende | 5, 6 | |
+| 5 | Usaklige eller sårende anmeldelser (−) | Sosial | Muliggjørende | | 2, 4 |
 | 6 | Erfaringer deles mellom kull (+) | Sosial | Strukturell | 7 | 4 |
 | 7 | Færre feilvalg og bedre emner (+) | Økonomisk | Strukturell | | 1, 6 |
 | 8 | Lite data og ingen bilder (+) | Miljø | Umiddelbar | | |
-| 9 | Serveren er alltid på, og hashingen er tung (−) | Miljø | Umiddelbar | | |
+| 9 | Serveren er alltid på, og hashingen er tung (−) | Miljø | Umiddelbar | | 3 |
 | 10 | Moduler, tester og kodesjekk (+) | Teknisk | Muliggjørende | | |
 | 11 | JSON-filer skalerer dårlig (−) | Teknisk | Muliggjørende | | |
 
