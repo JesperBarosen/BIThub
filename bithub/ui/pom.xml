@@ -137,6 +137,16 @@
                 <configuration>
                     <mainClass>bithub.ui/ui.App</mainClass>
                     <skip>false</skip>
+
+                    <!-- Lag en tilpasset Java-runtime for klienten -->
+                    <stripDebug>true</stripDebug>
+                    <noHeaderFiles>true</noHeaderFiles>
+                    <noManPages>true</noManPages>
+
+                    <!-- Navn på kjørbar fil og pakket applikasjon -->
+                    <launcher>bithub</launcher>
+                    <jlinkImageName>bithub</jlinkImageName>
+                    <jlinkZipName>bithub</jlinkZipName>
                 </configuration>
             </plugin>
         </plugins>
