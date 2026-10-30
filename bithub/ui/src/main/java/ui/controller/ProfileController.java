@@ -155,12 +155,12 @@ public final class ProfileController {
     }
 
     /**
-     * Går tilbake til hjemmesiden.
+     * Går tilbake til siden profilen ble åpnet fra, eller til hjemmesiden.
      */
     @FXML
     private void handleBack() {
         taskRunner.cancel();
-        navigation.showHome(backButton);
+        navigation.returnFromProfile(backButton);
     }
 
     /**

@@ -53,6 +53,12 @@ public final class Navigation {
     private final AuthenticationClient authenticationClient;
 
     /**
+     * Siden profilen ble åpnet fra med profilknappen, eller null hvis «TILBAKE» på profilen skal gå
+     * til hjemmesiden.
+     */
+    private Scene sceneBeforeProfile;
+
+    /**
      * Oppretter navigasjonen uten innlogging. Brukes av tester for skjermer som ikke trenger
      * innlogging, og appen oppfører seg da som for en gjest.
      *
@@ -88,6 +94,7 @@ public final class Navigation {
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     public void showLogin(Stage stage) {
+        sceneBeforeProfile = null;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Login.fxml"));
         try {
             final Parent root = loader.load();
@@ -143,6 +150,7 @@ public final class Navigation {
      * @throws IllegalStateException hvis FXML-filen ikke kan lastes
      */
     public void showHome(Node source) {
+        sceneBeforeProfile = null;
         showFxml(source, "Home.fxml");
     }
 
@@ -233,6 +241,24 @@ public final class Navigation {
     }
 
     /**
+     * Går tilbake fra profilen til siden profilen ble åpnet fra med profilknappen. Siden vises
+     * slik den var, med det samme emnet og den samme teksten i skjemaene. Hvis profilen ble åpnet
+     * fra hjemmesiden, åpnes hjemmesiden.
+     *
+     * @param source et element i skjermbildet som er åpent nå
+     * @throws IllegalStateException hvis hjemmesiden skal vises og FXML-filen ikke kan lastes
+     */
+    public void returnFromProfile(Node source) {
+        Scene previous = sceneBeforeProfile;
+        if (previous == null) {
+            showHome(source);
+        } else {
+            sceneBeforeProfile = null;
+            stageOf(source).setScene(previous);
+        }
+    }
+
+    /**
      * Åpner «Mine anmeldelser» og henter anmeldelsene til den innloggede brukeren.
      *
      * @param source et element i skjermbildet som er åpent nå
@@ -301,6 +327,7 @@ public final class Navigation {
     /**
      * Kobler profilknappen på en side. Knappen er skjult for gjester og åpner profilen for en
      * innlogget bruker. Den skjules uten å ta bort plassen, så overskriften står på samme sted.
+     * «TILBAKE» på profilen går til siden knappen ble trykket på.
      *
      * @param profileButton profilknappen på siden
      * @param beforeLeave   det som skal gjøres før siden byttes, for eksempel å avbryte et kall
@@ -312,6 +339,7 @@ public final class Navigation {
         profileButton.setVisible(userSession.isLoggedIn());
         profileButton.setOnAction(event -> {
             beforeLeave.run();
+            sceneBeforeProfile = profileButton.getScene();
             showProfile(profileButton);
         });
     }

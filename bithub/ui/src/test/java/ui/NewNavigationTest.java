@@ -2,6 +2,7 @@ package ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.model.Course;
@@ -128,6 +129,57 @@ class NewNavigationTest extends ApplicationTest {
             assertNotNull(stage.getScene().getRoot().lookup("#changePasswordButton"));
             assertTrue(button("#profileButton").isDisabled());
         }
+    }
+
+    /**
+     * Verifiserer at «TILBAKE» på profilen går til siden profilknappen ble trykket på, slik den
+     * var.
+     */
+    @Test
+    void backFromProfileReturnsToPreviousPage() {
+        Course course = DefaultCourses.all().get(4);
+        Review review = new Review("id-1", "kari@ntnu.no", "Kari Nordmann", false, 4, "Bra fag");
+        List<Consumer<Node>> pages = List.of(
+                navigation::showCourseSelection,
+                navigation::showCourseSelectionForReading,
+                source -> navigation.showReviews(source, course),
+                source -> navigation.showReviewForm(source, course),
+                navigation::showMyReviews,
+                source -> navigation.showEditReview(source, course.getCourseCode(),
+                        course.getCourseName(), review),
+                navigation::showChangePassword);
+
+        for (Consumer<Node> page : pages) {
+            interact(() -> page.accept(stage.getScene().getRoot()));
+            Scene previous = stage.getScene();
+
+            interact(() -> button("#profileButton").fire());
+            interact(() -> button("#backButton").fire());
+
+            assertSame(previous, stage.getScene());
+        }
+    }
+
+    /**
+     * Verifiserer at «TILBAKE» på profilen fortsatt går til siden man kom fra etter et besøk på
+     * «Endre passord», og at den går til hjemmesiden når profilen ble åpnet derfra.
+     */
+    @Test
+    void backFromProfileRemembersPageThroughChangePassword() {
+        Course course = DefaultCourses.all().get(4);
+        interact(() -> navigation.showReviews(stage.getScene().getRoot(), course));
+        Scene reviews = stage.getScene();
+
+        interact(() -> button("#profileButton").fire());
+        interact(() -> button("#changePasswordButton").fire());
+        interact(() -> button("#backButton").fire());
+        interact(() -> button("#backButton").fire());
+        assertSame(reviews, stage.getScene());
+
+        interact(() -> button("#homeButton").fire());
+        interact(() -> button("#profileButton").fire());
+        interact(() -> button("#backButton").fire());
+        assertNotNull(stage.getScene().getRoot().lookup("#myReviewsButton"));
     }
 
     /**
