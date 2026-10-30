@@ -40,7 +40,7 @@ public final class DefaultCourses {
                 new Course("TDT4160", "Datamaskiner"), new Course("TDT4165", "Programmeringsspråk"),
                 new Course("TDT4171", "Metoder i kunstig intelligens"),
                 new Course("TDT4175", "Informasjonssystemer"),
-                new Course("TDT4180", "Menneske–maskin-interaksjon"),
+                new Course("TDT4180", "Menneske-maskin-interaksjon"),
                 new Course("TDT4186", "Operativsystemer"),
                 new Course("TDT4205", "Kompilatorteknikk"),
                 new Course("TDT4237", "Programvaresikkerhet og personvern"),
