@@ -51,9 +51,19 @@
                   </Label>
                </children>
             </HBox>
-            <TextField fx:id="searchField" maxWidth="1.7976931348623157E308" prefWidth="350.0"
-               promptText="🔍 Søk etter emnekode eller navn"
-               accessibleText="Søk etter emnekode eller emnenavn" styleClass="sok-felt" />
+            <StackPane alignment="CENTER_LEFT">
+               <children>
+                  <TextField fx:id="searchField" maxWidth="1.7976931348623157E308" prefWidth="350.0"
+                     promptText="Søk etter emnekode eller navn"
+                     accessibleText="Søk etter emnekode eller emnenavn" styleClass="sok-felt" />
+                  <SVGPath styleClass="sok-ikon" mouseTransparent="true"
+                     content="M10 2a8 8 0 0 1 6.32 12.9l5.39 5.39-1.42 1.42-5.39-5.39A8 8 0 1 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z">
+                     <StackPane.margin>
+                        <Insets left="12.0" />
+                     </StackPane.margin>
+                  </SVGPath>
+               </children>
+            </StackPane>
             <ComboBox fx:id="courseComboBox" maxWidth="1.7976931348623157E308" prefWidth="350.0"
                promptText="Velg fag" styleClass="emne-velger" />
             <Label fx:id="statusLabel" />
