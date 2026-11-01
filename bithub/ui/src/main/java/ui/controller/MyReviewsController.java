@@ -119,13 +119,14 @@ public class MyReviewsController {
     }
 
     /**
-     * Setter navigasjonen som kontrolleren skal bruke.
+     * Setter navigasjonen som kontrolleren skal bruke. Profilknappen kobles samtidig.
      *
      * @param navigation navigasjonsobjektet
      * @throws NullPointerException hvis navigation er null
      */
     public void setNavigation(Navigation navigation) {
         this.navigation = Objects.requireNonNull(navigation);
+        navigation.connectProfileButton(profileButton, taskRunner::cancel);
     }
 
     /**
@@ -269,15 +270,6 @@ public class MyReviewsController {
         alert.setHeaderText(null);
         Optional<ButtonType> answer = alert.showAndWait();
         return answer.isPresent() && answer.get() == ButtonType.OK;
-    }
-
-    /**
-     * Avbryter ventingen og åpner profilen.
-     */
-    @FXML
-    private void handleProfile() {
-        taskRunner.cancel();
-        navigation.showComingSoon(profileButton, "Profil");
     }
 
     /**

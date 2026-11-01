@@ -78,13 +78,14 @@ public class EditReviewController {
     }
 
     /**
-     * Setter navigasjonen som kontrolleren skal bruke.
+     * Setter navigasjonen som kontrolleren skal bruke. Profilknappen kobles samtidig.
      *
      * @param navigation navigasjonsobjektet
      * @throws NullPointerException hvis navigation er null
      */
     public void setNavigation(Navigation navigation) {
         this.navigation = Objects.requireNonNull(navigation);
+        navigation.connectProfileButton(profileButton, taskRunner::cancel);
     }
 
     /**
@@ -147,15 +148,6 @@ public class EditReviewController {
      */
     public Review getReview() {
         return review;
-    }
-
-    /**
-     * Avbryter ventingen og åpner profilen.
-     */
-    @FXML
-    private void handleProfile() {
-        taskRunner.cancel();
-        navigation.showComingSoon(profileButton, "Profil");
     }
 
     /**

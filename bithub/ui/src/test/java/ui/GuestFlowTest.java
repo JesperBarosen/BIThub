@@ -74,7 +74,8 @@ class GuestFlowTest extends ApplicationTest {
     }
 
     /**
-     * Verifiserer at en gjest kan velge et emne og lese anmeldelsene av det.
+     * Verifiserer at en gjest kan velge et emne og lese anmeldelsene av det, og at profilknappen er
+     * skjult på begge sidene.
      *
      * @throws Exception hvis emnene eller anmeldelsene ikke lastes innen tidsgrensen
      */
@@ -84,6 +85,7 @@ class GuestFlowTest extends ApplicationTest {
 
         interact(() -> button("#readReviewsButton").fire());
         awaitCoursesLoaded();
+        assertFalse(button("#profileButton").isVisible());
         interact(() -> {
             courseComboBox().getSelectionModel().select(4);
             button("#nextButton").fire();
@@ -95,6 +97,7 @@ class GuestFlowTest extends ApplicationTest {
         assertEquals("IT1901 - Informatikk prosjektarbeid I", label("#courseTitleLabel").getText());
         assertEquals("4.00", label("#averageLabel").getText());
         assertEquals(1, ((ListView<?>) find("#reviewList")).getItems().size());
+        assertFalse(button("#profileButton").isVisible());
     }
 
     /**

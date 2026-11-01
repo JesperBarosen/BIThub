@@ -43,6 +43,9 @@ public class CourseSelectionController {
 
     private BiConsumer<Node, Course> onCourseSelected;
 
+    @FXML
+    private Button profileButton;
+
     private Navigation navigation;
 
     private final ObservableList<Course> allCourses = FXCollections.observableArrayList();
@@ -118,12 +121,13 @@ public class CourseSelectionController {
     }
 
     /**
-     * Setter navigasjonen som kontrolleren skal bruke.
+     * Setter navigasjonen som kontrolleren skal bruke. Profilknappen kobles samtidig.
      *
      * @param navigation navigasjonsobjektet
      */
     public void setNavigation(Navigation navigation) {
         this.navigation = Objects.requireNonNull(navigation);
+        navigation.connectProfileButton(profileButton, taskRunner::cancel);
     }
 
     /**
