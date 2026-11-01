@@ -110,15 +110,13 @@ class NewNavigationTest extends ApplicationTest {
     void profileOpensFromEveryPage() {
         Course course = DefaultCourses.all().get(4);
         Review review = new Review("id-1", "kari@ntnu.no", "Kari Nordmann", false, 4, "Bra fag");
-        List<Consumer<Node>> pages = List.of(
-                navigation::showCourseSelection,
-                navigation::showCourseSelectionForReading,
-                source -> navigation.showReviews(source, course),
-                source -> navigation.showReviewForm(source, course),
-                navigation::showMyReviews,
-                source -> navigation.showEditReview(source, course.getCourseCode(),
-                        course.getCourseName(), review),
-                navigation::showChangePassword);
+        List<Consumer<Node>> pages = List
+                .of(navigation::showCourseSelection, navigation::showCourseSelectionForReading,
+                        source -> navigation.showReviews(source, course),
+                        source -> navigation.showReviewForm(source, course),
+                        navigation::showMyReviews, source -> navigation.showEditReview(source,
+                                course.getCourseCode(), course.getCourseName(), review),
+                        navigation::showChangePassword);
 
         for (Consumer<Node> page : pages) {
             interact(() -> page.accept(stage.getScene().getRoot()));
@@ -139,15 +137,13 @@ class NewNavigationTest extends ApplicationTest {
     void backFromProfileReturnsToPreviousPage() {
         Course course = DefaultCourses.all().get(4);
         Review review = new Review("id-1", "kari@ntnu.no", "Kari Nordmann", false, 4, "Bra fag");
-        List<Consumer<Node>> pages = List.of(
-                navigation::showCourseSelection,
-                navigation::showCourseSelectionForReading,
-                source -> navigation.showReviews(source, course),
-                source -> navigation.showReviewForm(source, course),
-                navigation::showMyReviews,
-                source -> navigation.showEditReview(source, course.getCourseCode(),
-                        course.getCourseName(), review),
-                navigation::showChangePassword);
+        List<Consumer<Node>> pages = List
+                .of(navigation::showCourseSelection, navigation::showCourseSelectionForReading,
+                        source -> navigation.showReviews(source, course),
+                        source -> navigation.showReviewForm(source, course),
+                        navigation::showMyReviews, source -> navigation.showEditReview(source,
+                                course.getCourseCode(), course.getCourseName(), review),
+                        navigation::showChangePassword);
 
         for (Consumer<Node> page : pages) {
             interact(() -> page.accept(stage.getScene().getRoot()));
@@ -168,7 +164,7 @@ class NewNavigationTest extends ApplicationTest {
     void backFromProfileRemembersPageThroughChangePassword() {
         Course course = DefaultCourses.all().get(4);
         interact(() -> navigation.showReviews(stage.getScene().getRoot(), course));
-        Scene reviews = stage.getScene();
+        final Scene reviews = stage.getScene();
 
         interact(() -> button("#profileButton").fire());
         interact(() -> button("#changePasswordButton").fire());
