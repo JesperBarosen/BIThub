@@ -40,6 +40,104 @@ Informasjon om appen finnes via lenken nederst på innloggings- og hjemskjermen.
 - **Profil:** Lage en profilside hvor det er mulig å endre navn og passord.
 - **Mine anmeldelser:** Implementere slik at dine tidligere skrevne anmeldelser dukker opp her.
 
+## Bygging, installasjon og oppstart på Windows
+
+BIThub består av en JavaFX-klient og en separat Spring Boot-server.
+Serveren må kjøre for at klienten skal kunne hente og lagre data.
+
+Kommandoene nedenfor kjøres fra `bithub/` i Windows CMD.
+
+### Forutsetninger
+
+- JDK 21 og Maven tilgjengelig i PATH.
+- WiX Toolset 3.14 for å lage Windows-installasjonsfil.
+- Skriptet finner også WiX i standard installasjonsmappe.
+- Den installerte JavaFX-klienten trenger ikke separat Java-installasjon.
+- REST-serveren krever Java 17 eller nyere.
+
+### Bygg og start REST-serveren
+
+Bygg prosjektet og kjør alle tester og kvalitetskontroller:
+
+```cmd
+mvn clean verify
+```
+
+Dette lager en kjørbar server-JAR:
+
+`springboot/restserver/target/rest-0.0.1-SNAPSHOT.jar`
+
+Start serveren i et eget CMD-vindu:
+
+```cmd
+java -jar "springboot\restserver\target\rest-0.0.1-SNAPSHOT.jar"
+```
+
+Serveren lytter som standard på `http://localhost:8080` og kjører til
+den stoppes med `Ctrl+C`.
+
+Emner, anmeldelser og brukere lagres som standard under
+`%USERPROFILE%\.bithub\`, i filene `courses.json` og `users.json`.
+
+Filstiene kan overstyres med Spring Boot-argumentene
+`--bithub.reviews-file` og `--bithub.users-file`.
+
+### Bygg JavaFX-klienten med jlink og jpackage
+
+Kjør pakkeskriptet:
+
+```cmd
+call scripts\package-windows.cmd
+```
+
+Skriptet bygger JavaFX-klienten med Maven, lager en tilpasset Java-runtime
+med jlink og oppretter en Windows-installasjon med jpackage og WiX.
+
+Resultatene finnes under `ui/target/jpackage/`:
+
+- `BIThub-0.0.1.exe`: Windows-installasjonsprogram.
+- `BIThub/BIThub.exe`: Kjørbar klient i app-image-format.
+
+Kjør installasjonsprogrammet for å installere BIThub. Den installerte
+klienten kan startes uten Maven eller en separat Java-installasjon.
+
+REST-serveren følger ikke med installasjonsprogrammet og må startes
+separat.
+
+### Konfigurer serveradressen
+
+Den pakkede klienten bruker `http://localhost:8080` som standard.
+
+For å bruke en annen serveradresse, sett miljøvariabelen
+`BITHUB_SERVER_URL` før pakkeskriptet kjøres:
+
+```cmd
+set "BITHUB_SERVER_URL=http://servernavn:8080"
+call scripts\package-windows.cmd
+```
+
+Skriptet sender adressen til jpackage som JVM-argumentet
+`-Dbithub.server-url=...`.
+
+Serveradressen settes ved pakking. For å endre den i en eksisterende
+installasjon må klienten pakkes på nytt med ønsket adresse.
+
+### Verifisering
+
+Windows-pakkingen er manuelt verifisert på Windows 10 med JDK 21 og
+WiX Toolset 3.14.1.
+
+Følgende er testet:
+
+- Bygging av tilpasset Java-runtime med jlink.
+- Generering av app-image og Windows-installasjon med jpackage.
+- Installasjon og oppstart av BIThub.exe.
+- Oppstart av Spring Boot direkte fra den kjørbare JAR-filen.
+- HTTP 200 fra REST-endepunktet `/api/courses`.
+- Kommunikasjon mellom installert JavaFX-klient og kjørende REST-server.
+- Full `mvn clean verify` med 515 beståtte tester, uten Checkstyle-brudd
+  eller SpotBugs-funn.
+
 ## Brukerlagring på REST-serveren
 
 Serveren kobler [`UserService`](core/src/main/java/core/service/UserService.java) i `core` til [`UserHandler`](file/src/main/java/file/UserHandler.java) i `file` gjennom
