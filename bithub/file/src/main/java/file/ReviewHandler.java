@@ -13,6 +13,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -155,13 +156,14 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
     }
 
     /**
-     * Henter alle emnene i JSON-filen, også de uten anmeldelser.
+     * Henter alle emnene i JSON-filen, også de uten anmeldelser, sortert på emnekode.
      *
-     * @return alle lagrede emner, eller en tom liste hvis filen mangler
+     * @return alle lagrede emner sortert på emnekode, eller en tom liste hvis filen mangler
      */
     @Override
     public List<Course> findAllCourses() {
-        return readFromFile().stream().map(ReviewHandler::toCourse).toList();
+        return readFromFile().stream().map(ReviewHandler::toCourse)
+                .sorted(Comparator.comparing(course -> course.getCourseCode())).toList();
     }
 
     /**
