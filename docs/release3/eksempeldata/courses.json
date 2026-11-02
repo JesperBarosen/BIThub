@@ -1,0 +1,60 @@
+[
+    {
+        "courseCode": "IT1901",
+        "courseName": "Informatikk prosjektarbeid I",
+        "reviews": [
+            {
+                "id": "21400000-0000-4000-8000-000000000001",
+                "ownerEmail": "anna@example.com",
+                "reviewerName": "Anna Hansen",
+                "anonymous": false,
+                "rating": 5,
+                "comment": "Lærerikt prosjekt med god trening i Git, testing og samarbeid."
+            },
+            {
+                "id": "21400000-0000-4000-8000-000000000002",
+                "ownerEmail": "emil@example.com",
+                "reviewerName": "Emil Berg",
+                "anonymous": true,
+                "rating": 4,
+                "comment": "Mye praktisk læring, men det lønner seg å fordele arbeidet tidlig."
+            }
+        ]
+    },
+    {
+        "courseCode": "TDT4100",
+        "courseName": "Objektorientert programmering",
+        "reviews": [
+            {
+                "id": "21400000-0000-4000-8000-000000000003",
+                "ownerEmail": "anna@example.com",
+                "reviewerName": "Anna Hansen",
+                "anonymous": true,
+                "rating": 4,
+                "comment": "Øvingene gjorde det lettere å forstå objekter og grensesnitt."
+            },
+            {
+                "id": "21400000-0000-4000-8000-000000000004",
+                "ownerEmail": null,
+                "reviewerName": "Gjest",
+                "anonymous": false,
+                "rating": 3,
+                "comment": "Anmeldelse fra før innlogging ble innført. Nyttig fag, men krevende øvinger."
+            }
+        ]
+    },
+    {
+        "courseCode": "IT2805",
+        "courseName": "Webteknologi",
+        "reviews": [
+            {
+                "id": "21400000-0000-4000-8000-000000000005",
+                "ownerEmail": "emil@example.com",
+                "reviewerName": "Emil Berg",
+                "anonymous": false,
+                "rating": 5,
+                "comment": "Fin innføring i HTML, CSS og JavaScript med praktiske oppgaver."
+            }
+        ]
+    }
+]
