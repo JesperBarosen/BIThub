@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import ui.Navigation;
 import ui.session.UserSession;
 
@@ -29,6 +30,9 @@ public class HomeController {
 
     @FXML
     private Button loginButton;
+
+    @FXML
+    private Hyperlink aboutLink;
 
     private Navigation navigation;
 
@@ -105,5 +109,14 @@ public class HomeController {
     @FXML
     private void handleLogin() {
         navigation.showLogin(loginButton);
+    }
+
+    /**
+     * Åpner infosiden om appen.
+     */
+    @FXML
+    private void handleAbout() {
+        aboutLink.setVisited(false);
+        navigation.showAbout(aboutLink);
     }
 }

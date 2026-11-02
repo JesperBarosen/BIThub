@@ -70,7 +70,7 @@
             <HBox alignment="BASELINE_LEFT" prefWidth="200.0">
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Mer info om appen" />
-                  <Hyperlink text="her." />
+                  <Hyperlink fx:id="aboutLink" onAction="#handleAbout" text="her." />
                </children>
             </HBox>
          </children>

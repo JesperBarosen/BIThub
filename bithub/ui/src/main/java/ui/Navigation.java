@@ -15,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.stage.Stage;
 import ui.client.AuthenticationClient;
 import ui.client.AuthenticationResult;
+import ui.controller.AboutController;
 import ui.controller.ChangePasswordController;
 import ui.controller.CourseSelectionController;
 import ui.controller.EditReviewController;
@@ -57,6 +58,12 @@ public final class Navigation {
      * til hjemmesiden.
      */
     private Scene sceneBeforeProfile;
+
+    /**
+     * Siden infosiden ble åpnet fra, eller null hvis «TILBAKE» på infosiden skal gå til
+     * hjemmesiden.
+     */
+    private Scene sceneBeforeAbout;
 
     /**
      * Oppretter navigasjonen uten innlogging. Brukes av tester for skjermer som ikke trenger
@@ -254,6 +261,44 @@ public final class Navigation {
             showHome(source);
         } else {
             sceneBeforeProfile = null;
+            stageOf(source).setScene(previous);
+        }
+    }
+
+    /**
+     * Åpner infosiden om BIThub i det samme vinduet. «TILBAKE» på infosiden går til siden den
+     * ble åpnet fra.
+     *
+     * @param source et element i skjermbildet som er åpent nå
+     * @throws IllegalStateException hvis FXML-filen ikke kan lastes
+     */
+    public void showAbout(Node source) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("About.fxml"));
+        try {
+            final Parent root = loader.load();
+            AboutController controller = loader.getController();
+            controller.setNavigation(this);
+            Stage stage = stageOf(source);
+            sceneBeforeAbout = stage.getScene();
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            throw new IllegalStateException("Kunne ikke åpne infosiden", e);
+        }
+    }
+
+    /**
+     * Går tilbake fra infosiden til siden den ble åpnet fra, slik den var. Hvis siden ikke er
+     * kjent, åpnes hjemmesiden.
+     *
+     * @param source et element i skjermbildet som er åpent nå
+     * @throws IllegalStateException hvis hjemmesiden skal vises og FXML-filen ikke kan lastes
+     */
+    public void returnFromAbout(Node source) {
+        Scene previous = sceneBeforeAbout;
+        sceneBeforeAbout = null;
+        if (previous == null) {
+            showHome(source);
+        } else {
             stageOf(source).setScene(previous);
         }
     }

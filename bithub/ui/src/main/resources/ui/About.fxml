@@ -11,7 +11,7 @@
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
    prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21"
-   xmlns:fx="http://javafx.com/fxml/1">
+   xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controller.AboutController">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar"
          stylesheets="@Style.css">
@@ -183,8 +183,8 @@
             </ScrollPane>
             <HBox prefHeight="22.0" prefWidth="380.0">
                <children>
-                  <Button mnemonicParsing="false" styleClass="profil-knapper"
-                     stylesheets="@Style.css" text="TILBAKE" />
+                  <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack"
+                     styleClass="profil-knapper" stylesheets="@Style.css" text="TILBAKE" />
                </children>
             </HBox>
          </children>
