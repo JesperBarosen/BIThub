@@ -105,6 +105,20 @@ class ReviewServiceTest {
         assertEquals("Bra fag", review.getComment());
     }
 
+    /**
+     * Sjekker at innsending med en verifisert eier lagrer manglende kommentar som tom tekst.
+     */
+    @Test
+    void submitReviewWithOwnerSavesEmptyCommentWhenNull() {
+        User owner = new User("Ola Nordmann", "ola@example.com", "Passord123");
+
+        Review review = service.submitReview("IT1901", "Prosjektarbeid", owner, false, "4", null);
+
+        assertEquals(1, savedReviews.size());
+        assertSame(review, savedReviews.get(0));
+        assertEquals("", review.getComment());
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = { false, true })
     void submitReviewWithoutOwnerIsRejected(boolean anonymous) {
