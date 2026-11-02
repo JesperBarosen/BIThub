@@ -171,6 +171,9 @@ public final class LoginController {
             throw new IllegalStateException("Navigasjonen er ikke konfigurert.");
         }
 
+        if (taskRunner.runningProperty().get()) {
+            statusLabel.setVisible(false);
+        }
         taskRunner.cancel();
         aboutLink.setVisited(false);
         navigation.showAbout(aboutLink);
