@@ -21,6 +21,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
@@ -196,6 +197,29 @@ class ChangePasswordControllerTest extends ApplicationTest {
         assertEquals("Feil12345", passwordField("#oldPasswordField").getText());
         assertEquals("Nytt12345", passwordField("#newPasswordField").getText());
         assertFalse(button("#changeButton").isDisabled());
+    }
+
+    /**
+     * Sjekker at feil uten brukbar melding gir generell feil uten å tømme passordfeltene.
+     *
+     * @param message feilmeldingen fra tjenesten
+     * @throws Exception hvis ventingen på feilmeldingen feiler
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = { "   " })
+    void rejectionWithoutMessageKeepsPasswordFields(String message) throws Exception {
+        authenticationClient.error = new IllegalArgumentException(message);
+        fill("Gammelt123", "Nytt12345", "Nytt12345");
+
+        interact(() -> button("#changeButton").fire());
+
+        awaitStatus("Kunne ikke bekrefte at passordet ble endret. Prøv igjen senere.");
+        assertEquals("Gammelt123", passwordField("#oldPasswordField").getText());
+        assertEquals("Nytt12345", passwordField("#newPasswordField").getText());
+        assertEquals("Nytt12345", passwordField("#repeatPasswordField").getText());
+        assertFalse(button("#changeButton").isDisabled());
+        assertEquals(1, authenticationClient.changePasswordCalls.get());
     }
 
     @Test
