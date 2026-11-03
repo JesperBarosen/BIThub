@@ -88,6 +88,23 @@ class ChangePasswordControllerTest extends ApplicationTest {
         assertEquals(0, authenticationClient.changePasswordCalls.get());
     }
 
+    /**
+     * Sjekker at en avsluttet innlogging stopper passordbyttet før serveren kontaktes.
+     */
+    @Test
+    void loggedOutUserCannotChangePassword() {
+        fill("Gammelt123", "Nytt12345", "Nytt12345");
+
+        interact(() -> {
+            userSession.clear();
+            button("#changeButton").fire();
+        });
+
+        assertEquals("Du må være logget inn for å bytte passord.", statusLabel().getText());
+        assertEquals(0, authenticationClient.changePasswordCalls.get());
+        assertFalse(userSession.isLoggedIn());
+    }
+
     @Test
     void differentNewPasswordsShowError() {
         fill("Gammelt123", "Nytt12345", "Nytt12346");
