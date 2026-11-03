@@ -2,7 +2,9 @@ package ui.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.service.ReviewService;
@@ -12,6 +14,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -86,6 +91,54 @@ class RegisterUserControllerTest extends ApplicationTest {
         assertEquals("Fyll ut alle feltene.", statusLabel().getText());
         assertTrue(statusLabel().isVisible());
         assertEquals(0, authenticationClient.registerCalls.get());
+    }
+
+    /**
+     * Sjekker at hver nødvendig del av oppsettet kreves før registrering kan starte.
+     *
+     * @param missingDependency delen av oppsettet som utelates
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "authentication", "successHandler", "navigation" })
+    void missingSetupIsRejectedBeforeRegistration(String missingDependency) {
+        interact(() -> {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/RegisterUser.fxml"));
+            final Parent root;
+            try {
+                root = loader.load();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            RegisterUserController controller = loader.getController();
+            if (!missingDependency.equals("authentication")) {
+                controller.setAuthenticationClient(authenticationClient);
+            }
+            if (!missingDependency.equals("successHandler")) {
+                controller.setRegistrationSuccessHandler(result -> userSession.signIn(
+                        result.token(), result.name(), result.email()));
+            }
+            if (!missingDependency.equals("navigation")) {
+                InMemoryReviewRepository repository = new InMemoryReviewRepository();
+                controller.setNavigation(new Navigation(new ReviewService(repository), repository,
+                        userSession, authenticationClient));
+            }
+            stage.setScene(new Scene(root));
+        });
+        fillValidForm();
+
+        interact(() -> {
+            RuntimeException error = assertThrows(RuntimeException.class,
+                    () -> button("#registerButton").fire());
+            // FXML pakker feilen fra kontrolleren inn i refleksjonsunntak.
+            Throwable cause = error;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            assertInstanceOf(IllegalStateException.class, cause);
+            assertEquals("Registreringen er ikke konfigurert.", cause.getMessage());
+        });
+        assertEquals(0, authenticationClient.registerCalls.get());
+        assertFalse(userSession.isLoggedIn());
     }
 
     @Test
