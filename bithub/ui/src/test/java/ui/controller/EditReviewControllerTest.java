@@ -4,11 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import core.model.Course;
 import core.model.Review;
+import core.repository.ReviewRepository;
 import core.service.ReviewService;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -122,6 +128,61 @@ class EditReviewControllerTest extends ApplicationTest {
         assertEquals("9", ratingField().getText());
         assertEquals("Ny kommentar", commentArea().getText());
         assertEquals(4, repository.findReview("id-1").orElseThrow().getRating());
+    }
+
+    /**
+     * Sjekker at en nettverksfeil beholder skjemaet og ikke endrer den lagrede anmeldelsen.
+     *
+     * @throws Exception hvis feilmeldingen ikke vises innen tidsgrensen
+     */
+    @Test
+    void networkFailureKeepsFormAndStoredReview() throws Exception {
+        ReviewRepository unavailableRepository = new ReviewRepository() {
+            @Override
+            public void addReview(String courseCode, String courseName, Review review) {
+                repository.addReview(courseCode, courseName, review);
+            }
+
+            @Override
+            public Optional<Course> findCourse(String courseCode) {
+                return repository.findCourse(courseCode);
+            }
+
+            @Override
+            public List<Course> findAllCourses() {
+                return repository.findAllCourses();
+            }
+
+            @Override
+            public void addCoursesIfMissing(List<Course> courses) {
+                repository.addCoursesIfMissing(courses);
+            }
+
+            @Override
+            public boolean updateReview(String reviewId, int rating, String comment,
+                    boolean anonymous) {
+                throw new UncheckedIOException(new IOException("Ingen kontakt med serveren."));
+            }
+        };
+        final Scene editScene = stage.getScene();
+
+        interact(() -> {
+            controller.setReviewService(new ReviewService(unavailableRepository));
+            ratingField().setText("2");
+            commentArea().setText("Ny kommentar");
+            anonymousCheckBox().setSelected(true);
+            button("#saveButton").fire();
+        });
+
+        awaitStatus("Kunne ikke lagre endringen. Prøv igjen senere.");
+        assertSame(editScene, stage.getScene());
+        assertEquals("2", ratingField().getText());
+        assertEquals("Ny kommentar", commentArea().getText());
+        assertTrue(anonymousCheckBox().isSelected());
+        Review stored = repository.findReview("id-1").orElseThrow();
+        assertEquals(4, stored.getRating());
+        assertEquals("Bra fag", stored.getComment());
+        assertFalse(stored.isAnonymous());
     }
 
     /**
