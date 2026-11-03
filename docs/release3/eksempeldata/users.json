@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Anna Hansen",
+        "email": "anna@example.com",
+        "passwordHash": "IetCnTbcy5sz1dcewGRZliSfBGJA7ruewv+2FjxpQAY=", 
+        "salt": "h4SzLGOrPQ7ct3VFCcX8sw=="
+    },
+    {
+        "name": "Emil Berg",
+        "email": "emil@example.com",
+        "passwordHash": "D0uwkTbU4QSSbotOkjK3H9oE48RifAt1NPHWGHiL2ho=", 
+        "salt": "LF9BqjB1NbvnscNF6OzqFQ=="
+    }
+]
