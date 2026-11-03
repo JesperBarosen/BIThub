@@ -12,7 +12,7 @@ I release 1 jobbet alle seks hver for seg, ofte i de samme filene. Issuene var k
 - Vi fordelte oppgavene før sprinten startet, slik at hvert par fikk en del av koden som hang sammen.
 - Fra release 2 jobbet vi med parprogrammering gjennom resten av prosjektet. Vi roterte på parene, slik at flest mulig lærte mest mulig om koden. Det ga bedre samlet forståelse av prosjektet og færre konflikter.
 - Vi fikk en tydelig workflow: issue, egen gren, PR med fast mal, review fra et annet par og deretter merge.
-- Vi kommuniserte bedre underveis. Vi sa fra når en PR endret mye i delte klasser, avtalte hvilken PR som skulle merges først, og merget ofte `master` inn i egen gren for å unngå feil i `master`.
+- Vi kommuniserte bedre underveis. Vi sa fra når en PR endret mye i delte klasser, avtalte hvilken PR som skulle merges først, og merget ofte `master` inn i egen gren, slik at konflikter ble løst før PR-en ble merget.
 
 ### Lærdom
 
@@ -27,7 +27,7 @@ I release 3 gikk vi fra en app som lagret direkte i en JSON-fil, til en klient s
 ### Tiltak
 
 - Vi skrev API-kontrakten (`rest-api.md`) med endepunkter og feilkoder før vi kodet, slik at klient og server kunne lages parallelt.
-- Vi brukte grensesnittet `ReviewRepository` i `ui`. Da kunne `RemoteReviewRepository` byttes inn uten å endre kontrollerne.
+- Grensesnittet `ReviewRepository` i `core` gjorde at `RemoteReviewRepository` i `ui` kunne erstatte lagringen i `file` uten at `ReviewService` eller kontrollerne måtte endres.
 - Vi fjernet avhengigheten fra `ui` til `file` i et eget issue.
 - Vi delte overgangen i mange små issues med avhengigheter mellom seg.
 
