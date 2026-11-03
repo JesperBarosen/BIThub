@@ -578,6 +578,24 @@ class ReviewHandlerTest {
     }
 
     /**
+     * Sjekker at null som ny kommentar lagres som tom tekst og leses tilbake uten den gamle.
+     */
+    @Test
+    void updateReviewWithNullCommentRemovesStoredComment() {
+        Path path = tempDir.resolve("remove-comment.json");
+        ReviewHandler handler = new ReviewHandler(path);
+        handler.addReview("IT1901", "Prosjektarbeid",
+                ownedReview("id-1", "kari@ntnu.no", 4, "Gammel kommentar"));
+
+        assertTrue(handler.updateReview("id-1", 4, null, false));
+
+        Review review = new ReviewHandler(path).findReview("id-1").orElseThrow();
+        assertEquals("", review.getComment());
+        assertEquals("id-1", review.getId());
+        assertEquals("kari@ntnu.no", review.getOwnerEmail());
+    }
+
+    /**
      * Verifiserer at updateReview gir false for en ukjent id, uten å endre filen.
      */
     @Test
