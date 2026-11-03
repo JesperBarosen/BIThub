@@ -595,6 +595,23 @@ class ReviewServiceTest {
     }
 
     /**
+     * Sjekker at klienten kan fjerne kommentaren på en hentet anmeldelse ved å sende null.
+     */
+    @Test
+    void updateFetchedReviewSavesEmptyCommentWhenNull() {
+        Review review = new Review("id-1", "ola@example.com", "Ola", false, 4, "Bra");
+
+        Review updated = service.updateReview(review, "4", null, false);
+
+        assertEquals(List.of("id-1"), updatedIds);
+        assertEquals(List.of(""), updatedComments);
+        assertEquals("", updated.getComment());
+        assertEquals(review.getId(), updated.getId());
+        assertEquals(review.getOwnerEmail(), updated.getOwnerEmail());
+        assertEquals("Bra", review.getComment());
+    }
+
+    /**
      * Verifiserer at en ugyldig vurdering avvises før lagringen blir kalt.
      *
      * @param rating den ugyldige vurderingen
