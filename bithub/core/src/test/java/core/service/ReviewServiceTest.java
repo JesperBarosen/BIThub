@@ -36,6 +36,7 @@ class ReviewServiceTest {
     private Course storedCourse;
 
     private final List<String> updatedIds = new ArrayList<>();
+    private final List<String> updatedComments = new ArrayList<>();
     private final List<String> deletedIds = new ArrayList<>();
 
     /**
@@ -74,6 +75,7 @@ class ReviewServiceTest {
         public boolean updateReview(String reviewId, int rating, String comment,
                 boolean anonymous) {
             updatedIds.add(reviewId);
+            updatedComments.add(comment);
             return storageFindsReview;
         }
 
@@ -423,6 +425,22 @@ class ReviewServiceTest {
         assertTrue(updated.isAnonymous());
         assertEquals(2, updated.getRating());
         assertEquals("Tungt", updated.getComment());
+    }
+
+    /**
+     * Sjekker at null som ny kommentar blir tom tekst både i lagringen og i svaret.
+     */
+    @Test
+    void ownerCanRemoveReviewComment() {
+        storeReview("id-1", "ola@example.com");
+
+        Review updated = service.updateReview("id-1", "ola@example.com", "4", null, false);
+
+        assertEquals(List.of("id-1"), updatedIds);
+        assertEquals(List.of(""), updatedComments);
+        assertEquals("", updated.getComment());
+        assertEquals("id-1", updated.getId());
+        assertEquals("ola@example.com", updated.getOwnerEmail());
     }
 
     /**
