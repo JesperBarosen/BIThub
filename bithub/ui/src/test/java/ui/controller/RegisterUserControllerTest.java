@@ -19,6 +19,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 import ui.Navigation;
@@ -56,6 +58,27 @@ class RegisterUserControllerTest extends ApplicationTest {
     void showsErrorWhenFieldsAreMissing() {
         interact(() -> {
             textField("#nameField").setText("Kari Nordmann");
+            button("#registerButton").fire();
+        });
+
+        assertEquals("Fyll ut alle feltene.", statusLabel().getText());
+        assertTrue(statusLabel().isVisible());
+        assertEquals(0, authenticationClient.registerCalls.get());
+    }
+
+    /**
+     * Sjekker hvert obligatoriske felt separat, slik at de andre feltene fortsatt er gyldige.
+     *
+     * @param fieldId feltet som tømmes
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "#nameField", "#emailField", "#repeatEmailField", "#passwordField",
+        "#repeatPasswordField" })
+    void showsErrorWhenAnySingleFieldIsMissing(String fieldId) {
+        fillValidForm();
+
+        interact(() -> {
+            textField(fieldId).clear();
             button("#registerButton").fire();
         });
 
