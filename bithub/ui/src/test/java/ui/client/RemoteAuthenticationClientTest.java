@@ -167,6 +167,20 @@ class RemoteAuthenticationClientTest {
                 .login("kari@ntnu.no", "Hemmelig123"));
     }
 
+    /**
+     * Sjekker at en JSON-liste ikke godtas som et vellykket innloggingssvar.
+     */
+    @Test
+    void loginRejectsJsonArrayAsSuccessResponse() {
+        respond("/api/login", 200, "[]");
+
+        UncheckedIOException error = assertThrows(UncheckedIOException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).login("kari@ntnu.no",
+                        "Hemmelig123"));
+
+        assertEquals("Ugyldig svar fra serveren.", error.getMessage());
+    }
+
     @Test
     void missingTokenIsRejected() {
         respond("/api/users", 201, "{\"name\":\"Kari Nordmann\",\"email\":\"kari@ntnu.no\"}");
