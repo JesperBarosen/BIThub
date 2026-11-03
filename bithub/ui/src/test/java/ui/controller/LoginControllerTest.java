@@ -2,7 +2,9 @@ package ui.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.service.ReviewService;
@@ -76,6 +78,53 @@ class LoginControllerTest extends ApplicationTest {
         assertEquals("Skriv inn både e-postadresse og passord.", statusLabel().getText());
         assertEquals(0, authenticationClient.loginCalls.get());
         assertTrue(statusLabel().isVisible());
+    }
+
+    /**
+     * Sjekker at hver nødvendig del av oppsettet kreves før innlogging kan starte.
+     *
+     * @param missingDependency delen av oppsettet som utelates
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "authentication", "successHandler", "navigation" })
+    void missingSetupIsRejectedBeforeLogin(String missingDependency) {
+        interact(() -> {
+            FXMLLoader loader = new FXMLLoader(App.class.getResource("Login.fxml"));
+            final Parent root;
+            try {
+                root = loader.load();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            LoginController controller = loader.getController();
+            if (!missingDependency.equals("authentication")) {
+                controller.setAuthenticationClient(authenticationClient);
+            }
+            if (!missingDependency.equals("successHandler")) {
+                controller.setLoginSuccessHandler(result -> userSession.signIn(
+                        result.token(), result.name(), result.email()));
+            }
+            if (!missingDependency.equals("navigation")) {
+                InMemoryReviewRepository repository = new InMemoryReviewRepository();
+                controller.setNavigation(new Navigation(new ReviewService(repository), repository));
+            }
+            stage.setScene(new Scene(root));
+        });
+        enterCredentials();
+
+        interact(() -> {
+            RuntimeException error = assertThrows(RuntimeException.class,
+                    () -> button("#loginButton").fire());
+            // FXML pakker feilen fra kontrolleren inn i refleksjonsunntak.
+            Throwable cause = error;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            assertInstanceOf(IllegalStateException.class, cause);
+            assertEquals("Innloggingen er ikke konfigurert.", cause.getMessage());
+        });
+        assertEquals(0, authenticationClient.loginCalls.get());
+        assertFalse(userSession.isLoggedIn());
     }
 
     @Test
