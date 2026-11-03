@@ -96,7 +96,7 @@ public final class UserService {
      * @throws IllegalArgumentException hvis det gamle passordet er feil, brukeren ikke finnes,
      *                                      eller det nye passordet er ugyldig
      */
-    public void changePassword(String email, String oldPassword, String newPassword) {
+    public synchronized void changePassword(String email, String oldPassword, String newPassword) {
         User user = login(email, oldPassword)
                 .orElseThrow(() -> new IllegalArgumentException("Det gamle passordet er feil."));
         userRepository.update(new User(user.getName(), user.getEmail(), newPassword));
@@ -113,7 +113,7 @@ public final class UserService {
      * @return brukeren med det nye navnet
      * @throws IllegalArgumentException hvis brukeren ikke finnes eller navnet er ugyldig
      */
-    public User changeName(String email, String newName) {
+    public synchronized User changeName(String email, String newName) {
         User user = findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Brukeren finnes ikke."));
         User renamed = new User(newName == null ? null : newName.strip(), user.getEmail(),

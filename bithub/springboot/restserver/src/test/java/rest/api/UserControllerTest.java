@@ -1,5 +1,7 @@
 package rest.api;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -31,6 +33,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import rest.auth.AuthenticationService;
 import rest.auth.TokenService;
+import rest.model.ChangeNameRequest;
 
 /**
  * Tester registrering, innlogging, passordbytte og egne anmeldelser med falske tjenester,
@@ -53,6 +56,9 @@ class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private UserController controller;
 
     @MockitoBean
     private UserService userService;
@@ -380,6 +386,7 @@ class UserControllerTest {
     @ValueSource(strings = {"ola@example.com", "OLA@EXAMPLE.COM"})
     void changeNameReturnsNewName(String email) throws Exception {
         when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
+        when(userService.findByEmail("ola@example.com")).thenReturn(Optional.of(ola()));
         when(userService.changeName("ola@example.com", "Ola Normann"))
                 .thenReturn(new User("Ola Normann", "ola@example.com", "Passord123"));
 
@@ -400,6 +407,7 @@ class UserControllerTest {
     @Test
     void changeNameReturnsBadRequestForInvalidName() throws Exception {
         when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
+        when(userService.findByEmail("ola@example.com")).thenReturn(Optional.of(ola()));
         when(userService.changeName("ola@example.com", "O"))
                 .thenThrow(new IllegalArgumentException("Navn må være mellom 3 og 30 tegn."));
 
@@ -440,5 +448,46 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.status").value(401));
 
         verifyNoInteractions(userService, reviewService);
+    }
+
+    /**
+     * Verifiserer at det gamle navnet forsøkes gjenopprettet hvis lagringen av anmeldelser feiler.
+     */
+    @Test
+    void changeNameRestoresOldNameWhenReviewsFail() {
+        when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
+        when(userService.findByEmail("ola@example.com")).thenReturn(Optional.of(ola()));
+        when(userService.changeName("ola@example.com", "Ola Normann"))
+                .thenReturn(new User("Ola Normann", "ola@example.com", "Passord123"));
+        when(reviewService.renameReviewer("ola@example.com", "Ola Normann"))
+                .thenThrow(new IllegalStateException("Lagring av anmeldelser feilet."));
+        IllegalStateException error = assertThrows(IllegalStateException.class,
+                () -> controller.changeName("ola@example.com",
+                        new ChangeNameRequest("Ola Normann"), "Bearer token-123"));
+        assertEquals("Lagring av anmeldelser feilet.", error.getMessage());
+        verify(userService).changeName("ola@example.com", "Ola Normann");
+        verify(userService).changeName("ola@example.com", "Ola Nordmann");
+    }
+
+    /**
+     * Verifiserer at opprinnelig feil beholdes hvis også gjenoppretting feiler.
+     */
+    @Test
+    void changeNamePreservesOriginalErrorWhenRollbackFails() {
+        when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
+        when(userService.findByEmail("ola@example.com")).thenReturn(Optional.of(ola()));
+        when(userService.changeName("ola@example.com", "Ola Normann"))
+                .thenReturn(new User("Ola Normann", "ola@example.com", "Passord123"));
+        when(userService.changeName("ola@example.com", "Ola Nordmann"))
+                .thenThrow(new IllegalStateException("Gjenoppretting feilet."));
+        when(reviewService.renameReviewer("ola@example.com", "Ola Normann"))
+                .thenThrow(new IllegalStateException("Lagring av anmeldelser feilet."));
+        IllegalStateException error = assertThrows(IllegalStateException.class,
+                () -> controller.changeName("ola@example.com",
+                        new ChangeNameRequest("Ola Normann"), "Bearer token-123"));
+        assertEquals("Lagring av anmeldelser feilet.", error.getMessage());
+        assertEquals(1, error.getSuppressed().length);
+        assertEquals("Gjenoppretting feilet.", error.getSuppressed()[0].getMessage());
+        verify(userService).changeName("ola@example.com", "Ola Nordmann");
     }
 }

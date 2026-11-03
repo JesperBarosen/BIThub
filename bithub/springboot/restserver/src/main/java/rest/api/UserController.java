@@ -44,9 +44,9 @@ public class UserController {
     /**
      * Oppretter kontrolleren med tjenestene fra Spring.
      *
-     * @param userService   tjenesten som registrerer og logger inn brukere
-     * @param reviewService tjenesten som henter anmeldelser
-     * @param tokenService  tjenesten som lager og slår opp innloggingstokener
+     * @param userService           tjenesten som registrerer og logger inn brukere
+     * @param reviewService         tjenesten som henter anmeldelser
+     * @param tokenService          tjenesten som lager og slår opp innloggingstokener
      * @param authenticationService felles kontroll av innlogging
      */
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2",
@@ -64,7 +64,7 @@ public class UserController {
      *
      * @param request navn, e-post og passord fra klienten
      * @return token, navn og e-post til den nye brukeren
-     * @throws IllegalArgumentException hvis opplysningene er ugyldige
+     * @throws IllegalArgumentException               hvis opplysningene er ugyldige
      * @throws core.exception.DuplicateEmailException hvis e-posten allerede er registrert
      */
     @PostMapping("/users")
@@ -104,13 +104,13 @@ public class UserController {
     /**
      * Bytter eget passord etter å ha kontrollert tokenet og det gamle passordet.
      *
-     * @param email e-postadressen til brukeren
-     * @param request det gamle og det nye passordet
+     * @param email         e-postadressen til brukeren
+     * @param request       det gamle og det nye passordet
      * @param authorization headeren med innloggingstokenet, eller null
-     * @throws NotLoggedInException hvis innloggingen mangler eller er ugyldig
-     * @throws ForbiddenException hvis e-posten i stien tilhører en annen bruker
-     * @throws IllegalArgumentException hvis det gamle passordet er feil,
-     *                                  brukeren ikke finnes eller det nye er ugyldig
+     * @throws NotLoggedInException     hvis innloggingen mangler eller er ugyldig
+     * @throws ForbiddenException       hvis e-posten i stien tilhører en annen bruker
+     * @throws IllegalArgumentException hvis det gamle passordet er feil, brukeren ikke finnes eller
+     *                                      det nye er ugyldig
      */
     @PutMapping("/users/{email}/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -121,20 +121,20 @@ public class UserController {
         if (!authenticatedEmail.equalsIgnoreCase(email.trim())) {
             throw new ForbiddenException();
         }
-        userService.changePassword(authenticatedEmail,
-                request.oldPassword(), request.newPassword());
+        userService.changePassword(authenticatedEmail, request.oldPassword(),
+                request.newPassword());
     }
 
     /**
-     * Endrer eget navn etter å ha kontrollert tokenet. Anmeldelsene brukeren eier, får også det
-     * nye navnet.
+     * Endrer eget navn etter å ha kontrollert tokenet. Anmeldelsene brukeren eier, får også det nye
+     * navnet.
      *
-     * @param email e-postadressen til brukeren
-     * @param request det nye navnet
+     * @param email         e-postadressen til brukeren
+     * @param request       det nye navnet
      * @param authorization headeren med innloggingstokenet, eller null
      * @return navnet slik det ble lagret
-     * @throws NotLoggedInException hvis innloggingen mangler eller er ugyldig
-     * @throws ForbiddenException hvis e-posten i stien tilhører en annen bruker
+     * @throws NotLoggedInException     hvis innloggingen mangler eller er ugyldig
+     * @throws ForbiddenException       hvis e-posten i stien tilhører en annen bruker
      * @throws IllegalArgumentException hvis navnet er ugyldig eller brukeren ikke finnes
      */
     @PutMapping("/users/{email}/name")
@@ -145,9 +145,22 @@ public class UserController {
         if (!authenticatedEmail.equalsIgnoreCase(email.trim())) {
             throw new ForbiddenException();
         }
-        User user = userService.changeName(authenticatedEmail, request.name());
-        reviewService.renameReviewer(user.getEmail(), user.getName());
-        return new NameResponse(user.getName());
+        synchronized (userService) {
+            User previous = userService.findByEmail(authenticatedEmail)
+                    .orElseThrow(() -> new IllegalArgumentException("Brukeren finnes ikke."));
+            User renamed = userService.changeName(authenticatedEmail, request.name());
+            try {
+                reviewService.renameReviewer(renamed.getEmail(), renamed.getName());
+            } catch (RuntimeException error) {
+                try {
+                    userService.changeName(authenticatedEmail, previous.getName());
+                } catch (RuntimeException rollbackError) {
+                    error.addSuppressed(rollbackError);
+                }
+                throw error;
+            }
+            return new NameResponse(renamed.getName());
+        }
     }
 
     /**
@@ -161,9 +174,8 @@ public class UserController {
     public List<OwnReviewResponse> getOwnReviews(
             @RequestHeader(name = "Authorization", required = false) String authorization) {
         String email = authenticationService.requireEmail(authorization);
-        return reviewService.findReviewsByOwner(email).stream()
-                .flatMap(course -> course.getReviews().stream()
-                        .map(review -> OwnReviewResponse.from(course, review)))
+        return reviewService.findReviewsByOwner(email).stream().flatMap(course -> course
+                .getReviews().stream().map(review -> OwnReviewResponse.from(course, review)))
                 .toList();
     }
 
