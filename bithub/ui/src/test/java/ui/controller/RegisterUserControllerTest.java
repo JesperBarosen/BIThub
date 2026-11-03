@@ -20,6 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
@@ -173,6 +174,30 @@ class RegisterUserControllerTest extends ApplicationTest {
         assertEquals("kari@ntnu.no", textField("#emailField").getText());
         assertEquals("Hemmelig123", passwordField("#passwordField").getText());
         assertFalse(button("#registerButton").isDisabled());
+    }
+
+    /**
+     * Sjekker at en avvisning uten brukbar melding gir generell feil og beholder skjemaet.
+     *
+     * @param message feilmeldingen fra tjenesten
+     * @throws Exception hvis ventingen på feilmeldingen feiler
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = { "   " })
+    void serverRejectionWithoutMessageKeepsForm(String message) throws Exception {
+        authenticationClient.registerError = new IllegalArgumentException(message);
+        fillValidForm();
+
+        interact(() -> button("#registerButton").fire());
+
+        awaitStatus("Kunne ikke fullføre registreringen. Prøv igjen senere.");
+        assertFalse(userSession.isLoggedIn());
+        assertEquals("Kari Nordmann", textField("#nameField").getText());
+        assertEquals("kari@ntnu.no", textField("#emailField").getText());
+        assertEquals("Hemmelig123", passwordField("#passwordField").getText());
+        assertFalse(button("#registerButton").isDisabled());
+        assertEquals(1, authenticationClient.registerCalls.get());
     }
 
     @Test
