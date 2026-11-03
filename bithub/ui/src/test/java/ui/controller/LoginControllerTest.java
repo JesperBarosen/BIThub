@@ -22,6 +22,9 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 import ui.App;
@@ -105,6 +108,29 @@ class LoginControllerTest extends ApplicationTest {
         assertEquals("kari@ntnu.no", emailField().getText());
         assertEquals("FeilPassord123", passwordField().getText());
         assertFalse(button("#loginButton").isDisabled());
+        assertEquals(1, authenticationClient.loginCalls.get());
+    }
+
+    /**
+     * Sjekker at avvisning uten brukbar melding beholder skjemaet og gir generell feil.
+     *
+     * @param message feilmeldingen fra tjenesten
+     * @throws Exception hvis ventingen på feilmeldingen feiler
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = { "   " })
+    void rejectionWithoutMessageKeepsLoginForm(String message) throws Exception {
+        authenticationClient.loginError = new IllegalArgumentException(message);
+        enterCredentials();
+
+        interact(() -> button("#loginButton").fire());
+
+        awaitStatus("Kunne ikke fullføre innloggingen. Prøv igjen senere.");
+        assertEquals("kari@ntnu.no", emailField().getText());
+        assertEquals("FeilPassord123", passwordField().getText());
+        assertFalse(button("#loginButton").isDisabled());
+        assertFalse(userSession.isLoggedIn());
         assertEquals(1, authenticationClient.loginCalls.get());
     }
 
