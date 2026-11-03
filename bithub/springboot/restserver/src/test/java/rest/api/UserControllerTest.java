@@ -46,6 +46,8 @@ class UserControllerTest {
     private static final String LOGIN_BODY =
             "{\"email\":\"Ola@example.com\",\"password\":\"Passord123\"}";
 
+    private static final String CHANGE_NAME_BODY = "{\"name\":\"Ola Normann\"}";
+
     private static final String CHANGE_PASSWORD_BODY =
             "{\"oldPassword\":\"Passord123\",\"newPassword\":\"NyttPassord123\"}";
 
@@ -365,5 +367,78 @@ class UserControllerTest {
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(reviewService);
+    }
+
+    /**
+     * Verifiserer at eget navn kan endres, at svaret inneholder navnet slik det ble lagret, og at
+     * anmeldelsene får det nye navnet.
+     *
+     * @param email e-post i stien, med ulike store og små bokstaver
+     * @throws Exception hvis forespørselen feiler
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"ola@example.com", "OLA@EXAMPLE.COM"})
+    void changeNameReturnsNewName(String email) throws Exception {
+        when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
+        when(userService.changeName("ola@example.com", "Ola Normann"))
+                .thenReturn(new User("Ola Normann", "ola@example.com", "Passord123"));
+
+        mockMvc.perform(put("/api/users/{email}/name", email)
+                .header("Authorization", "Bearer token-123")
+                .contentType(MediaType.APPLICATION_JSON).content(CHANGE_NAME_BODY))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Ola Normann"));
+
+        verify(reviewService).renameReviewer("ola@example.com", "Ola Normann");
+    }
+
+    /**
+     * Verifiserer at et ugyldig navn gir 400 med meldingen fra core, uten at anmeldelsene endres.
+     *
+     * @throws Exception hvis forespørselen feiler
+     */
+    @Test
+    void changeNameReturnsBadRequestForInvalidName() throws Exception {
+        when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
+        when(userService.changeName("ola@example.com", "O"))
+                .thenThrow(new IllegalArgumentException("Navn må være mellom 3 og 30 tegn."));
+
+        mockMvc.perform(put("/api/users/ola@example.com/name")
+                .header("Authorization", "Bearer token-123")
+                .contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"O\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Navn må være mellom 3 og 30 tegn."));
+
+        verifyNoInteractions(reviewService);
+    }
+
+    @Test
+    void changeNameRejectsAnotherUsersEmail() throws Exception {
+        when(tokenService.findEmail("token-123")).thenReturn(Optional.of("ola@example.com"));
+
+        mockMvc.perform(put("/api/users/kari@example.com/name")
+                .header("Authorization", "Bearer token-123")
+                .contentType(MediaType.APPLICATION_JSON).content(CHANGE_NAME_BODY))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value(403));
+
+        verifyNoInteractions(userService, reviewService);
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"Bearer ukjent-token", "token-123"})
+    void changeNameRequiresValidToken(String authorization) throws Exception {
+        var request = put("/api/users/ola@example.com/name")
+                .contentType(MediaType.APPLICATION_JSON).content(CHANGE_NAME_BODY);
+        if (authorization != null) {
+            request.header("Authorization", authorization);
+        }
+
+        mockMvc.perform(request)
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401));
+
+        verifyNoInteractions(userService, reviewService);
     }
 }

@@ -21,13 +21,16 @@ import rest.exception.ForbiddenException;
 import rest.exception.InvalidCredentialsException;
 import rest.exception.NotLoggedInException;
 import rest.model.AuthResponse;
+import rest.model.ChangeNameRequest;
 import rest.model.ChangePasswordRequest;
 import rest.model.LoginRequest;
+import rest.model.NameResponse;
 import rest.model.OwnReviewResponse;
 import rest.model.RegisterRequest;
 
 /**
- * Endepunkter for registrering, innlogging, utlogging, passordbytte og egne anmeldelser.
+ * Endepunkter for registrering, innlogging, utlogging, passordbytte, navnebytte og egne
+ * anmeldelser.
  */
 @RestController
 @RequestMapping("/api")
@@ -120,6 +123,31 @@ public class UserController {
         }
         userService.changePassword(authenticatedEmail,
                 request.oldPassword(), request.newPassword());
+    }
+
+    /**
+     * Endrer eget navn etter å ha kontrollert tokenet. Anmeldelsene brukeren eier, får også det
+     * nye navnet.
+     *
+     * @param email e-postadressen til brukeren
+     * @param request det nye navnet
+     * @param authorization headeren med innloggingstokenet, eller null
+     * @return navnet slik det ble lagret
+     * @throws NotLoggedInException hvis innloggingen mangler eller er ugyldig
+     * @throws ForbiddenException hvis e-posten i stien tilhører en annen bruker
+     * @throws IllegalArgumentException hvis navnet er ugyldig eller brukeren ikke finnes
+     */
+    @PutMapping("/users/{email}/name")
+    public NameResponse changeName(@PathVariable("email") String email,
+            @RequestBody ChangeNameRequest request,
+            @RequestHeader(name = "Authorization", required = false) String authorization) {
+        String authenticatedEmail = authenticationService.requireEmail(authorization);
+        if (!authenticatedEmail.equalsIgnoreCase(email.trim())) {
+            throw new ForbiddenException();
+        }
+        User user = userService.changeName(authenticatedEmail, request.name());
+        reviewService.renameReviewer(user.getEmail(), user.getName());
+        return new NameResponse(user.getName());
     }
 
     /**

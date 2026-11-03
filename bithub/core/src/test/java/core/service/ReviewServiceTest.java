@@ -37,6 +37,7 @@ class ReviewServiceTest {
 
     private final List<String> updatedIds = new ArrayList<>();
     private final List<String> deletedIds = new ArrayList<>();
+    private final List<String> renamedOwners = new ArrayList<>();
 
     /**
      * Om den falske lagringen finner anmeldelsen når den skal endres eller slettes. Settes til
@@ -81,6 +82,12 @@ class ReviewServiceTest {
         public boolean deleteReview(String reviewId) {
             deletedIds.add(reviewId);
             return storageFindsReview;
+        }
+
+        @Override
+        public int updateReviewerName(String ownerEmail, String reviewerName) {
+            renamedOwners.add(ownerEmail + " -> " + reviewerName);
+            return 2;
         }
     };
 
@@ -634,5 +641,48 @@ class ReviewServiceTest {
     private Review submitAsStudent(String rating, String comment) {
         return service.submitReview("IT1901", "Prosjektarbeid", "student@ntnu.no", "Student", false,
                 rating, comment);
+    }
+
+    @Test
+    void renameReviewerSendsTrimmedEmailAndNameToStorage() {
+        assertEquals(2, service.renameReviewer(" ola@example.com ", "Ola Nordmann"));
+        assertEquals(List.of("ola@example.com -> Ola Nordmann"), renamedOwners);
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = { " " })
+    void renameReviewerRequiresEmailAndName(String value) {
+        assertThrows(IllegalArgumentException.class,
+                () -> service.renameReviewer(value, "Ola Nordmann"));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.renameReviewer("ola@example.com", value));
+        assertTrue(renamedOwners.isEmpty());
+    }
+
+    @Test
+    void storageWithoutRenameSupportThrows() {
+        ReviewRepository readOnly = new ReviewRepository() {
+            @Override
+            public void addReview(String courseCode, String courseName, Review review) {
+            }
+
+            @Override
+            public Optional<Course> findCourse(String courseCode) {
+                return Optional.empty();
+            }
+
+            @Override
+            public List<Course> findAllCourses() {
+                return List.of();
+            }
+
+            @Override
+            public void addCoursesIfMissing(List<Course> courses) {
+            }
+        };
+
+        assertThrows(UnsupportedOperationException.class,
+                () -> new ReviewService(readOnly).renameReviewer("ola@example.com", "Ola"));
     }
 }
