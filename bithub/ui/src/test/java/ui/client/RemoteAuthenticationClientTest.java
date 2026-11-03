@@ -151,6 +151,20 @@ class RemoteAuthenticationClientTest {
         assertEquals("Ugyldig e-post.", error.getMessage());
     }
 
+    /**
+     * Sjekker at registreringen bruker en standardmelding hvis feilsvaret mangler melding.
+     */
+    @Test
+    void registerUsesFallbackWhenErrorMessageIsMissing() {
+        respond("/api/users", 400, "{\"status\":400}");
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).register("Kari", "kari@ntnu.no",
+                        "Hemmelig123"));
+
+        assertEquals("Serveren avviste forespørselen (status 400).", error.getMessage());
+    }
+
     @Test
     void serverErrorIsNotTreatedAsValidationError() {
         respond("/api/login", 500, "{\"message\":\"Intern feil\"}");
