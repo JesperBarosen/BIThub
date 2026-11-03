@@ -456,6 +456,27 @@ class ReviewHandlerTest {
     }
 
     /**
+     * Sjekker at en blank id erstattes og lagres, slik at anmeldelsen får samme id ved ny lesing.
+     */
+    @Test
+    void blankReviewIdIsReplacedAndSaved() {
+        Path file = tempDir.resolve("blank-review-id.json");
+        CourseDTO course = new CourseDTO("IT1901", "Prosjektarbeid");
+        course.getReviews()
+                .add(new ReviewDTO("   ", "ola@ntnu.no", "Ola", false, 4, "Bra fag"));
+        new ReviewHandler(file).writeToFile(List.of(course));
+
+        Review firstRead = new ReviewHandler(file).findCourse("IT1901").orElseThrow()
+                .getReviews().get(0);
+        Review secondRead = new ReviewHandler(file).findCourse("IT1901").orElseThrow()
+                .getReviews().get(0);
+
+        assertFalse(firstRead.getId().isBlank());
+        assertEquals(firstRead.getId(), secondRead.getId());
+        assertEquals("Bra fag", secondRead.getComment());
+    }
+
+    /**
      * Kontrollerer at oppdateringer som skjer samtidig fra flere ReviewHandler-instanser ikke fører
      * til at anmeldelser går tapt i JSON-filen.
      *
