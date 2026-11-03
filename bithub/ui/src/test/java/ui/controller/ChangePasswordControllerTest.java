@@ -20,6 +20,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 import ui.App;
@@ -62,6 +64,25 @@ class ChangePasswordControllerTest extends ApplicationTest {
     void emptyFieldsShowErrorWithoutContactingServer() {
         fill("Gammelt123", "", "");
         interact(() -> button("#changeButton").fire());
+
+        assertEquals("Fyll ut alle feltene.", statusLabel().getText());
+        assertEquals(0, authenticationClient.changePasswordCalls.get());
+    }
+
+    /**
+     * Sjekker at hvert passordfelt kreves, selv om de to andre feltene er fylt ut.
+     *
+     * @param fieldId feltet som tømmes
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "#oldPasswordField", "#newPasswordField", "#repeatPasswordField" })
+    void rejectsChangeWhenAnySinglePasswordFieldIsMissing(String fieldId) {
+        fill("Gammelt123", "Nytt12345", "Nytt12345");
+
+        interact(() -> {
+            passwordField(fieldId).clear();
+            button("#changeButton").fire();
+        });
 
         assertEquals("Fyll ut alle feltene.", statusLabel().getText());
         assertEquals(0, authenticationClient.changePasswordCalls.get());
