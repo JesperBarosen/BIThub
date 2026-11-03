@@ -1,4 +1,219 @@
-# Release 3
+# Dokumentasjon for release 3
+
+Denne filen forklarer hva vi har gjort i release 3, hvilke valg vi har tatt og hvordan man kan prøve appen med
+ferdige data. Noen temaer er beskrevet mer detaljert i egne filer.
+
+Tekniske dokumenter:
+
+- [rest-api.md](rest-api.md) – forespørslene REST-serveren støtter, med eksempler og statuskoder
+- [rest-tester.md](rest-tester.md) – testene for REST-serveren og REST-klienten
+- [pakkestruktur.md](pakkestruktur.md) – hvordan klassene er delt inn i pakker, og hvorfor
+- [persistence.md](persistence.md) – filformat, lagringsmodell og trygg lagring
+- [javafx.md](javafx.md) – hvordan JavaFX-appen gjør REST-kall i bakgrunnen
+- [code-quality.md](code-quality.md) – testing, JaCoCo, Checkstyle og SpotBugs
+
+Prosess og refleksjon:
+
+- [workflow.md](workflow.md) – issues, brancher, commit-meldinger, pull requests og code review
+- [teamwork.md](teamwork.md) – hvordan vi har planlagt og koordinert arbeidet
+- [contribution.md](contribution.md) – hva hvert medlem har bidratt med
+- [challenges.md](challenges.md) – de to største utfordringene i prosjektet
+- [sustainability.md](sustainability.md) – bærekraft i BIThub
+- [ai-tools.md](ai-tools.md) – bruk av KI-verktøy
+
+Arkitektur, byggeinstruksjoner og diagrammer finnes i [README](../../README.md). Beskrivelse av appen, skisser
+fra Figma og brukerhistorier finnes i [bithub/README.md](../../bithub/README.md).
+
+## Mål for release 3
+
+I release 3 var målet å dele appen i en REST-server og en JavaFX-klient (3.a), og å utvide JavaFX-appen med
+brukerkontoer og funksjonene fra brukerhistorie 4–7 (3.b). Samtidig ville vi holde kvaliteten fra release 2.
+
+- [x] **REST-API:** Kjernelogikken tilbys av en Spring Boot-server, og alle data går gjennom den.
+- [x] **Klienten bruker REST-API-et:** `ui` henter og lagrer alt gjennom serveren og er ikke lenger avhengig av `file`.
+- [x] **Ny funksjonalitet:** Brukerkontoer, gjestemodus, egne anmeldelser, profil og emnesøk.
+- [x] **Kodekvalitet:** Alle modulene har tester, og Checkstyle og SpotBugs kjører i bygget.
+- [x] **Ferdig produkt:** Serveren kan bygges som en kjørbar JAR-fil, og klienten kan pakkes med jlink og jpackage.
+- [x] **Dokumentasjon:** REST-API-et og arkitekturen er dokumentert, med pakke-, klasse- og sekvensdiagrammer.
+- [x] **Arbeidsvaner:** Alt arbeid starter i et issue, gjøres i egen branch og blir reviewet i en pull request.
+
+## Funksjonalitet i release 3
+
+| Funksjon | Hva brukeren kan gjøre | Issue |
+| --- | --- | --- |
+| Registrering og innlogging | Lage en konto med navn, e-post og passord, og logge inn | #174, #178 |
+| Gjestemodus | Fortsette uten konto og lese anmeldelser | #183 |
+| Emnesøk | Filtrere emnelisten på emnekode eller emnenavn mens man skriver | #182 |
+| Skrive anmeldelser | Skrive en anmeldelse med navn eller anonymt. Krever innlogging. | #176, #183 |
+| Mine anmeldelser | Se, endre og slette egne anmeldelser | #177, #181 |
+| Profil | Se navn og e-post, bytte passord og logge ut | #179 |
+| Vis passord | Vise passordet mens man skriver det | #215 |
+| Glemt passord | Lese hva man gjør hvis man har glemt passordet | #216 |
+| Infoside | Lese om appen, anonymitet og retningslinjer for anmeldelser | #217 |
+| Alle emner | Velge blant alle emnene i studieplanen | #221 |
+
+På profilsiden kan brukeren se navn og e-post, men bare endre passordet. Appen kan ikke tilbakestille passord,
+fordi det ville krevd at den sender e-post. Infosiden forklarer i stedet hva man gjør.
+
+I tillegg har vi forbedret det som fantes fra før: Lange emnenavn vises i hele i skjemaet (#199), søkefeltet har fått
+samme stil som resten av appen (#219), og profilknappen virker på alle sidene (#232).
+
+## Skjermbilder
+
+Bildene er tatt med [eksempeldataene](#eksempeldata) nederst i dokumentet. På sidene som krever innlogging, er
+brukeren Anna Hansen. Trykk på et bilde for å åpne det i full størrelse i mappen [bilder_release3](bilder_release3/).
+
+### Innlogging og hjemmeside
+
+<table>
+  <tr>
+    <td align="center">
+      <b>Logg inn</b><br>
+      <a href="bilder_release3/Login.png"><img src="bilder_release3/Login.png" alt="Logg inn" height="300"></a>
+    </td>
+    <td align="center">
+      <b>Registrer ny bruker</b><br>
+      <a href="bilder_release3/RegisterUser.png"><img src="bilder_release3/RegisterUser.png" alt="Registrer ny bruker" height="300"></a>
+    </td>
+    <td align="center">
+      <b>Hjemmeside for innlogget bruker</b><br>
+      <a href="bilder_release3/Home.png"><img src="bilder_release3/Home.png" alt="Hjemmeside for innlogget bruker" height="300"></a>
+    </td>
+    <td align="center">
+      <b>Hjemmeside for gjest</b><br>
+      <a href="bilder_release3/HomeGuest.png"><img src="bilder_release3/HomeGuest.png" alt="Hjemmeside for gjest" height="300"></a>
+    </td>
+  </tr>
+</table>
+
+### Emner og anmeldelser
+
+<table>
+  <tr>
+    <td align="center">
+      <b>Søk etter emne</b><br>
+      <a href="bilder_release3/CourseSelection.png"><img src="bilder_release3/CourseSelection.png" alt="Søk etter emne" height="300"></a>
+    </td>
+    <td align="center">
+      <b>Lese anmeldelser</b><br>
+      <a href="bilder_release3/ReadReviews.png"><img src="bilder_release3/ReadReviews.png" alt="Anmeldelser av TDT4100 med en anonym anmeldelse og en gjesteanmeldelse" height="300"></a>
+    </td>
+    <td align="center">
+      <b>Skrive anmeldelse</b><br>
+      <a href="bilder_release3/WriteReview.png"><img src="bilder_release3/WriteReview.png" alt="Skrive anmeldelse" height="300"></a>
+    </td>
+  </tr>
+</table>
+
+### Egne anmeldelser
+
+<table>
+  <tr>
+    <td align="center">
+      <b>Mine anmeldelser</b><br>
+      <a href="bilder_release3/MyReviews.png"><img src="bilder_release3/MyReviews.png" alt="Mine anmeldelser" height="300"></a>
+    </td>
+    <td align="center">
+      <b>Endre anmeldelse</b><br>
+      <a href="bilder_release3/EditReview.png"><img src="bilder_release3/EditReview.png" alt="Endre anmeldelse" height="300"></a>
+    </td>
+  </tr>
+</table>
+
+### Profil og informasjon
+
+<table>
+  <tr>
+    <td align="center">
+      <b>Profil</b><br>
+      <a href="bilder_release3/Profile.png"><img src="bilder_release3/Profile.png" alt="Profil" height="300"></a>
+    </td>
+    <td align="center">
+      <b>Bytte passord</b><br>
+      <a href="bilder_release3/ChangePassword.png"><img src="bilder_release3/ChangePassword.png" alt="Bytte passord" height="300"></a>
+    </td>
+    <td align="center">
+      <b>Info om appen</b><br>
+      <a href="bilder_release3/About.png"><img src="bilder_release3/About.png" alt="Info om appen" height="300"></a>
+    </td>
+  </tr>
+</table>
+
+## Arkitektur
+
+Appen består nå av fire moduler: `core`, `file`, `ui` og `springboot/restserver`. JavaFX-klienten sender
+forespørsler til serveren over HTTP, og serveren bruker tjenestene i `core` og lagringen i `file`. Modulene,
+diagrammene og hvordan klienten og serveren henger sammen, er beskrevet i [README](../../README.md#arkitektur).
+
+Dette er endret i arkitekturen siden release 2:
+
+- **Ny REST-server:** Modulen [`springboot/restserver`](../../bithub/springboot/restserver) tilbyr REST-API-et med
+  Spring Boot (#143, #151, #165). Forespørslene er beskrevet i [rest-api.md](rest-api.md).
+- **`ui` er ikke lenger avhengig av `file`:**
+  [`RemoteReviewRepository`](../../bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java) implementerer
+  `ReviewRepository` med HTTP-kall (#172). Klienten bruker derfor `ReviewService` fra `core` som før, og bare
+  serveren leser og skriver filene (#175).
+- **Pakker etter ansvar og engelske navn:** Klassene er delt inn i pakker etter hva de gjør (#204), og alle
+  klasser og filer i `ui` har engelske navn (#223). Inndelingen er beskrevet i [pakkestruktur.md](pakkestruktur.md).
+
+## Valg for release 3
+
+- **Spring Boot uten egne sikkerhetsbiblioteker:** Vi bruker en enkel tokenløsning. Serveren lager et tilfeldig
+  token ved innlogging og bestemmer alltid hvem brukeren er ut fra tokenet, aldri ut fra en e-post i forespørselen
+  (#176). Tokenene ligger bare i minnet, så alle må logge inn på nytt når serveren starter på nytt.
+- **Samme domenelogikk på begge sider:** `ReviewService` validerer anmeldelsen i klienten, slik at brukeren får
+  feilmeldingen med en gang. Serveren validerer den på nytt, fordi hvem som helst kan sende forespørsler direkte.
+- **REST-kall i bakgrunnen:** Alle kall til serveren går gjennom
+  [`BackgroundTaskRunner`](../../bithub/ui/src/main/java/ui/util/BackgroundTaskRunner.java), slik at appen ikke
+  fryser mens den venter på svar (#173). Mønsteret er beskrevet i [javafx.md](javafx.md).
+- **Søk uten nye REST-kall:** Emnelisten hentes én gang, og søket filtrerer den lokalt (#182).
+- **Fortsatt JSON-filer:** Vi lagrer fortsatt i JSON, men bare serveren leser og skriver filene. Lagringen er
+  beskyttet mot samtidige forespørsler (#149) og er beskrevet i [persistence.md](persistence.md).
+
+## Anonyme anmeldelser og gjesteanmeldelser
+
+En anonym anmeldelse og en gjesteanmeldelse vises begge uten navn, men de er ikke det samme. En anonym anmeldelse
+har en eier. En gjesteanmeldelse har ingen eier.
+
+| Type | Hvem skrev den | Vises som | Eier lagret | Kan endres og slettes av |
+| --- | --- | --- | --- | --- |
+| `USER` | En innlogget bruker | Navnet til brukeren | Ja | Eieren |
+| `ANONYMOUS` | En innlogget bruker som har valgt å være anonym | «Anonym» | Ja, men e-posten sendes aldri ut fra serveren | Eieren |
+| `GUEST` | En gjest i release 2, før innlogging ble påkrevd | «Gjest» | Nei, `ownerEmail` er `null` | Ingen |
+
+Typen avgjøres av [`AuthorType`](../../bithub/core/src/main/java/core/model/AuthorType.java). Fra #183 krever nye
+anmeldelser innlogging, så det blir ikke laget nye gjesteanmeldelser. De som finnes, er gamle anmeldelser fra
+release 2.
+
+## Tester og testdekning
+
+Alle de fire modulene har tester. Vi tester hvert lag for seg, og har i tillegg tester som starter hele serveren og
+sender ekte HTTP-forespørsler. REST-klienten i `ui` testes både mot en falsk server og mot den ekte serveren.
+Ingen av testene trenger at serveren startes på forhånd. Testene er beskrevet i [code-quality.md](code-quality.md)
+og [rest-tester.md](rest-tester.md).
+
+| Modul | Instruksjonsdekning | Grendekning |
+| --- | --- | --- |
+| core | __ % | __ % |
+| file | __ % | __ % |
+| ui | __ % | __ % |
+| springboot/restserver | __ % | __ % |
+
+Ved innlevering av release 3 gir `mvn clean verify` ingen Checkstyle-warnings og ingen SpotBugs-funn utover de
+dokumenterte unntakene i [code-quality.md](code-quality.md).
+
+## Arbeidsflyt og samarbeid
+
+Vi har fortsatt med samme arbeidsflyt som i release 2. Den er beskrevet i [workflow.md](workflow.md). Alt arbeid
+starter i et issue og gjøres i egen branch. Før en pull request henter vi inn siste versjon av `master` og kjører
+`mvn clean verify`, og minst to andre på gruppen ser over endringene før de blir merget.
+
+I release 2 sto `Co-authored-by` over issue-referansen i commit-meldingene, så GitHub viste ikke medforfatterne. I
+release 3 står linjen helt nederst, og parprogrammeringen vises på GitHub.
+
+Hvordan vi planla og fordelte arbeidet, står i [teamwork.md](teamwork.md), og hva hvert medlem har bidratt med, står
+i [contribution.md](contribution.md). De to største utfordringene vi hadde, er beskrevet i
+[challenges.md](challenges.md).
 
 ## Eksempeldata
 
@@ -11,7 +226,7 @@ anmeldelser først.
   id-er, eier og om anmeldelsen er anonym.
 - [users.json](eksempeldata/users.json): testbrukere med passordhash og salt.
 
-Eksempeldataene fra release 2 ligger fortsatt i `docs/release2/eksempeldata/`.
+Eksempeldataene fra release 2 ligger fortsatt i [docs/release2/eksempeldata/](../release2/eksempeldata/).
 
 | Emne | Anmeldelser |
 | --- | --- |
