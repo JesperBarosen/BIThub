@@ -3,10 +3,10 @@
 ## Planlegging
 
 Release 3 har vært den største releasen i prosjektet, og vi delte den
-derfor inn i tre sprinter. Før vi begynte, lagde vi en `issues_oversikt.md
-med mål for releasen og en oversikt over hver sprint. Hver sprint hadde
-en tidsfrist på ca. to uker. Tidsfristene sikret at arbeidet ble fordelt
-over flere uker i stedet for å samles mot slutten.
+derfor inn i tre sprinter. Før vi begynte, lagde vi et felles planleggingsdokument
+med mål for releasen og en oversikt over hver sprint. Sprintene hadde en tidsfrist på
+ca. to uker. Tidsfristene sikret at arbeidet ble fordelt over flere uker i stedet for
+å samles mot slutten.
 
 ## Koordinering
 
