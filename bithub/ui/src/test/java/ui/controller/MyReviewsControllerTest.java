@@ -195,6 +195,40 @@ class MyReviewsControllerTest extends ApplicationTest {
     }
 
     /**
+     * Sjekker at en mislykket sletting beholder anmeldelsen og lar brukeren prøve igjen.
+     *
+     * @throws Exception hvis statusmeldingen ikke vises innen tidsgrensen
+     */
+    @Test
+    void networkFailureKeepsReviewAndAllowsDeleteRetry() throws Exception {
+        repository.addReview("IT1901", "Informatikk prosjektarbeid I",
+                new Review("id-1", OWNER, "Ola Nordmann", false, 5, "Bra"));
+        loadReviews();
+        interact(() -> controller.setReviewService(
+                new ReviewService(new FailingReviewRepository())));
+
+        interact(() -> firstCardButton("#deleteButton").fire());
+        awaitStatus("Kunne ikke slette anmeldelsen. Prøv igjen senere.");
+
+        assertEquals(Color.RED, label("#statusLabel").getTextFill());
+        assertEquals("1", label("#countLabel").getText());
+        assertEquals(1, reviewList().getItems().size());
+        assertEquals("id-1", reviewList().getItems().get(0).review().getId());
+        assertTrue(repository.findReview("id-1").isPresent());
+
+        interact(() -> {
+            controller.setReviewService(reviewService);
+            firstCardButton("#deleteButton").fire();
+        });
+        awaitStatus("Anmeldelsen ble slettet.");
+
+        assertEquals(2, questions.size());
+        assertEquals("0", label("#countLabel").getText());
+        assertTrue(reviewList().getItems().isEmpty());
+        assertTrue(repository.findReview("id-1").isEmpty());
+    }
+
+    /**
      * Verifiserer at en anmeldelse som allerede er borte, fjernes fra lista med en melding.
      */
     @Test
@@ -315,6 +349,11 @@ class MyReviewsControllerTest extends ApplicationTest {
 
         @Override
         public void addCoursesIfMissing(List<Course> courses) {
+        }
+
+        @Override
+        public boolean deleteReview(String reviewId) {
+            throw new UncheckedIOException(new IOException("Serveren svarer ikke."));
         }
     }
 }
