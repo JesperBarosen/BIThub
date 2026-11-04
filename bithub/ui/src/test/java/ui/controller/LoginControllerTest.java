@@ -225,6 +225,38 @@ class LoginControllerTest extends ApplicationTest {
         assertEquals(1, authenticationClient.loginCalls.get());
     }
 
+    /**
+     * Sjekker at et ekstra Enter-signal ikke starter en ny innlogging mens første kall venter.
+     *
+     * @throws Exception hvis bakgrunnskallet ikke starter eller hjemmesiden ikke åpnes
+     */
+    @Test
+    void repeatedLoginWhileRunningSendsOnlyOneRequest() throws Exception {
+        CountDownLatch started = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        authenticationClient.requestStarted = started;
+        authenticationClient.releaseRequest = release;
+        enterCredentials();
+
+        try {
+            interact(() -> button("#loginButton").fire());
+            assertTrue(started.await(5, TimeUnit.SECONDS));
+
+            interact(() -> {
+                // Simulerer et Enter-signal som var på vei da feltet ble deaktivert.
+                passwordField().getOnAction().handle(new ActionEvent());
+                assertTrue(button("#loginButton").isDisabled());
+                assertEquals(1, authenticationClient.loginCalls.get());
+            });
+        } finally {
+            release.countDown();
+        }
+
+        awaitHome();
+        assertEquals(1, authenticationClient.loginCalls.get());
+        assertTrue(userSession.isLoggedIn());
+    }
+
     @Test
     void showPasswordShowsAndHidesPasswordWithoutLosingText() {
         interact(() -> passwordField().setText("Hemmelig123"));
