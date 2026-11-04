@@ -14,6 +14,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -289,6 +290,38 @@ class RegisterUserControllerTest extends ApplicationTest {
 
         awaitHome();
         assertEquals(1, authenticationClient.registerCalls.get());
+    }
+
+    /**
+     * Sjekker at et ekstra Enter-signal ikke starter en ny registrering mens første kall venter.
+     *
+     * @throws Exception hvis bakgrunnskallet ikke starter eller hjemmesiden ikke åpnes
+     */
+    @Test
+    void repeatedRegistrationWhileRunningSendsOnlyOneRequest() throws Exception {
+        CountDownLatch started = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        authenticationClient.requestStarted = started;
+        authenticationClient.releaseRequest = release;
+        fillValidForm();
+
+        try {
+            interact(() -> button("#registerButton").fire());
+            assertTrue(started.await(5, TimeUnit.SECONDS));
+
+            interact(() -> {
+                // Simulerer et Enter-signal som var på vei da feltet ble deaktivert.
+                passwordField("#repeatPasswordField").getOnAction().handle(new ActionEvent());
+                assertTrue(button("#registerButton").isDisabled());
+                assertEquals(1, authenticationClient.registerCalls.get());
+            });
+        } finally {
+            release.countDown();
+        }
+
+        awaitHome();
+        assertEquals(1, authenticationClient.registerCalls.get());
+        assertTrue(userSession.isLoggedIn());
     }
 
     @Test
