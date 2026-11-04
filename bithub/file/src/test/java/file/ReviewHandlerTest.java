@@ -379,8 +379,8 @@ class ReviewHandlerTest {
     }
 
     /**
-     * Verifiserer at en fil med emnelisten fra før får de nye standardemnene, at alle emnene
-     * hentes sortert på emnekode, og at anmeldelser og navn som finnes fra før, beholdes.
+     * Verifiserer at en fil med emnelisten fra før får de nye standardemnene, at alle emnene hentes
+     * sortert på emnekode, og at anmeldelser og navn som finnes fra før, beholdes.
      */
     @Test
     void newDefaultCoursesAreAddedSortedToExistingFile() {
@@ -706,5 +706,52 @@ class ReviewHandlerTest {
             start.countDown();
             executor.shutdownNow();
         }
+    }
+
+    /**
+     * Verifiserer at alle anmeldelsene til eieren får nytt navn, også de anonyme, uten at andre
+     * anmeldelser eller gjesteanmeldelser endres.
+     */
+    @Test
+    void updateReviewerNameRenamesOnlyOwnersReviews() {
+        Path file = tempDir.resolve("courses.json");
+        ReviewHandler handler = new ReviewHandler(file);
+        handler.addReview("IT1901", "Prosjektarbeid",
+                new Review("r1", "ola@example.com", "Ola", false, 4, "Bra"));
+        handler.addReview("TDT4100", "Objektorientert programmering",
+                new Review("r2", "OLA@example.com", "Ola", true, 3, "Grei"));
+        handler.addReview("IT1901", "Prosjektarbeid",
+                new Review("r3", "kari@example.com", "Kari", false, 5, "Topp"));
+        handler.addReview("IT1901", "Prosjektarbeid", new Review("r4", null, "Ola", false, 2, ""));
+
+        assertEquals(2, handler.updateReviewerName("ola@example.com", "Ola Nordmann"));
+
+        ReviewHandler reread = new ReviewHandler(file);
+        Review own = reread.findReview("r1").orElseThrow();
+        Review anonymous = reread.findReview("r2").orElseThrow();
+        assertEquals("Ola Nordmann", own.getDisplayName());
+        assertEquals("Ola Nordmann", anonymous.getReviewerName());
+        assertEquals("Anonym", anonymous.getDisplayName());
+        assertEquals("Kari", reread.findReview("r3").orElseThrow().getReviewerName());
+        assertEquals("Ola", reread.findReview("r4").orElseThrow().getReviewerName());
+    }
+
+    /**
+     * Verifiserer at filen ikke endres når brukeren ikke har anmeldelser eller verdiene mangler.
+     *
+     * @throws IOException hvis filen ikke kan leses
+     */
+    @Test
+    void updateReviewerNameWithoutMatchesLeavesFileUnchanged() throws IOException {
+        Path file = tempDir.resolve("courses.json");
+        ReviewHandler handler = new ReviewHandler(file);
+        handler.addReview("IT1901", "Prosjektarbeid",
+                new Review("r1", "kari@example.com", "Kari", false, 5, "Topp"));
+        final String before = Files.readString(file);
+
+        assertEquals(0, handler.updateReviewerName("ola@example.com", "Ola Nordmann"));
+        assertEquals(0, handler.updateReviewerName(null, "Ola Nordmann"));
+        assertEquals(0, handler.updateReviewerName("kari@example.com", " "));
+        assertEquals(before, Files.readString(file));
     }
 }

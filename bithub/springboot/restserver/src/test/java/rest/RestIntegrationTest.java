@@ -618,4 +618,54 @@ class RestIntegrationTest {
 
         assertEquals(4, savedReview(id).getRating());
     }
+
+    /**
+     * Verifiserer at et nytt navn lagres for brukeren og på anmeldelsene brukeren har skrevet, at
+     * anonyme anmeldelser fortsatt vises som «Anonym», og at innloggingen viser det nye navnet.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void changedNameIsSavedOnUserAndOwnReviews() throws Exception {
+        String token = register("Navn Nordmann", "rename@example.com");
+        String named = createReview(token,
+                "{\"rating\":4,\"comment\":\"Bra\",\"anonymous\":false}");
+        final String anonymous = createReview(token,
+                "{\"rating\":3,\"comment\":\"Grei\",\"anonymous\":true}");
+
+        HttpResponse<String> changed = put("/api/users/rename@example.com/name",
+                "{\"name\":\"  Nytt Navn  \"}", token);
+        assertEquals(200, changed.statusCode());
+        assertEquals("Nytt Navn", MAPPER.readTree(changed.body()).get("name").asText());
+
+        assertEquals("Nytt Navn", savedReview(named).getDisplayName());
+        assertEquals("Nytt Navn", savedReview(anonymous).getReviewerName());
+        assertEquals("Anonym", savedReview(anonymous).getDisplayName());
+
+        String login = "{\"email\":\"rename@example.com\",\"password\":\"Passord123\"}";
+        HttpResponse<String> loggedIn = post("/api/login", login);
+        assertEquals("Nytt Navn", MAPPER.readTree(loggedIn.body()).get("name").asText());
+    }
+
+    /**
+     * Verifiserer at et ugyldig navn og en annen brukers e-post avvises uten at navnet endres.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void invalidOrForeignNameChangeIsRejected() throws Exception {
+        String token = register("Bruker C", "user-c@example.com");
+        register("Bruker D", "user-d@example.com");
+
+        assertEquals(400,
+                put("/api/users/user-c@example.com/name", "{\"name\":\"C1\"}", token)
+                        .statusCode());
+        assertEquals(403,
+                put("/api/users/user-d@example.com/name", "{\"name\":\"Ny Bruker\"}", token)
+                        .statusCode());
+
+        String login = "{\"email\":\"user-d@example.com\",\"password\":\"Passord123\"}";
+        assertEquals("Bruker D",
+                MAPPER.readTree(post("/api/login", login).body()).get("name").asText());
+    }
 }
