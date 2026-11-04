@@ -3,6 +3,7 @@ package ui.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -32,6 +33,22 @@ class BackgroundTaskRunnerTest extends ApplicationTest {
     @AfterEach
     void tearDown() {
         interact(() -> runner.cancel());
+    }
+
+    @Test
+    void rejectsControlFromOutsideFxThread() {
+        AtomicBoolean operationStarted = new AtomicBoolean();
+        assertFalse(Platform.isFxApplicationThread());
+
+        IllegalStateException error = assertThrows(IllegalStateException.class,
+                () -> runner.execute(() -> {
+                    operationStarted.set(true);
+                    return "Ferdig";
+                }, value -> {}, failure -> {}));
+        assertEquals("Bakgrunnskall må styres fra JavaFX-tråden.", error.getMessage());
+        assertThrows(IllegalStateException.class, runner::cancel);
+        assertFalse(operationStarted.get());
+        interact(() -> assertFalse(runner.runningProperty().get()));
     }
 
     @Test

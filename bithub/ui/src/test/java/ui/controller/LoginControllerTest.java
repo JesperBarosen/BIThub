@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,6 +19,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -68,10 +70,18 @@ class LoginControllerTest extends ApplicationTest {
         stage.show();
     }
 
-    @Test
-    void showsErrorWhenRequiredFieldsAreMissing() {
+    /**
+     * Sjekker hvert påkrevd felt separat uten å kontakte serveren.
+     *
+     * @param fieldId feltet som tømmes
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "#emailField", "#passwordField" })
+    void showsErrorWhenRequiredFieldsAreMissing(String fieldId) {
         interact(() -> {
             emailField().setText("kari@ntnu.no");
+            passwordField().setText("Hemmelig123");
+            ((TextField) stage.getScene().getRoot().lookup(fieldId)).clear();
             button("#loginButton").fire();
         });
 
@@ -122,6 +132,35 @@ class LoginControllerTest extends ApplicationTest {
             }
             assertInstanceOf(IllegalStateException.class, cause);
             assertEquals("Innloggingen er ikke konfigurert.", cause.getMessage());
+        });
+        assertEquals(0, authenticationClient.loginCalls.get());
+        assertFalse(userSession.isLoggedIn());
+    }
+
+    /**
+     * Sjekker at navigasjon fra en ufullstendig oppsatt skjerm gir en tydelig feil.
+     *
+     * @param controlId knappen eller lenken som aktiveres
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "#registerButton", "#guestButton", "#aboutLink" })
+    void navigationActionsRequireSetup(String controlId) {
+        interact(() -> {
+            FXMLLoader loader = new FXMLLoader(App.class.getResource("Login.fxml"));
+            try {
+                stage.setScene(new Scene(loader.load()));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            ButtonBase control = (ButtonBase) stage.getScene().getRoot().lookup(controlId);
+            RuntimeException error = assertThrows(RuntimeException.class, control::fire);
+            Throwable cause = error;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            assertInstanceOf(IllegalStateException.class, cause);
+            assertEquals("Navigasjonen er ikke konfigurert.", cause.getMessage());
+            assertSame(stage.getScene(), control.getScene());
         });
         assertEquals(0, authenticationClient.loginCalls.get());
         assertFalse(userSession.isLoggedIn());

@@ -18,6 +18,9 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Tester autentiseringsklienten mot en lokal falsk HTTP-server.
@@ -229,6 +232,85 @@ class RemoteAuthenticationClientTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new RemoteAuthenticationClient("localhost:8080"));
         assertNotNull(new RemoteAuthenticationClient(serverUrl()));
+    }
+
+    /**
+     * Sjekker adresser uten støttet protokoll eller vertsnavn.
+     *
+     * @param address ugyldig serveradresse
+     */
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = { "", "ftp://localhost:8080", "http:/api" })
+    void rejectsInvalidServerAddresses(String address) {
+        assertThrows(IllegalArgumentException.class,
+                () -> new RemoteAuthenticationClient(address));
+        assertNull(receivedMethod);
+    }
+
+    @Test
+    void supportsHttpsAddressAndTrailingSlash() {
+        assertNotNull(new RemoteAuthenticationClient("https://localhost:8080/"));
+        respond("/api/login", 200, SUCCESS_RESPONSE);
+
+        AuthenticationResult result = new RemoteAuthenticationClient(" " + serverUrl() + "/ ")
+                .login("kari@ntnu.no", "Hemmelig123");
+
+        assertEquals("/api/login", receivedPath);
+        assertEquals("test-token", result.token());
+    }
+
+    /**
+     * Sjekker at feil datatype og tom tekst i obligatoriske svarfelt avvises.
+     *
+     * @param value ugyldig JSON-verdi for tokenet
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "null", "42", "\"   \"" })
+    void rejectsInvalidTokenInSuccessResponse(String value) {
+        respond("/api/login", 200,
+                "{\"token\":" + value + ",\"name\":\"Kari\",\"email\":\"kari@ntnu.no\"}");
+
+        UncheckedIOException error = assertThrows(UncheckedIOException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).login("kari@ntnu.no",
+                        "Hemmelig123"));
+
+        assertEquals("Svaret fra serveren mangler gyldig token.", error.getCause().getMessage());
+    }
+
+    /**
+     * Sjekker standardmeldingen når serveren ikke sender en brukbar feilmelding.
+     *
+     * @param body feilsvaret fra serveren
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "", "ikke-json", "{\"message\":42}", "{\"message\":\" \"}" })
+    void unusableErrorResponseUsesFallback(String body) {
+        respond("/api/users", 400, body);
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).register("Kari", "kari@ntnu.no",
+                        "Hemmelig123"));
+
+        assertEquals("Serveren avviste forespørselen (status 400).", error.getMessage());
+    }
+
+    /**
+     * Sjekker manglende e-post ved beskyttede kall uten å sende noen forespørsel.
+     *
+     * @param email manglende e-postadresse
+     */
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = { "", "   " })
+    void passwordAndNameChangesRequireEmail(String email) {
+        RemoteAuthenticationClient client = new RemoteAuthenticationClient(serverUrl());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> client.changePassword("test-token", email, "Gammelt123", "Nytt12345"));
+        assertThrows(IllegalArgumentException.class,
+                () -> client.changeName("test-token", email, "Kari"));
+        assertNull(receivedMethod);
     }
 
     @Test

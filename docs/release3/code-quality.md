@@ -61,6 +61,38 @@ Vi har ikke satt en fast minimumsgrense for testdekning. En fast grense kan før
 
 Høy testdekning er ikke et mål i seg selv. Testene skal først og fremst sjekke forventet oppførsel, grenseverdier og relevante feilsituasjoner. Når testene dekker dette for alle klassene, blir god testdekning en naturlig følge.
 
+### Målt dekning i release 3
+
+Tallene under er hentet fra JaCoCo etter en full kjøring av `mvn clean verify`
+5. november 2026. Alle 633 tester bestod, uten feil eller tester som ble hoppet over.
+Checkstyle og SpotBugs hadde ingen funn etter kontrollen av endringene.
+
+| Modul | Instruksjonsdekning | Linjedekning | Branch-dekning | Tester |
+| --- | --- | --- | --- | --- |
+| `core` | 98,8 % | 98,4 % | 100,0 % | 169 |
+| `file` | 98,9 % | 99,0 % | 96,0 % | 72 |
+| `ui` | 95,5 % | 95,0 % | 90,2 % | 264 |
+| `springboot/restserver` | 98,7 % | 98,7 % | 100,0 % | 128 |
+
+Instruksjonsdekning viser hvor mange av instruksjonene i den kompilerte koden som
+kjøres av testene. Linjedekning måler kildelinjer, mens branch-dekning måler
+alternative utfall i betingelser, for eksempel begge veier i en `if`-setning.
+Tallene gjelder hver modul samlet, ikke hver enkelt klasse.
+
+I #206 brukte vi rapportene til å prioritere manglende feilsituasjoner og
+kodeveier. Vi la blant annet til tester for hvert tomme felt separat i innlogging,
+registrering og passordbytte, manglende kontrolleroppsett, tomme feilmeldinger og
+gjentatte handlinger mens
+serverkall pågår. Vi testet også at mislykket endring eller sletting beholder
+brukerens data, og at REST-klientene håndterer ugyldige eller mangelfulle svar.
+Målet for denne gjennomgangen var over 90 % branch-dekning i alle fire moduler.
+Vi endret ikke appkoden eller utelot kode fra rapportene for å nå målet.
+
+Det er fortsatt enkelte udekkede greiner, blant annet i visning av listeceller,
+navigasjon og kontrollernes håndtering av ufullstendig oppsett. Disse vurderes
+videre når funksjonaliteten endres. Nye tall må hentes fra en full testkjøring;
+en kjøring av bare utvalgte tester er ikke et sammenlignbart mål for hele modulen.
+
 ## Checkstyle
 
 Checkstyle sjekker at Java-koden følger en felles kodestil. Det gjør koden lettere å lese, og kode skrevet av forskjellige gruppemedlemmer følger de samme reglene.
