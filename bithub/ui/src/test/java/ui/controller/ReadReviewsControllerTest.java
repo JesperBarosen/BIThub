@@ -245,25 +245,32 @@ class ReadReviewsControllerTest extends ApplicationTest {
     }
 
     /**
-     * Verifiserer at en anmeldelse vises med navn, vurdering og kommentar, og at kommentaren
+     * Verifiserer at en anmeldelse vises med navn, stjerner og kommentar, og at kommentaren
      * utelates når den er tom.
      */
     @Test
     void reviewCardShowsNameRatingAndComment() {
-        assertEquals(List.of("OLA", "VURDERING: 4/5", "KOMMENTAR:", "Bra fag"), labelTexts(
-                ReadReviewsController.createReviewCard(new Review("Ola", 4, "Bra fag"))));
-        assertEquals(List.of("ANONYM", "VURDERING: 2/5"), labelTexts(
-                ReadReviewsController.createReviewCard(new Review("Anonym", 2, ""))));
+        VBox withComment = ReadReviewsController.createReviewCard(new Review("Ola", 4, "Bra fag"));
+        assertEquals(List.of("OLA", "KOMMENTAR:", "Bra fag"), labelTexts(withComment));
+        assertEquals(4.0, ((Rating) withComment.getChildren().get(1)).getRating());
+
+        VBox withoutComment = ReadReviewsController.createReviewCard(new Review("Anonym", 2, ""));
+        assertEquals(List.of("ANONYM"), labelTexts(withoutComment));
+        assertEquals(2.0, ((Rating) withoutComment.getChildren().get(1)).getRating());
     }
 
     /**
-     * Henter teksten fra hver etikett i kortet, i samme rekkefølge som de vises.
+     * Henter teksten fra hver etikett i kortet, i samme rekkefølge som de vises. Stjernene er
+     * ikke en etikett og hoppes over.
      *
      * @param card kortet som skal leses
      * @return teksten i etikettene, ovenfra og ned
      */
     private static List<String> labelTexts(VBox card) {
-        return card.getChildren().stream().map(node -> ((Label) node).getText()).toList();
+        return card.getChildren().stream()
+                .filter(Label.class::isInstance)
+                .map(node -> ((Label) node).getText())
+                .toList();
     }
 
     /**

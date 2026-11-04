@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import org.controlsfx.control.Rating;
 import ui.Navigation;
 import ui.util.BackgroundTaskRunner;
+import ui.util.RatingStars;
 
 /**
  * Kontroller for siden som viser anmeldelsene og gjennomsnittlig vurdering for et valgt emne.
@@ -153,9 +154,7 @@ public class ReadReviewsController {
         Label name = new Label(review.getReviewerName().toUpperCase(Locale.ROOT));
         name.getStyleClass().add("anmeldelse-navn");
 
-        Label rating = new Label("VURDERING: " + review.getRating() + "/5");
-
-        VBox card = new VBox(4, name, rating);
+        VBox card = new VBox(4, name, RatingStars.readOnly(review.getRating()));
         card.getStyleClass().add("anmeldelse-kort");
 
         String comment = review.getComment();
