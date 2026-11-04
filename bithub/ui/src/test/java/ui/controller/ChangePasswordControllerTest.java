@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -258,6 +259,40 @@ class ChangePasswordControllerTest extends ApplicationTest {
 
         awaitStatus("Passordet er endret.");
         assertEquals(1, authenticationClient.changePasswordCalls.get());
+    }
+
+    /**
+     * Sjekker at en ekstra handling ikke sender et nytt passordbytte mens første kall venter.
+     *
+     * @throws Exception hvis bakgrunnskallet ikke starter eller svaret ikke vises
+     */
+    @Test
+    void repeatedPasswordChangeWhileRunningSendsOnlyOneRequest() throws Exception {
+        CountDownLatch started = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        authenticationClient.requestStarted = started;
+        authenticationClient.releaseRequest = release;
+        fill("Gammelt123", "Nytt12345", "Nytt12345");
+
+        try {
+            interact(() -> button("#changeButton").fire());
+            assertTrue(started.await(5, TimeUnit.SECONDS));
+
+            interact(() -> {
+                // Simulerer en handling som var på vei da knappen ble deaktivert.
+                button("#changeButton").getOnAction().handle(new ActionEvent());
+                assertTrue(button("#changeButton").isDisabled());
+                assertEquals(1, authenticationClient.changePasswordCalls.get());
+            });
+        } finally {
+            release.countDown();
+        }
+
+        awaitStatus("Passordet er endret.");
+        assertEquals(1, authenticationClient.changePasswordCalls.get());
+        assertEquals("", passwordField("#oldPasswordField").getText());
+        assertEquals("", passwordField("#newPasswordField").getText());
+        assertEquals("", passwordField("#repeatPasswordField").getText());
     }
 
     @Test
