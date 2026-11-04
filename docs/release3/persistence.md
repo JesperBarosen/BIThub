@@ -10,7 +10,8 @@ Dokumentet bygger på [persistence.md fra release 2](../release2/persistence.md)
 - All lesing og skriving er beskyttet mot samtidige oppdateringer og skrivefeil (#149).
 - [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) implementerer [`UserRepository`](../../bithub/core/src/main/java/core/repository/UserRepository.java) og kobles til [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) på REST-serveren (#155).
 - Anmeldelser kan endres og slettes, og begge operasjonene er beskyttet mot samtidige oppdateringer (#177).
-- Lesing og skriving flyttes til REST-serveren i release 3.
+- JavaFX-appen leser og skriver ikke filene selv lenger. Den henter og lagrer alt gjennom REST-serveren med [`RemoteReviewRepository`](../../bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java) (#172), og `ui` er ikke avhengig av `file` (#175). Bare serveren leser og skriver filene.
+- Serveren legger til standardemnene som mangler, når den starter (#221).
 
 ## 1. Filformat
 
@@ -25,7 +26,9 @@ Som standard lagres dataene i mappen `.bithub` i hjemmemappen til brukeren som k
 
 Filene leses og skrives bare av modulen `file`. `core` kjenner bare grensesnittene [`ReviewRepository`](../../bithub/core/src/main/java/core/repository/ReviewRepository.java) og [`UserRepository`](../../bithub/core/src/main/java/core/repository/UserRepository.java), så lagringen kan byttes ut uten å endre `core`.
 
-På REST-serveren oppretter [`RestApplication`](../../bithub/springboot/restserver/src/main/java/rest/RestApplication.java) en [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) som [`UserRepository`](../../bithub/core/src/main/java/core/repository/UserRepository.java) og gir den til [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) gjennom Spring-beans. Standardfilen for brukere er `.bithub/users.json` i hjemmemappen til brukeren som kjører serveren. Filstien kan overstyres med Spring-innstillingen `bithub.users-file`, for eksempel for å bruke en egen testfil.
+På REST-serveren oppretter [`RestApplication`](../../bithub/springboot/restserver/src/main/java/rest/RestApplication.java) en [`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) og en [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java), og gir dem til [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) og [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) gjennom Spring-beans. Filstiene kan overstyres med Spring-innstillingene `bithub.reviews-file` og `bithub.users-file`, for eksempel for å bruke egne testfiler.
+
+Når serveren starter, legger den til standardemnene fra [`DefaultCourses`](../../bithub/core/src/main/java/core/service/DefaultCourses.java) som mangler i `courses.json` (#221). Emner og anmeldelser som finnes fra før, beholdes.
 
 ### 1.1 Emner og anmeldelser (`courses.json`)
 
@@ -79,8 +82,6 @@ Ut fra `ownerEmail` og `anonymous` får anmeldelsen typen [`USER`](../../bithub/
 ]
 ```
 
-**Filer fra release 2:** anmeldelsene der har bare `reviewerName`, `rating` og `comment`. Når [`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) leser en slik fil, får anmeldelser uten id en ny id, og filen lagres med en gang. De har ingen eier, så de blir gjesteanmeldelser. Fra #183 krever nye anmeldelser innlogging, så bare slike gamle anmeldelser er uten eier.
-
 ### 1.2 Brukere (`users.json`)
 
 Hver bruker ([`UserDTO`](../../bithub/file/src/main/java/file/dto/UserDTO.java)) har navn (`name`), e-post (`email`), passordhash (`passwordHash`) og salt (`salt`). Passordet lagres aldri i klartekst. Når en bruker lages, lages et tilfeldig salt på 16 byte, og passordet hashes med PBKDF2 (`PBKDF2WithHmacSHA256`) til 32 byte. Hash og salt lagres som Base64. Ved innlogging hashes passordet på nytt med samme salt og sammenlignes med den lagrede hashen.
@@ -120,9 +121,7 @@ Vi bruker fortsatt **implisitt lagring**, slik vi begrunnet i release 2. Appen e
 - **Skriving:** Når brukeren trykker «SEND INN», lagres anmeldelsen uten at brukeren blir spurt om filnavn.
 - **Brukere:** Registrering gjennom [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) lagrer brukeren i `users.json`, og innlogging leser brukerdata fra samme fil.
 
-I release 3 flytter vi lesing og skriving til REST-serveren. Serverkoblingen mellom [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) og [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) er på plass i #155. REST-endepunkter for registrering, innlogging og passordbytte er nå på plass i #174.
-
-Når JavaFX-appen er koblet til serveren, sender den forespørsler, og serveren bruker [`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) og [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java). For brukeren er lagringen fortsatt implisitt.
+I release 3 er lesing og skriving flyttet til REST-serveren. JavaFX-appen sender forespørsler, og serveren bruker [`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) og [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) til å lese og skrive filene. For brukeren er lagringen fortsatt implisitt.
 
 ### 2.3 Begrensninger
 
@@ -161,7 +160,7 @@ Kan en fil ikke leses på grunn av en I/O-feil, kastes `UncheckedIOException` (#
 
 ### 3.3 Begrensning: én serverprosess
 
-Låsene finnes bare i minnet til én Java-prosess. Kjører to prosesser mot samme fil samtidig, for eksempel to REST-servere, eller REST-serveren og en JavaFX-app som skriver direkte til filen, er de ikke beskyttet mot hverandre.
+Låsene finnes bare i minnet til én Java-prosess. Kjører to prosesser mot samme fil samtidig, for eksempel to REST-servere, er de ikke beskyttet mot hverandre. JavaFX-appen kan ikke skrive til filene, fordi `ui` ikke er avhengig av `file`.
 
 Vi kjører derfor bare én REST-server. Når JavaFX-appen henter og lagrer data gjennom REST-serveren, er det bare serveren som skriver til filene. Skal flere prosesser dele dataene senere, må vi bytte til en database eller en fil-lås på tvers av prosesser.
 
