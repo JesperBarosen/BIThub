@@ -17,9 +17,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.controlsfx.control.Rating;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
@@ -75,7 +75,7 @@ class EditReviewControllerTest extends ApplicationTest {
     @Test
     void formIsFilledWithReview() {
         assertEquals("IT1901 - Informatikk prosjektarbeid I", label("#courseTitleLabel").getText());
-        assertEquals("4", ratingField().getText());
+        assertEquals(4.0, ratingStars().getRating());
         assertEquals("Bra fag", commentArea().getText());
         assertFalse(anonymousCheckBox().isSelected());
         assertEquals(review, controller.getReview());
@@ -88,7 +88,7 @@ class EditReviewControllerTest extends ApplicationTest {
     @Test
     void savesChangeAndShowsMyReviews() throws Exception {
         interact(() -> {
-            ratingField().setText("2");
+            ratingStars().setRating(2);
             commentArea().setText("  Mye arbeid  ");
             anonymousCheckBox().setSelected(true);
             button("#saveButton").fire();
@@ -106,20 +106,19 @@ class EditReviewControllerTest extends ApplicationTest {
     }
 
     /**
-     * Verifiserer at en ugyldig vurdering gir en feilmelding, og at skjemaet og anmeldelsen
-     * beholdes.
+     * Verifiserer at lagring uten valgt stjerne gir en feilmelding, og at skjemaet og
+     * anmeldelsen beholdes.
      */
     @Test
-    void invalidRatingShowsErrorAndKeepsForm() throws Exception {
+    void missingRatingShowsErrorAndKeepsForm() throws Exception {
         interact(() -> {
-            ratingField().setText("9");
+            ratingStars().setRating(0);
             commentArea().setText("Ny kommentar");
             button("#saveButton").fire();
         });
 
-        awaitStatus("Vurdering må være et tall fra 1 til 5.");
+        awaitStatus("Velg en vurdering ved å trykke på stjernene.");
         assertEquals(Color.RED, label("#statusLabel").getTextFill());
-        assertEquals("9", ratingField().getText());
         assertEquals("Ny kommentar", commentArea().getText());
         assertEquals(4, repository.findReview("id-1").orElseThrow().getRating());
     }
@@ -143,7 +142,7 @@ class EditReviewControllerTest extends ApplicationTest {
     @Test
     void backOpensMyReviewsAndHomeOpensHomePage() {
         interact(() -> {
-            ratingField().setText("1");
+            ratingStars().setRating(1);
             button("#backButton").fire();
         });
         assertNotNull(stage.getScene().getRoot().lookup("#reviewList"));
@@ -176,8 +175,8 @@ class EditReviewControllerTest extends ApplicationTest {
         return (Button) stage.getScene().getRoot().lookup(selector);
     }
 
-    private TextField ratingField() {
-        return (TextField) stage.getScene().getRoot().lookup("#ratingField");
+    private Rating ratingStars() {
+        return (Rating) stage.getScene().getRoot().lookup("#ratingStars");
     }
 
     private TextArea commentArea() {
