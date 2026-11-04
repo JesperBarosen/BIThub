@@ -1,27 +1,37 @@
-@startuml klassediagramCore
+@startuml
+!pragma layout smetana
 
-package core {
+title Klassediagram for core
 
+package core.model {
     class Course {
         - courseCode: String
         - courseName: String
         - reviews: List<Review>
-        + Course(courseCode: String, courseName: String)
-        + String getCourseCode()
-        + String getCourseName()
-        + void addReview(review: Review)
-        + List<Review> getReviews()
-        + double getAverageRating()
+        + getCourseCode(): String
+        + getCourseName(): String
+        + addReview(review: Review)
+        + getReviews(): List<Review>
+        + getAverageRating(): double
     }
 
     class Review {
+        - id: String {readOnly}
+        - ownerEmail: String {readOnly}
         - reviewerName: String {readOnly}
+        - anonymous: boolean {readOnly}
         - rating: int {readOnly}
         - comment: String {readOnly}
-        + Review(reviewerName: String, rating: int, comment: String)
-        + String getReviewerName()
-        + int getRating()
-        + String getComment()
+        + getAuthorType(): AuthorType
+        + getDisplayName(): String
+        + getRating(): int
+        + getComment(): String
+    }
+
+    enum AuthorType {
+        USER
+        ANONYMOUS
+        GUEST
     }
 
     class User {
@@ -29,49 +39,85 @@ package core {
         - email: String {readOnly}
         - passwordHash: String {readOnly}
         - salt: String {readOnly}
-        + User(name: String, email: String, password: String)
-        + User(name: String, email: String, passwordHash: String, salt: String)
-        + String getName()
-        + String getEmail()
-        + String getPasswordHash()
-        + String getSalt()
-        + boolean verifyPassword(password: String)
+        + getName(): String
+        + getEmail(): String
+        + verifyPassword(password: String): boolean
+    }
+}
+
+package core.service {
+    class ReviewService {
+        + submitReview(courseCode, courseName, owner: User, anonymous, ratingText, comment): Review
+        + getAllCourses(): List<Course>
+        + getCourseWithReviews(course: Course): Course
+        + findReviewsByOwner(ownerEmail: String): List<Course>
+        + updateReview(reviewId, ownerEmail, ratingText, comment, anonymous): Review
+        + deleteReview(reviewId: String, ownerEmail: String)
+    }
+
+    class UserService {
+        + register(name, email, password): User
+        + login(email, password): Optional<User>
+        + findByEmail(email: String): Optional<User>
+        + changePassword(email, oldPassword, newPassword)
     }
 
     class PasswordHasher {
-        - {static} ITERATIONS: int
-        - {static} HASH_LENGTH: int
-        - {static} SALT_LENGTH: int
-        + {static} String generateSalt()
-        + {static} String hashPassword(password: String, salt: String)
-        + {static} boolean verifyPassword(password: String, salt: String, expectedHash: String)
+        + {static} generateSalt(): String
+        + {static} hashPassword(password, salt): String
+        + {static} verifyPassword(password, salt, expectedHash): boolean
     }
 
-    interface ReviewRepository {
-        + void addReview(courseCode: String, courseName: String, review: Review)
-        + Optional<Course> findCourse(courseCode: String)
+    class DefaultCourses {
+        + {static} all(): List<Course>
     }
-
-    class ReviewService {
-        - reviewRepository: ReviewRepository {readOnly}
-        + ReviewService(reviewRepository: ReviewRepository)
-        + void submitReview(courseCode: String, courseName: String, reviewerName: String, ratingText: String, comment: String)
-        + Course getCourseWithReviews(course: Course)
-        - {static} int parseRating(ratingText: String)
-    }
-
-    User ..> PasswordHasher : hashing og verifisering
-    Course --> "reviews: *" Review
-    ReviewService --> "reviewRepository: 1" ReviewRepository
-    ReviewService ..> Course : henter via ReviewRepository.findCourse(String)
-    ReviewService ..> Review : oppretter i submitReview(...)
-    ReviewRepository ..> Course
-    ReviewRepository ..> Review
 }
 
+package core.repository {
+    interface ReviewRepository {
+        + addReview(courseCode, courseName, review: Review)
+        + findCourse(courseCode: String): Optional<Course>
+        + findAllCourses(): List<Course>
+        + addCoursesIfMissing(courses: List<Course>)
+        + updateReview(reviewId, rating, comment, anonymous): boolean
+        + deleteReview(reviewId: String): boolean
+    }
+
+    interface UserRepository {
+        + save(user: User)
+        + findByEmail(email: String): Optional<User>
+        + update(user: User)
+    }
+}
+
+package core.exception {
+    class ReviewNotFoundException
+    class NotReviewOwnerException
+    class DuplicateEmailException
+}
+
+Course "1" o-- "*" Review : reviews
+Review ..> AuthorType
+User ..> PasswordHasher : hasher og sjekker passord
+
+ReviewService --> "1" ReviewRepository : reviewRepository
+UserService --> "1" UserRepository : userRepository
+ReviewService ..> ReviewNotFoundException : kaster
+ReviewService ..> NotReviewOwnerException : kaster
+UserRepository ..> DuplicateEmailException : save kaster
+DefaultCourses ..> Course
+
+ReviewRepository ..> Course
+ReviewRepository ..> Review
+UserRepository ..> User
+
 note bottom of ReviewRepository
-  Implementeres av ReviewHandler i file-modulen,
-  så core ikke er avhengig av hvordan data lagres.
+  Implementeres av ReviewHandler i file (på serveren)
+  og RemoteReviewRepository i ui (i klienten).
+end note
+
+note bottom of UserRepository
+  Implementeres av UserHandler i file.
 end note
 
 @enduml
