@@ -71,7 +71,7 @@ class NewNavigationTest extends ApplicationTest {
         ComboBox<Course> courseComboBox = (ComboBox<Course>) stage.getScene().getRoot()
                 .lookup("#courseComboBox");
         assertNotNull(courseComboBox);
-        assertEquals(5, courseComboBox.getItems().size());
+        assertEquals(DefaultCourses.all().size(), courseComboBox.getItems().size());
 
         interact(() -> {
             courseComboBox.getSelectionModel().select(4);

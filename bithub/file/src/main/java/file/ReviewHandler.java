@@ -13,6 +13,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -155,13 +156,14 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
     }
 
     /**
-     * Henter alle emnene i JSON-filen, også de uten anmeldelser.
+     * Henter alle emnene i JSON-filen, også de uten anmeldelser, sortert på emnekode.
      *
-     * @return alle lagrede emner, eller en tom liste hvis filen mangler
+     * @return alle lagrede emner sortert på emnekode, eller en tom liste hvis filen mangler
      */
     @Override
     public List<Course> findAllCourses() {
-        return readFromFile().stream().map(ReviewHandler::toCourse).toList();
+        return readFromFile().stream().map(ReviewHandler::toCourse)
+                .sorted(Comparator.comparing(course -> course.getCourseCode())).toList();
     }
 
     /**
@@ -265,6 +267,37 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
                 storage.write(courses);
             }
             return removed;
+        });
+    }
+
+    /**
+     * Gir alle anmeldelsene brukeren eier, det nye navnet. Hele lesingen, endringen og skrivingen
+     * skjer med skrivelås, og filen skrives bare hvis minst én anmeldelse ble endret.
+     *
+     * @param ownerEmail   e-posten til eieren, store og små bokstaver skilles ikke
+     * @param reviewerName det nye navnet
+     * @return antall anmeldelser som fikk nytt navn
+     */
+    @Override
+    public int updateReviewerName(String ownerEmail, String reviewerName) {
+        if (ownerEmail == null || reviewerName == null || reviewerName.isBlank()) {
+            return 0;
+        }
+        return storage.update(() -> {
+            List<CourseDTO> courses = readFromFile();
+            int changed = 0;
+            for (CourseDTO course : courses) {
+                for (ReviewDTO review : course.getReviews()) {
+                    if (ownerEmail.equalsIgnoreCase(review.getOwnerEmail())) {
+                        review.setReviewerName(reviewerName);
+                        changed++;
+                    }
+                }
+            }
+            if (changed > 0) {
+                storage.write(courses);
+            }
+            return changed;
         });
     }
 

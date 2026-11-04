@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import core.service.ReviewService;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.fxml.FXMLLoader;
@@ -72,6 +73,127 @@ class ProfileControllerTest extends ApplicationTest {
         assertFalse(textField("#emailField").isEditable());
         assertFalse(button("#changePasswordButton").isDisabled());
         assertEquals("LOGG UT", button("#logoutButton").getText());
+        assertTrue(button("#changeNameButton").isVisible());
+        assertFalse(button("#saveNameButton").isVisible());
+        assertFalse(button("#cancelNameButton").isVisible());
+    }
+
+    @Test
+    void changeNameMakesNameFieldEditableWithSaveAndCancel() {
+        interact(() -> button("#changeNameButton").fire());
+
+        assertTrue(textField("#nameField").isEditable());
+        assertFalse(button("#changeNameButton").isVisible());
+        assertTrue(button("#saveNameButton").isVisible());
+        assertTrue(button("#cancelNameButton").isVisible());
+    }
+
+    @Test
+    void savingNameUpdatesServerAndSession() throws Exception {
+        interact(() -> {
+            button("#changeNameButton").fire();
+            textField("#nameField").setText("  Kari Normann ");
+            button("#saveNameButton").fire();
+        });
+        awaitStatus("Navnet er endret.");
+
+        assertEquals(1, authenticationClient.changeNameCalls.get());
+        assertEquals("test-token", authenticationClient.receivedToken);
+        assertEquals("kari@stud.ntnu.no", authenticationClient.receivedEmail);
+        assertEquals("Kari Normann", authenticationClient.receivedName);
+        assertEquals("Kari Normann", userSession.getName());
+        assertEquals("Kari Normann", textField("#nameField").getText());
+        assertFalse(textField("#nameField").isEditable());
+        assertTrue(button("#changeNameButton").isVisible());
+        assertEquals("test-token", userSession.getToken());
+    }
+
+    @Test
+    void cancelRestoresNameWithoutCallingServer() {
+        interact(() -> {
+            button("#changeNameButton").fire();
+            textField("#nameField").setText("Noe Annet");
+            button("#cancelNameButton").fire();
+        });
+
+        assertEquals("Kari Nordmann", textField("#nameField").getText());
+        assertFalse(textField("#nameField").isEditable());
+        assertEquals(0, authenticationClient.changeNameCalls.get());
+        assertEquals("Kari Nordmann", userSession.getName());
+    }
+
+    @Test
+    void emptyOrUnchangedNameIsNotSentToServer() {
+        interact(() -> {
+            button("#changeNameButton").fire();
+            textField("#nameField").setText("   ");
+            button("#saveNameButton").fire();
+        });
+        assertEquals("Navnet kan ikke være tomt.", statusLabel().getText());
+        assertTrue(textField("#nameField").isEditable());
+
+        interact(() -> {
+            textField("#nameField").setText("Kari Nordmann");
+            button("#saveNameButton").fire();
+        });
+        assertFalse(textField("#nameField").isEditable());
+        assertEquals(0, authenticationClient.changeNameCalls.get());
+    }
+
+    @Test
+    void rejectedNameShowsMessageAndKeepsOldName() throws Exception {
+        authenticationClient.error =
+                new IllegalArgumentException("Navn må være mellom 3 og 30 tegn.");
+
+        interact(() -> {
+            button("#changeNameButton").fire();
+            textField("#nameField").setText("Ka");
+            button("#saveNameButton").fire();
+        });
+        awaitStatus("Navn må være mellom 3 og 30 tegn.");
+
+        assertEquals("Kari Nordmann", userSession.getName());
+        assertTrue(textField("#nameField").isEditable());
+        assertEquals("Ka", textField("#nameField").getText());
+    }
+
+    @Test
+    void serverErrorShowsGeneralMessage() throws Exception {
+        authenticationClient.error = new UncheckedIOException(
+                new IOException("Ingen kontakt med serveren."));
+
+        interact(() -> {
+            button("#changeNameButton").fire();
+            textField("#nameField").setText("Kari Normann");
+            button("#saveNameButton").fire();
+        });
+        awaitStatus("Kunne ikke lagre navnet. Prøv igjen senere.");
+
+        assertEquals("Kari Nordmann", userSession.getName());
+    }
+
+    @Test
+    void buttonsAreDisabledWhileNameIsSaved() throws Exception {
+        authenticationClient.requestStarted = new CountDownLatch(1);
+        authenticationClient.releaseRequest = new CountDownLatch(1);
+
+        interact(() -> {
+            button("#changeNameButton").fire();
+            textField("#nameField").setText("Kari Normann");
+            button("#saveNameButton").fire();
+        });
+        assertTrue(authenticationClient.requestStarted.await(5, TimeUnit.SECONDS));
+
+        WaitForAsyncUtils.waitForFxEvents();
+        assertTrue(button("#saveNameButton").isDisabled());
+        assertTrue(button("#cancelNameButton").isDisabled());
+        assertTrue(button("#logoutButton").isDisabled());
+        assertTrue(button("#changePasswordButton").isDisabled());
+        assertFalse(textField("#nameField").isEditable());
+
+        authenticationClient.releaseRequest.countDown();
+        awaitStatus("Navnet er endret.");
+        assertFalse(button("#logoutButton").isDisabled());
     }
 
     @Test
@@ -116,6 +238,7 @@ class ProfileControllerTest extends ApplicationTest {
         assertEquals("", textField("#nameField").getText());
         assertEquals("Du er ikke logget inn.", statusLabel().getText());
         assertTrue(button("#changePasswordButton").isDisabled());
+        assertTrue(button("#changeNameButton").isDisabled());
         assertEquals("LOGG INN", button("#logoutButton").getText());
 
         interact(() -> button("#logoutButton").fire());
@@ -141,6 +264,15 @@ class ProfileControllerTest extends ApplicationTest {
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
                 () -> WaitForAsyncUtils.asyncFx(
                         () -> stage.getScene().getRoot().lookup("#loginButton") != null)
+                        .get(5, TimeUnit.SECONDS));
+    }
+
+    /**
+     * Venter til statusfeltet viser den forventede meldingen.
+     */
+    private void awaitStatus(String expected) throws Exception {
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
+                () -> WaitForAsyncUtils.asyncFx(() -> expected.equals(statusLabel().getText()))
                         .get(5, TimeUnit.SECONDS));
     }
 

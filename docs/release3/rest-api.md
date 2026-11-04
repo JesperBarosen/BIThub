@@ -24,6 +24,7 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 | POST | `/api/login` | Logge inn | Nei | Ferdig (#174) |
 | POST | `/api/logout` | Logge ut | Ja | Ferdig (#176), brukes av klienten (#179) |
 | PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll (#176), brukes av klienten (#179) |
+| PUT | `/api/users/{email}/name` | Endre eget navn | Ja | Ferdig og brukes av klienten (#236) |
 | GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174), brukes av klienten (#181) |
 
 ## Innlogging og token
@@ -275,6 +276,35 @@ Svar `204`.
 
 Feil: `400` hvis det nye passordet er ugyldig eller det gamle er feil, `401` hvis tokenet
 mangler, er ugyldig eller er logget ut, `403` hvis e-posten tilhører en annen bruker.
+
+### PUT `/api/users/{email}/name`
+
+Endrer eget navn og krever `Authorization: Bearer <token>`. Tilgangskontrollen er den samme
+som ved passordbytte: serveren finner brukeren fra tokenet og kontrollerer at e-posten i stien
+tilhører samme bruker før navnet endres. Mellomrom rundt navnet fjernes, og navnet valideres
+med de samme reglene som ved registrering. E-posten kan ikke endres.
+
+Alle anmeldelsene brukeren eier, får det nye navnet. Anonyme anmeldelser vises fortsatt som
+«Anonym», men får det nye navnet hvis brukeren senere gjør dem synlige.
+
+Forespørsel:
+
+```json
+{
+  "name": "Kari Normann"
+}
+```
+
+Svar `200` med navnet slik det ble lagret:
+
+```json
+{
+  "name": "Kari Normann"
+}
+```
+
+Feil: `400` hvis navnet er ugyldig, `401` hvis tokenet mangler, er ugyldig eller er logget ut,
+`403` hvis e-posten tilhører en annen bruker.
 
 ### GET `/api/me/reviews`
 

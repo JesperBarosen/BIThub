@@ -14,7 +14,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 /**
- * Registrerer, logger inn, bytter passord og logger ut brukere ved hjelp av REST- serveren.
+ * Registrerer, logger inn, bytter passord og navn og logger ut brukere ved hjelp av
+ * REST-serveren.
  *
  * <p>Klassen håndterer HTTP og JSON, men lagrer ikke token eller passord. Metodene skal kalles fra
  * en bakgrunnstråd, ikke fra JavaFX-tråden.
@@ -114,9 +115,7 @@ public final class RemoteAuthenticationClient implements AuthenticationClient {
         body.put("oldPassword", oldPassword);
         body.put("newPassword", newPassword);
 
-        String encodedEmail = URLEncoder.encode(email.strip(), StandardCharsets.UTF_8).replace("+",
-                "%20");
-        HttpRequest request = authorizedRequest("/api/users/" + encodedEmail + "/password", token)
+        HttpRequest request = authorizedRequest(userPath(email, "password"), token)
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(body.toString(), StandardCharsets.UTF_8))
                 .build();
@@ -132,6 +131,50 @@ public final class RemoteAuthenticationClient implements AuthenticationClient {
         if (status == 401) {
             throw new IllegalArgumentException(
                     "Du er ikke lenger logget inn. Logg inn på nytt for å bytte passord.");
+        }
+        throw new UncheckedIOException(
+                new IOException("Serveren svarte med status " + status + "."));
+    }
+
+    /**
+     * Endrer navn med {@code PUT /api/users/{email}/name}. Serveren sjekker at tokenet tilhører
+     * brukeren og validerer navnet.
+     *
+     * @param token tokenet fra innloggingen
+     * @param email e-postadressen til brukeren som er innlogget
+     * @param name  det nye navnet
+     * @return navnet slik serveren lagret det
+     * @throws IllegalArgumentException kastes hvis tokenet eller e-posten mangler, hvis serveren
+     *                                      avviser navnet (400), tilgangen (403) eller
+     *                                      innloggingen (401)
+     * @throws UncheckedIOException     kastes hvis serveren ikke svarer, svarer med en annen feil
+     *                                      eller svaret mangler navnet
+     */
+    @Override
+    public String changeName(String token, String email, String name) {
+        requireToken(token);
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("E-postadressen mangler.");
+        }
+        ObjectNode body = objectMapper.createObjectNode();
+        body.put("name", name);
+
+        HttpRequest request = authorizedRequest(userPath(email, "name"), token)
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(body.toString(), StandardCharsets.UTF_8))
+                .build();
+
+        HttpResponse<String> response = send(request);
+        int status = response.statusCode();
+        if (status == 200) {
+            return requiredText(readJson(response.body()), "name");
+        }
+        if (status == 400 || status == 403) {
+            throw new IllegalArgumentException(errorMessage(response));
+        }
+        if (status == 401) {
+            throw new IllegalArgumentException(
+                    "Du er ikke lenger logget inn. Logg inn på nytt for å endre navn.");
         }
         throw new UncheckedIOException(
                 new IOException("Serveren svarte med status " + status + "."));
@@ -169,6 +212,16 @@ public final class RemoteAuthenticationClient implements AuthenticationClient {
         return HttpRequest.newBuilder(URI.create(baseUrl + path)).timeout(REQUEST_TIMEOUT)
                 .header("Accept", "application/json")
                 .header("Authorization", "Bearer " + token.strip());
+    }
+
+    /**
+     * Lager stien til en del av brukeren, for eksempel {@code /api/users/{email}/name}, med
+     * e-posten kodet for bruk i en URL.
+     */
+    private static String userPath(String email, String part) {
+        String encodedEmail = URLEncoder.encode(email.strip(), StandardCharsets.UTF_8)
+                .replace("+", "%20");
+        return "/api/users/" + encodedEmail + "/" + part;
     }
 
     /**

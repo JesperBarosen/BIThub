@@ -11,7 +11,7 @@
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
    prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21"
-   xmlns:fx="http://javafx.com/fxml/1">
+   xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controller.AboutController">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar"
          stylesheets="@Style.css">
@@ -132,7 +132,7 @@
                            </font>
                         </Label>
                         <Label
-                           text="BIThub er laget slik at den er enkel å bruke for alle. Etter at du har registrert deg og logget inn, kommer du til hjem-skjermen. Her har du tre valg: «Les anmeldelser», «Skriv anmeldelse» og «Mine anmeldelser». Velger du «Les anmeldelser», kommer du til en skjerm der du velger hvilket fag du vil se anmeldelser av. Når du har valgt fag, ser du den gjennomsnittlige vurderingen og alle anmeldelsene andre studenter har skrevet. Velger du «Skriv anmeldelse», velger du først fag, og deretter kan du skrive din egen anmeldelse med en vurdering fra 1 til 5 og en kommentar før du sender den inn. Under «Mine anmeldelser» kan du se, redigere og slette anmeldelsene du har skrevet. Ved å trykke på profilsymbolet øverst til høyre kommer du til profilsiden. Der ser du navnet og e-posten din, og du kan endre passord eller logge ut. Navn og e-post kan ikke endres. &#10;&#10;Vil du bare lese, kan du trykke «Fortsett som gjest» på innloggingsskjermen. Som gjest kan du lese alle anmeldelsene, men du må logge inn for å skrive en anmeldelse. Du kan logge inn eller registrere deg fra hjem-skjermen når som helst."
+                           text="BIThub er laget slik at den er enkel å bruke for alle. Etter at du har registrert deg og logget inn, kommer du til hjem-skjermen. Her har du tre valg: «Les anmeldelser», «Skriv anmeldelse» og «Mine anmeldelser». Velger du «Les anmeldelser», kommer du til en skjerm der du velger hvilket fag du vil se anmeldelser av. Når du har valgt fag, ser du den gjennomsnittlige vurderingen og alle anmeldelsene andre studenter har skrevet. Velger du «Skriv anmeldelse», velger du først fag, og deretter kan du skrive din egen anmeldelse med en vurdering fra 1 til 5 og en kommentar før du sender den inn. Under «Mine anmeldelser» kan du se, redigere og slette anmeldelsene du har skrevet. Ved å trykke på profilsymbolet øverst til høyre kommer du til profilsiden. Der ser du navnet og e-posten din, og du kan endre navn, endre passord eller logge ut. Når du endrer navnet, vises det nye navnet også på anmeldelsene du har skrevet med navn. E-posten kan ikke endres. &#10;&#10;Vil du bare lese, kan du trykke «Fortsett som gjest» på innloggingsskjermen. Som gjest kan du lese alle anmeldelsene, men du må logge inn for å skrive en anmeldelse. Du kan logge inn eller registrere deg fra hjem-skjermen når som helst."
                            wrapText="true" />
                         <Label text="3. Glemt passord">
                            <font>
@@ -183,8 +183,8 @@
             </ScrollPane>
             <HBox prefHeight="22.0" prefWidth="380.0">
                <children>
-                  <Button mnemonicParsing="false" styleClass="profil-knapper"
-                     stylesheets="@Style.css" text="TILBAKE" />
+                  <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack"
+                     styleClass="profil-knapper" stylesheets="@Style.css" text="TILBAKE" />
                </children>
             </HBox>
          </children>

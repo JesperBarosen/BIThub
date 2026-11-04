@@ -115,4 +115,18 @@ public interface ReviewRepository {
         throw new UnsupportedOperationException(
                 "Denne lagringen støtter ikke sletting av anmeldelser.");
     }
+
+    /**
+     * Gir alle anmeldelsene en bruker eier, det nye navnet, for eksempel etter at brukeren har
+     * endret navnet sitt. Anonyme anmeldelser får også det nye navnet, men vises fortsatt som
+     * «Anonym». Lagringer som ikke støtter dette, kaster {@link UnsupportedOperationException}.
+     *
+     * @param ownerEmail   e-posten til eieren, store og små bokstaver skilles ikke
+     * @param reviewerName det nye navnet
+     * @return antall anmeldelser som fikk nytt navn
+     */
+    default int updateReviewerName(String ownerEmail, String reviewerName) {
+        throw new UnsupportedOperationException(
+                "Denne lagringen støtter ikke endring av navn på anmeldelser.");
+    }
 }

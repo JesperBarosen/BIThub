@@ -233,6 +233,25 @@ public final class ReviewService {
     }
 
     /**
+     * Gir alle anmeldelsene brukeren eier, det nye navnet. Kalles på serveren etter at brukeren har
+     * endret navnet sitt.
+     *
+     * @param ownerEmail   e-posten til brukeren, hentet fra tokenet på serveren
+     * @param reviewerName det nye navnet, som allerede er validert av {@link UserService}
+     * @return antall anmeldelser som fikk nytt navn
+     * @throws IllegalArgumentException hvis e-posten eller navnet mangler
+     */
+    public int renameReviewer(String ownerEmail, String reviewerName) {
+        if (ownerEmail == null || ownerEmail.isBlank()) {
+            throw new IllegalArgumentException("E-posten kan ikke være tom.");
+        }
+        if (reviewerName == null || reviewerName.isBlank()) {
+            throw new IllegalArgumentException("Navnet kan ikke være tomt.");
+        }
+        return reviewRepository.updateReviewerName(ownerEmail.trim(), reviewerName);
+    }
+
+    /**
      * Henter anmeldelsen og sjekker at den tilhører brukeren. Gjesteanmeldelser har ingen eier, og
      * kan derfor ikke endres av noen.
      *

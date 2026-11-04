@@ -88,6 +88,22 @@ public final class UserSession {
     }
 
     /**
+     * Bytter navnet til den innloggede brukeren etter et navnebytte. Tokenet og e-posten beholdes,
+     * så brukeren trenger ikke logge inn på nytt.
+     *
+     * @param name det nye navnet fra serveren
+     * @throws IllegalStateException    hvis ingen bruker er innlogget
+     * @throws IllegalArgumentException hvis navnet er tomt
+     */
+    public void updateName(String name) {
+        SessionData session = current;
+        if (session == null) {
+            throw new IllegalStateException("Ingen bruker er innlogget.");
+        }
+        current = new SessionData(session.token(), requireText(name, "Navn"), session.email());
+    }
+
+    /**
      * Fjerner brukeropplysningene og tokenet fra minnet.
      */
     public void clear() {

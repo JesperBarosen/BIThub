@@ -42,10 +42,10 @@
             <Insets top="5.0" />
          </padding>
          <children>
-            <Label fx:id="courseTitleLabel" alignment="CENTER" prefHeight="110.0" prefWidth="400.0"
-               text="Fagnavn" textAlignment="CENTER" wrapText="true">
+            <Label fx:id="courseTitleLabel" alignment="CENTER" maxWidth="Infinity"
+               minHeight="-Infinity" text="Fagnavn" textAlignment="CENTER" wrapText="true">
                <font>
-                  <Font name="System Bold" size="28.0" />
+                  <Font name="System Bold" size="24.0" />
                </font>
             </Label>
             <HBox>

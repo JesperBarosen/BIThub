@@ -308,4 +308,81 @@ class RemoteAuthenticationClientTest {
                 () -> new RemoteAuthenticationClient(serverUrl()).logout(null));
         assertNull(receivedMethod);
     }
+
+    @Test
+    void changeNameSendsTokenAndNameToEncodedPath() throws IOException {
+        respond("/api/users/", 200, "{\"name\":\"Kari Normann\"}");
+
+        String saved = new RemoteAuthenticationClient(serverUrl()).changeName("test-token",
+                " kari@ntnu.no ", "Kari Normann");
+
+        assertEquals("Kari Normann", saved);
+        assertEquals("PUT", receivedMethod);
+        assertEquals("/api/users/kari%40ntnu.no/name", receivedPath);
+        assertEquals("Bearer test-token", receivedAuthorization);
+        assertEquals("application/json", receivedContentType);
+        JsonNode body = mapper.readTree(receivedBody);
+        assertEquals("Kari Normann", body.get("name").asText());
+        assertEquals(1, body.size());
+    }
+
+    @Test
+    void changeNameShowsServerMessageForInvalidName() {
+        respond("/api/users/", 400,
+                "{\"status\":400,\"message\":\"Navn må være mellom 3 og 30 tegn.\"}");
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).changeName("test-token",
+                        "kari@ntnu.no", "Ka"));
+
+        assertEquals("Navn må være mellom 3 og 30 tegn.", error.getMessage());
+    }
+
+    @Test
+    void changeNameShowsServerMessageForOtherUser() {
+        respond("/api/users/", 403,
+                "{\"status\":403,\"message\":\"Ingen tilgang.\"}");
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).changeName("test-token",
+                        "ola@ntnu.no", "Ola Nordmann"));
+
+        assertEquals("Ingen tilgang.", error.getMessage());
+    }
+
+    @Test
+    void changeNameAsksForNewLoginWhenTokenIsUnknown() {
+        respond("/api/users/", 401, "{\"status\":401,\"message\":\"Du må være logget inn.\"}");
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> new RemoteAuthenticationClient(serverUrl()).changeName("gammelt-token",
+                        "kari@ntnu.no", "Kari Normann"));
+
+        assertEquals("Du er ikke lenger logget inn. Logg inn på nytt for å endre navn.",
+                error.getMessage());
+    }
+
+    @Test
+    void changeNameRejectsServerErrorAndMissingName() {
+        RemoteAuthenticationClient client = new RemoteAuthenticationClient(serverUrl());
+        respond("/api/users/", 500, "{\"message\":\"Intern feil\"}");
+        assertThrows(UncheckedIOException.class,
+                () -> client.changeName("test-token", "kari@ntnu.no", "Kari Normann"));
+
+        server.removeContext("/api/users/");
+        respond("/api/users/", 200, "{}");
+        assertThrows(UncheckedIOException.class,
+                () -> client.changeName("test-token", "kari@ntnu.no", "Kari Normann"));
+    }
+
+    @Test
+    void changeNameRequiresTokenAndEmailWithoutRequest() {
+        RemoteAuthenticationClient client = new RemoteAuthenticationClient(serverUrl());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> client.changeName(null, "kari@ntnu.no", "Kari Normann"));
+        assertThrows(IllegalArgumentException.class,
+                () -> client.changeName("test-token", " ", "Kari Normann"));
+        assertNull(receivedMethod);
+    }
 }

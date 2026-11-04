@@ -87,4 +87,28 @@ class UserSessionTest {
 
         assertEquals(Arrays.asList("test-token", null), tokens);
     }
+
+    @Test
+    void updateNameKeepsTokenAndEmail() {
+        List<String> tokens = new ArrayList<>();
+        UserSession session = new UserSession(tokens::add);
+        session.signIn("test-token", "Kari Nordmann", "kari@ntnu.no");
+
+        session.updateName(" Kari Normann ");
+
+        assertEquals("Kari Normann", session.getName());
+        assertEquals("test-token", session.getToken());
+        assertEquals("kari@ntnu.no", session.getEmail());
+        assertEquals(List.of("test-token"), tokens);
+    }
+
+    @Test
+    void updateNameRequiresLoginAndName() {
+        UserSession session = new UserSession();
+        assertThrows(IllegalStateException.class, () -> session.updateName("Kari"));
+
+        session.signIn("test-token", "Kari Nordmann", "kari@ntnu.no");
+        assertThrows(IllegalArgumentException.class, () -> session.updateName(" "));
+        assertEquals("Kari Nordmann", session.getName());
+    }
 }
