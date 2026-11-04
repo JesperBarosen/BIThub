@@ -88,10 +88,9 @@ brukerens data, og at REST-klientene håndterer ugyldige eller mangelfulle svar.
 Målet for denne gjennomgangen var over 90 % branch-dekning i alle fire moduler.
 Vi endret ikke appkoden eller utelot kode fra rapportene for å nå målet.
 
-Det er fortsatt enkelte udekkede greiner, blant annet i visning av listeceller,
-navigasjon og kontrollernes håndtering av ufullstendig oppsett. Disse vurderes
-videre når funksjonaliteten endres. Nye tall må hentes fra en full testkjøring;
-en kjøring av bare utvalgte tester er ikke et sammenlignbart mål for hele modulen.
+Det gjenstår noen udekkede kodeveier i brukergrensesnittet, selv om alle modulene
+har over 90 % branch-dekning. Dekningstallene er hentet fra en full kjøring av
+`mvn clean verify`.
 
 ## Checkstyle
 
