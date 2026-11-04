@@ -1,0 +1,39 @@
+@startuml restArkitektur
+!pragma layout smetana
+
+title REST-arkitektur - BIThub
+
+node "JavaFX-klient" {
+    component "ui" as ui
+    component "core" as coreKlient
+}
+
+node "REST-server (Spring Boot)" {
+    component "springboot/restserver" as rest
+    component "core" as coreServer
+    component "file" as fileModul
+}
+
+database "&#126;/.bithub" {
+    artifact "courses.json" as courses
+    artifact "users.json" as users
+}
+
+ui --> coreKlient : ReviewService\nog domeneklassene
+ui --> rest : HTTP + JSON\nAuthorization: Bearer <token>
+rest --> coreServer : ReviewService\nog UserService
+rest --> fileModul : oppretter ReviewHandler\nog UserHandler
+fileModul ..> coreServer : implementerer ReviewRepository\nog UserRepository
+fileModul --> courses
+fileModul --> users
+
+note right of rest
+  /api/courses og /api/courses/{code}
+  /api/courses/{code}/reviews
+  /api/reviews/{id}
+  /api/users og /api/users/{email}/password
+  /api/login og /api/logout
+  /api/me/reviews
+end note
+
+@enduml
