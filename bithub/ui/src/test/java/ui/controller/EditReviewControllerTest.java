@@ -88,6 +88,47 @@ class EditReviewControllerTest extends ApplicationTest {
     }
 
     /**
+     * Sjekker at lagring uten valgt anmeldelse viser en feil og beholder skjemaet og lagringen.
+     *
+     * @throws Exception hvis statusmeldingen ikke vises innen tidsgrensen
+     */
+    @Test
+    void missingReviewShowsErrorWithoutChangingStoredReview() throws Exception {
+        interact(() -> {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/EditReview.fxml"));
+            final Parent root;
+            try {
+                root = loader.load();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            controller = loader.getController();
+            ReviewService service = new ReviewService(repository);
+            controller.setReviewService(service);
+            controller.setNavigation(new Navigation(service, repository));
+            stage.setScene(new Scene(root));
+            ratingField().setText("2");
+            commentArea().setText("Ny kommentar");
+            anonymousCheckBox().setSelected(true);
+        });
+        final Scene editScene = stage.getScene();
+
+        interact(() -> button("#saveButton").fire());
+        awaitStatus("Ingen anmeldelse er valgt.");
+
+        assertNull(controller.getReview());
+        assertSame(editScene, stage.getScene());
+        assertEquals(Color.RED, label("#statusLabel").getTextFill());
+        assertEquals("2", ratingField().getText());
+        assertEquals("Ny kommentar", commentArea().getText());
+        assertTrue(anonymousCheckBox().isSelected());
+        assertSame(review, repository.findReview("id-1").orElseThrow());
+        assertEquals(4, review.getRating());
+        assertEquals("Bra fag", review.getComment());
+        assertFalse(review.isAnonymous());
+    }
+
+    /**
      * Verifiserer at endringen lagres, og at appen går tilbake til «Mine anmeldelser» med den
      * endrede anmeldelsen.
      */
