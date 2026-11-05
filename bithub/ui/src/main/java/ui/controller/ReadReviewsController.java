@@ -11,8 +11,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
+import org.controlsfx.control.Rating;
 import ui.Navigation;
 import ui.util.BackgroundTaskRunner;
+import ui.util.RatingStars;
 
 /**
  * Kontroller for siden som viser anmeldelsene og gjennomsnittlig vurdering for et valgt emne.
@@ -27,6 +29,9 @@ public class ReadReviewsController {
 
     @FXML
     private Label averageLabel;
+
+    @FXML
+    private Rating averageStars;
 
     @FXML
     private Label countLabel;
@@ -99,7 +104,7 @@ public class ReadReviewsController {
     }
 
     /**
-     * Henter og viser anmeldelsene for emnet. Tjenesten må være satt først.
+     * Henter og viser anmeldelsene og gjennomsnittet for emnet, både som tall og stjerner.
      *
      * @param course emnet som skal vises
      * @throws IllegalArgumentException hvis emnet er null
@@ -117,6 +122,7 @@ public class ReadReviewsController {
 
         courseTitleLabel.setText(course.getCourseCode() + " - " + course.getCourseName());
         averageLabel.setText("-");
+        averageStars.setRating(0);
         countLabel.setText("-");
         reviewList.getItems().clear();
         reviewList.setPlaceholder(new Label("Henter anmeldelser ..."));
@@ -126,6 +132,7 @@ public class ReadReviewsController {
                     courseWithReviews.getCourseCode() + " - " + courseWithReviews.getCourseName());
             averageLabel.setText(
                     String.format(Locale.ROOT, "%.2f", courseWithReviews.getAverageRating()));
+            averageStars.setRating(courseWithReviews.getAverageRating());
             countLabel.setText(String.valueOf(courseWithReviews.getReviews().size()));
             reviewList.getItems().setAll(courseWithReviews.getReviews());
             reviewList.setPlaceholder(new Label("Ingen anmeldelser ennå."));
@@ -147,9 +154,7 @@ public class ReadReviewsController {
         Label name = new Label(review.getReviewerName().toUpperCase(Locale.ROOT));
         name.getStyleClass().add("anmeldelse-navn");
 
-        Label rating = new Label("VURDERING: " + review.getRating() + "/5");
-
-        VBox card = new VBox(4, name, rating);
+        VBox card = new VBox(4, name, RatingStars.readOnly(review.getRating()));
         card.getStyleClass().add("anmeldelse-kort");
 
         String comment = review.getComment();

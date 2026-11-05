@@ -135,6 +135,15 @@
     -fx-font-weight: bold;
 }
 
+.vurdering-stjerner > .container {
+    -fx-spacing: 2;
+}
+
+.vurdering-stjerner > .container > .button {
+    -fx-padding: 9;
+    -fx-background-size: 18 18;
+}
+
 .sok-felt,
 .emne-velger {
     -fx-background-color: white;

@@ -1,4 +1,3 @@
-
 package ui.controller;
 
 import core.model.Course;
@@ -21,9 +20,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.controlsfx.control.Rating;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -116,57 +115,24 @@ public class WriteReviewControllerTest extends ApplicationTest {
     }
 
     /**
-     * Tester at innsending av ugyldig rating (ikke-tall) viser feilmelding i status-labelen.
+     * Tester at innsending uten valgt stjerne viser en feilmelding og ikke lagrer noe.
      */
     @Test
-    @DisplayName("Skal vise feilmelding dersom rating ikke er et gyldig tall")
-    void testHandleSubmitInvalidNumber() throws Exception {
+    @DisplayName("Skal vise feilmelding dersom ingen stjerne er valgt")
+    void testHandleSubmitWithoutRating() throws Exception {
         signIn();
-        TextField ratingField = (TextField) root.lookup("#ratingField");
-        interact(() -> ratingField.setText("abc"));
+        interact(() -> controller.setCourseData("TDT4100 - Objektorientert programmering"));
 
         submit();
-        awaitStatusMessage("Vurdering må være et gyldig tall.");
+        awaitStatusMessage("Velg en vurdering ved å trykke på stjernene.");
 
         interact(() -> {
             Label statusLabel = (Label) root.lookup("#statusLabel");
-            Assertions.assertEquals("Vurdering må være et gyldig tall.", statusLabel.getText());
-            Assertions.assertEquals(Color.RED, statusLabel.getTextFill());
-        });
-    }
-
-    /**
-     * Tester at rating utenfor intervallet 1-5 viser feilmelding.
-     */
-    @Test
-    @DisplayName("Skal vise feilmelding dersom rating er utenfor intervallet 1-5")
-    void testHandleSubmitOutOfRangeNumber() throws Exception {
-        signIn();
-        TextField ratingField = (TextField) root.lookup("#ratingField");
-
-        // Test rating for lav (0)
-        interact(() -> ratingField.setText("0"));
-        submit();
-        awaitStatusMessage("Vurdering må være et tall fra 1 til 5.");
-
-        interact(() -> {
-            Label statusLabel = (Label) root.lookup("#statusLabel");
-            Assertions.assertEquals("Vurdering må være et tall fra 1 til 5.",
+            Assertions.assertEquals("Velg en vurdering ved å trykke på stjernene.",
                     statusLabel.getText());
             Assertions.assertEquals(Color.RED, statusLabel.getTextFill());
         });
-
-        // Test rating for høy (6)
-        interact(() -> ratingField.setText("6"));
-        submit();
-        awaitStatusMessage("Vurdering må være et tall fra 1 til 5.");
-
-        interact(() -> {
-            Label statusLabel = (Label) root.lookup("#statusLabel");
-            Assertions.assertEquals("Vurdering må være et tall fra 1 til 5.",
-                    statusLabel.getText());
-            Assertions.assertEquals(Color.RED, statusLabel.getTextFill());
-        });
+        Assertions.assertTrue(repository.findAllCourses().isEmpty());
     }
 
     /**
@@ -178,12 +144,12 @@ public class WriteReviewControllerTest extends ApplicationTest {
         signIn();
         interact(() -> controller.setCourseData("TDT4120 - Algoritmer og datastrukturer"));
 
-        TextField ratingField = (TextField) root.lookup("#ratingField");
+        Rating ratingStars = (Rating) root.lookup("#ratingStars");
         TextArea commentArea = (TextArea) root.lookup("#commentArea");
         CheckBox anonymousCheckBox = (CheckBox) root.lookup("#anonymousCheckBox");
 
         interact(() -> {
-            ratingField.setText("5");
+            ratingStars.setRating(5);
             commentArea.setText("Veldig bra emne!");
             anonymousCheckBox.setSelected(true);
         });
@@ -197,7 +163,7 @@ public class WriteReviewControllerTest extends ApplicationTest {
             Assertions.assertEquals(Color.GREEN, statusLabel.getTextFill());
 
             // Verifiser at feltene er tømt etter at vurderingen er sendt inn.
-            Assertions.assertEquals("", ratingField.getText());
+            Assertions.assertEquals(0.0, ratingStars.getRating());
             Assertions.assertEquals("", commentArea.getText());
             Assertions.assertFalse(anonymousCheckBox.isSelected());
         });
@@ -224,12 +190,12 @@ public class WriteReviewControllerTest extends ApplicationTest {
         signIn();
         interact(() -> controller.setCourseData("TDT4100 - Objektorientert programmering"));
 
-        TextField ratingField = (TextField) root.lookup("#ratingField");
+        Rating ratingStars = (Rating) root.lookup("#ratingStars");
         TextArea commentArea = (TextArea) root.lookup("#commentArea");
         CheckBox anonymousCheckBox = (CheckBox) root.lookup("#anonymousCheckBox");
 
         interact(() -> {
-            ratingField.setText("4");
+            ratingStars.setRating(4);
             commentArea.setText("Moro prosjekt.");
             anonymousCheckBox.setSelected(false);
         });
@@ -264,14 +230,14 @@ public class WriteReviewControllerTest extends ApplicationTest {
     void testHandleSubmitWithoutLoginAsksForLogin() throws Exception {
         interact(() -> controller.setCourseData("TDT4100 - Objektorientert programmering"));
 
-        TextField ratingField = (TextField) root.lookup("#ratingField");
-        interact(() -> ratingField.setText("3"));
+        Rating ratingStars = (Rating) root.lookup("#ratingStars");
+        interact(() -> ratingStars.setRating(3));
 
         submit();
         awaitStatusMessage("Du må logge inn for å skrive en anmeldelse.");
 
         Assertions.assertEquals(Color.RED, ((Label) root.lookup("#statusLabel")).getTextFill());
-        Assertions.assertEquals("3", ratingField.getText());
+        Assertions.assertEquals(3.0, ratingStars.getRating());
         Assertions.assertTrue(repository.findAllCourses().isEmpty());
     }
 
@@ -324,7 +290,7 @@ public class WriteReviewControllerTest extends ApplicationTest {
         interact(() -> {
             controller.setReviewService(new ReviewService(delayedRepository));
             controller.setCourseData("IT1901 - Informatikk prosjektarbeid I");
-            ((TextField) root.lookup("#ratingField")).setText("5");
+            ((Rating) root.lookup("#ratingStars")).setRating(5);
             ((TextArea) root.lookup("#commentArea")).setText("Bra emne");
         });
 
@@ -336,7 +302,7 @@ public class WriteReviewControllerTest extends ApplicationTest {
                 Button sendButton = (Button) root.lookup("#submitButton");
 
                 Assertions.assertTrue(sendButton.isDisabled());
-                Assertions.assertTrue(root.lookup("#ratingField").isDisabled());
+                Assertions.assertTrue(root.lookup("#ratingStars").isDisabled());
                 Assertions.assertTrue(root.lookup("#commentArea").isDisabled());
                 Assertions.assertTrue(root.lookup("#anonymousCheckBox").isDisabled());
 
@@ -374,7 +340,7 @@ public class WriteReviewControllerTest extends ApplicationTest {
         interact(() -> {
             controller.setReviewService(new ReviewService(delayedRepository));
             controller.setCourseData("IT1901 - Informatikk prosjektarbeid I");
-            ((TextField) root.lookup("#ratingField")).setText("4");
+            ((Rating) root.lookup("#ratingStars")).setRating(4);
             ((TextArea) root.lookup("#commentArea")).setText("Bra emne");
             ((CheckBox) root.lookup("#anonymousCheckBox")).setSelected(true);
         });
@@ -389,12 +355,12 @@ public class WriteReviewControllerTest extends ApplicationTest {
                     "Kunne ikke bekrefte at anmeldelsen ble lagret. " + "Prøv igjen senere.");
 
             interact(() -> {
-                Assertions.assertEquals("4", ((TextField) root.lookup("#ratingField")).getText());
+                Assertions.assertEquals(4.0, ((Rating) root.lookup("#ratingStars")).getRating());
                 Assertions.assertEquals("Bra emne",
                         ((TextArea) root.lookup("#commentArea")).getText());
                 Assertions.assertTrue(((CheckBox) root.lookup("#anonymousCheckBox")).isSelected());
                 Assertions.assertFalse(root.lookup("#submitButton").isDisabled());
-                Assertions.assertFalse(root.lookup("#ratingField").isDisabled());
+                Assertions.assertFalse(root.lookup("#ratingStars").isDisabled());
                 Assertions.assertFalse(root.lookup("#commentArea").isDisabled());
                 Assertions.assertEquals(Color.RED,
                         ((Label) root.lookup("#statusLabel")).getTextFill());
@@ -419,7 +385,7 @@ public class WriteReviewControllerTest extends ApplicationTest {
             controller.setReviewService(new ReviewService(delayedRepository));
             controller.setNavigation(new Navigation(new ReviewService(repository), repository));
             controller.setCourseData("IT1901 - Informatikk prosjektarbeid I");
-            ((TextField) root.lookup("#ratingField")).setText("5");
+            ((Rating) root.lookup("#ratingStars")).setRating(5);
             ((TextArea) root.lookup("#commentArea")).setText("Bra emne");
         });
 
@@ -443,7 +409,7 @@ public class WriteReviewControllerTest extends ApplicationTest {
             interact(() -> {
                 Assertions.assertEquals("Sender anmeldelsen ...",
                         ((Label) root.lookup("#statusLabel")).getText());
-                Assertions.assertEquals("5", ((TextField) root.lookup("#ratingField")).getText());
+                Assertions.assertEquals(5.0, ((Rating) root.lookup("#ratingStars")).getRating());
                 Assertions.assertEquals("Bra emne",
                         ((TextArea) root.lookup("#commentArea")).getText());
             });
