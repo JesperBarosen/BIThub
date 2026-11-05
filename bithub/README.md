@@ -51,7 +51,7 @@ på operativsystemet installasjonspakken skal brukes på.
 
 ### Forutsetninger
 
-- JDK 21 og Maven tilgjengelig i PATH.
+- JDK 17 eller nyere og Maven tilgjengelig i PATH.
 - Windows: WiX Toolset 3.14 for å lage `.exe`-installasjonsfil.
 - macOS: Et macOS-miljø for å lage `.dmg`-installasjonsfil.
 - Linux: Nødvendige pakkeverktøy, blant annet `fakeroot` for Debian-
