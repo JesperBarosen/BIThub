@@ -22,6 +22,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.controlsfx.control.Rating;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
@@ -203,7 +204,7 @@ class NewNavigationTest extends ApplicationTest {
         });
 
         interact(() -> {
-            ((TextField) stage.getScene().getRoot().lookup("#ratingField")).setText("4");
+            ((Rating) stage.getScene().getRoot().lookup("#ratingStars")).setRating(4);
             button("#submitButton").fire();
         });
         awaitReviewSaved();

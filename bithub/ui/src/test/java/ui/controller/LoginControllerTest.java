@@ -2,7 +2,10 @@ package ui.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.service.ReviewService;
@@ -16,12 +19,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 import ui.App;
@@ -63,16 +70,100 @@ class LoginControllerTest extends ApplicationTest {
         stage.show();
     }
 
-    @Test
-    void showsErrorWhenRequiredFieldsAreMissing() {
+    /**
+     * Sjekker hvert påkrevd felt separat uten å kontakte serveren.
+     *
+     * @param fieldId feltet som tømmes
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "#emailField", "#passwordField" })
+    void showsErrorWhenRequiredFieldsAreMissing(String fieldId) {
         interact(() -> {
             emailField().setText("kari@ntnu.no");
+            passwordField().setText("Hemmelig123");
+            ((TextField) stage.getScene().getRoot().lookup(fieldId)).clear();
             button("#loginButton").fire();
         });
 
         assertEquals("Skriv inn både e-postadresse og passord.", statusLabel().getText());
         assertEquals(0, authenticationClient.loginCalls.get());
         assertTrue(statusLabel().isVisible());
+    }
+
+    /**
+     * Sjekker at hver nødvendig del av oppsettet kreves før innlogging kan starte.
+     *
+     * @param missingDependency delen av oppsettet som utelates
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "authentication", "successHandler", "navigation" })
+    void missingSetupIsRejectedBeforeLogin(String missingDependency) {
+        interact(() -> {
+            FXMLLoader loader = new FXMLLoader(App.class.getResource("Login.fxml"));
+            final Parent root;
+            try {
+                root = loader.load();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            LoginController controller = loader.getController();
+            if (!missingDependency.equals("authentication")) {
+                controller.setAuthenticationClient(authenticationClient);
+            }
+            if (!missingDependency.equals("successHandler")) {
+                controller.setLoginSuccessHandler(result -> userSession.signIn(
+                        result.token(), result.name(), result.email()));
+            }
+            if (!missingDependency.equals("navigation")) {
+                InMemoryReviewRepository repository = new InMemoryReviewRepository();
+                controller.setNavigation(new Navigation(new ReviewService(repository), repository));
+            }
+            stage.setScene(new Scene(root));
+        });
+        enterCredentials();
+
+        interact(() -> {
+            RuntimeException error = assertThrows(RuntimeException.class,
+                    () -> button("#loginButton").fire());
+            // FXML pakker feilen fra kontrolleren inn i refleksjonsunntak.
+            Throwable cause = error;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            assertInstanceOf(IllegalStateException.class, cause);
+            assertEquals("Innloggingen er ikke konfigurert.", cause.getMessage());
+        });
+        assertEquals(0, authenticationClient.loginCalls.get());
+        assertFalse(userSession.isLoggedIn());
+    }
+
+    /**
+     * Sjekker at navigasjon fra en ufullstendig oppsatt skjerm gir en tydelig feil.
+     *
+     * @param controlId knappen eller lenken som aktiveres
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "#registerButton", "#guestButton", "#aboutLink" })
+    void navigationActionsRequireSetup(String controlId) {
+        interact(() -> {
+            FXMLLoader loader = new FXMLLoader(App.class.getResource("Login.fxml"));
+            try {
+                stage.setScene(new Scene(loader.load()));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            ButtonBase control = (ButtonBase) stage.getScene().getRoot().lookup(controlId);
+            RuntimeException error = assertThrows(RuntimeException.class, control::fire);
+            Throwable cause = error;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            assertInstanceOf(IllegalStateException.class, cause);
+            assertEquals("Navigasjonen er ikke konfigurert.", cause.getMessage());
+            assertSame(stage.getScene(), control.getScene());
+        });
+        assertEquals(0, authenticationClient.loginCalls.get());
+        assertFalse(userSession.isLoggedIn());
     }
 
     @Test
@@ -105,6 +196,29 @@ class LoginControllerTest extends ApplicationTest {
         assertEquals("kari@ntnu.no", emailField().getText());
         assertEquals("FeilPassord123", passwordField().getText());
         assertFalse(button("#loginButton").isDisabled());
+        assertEquals(1, authenticationClient.loginCalls.get());
+    }
+
+    /**
+     * Sjekker at avvisning uten brukbar melding beholder skjemaet og gir generell feil.
+     *
+     * @param message feilmeldingen fra tjenesten
+     * @throws Exception hvis ventingen på feilmeldingen feiler
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = { "   " })
+    void rejectionWithoutMessageKeepsLoginForm(String message) throws Exception {
+        authenticationClient.loginError = new IllegalArgumentException(message);
+        enterCredentials();
+
+        interact(() -> button("#loginButton").fire());
+
+        awaitStatus("Kunne ikke fullføre innloggingen. Prøv igjen senere.");
+        assertEquals("kari@ntnu.no", emailField().getText());
+        assertEquals("FeilPassord123", passwordField().getText());
+        assertFalse(button("#loginButton").isDisabled());
+        assertFalse(userSession.isLoggedIn());
         assertEquals(1, authenticationClient.loginCalls.get());
     }
 
@@ -148,6 +262,38 @@ class LoginControllerTest extends ApplicationTest {
 
         awaitHome();
         assertEquals(1, authenticationClient.loginCalls.get());
+    }
+
+    /**
+     * Sjekker at et ekstra Enter-signal ikke starter en ny innlogging mens første kall venter.
+     *
+     * @throws Exception hvis bakgrunnskallet ikke starter eller hjemmesiden ikke åpnes
+     */
+    @Test
+    void repeatedLoginWhileRunningSendsOnlyOneRequest() throws Exception {
+        CountDownLatch started = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        authenticationClient.requestStarted = started;
+        authenticationClient.releaseRequest = release;
+        enterCredentials();
+
+        try {
+            interact(() -> button("#loginButton").fire());
+            assertTrue(started.await(5, TimeUnit.SECONDS));
+
+            interact(() -> {
+                // Simulerer et Enter-signal som var på vei da feltet ble deaktivert.
+                passwordField().getOnAction().handle(new ActionEvent());
+                assertTrue(button("#loginButton").isDisabled());
+                assertEquals(1, authenticationClient.loginCalls.get());
+            });
+        } finally {
+            release.countDown();
+        }
+
+        awaitHome();
+        assertEquals(1, authenticationClient.loginCalls.get());
+        assertTrue(userSession.isLoggedIn());
     }
 
     @Test

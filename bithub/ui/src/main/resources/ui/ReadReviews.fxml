@@ -9,6 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
+<?import org.controlsfx.control.Rating?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" stylesheets="@Style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controller.ReadReviewsController">
    <children>
@@ -41,6 +42,8 @@
                   <Font name="System Bold" size="24.0" />
                </font>
             </Label>
+            <Rating fx:id="averageStars" max="5" rating="0" partialRating="true"
+               updateOnHover="false" mouseTransparent="true" focusTraversable="false" />
             <HBox>
                <children>
                   <Label text="Vurdering: ">

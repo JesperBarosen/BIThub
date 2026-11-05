@@ -344,4 +344,50 @@ class UserServiceTest {
                 () -> service.changePassword("kari@example.com", "Passord123", "NyttPassord123"));
         assertEquals("Det gamle passordet er feil.", exception.getMessage());
     }
+
+    /**
+     * Verifiserer at navnebytte lagrer det nye navnet uten mellomrom rundt, og at e-post og
+     * passord beholdes.
+     */
+    @Test
+    void changeNameSavesNewNameAndKeepsPassword() {
+        User original = service.register("Ola Nordmann", "ola@example.com", "Passord123");
+
+        User renamed = service.changeName(" OLA@example.com ", "  Ola Normann  ");
+
+        assertEquals("Ola Normann", renamed.getName());
+        assertEquals("ola@example.com", renamed.getEmail());
+        assertEquals(original.getPasswordHash(), renamed.getPasswordHash());
+        assertEquals(original.getSalt(), renamed.getSalt());
+        assertEquals("Ola Normann", service.findByEmail("ola@example.com").orElseThrow().getName());
+        assertTrue(service.login("ola@example.com", "Passord123").isPresent());
+    }
+
+    /**
+     * Verifiserer at ugyldige navn avvises med de samme reglene som ved registrering, uten at
+     * navnet endres.
+     */
+    @Test
+    void changeNameRejectsInvalidNameWithoutSaving() {
+        service.register("Ola Nordmann", "ola@example.com", "Passord123");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.changeName("ola@example.com", "Ol"));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.changeName("ola@example.com", "Ola123"));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.changeName("ola@example.com", null));
+        assertEquals("Ola Nordmann",
+                service.findByEmail("ola@example.com").orElseThrow().getName());
+    }
+
+    /**
+     * Verifiserer at navnebytte for en ukjent bruker avvises.
+     */
+    @Test
+    void changeNameRejectsUnknownUser() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> service.changeName("kari@example.com", "Kari Nordmann"));
+        assertEquals("Brukeren finnes ikke.", exception.getMessage());
+    }
 }

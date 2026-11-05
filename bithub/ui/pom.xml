@@ -12,6 +12,10 @@
     </parent>
 
     <artifactId>ui</artifactId>
+    <properties>
+        <!-- Kan overstyres med -Dbithub.server.url=... ved pakking -->
+        <bithub.server.url>http://localhost:8080</bithub.server.url>
+    </properties>
 
     <dependencies>
         <!-- Avhengigheter til undermoduler -->
@@ -38,6 +42,13 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>21</version>
+        </dependency>
+
+        <!-- ControlsFX for stjernevurdering (Rating) -->
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>11.2.1</version>
         </dependency>
 
         <!-- JUnit testing -->
@@ -137,6 +148,44 @@
                 <configuration>
                     <mainClass>bithub.ui/ui.App</mainClass>
                     <skip>false</skip>
+
+                    <!-- Lag en tilpasset Java-runtime for klienten -->
+                    <stripDebug>true</stripDebug>
+                    <noHeaderFiles>true</noHeaderFiles>
+                    <noManPages>true</noManPages>
+
+                    <!-- Navn på kjørbar fil og pakket applikasjon -->
+                    <launcher>bithub</launcher>
+                    <jlinkImageName>bithub</jlinkImageName>
+                    <jlinkZipName>bithub</jlinkZipName>
+                </configuration>
+            </plugin>
+
+            <!-- Pakk klienten for operativsystemet Maven kjører på -->
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <configuration>
+                    <name>BIThub</name>
+                    <appVersion>1.0.0</appVersion>
+                    <vendor>gr2610</vendor>
+                    <destination>${project.build.directory}/jpackage</destination>
+                    <module>bithub.ui/ui.App</module>
+                    <runtimeImage>${project.build.directory}/bithub</runtimeImage>
+
+                    <!-- Behold serveradressen i den pakkede klienten -->
+                    <javaOptions>
+                        <option>-Dbithub.server-url=${bithub.server.url}</option>
+                    </javaOptions>
+
+                    <!-- Windows-innstillinger -->
+                    <winMenu>true</winMenu>
+                    <winShortcut>true</winShortcut>
+
+                    <!-- Linux-innstillinger -->
+                    <linuxShortcut>true</linuxShortcut>
+                    <linuxMenuGroup>BIThub</linuxMenuGroup>
                 </configuration>
             </plugin>
         </plugins>

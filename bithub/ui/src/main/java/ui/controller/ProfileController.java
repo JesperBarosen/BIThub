@@ -14,10 +14,11 @@ import ui.session.UserSession;
 import ui.util.BackgroundTaskRunner;
 
 /**
- * Viser profilen til den innloggede brukeren og lar brukeren gå til passordbytte eller logge ut.
+ * Viser profilen til den innloggede brukeren og lar brukeren endre navn, gå til passordbytte eller
+ * logge ut.
  * 
  * <p>Navn og e- post hentes fra {@link UserSession} som fikk dem fra serveren ved innlogging.
- * Utlogging sendes til serveren i bakgrunnen med {@link BackgroundTaskRunner}.
+ * Navnebytte og utlogging sendes til serveren i bakgrunnen med {@link BackgroundTaskRunner}.
  */
 public final class ProfileController {
 
@@ -26,6 +27,15 @@ public final class ProfileController {
 
     @FXML
     private TextField emailField;
+
+    @FXML
+    private Button changeNameButton;
+
+    @FXML
+    private Button saveNameButton;
+
+    @FXML
+    private Button cancelNameButton;
 
     @FXML
     private Button changePasswordButton;
@@ -47,16 +57,31 @@ public final class ProfileController {
     private AuthenticationClient authenticationClient;
 
     private final BooleanProperty loggedIn = new SimpleBooleanProperty(false);
+    private final BooleanProperty editingName = new SimpleBooleanProperty(false);
     private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
 
     /**
-     * Deaktiverer knappene mens utloggingen pågår. Passordbytte krever innlogging.
+     * Deaktiverer knappene mens et kall til serveren pågår. Navnebytte og passordbytte krever
+     * innlogging. «LAGRE» og «AVBRYT» vises bare mens navnet redigeres, i stedet for «ENDRE NAVN».
      */
     @FXML
     private void initialize() {
         logoutButton.disableProperty().bind(taskRunner.runningProperty());
         changePasswordButton.disableProperty()
                 .bind(taskRunner.runningProperty().or(loggedIn.not()));
+        changeNameButton.disableProperty()
+                .bind(taskRunner.runningProperty().or(loggedIn.not()));
+        saveNameButton.disableProperty().bind(taskRunner.runningProperty());
+        cancelNameButton.disableProperty().bind(taskRunner.runningProperty());
+
+        changeNameButton.visibleProperty().bind(editingName.not());
+        changeNameButton.managedProperty().bind(editingName.not());
+        saveNameButton.visibleProperty().bind(editingName);
+        saveNameButton.managedProperty().bind(editingName);
+        cancelNameButton.visibleProperty().bind(editingName);
+        cancelNameButton.managedProperty().bind(editingName);
+        nameField.editableProperty().bind(editingName.and(taskRunner.runningProperty().not()));
+        nameField.focusTraversableProperty().bind(editingName);
     }
 
     /**
@@ -108,6 +133,82 @@ public final class ProfileController {
             logoutButton.setText("LOGG INN");
             showStatus("Du er ikke logget inn.", Color.BLACK);
         }
+    }
+
+    /**
+     * Gjør navnefeltet redigerbart, slik at brukeren kan skrive et nytt navn.
+     */
+    @FXML
+    private void handleChangeName() {
+        if (taskRunner.runningProperty().get() || !loggedIn.get()) {
+            return;
+        }
+        editingName.set(true);
+        showStatus("", Color.BLACK);
+        nameField.requestFocus();
+        nameField.selectAll();
+    }
+
+    /**
+     * Sender det nye navnet til serveren. Navnet i sesjonen endres først når serveren har lagret
+     * det. Ved feil vises en melding, og brukeren kan rette navnet eller avbryte.
+     */
+    @FXML
+    private void handleSaveName() {
+        if (taskRunner.runningProperty().get() || !editingName.get()) {
+            return;
+        }
+        String newName = nameField.getText() == null ? "" : nameField.getText().strip();
+        if (newName.isEmpty()) {
+            showStatus("Navnet kan ikke være tomt.", Color.RED);
+            return;
+        }
+        if (newName.equals(userSession.getName())) {
+            stopEditingName();
+            return;
+        }
+        if (!userSession.isLoggedIn() || authenticationClient == null) {
+            showStatus("Du må være logget inn for å endre navn.", Color.RED);
+            return;
+        }
+
+        String token = userSession.getToken();
+        String email = userSession.getEmail();
+
+        showStatus("Lagrer navnet ...", Color.BLACK);
+        taskRunner.execute(() -> authenticationClient.changeName(token, email, newName),
+                savedName -> {
+                    userSession.updateName(savedName);
+                    stopEditingName();
+                    showStatus("Navnet er endret.", Color.GREEN);
+                }, error -> {
+                    if (error instanceof IllegalArgumentException && error.getMessage() != null
+                            && !error.getMessage().isBlank()) {
+                        showStatus(error.getMessage(), Color.RED);
+                    } else {
+                        showStatus("Kunne ikke lagre navnet. Prøv igjen senere.", Color.RED);
+                    }
+                });
+    }
+
+    /**
+     * Avbryter navnebyttet og viser navnet fra sesjonen igjen.
+     */
+    @FXML
+    private void handleCancelName() {
+        if (taskRunner.runningProperty().get()) {
+            return;
+        }
+        stopEditingName();
+        showStatus("", Color.BLACK);
+    }
+
+    /**
+     * Gjør navnefeltet skrivebeskyttet igjen og viser navnet fra sesjonen.
+     */
+    private void stopEditingName() {
+        editingName.set(false);
+        nameField.setText(userSession.getName());
     }
 
     /**

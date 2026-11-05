@@ -5,12 +5,12 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
+<?import org.controlsfx.control.Rating?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
    prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21"
@@ -48,21 +48,15 @@
                   <Font name="System Bold" size="24.0" />
                </font>
             </Label>
-            <HBox>
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
                <children>
-                  <Label text="Vurder fra 1 til 5: ">
+                  <Label text="Vurdering:">
                      <font>
                         <Font size="24.0" />
                      </font>
                   </Label>
-                  <!--Rating
-                  La til id-->
-                  <TextField fx:id="ratingField" prefHeight="35.0" prefWidth="35.0" />
-                  <Label text=" /5">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Label>
+                  <Rating fx:id="ratingStars" max="5" rating="0" partialRating="false"
+                     updateOnHover="false" />
                </children>
                <VBox.margin>
                   <Insets left="10.0" right="10.0" />

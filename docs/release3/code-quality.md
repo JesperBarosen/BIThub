@@ -61,6 +61,40 @@ Vi har ikke satt en fast minimumsgrense for testdekning. En fast grense kan før
 
 Høy testdekning er ikke et mål i seg selv. Testene skal først og fremst sjekke forventet oppførsel, grenseverdier og relevante feilsituasjoner. Når testene dekker dette for alle klassene, blir god testdekning en naturlig følge.
 
+### Målt dekning i release 3
+
+Tallene under er hentet fra JaCoCo etter en full kjøring av `mvn clean verify`
+5. november 2026. Alle 639 tester bestod, uten feil eller tester som ble hoppet over.
+Hele prosjektet ble kontrollert. Checkstyle rapporterte 0 brudd, og SpotBugs
+rapporterte 0 funn.
+
+| Modul | Instruksjonsdekning | Linjedekning | Branch-dekning | Tester |
+| --- | --- | --- | --- | --- |
+| `core` | 98,8 % | 98,4 % | 100,0 % | 169 |
+| `file` | 98,9 % | 99,0 % | 96,0 % | 72 |
+| `ui` | 96,3 % | 95,8 % | 91,2 % | 270 |
+| `springboot/restserver` | 98,7 % | 98,7 % | 100,0 % | 128 |
+
+Instruksjonsdekning viser hvor mange av instruksjonene i den kompilerte koden som
+kjøres av testene. Linjedekning måler kildelinjer, mens branch-dekning måler
+alternative utfall i betingelser, for eksempel begge veier i en `if`-setning.
+Tallene gjelder hver modul samlet, ikke hver enkelt klasse.
+
+I #206 brukte vi rapportene til å prioritere manglende feilsituasjoner og
+kodeveier. Vi la blant annet til tester for hvert tomme felt separat i innlogging,
+registrering og passordbytte, manglende kontrolleroppsett, tomme feilmeldinger og
+gjentatte handlinger mens serverkall pågår. Vi testet også at mislykket endring
+eller sletting beholder brukerens data, og at REST-klientene håndterer ugyldige
+eller mangelfulle svar. Standardmetodene i `AuthenticationClient` testes for at
+handlinger som ikke er støttet, avvises med en forklarende melding.
+
+Emnesøkstestene bruker et tekstfelt der testen setter fokusstatusen. Da testes
+åpning og lukking av nedtrekkslisten uavhengig av operativsystemets aktive vindu.
+
+Det gjenstår udekkede kodeveier blant annet ved manglende elementer i listeceller,
+bekreftelsesdialogen for sletting, feil ved lasting av FXML og håndtering av
+avbrutte bakgrunnskall. Disse finnes i `ui.controller`, `ui` og `ui.util`.
+
 ## Checkstyle
 
 Checkstyle sjekker at Java-koden følger en felles kodestil. Det gjør koden lettere å lese, og kode skrevet av forskjellige gruppemedlemmer følger de samme reglene.
