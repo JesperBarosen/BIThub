@@ -1,6 +1,6 @@
 # Asynkrone REST-kall i JavaFX
 
-Dette dokumentet beskriver mønsteret innført i issue #173. Det skal gjenbrukes i #178, #179 og #181 når flere skjermer kobles til REST-API-et.
+Dette dokumentet beskriver mønsteret innført i issue #173. Alle skjermene som kaller REST-API-et, bruker det.
 
 ## Ansvarsfordeling
 
@@ -17,7 +17,7 @@ Dette dokumentet beskriver mønsteret innført i issue #173. Det skal gjenbrukes
 4. Vis en kort feilmelding i `onFailure`, uten å blokkere JavaFX-tråden.
 5. Ved ny henting eller navigering bort kalles [`taskRunner.cancel()`](../../bithub/ui/src/main/java/ui/util/BackgroundTaskRunner.java#L89) før skjermbyttet. Et sent svar får da ikke oppdatere den gamle skjermen.
 
-Implementerte eksempler: [`CourseSelectionController`](../../bithub/ui/src/main/java/ui/controller/CourseSelectionController.java) og [`ReadReviewsController`](../../bithub/ui/src/main/java/ui/controller/ReadReviewsController.java).
+Implementert i [`CourseSelectionController`](../../bithub/ui/src/main/java/ui/controller/CourseSelectionController.java), [`ReadReviewsController`](../../bithub/ui/src/main/java/ui/controller/ReadReviewsController.java) og [`MyReviewsController`](../../bithub/ui/src/main/java/ui/controller/MyReviewsController.java).
 
 ### Emnesøk og innlasting
 
@@ -41,7 +41,7 @@ Endringer i søket overskriver ikke laste- eller feilmeldinger.
 6. **Ved feil:** Behold brukerens skjemainnhold, vis en forståelig feilmelding og gjør feltene tilgjengelige igjen. Skillet mellom gyldig valideringsfeil og nettverksfeil håndteres i kontrollerens feilkallback.
 7. Kall [`taskRunner.cancel()`](../../bithub/ui/src/main/java/ui/util/BackgroundTaskRunner.java#L89) når brukeren navigerer bort. Et avbrudd hindrer oppdatering av feil skjerm, men garanterer **ikke** at en HTTP-forespørsel eller lagring på serveren faktisk stoppes.
 
-Implementert eksempel: [`WriteReviewController`](../../bithub/ui/src/main/java/ui/controller/WriteReviewController.java). Ikke send automatisk på nytt etter usikker feil ved lagring: Serveren kan ha lagret forespørselen selv om svaret aldri nådde klienten.
+Implementert i [`WriteReviewController`](../../bithub/ui/src/main/java/ui/controller/WriteReviewController.java), [`EditReviewController`](../../bithub/ui/src/main/java/ui/controller/EditReviewController.java), [`LoginController`](../../bithub/ui/src/main/java/ui/controller/LoginController.java), [`RegisterUserController`](../../bithub/ui/src/main/java/ui/controller/RegisterUserController.java), [`ChangePasswordController`](../../bithub/ui/src/main/java/ui/controller/ChangePasswordController.java) og [`ProfileController`](../../bithub/ui/src/main/java/ui/controller/ProfileController.java). Ikke send automatisk på nytt etter usikker feil ved lagring: Serveren kan ha lagret forespørselen selv om svaret aldri nådde klienten.
 
 ## Trådregler
 
