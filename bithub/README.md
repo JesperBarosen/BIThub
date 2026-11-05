@@ -115,7 +115,11 @@ separat for å verifisere hele prosjektet med tester og kvalitetskontroller.
 
 Resultatene finnes under `ui/target/`:
 
-- `bithub/`: Tilpasset Java-runtime fra jlink.
+- `bithub/`: Klienten med en tilpasset Java-runtime fra jlink. Start den med
+  `ui\target\bithub\bin\bithub.bat` på Windows eller `ui/target/bithub/bin/bithub`
+  på macOS og Linux. Serveren må kjøre.
+- `bithub.zip`: Samme mappe som zip-fil, som kan deles og pakkes ut på en annen
+  maskin med samme operativsystem. Krever ikke WiX eller en egen Java-installasjon.
 - `jpackage/`: Native installasjonspakke fra jpackage.
 
 Installasjonsformatene avhenger av operativsystemet:
