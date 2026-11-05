@@ -107,7 +107,7 @@ class EditReviewControllerTest extends ApplicationTest {
             controller.setReviewService(service);
             controller.setNavigation(new Navigation(service, repository));
             stage.setScene(new Scene(root));
-            ratingField().setText("2");
+            ratingStars().setRating(2);
             commentArea().setText("Ny kommentar");
             anonymousCheckBox().setSelected(true);
         });
@@ -119,7 +119,7 @@ class EditReviewControllerTest extends ApplicationTest {
         assertNull(controller.getReview());
         assertSame(editScene, stage.getScene());
         assertEquals(Color.RED, label("#statusLabel").getTextFill());
-        assertEquals("2", ratingField().getText());
+        assertEquals(2.0, ratingStars().getRating());
         assertEquals("Ny kommentar", commentArea().getText());
         assertTrue(anonymousCheckBox().isSelected());
         assertSame(review, repository.findReview("id-1").orElseThrow());
@@ -208,7 +208,7 @@ class EditReviewControllerTest extends ApplicationTest {
 
         interact(() -> {
             controller.setReviewService(new ReviewService(unavailableRepository));
-            ratingField().setText("2");
+            ratingStars().setRating(2);
             commentArea().setText("Ny kommentar");
             anonymousCheckBox().setSelected(true);
             button("#saveButton").fire();
@@ -216,7 +216,7 @@ class EditReviewControllerTest extends ApplicationTest {
 
         awaitStatus("Kunne ikke lagre endringen. Prøv igjen senere.");
         assertSame(editScene, stage.getScene());
-        assertEquals("2", ratingField().getText());
+        assertEquals(2.0, ratingStars().getRating());
         assertEquals("Ny kommentar", commentArea().getText());
         assertTrue(anonymousCheckBox().isSelected());
         Review stored = repository.findReview("id-1").orElseThrow();
@@ -257,7 +257,7 @@ class EditReviewControllerTest extends ApplicationTest {
     @Test
     void homeOpensHomePageWithoutSaving() {
         interact(() -> {
-            ratingField().setText("1");
+            ratingStars().setRating(1);
             commentArea().setText("Ulagret kommentar");
             anonymousCheckBox().setSelected(true);
             button("#homeButton").fire();
