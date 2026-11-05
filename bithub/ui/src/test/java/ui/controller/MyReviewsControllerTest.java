@@ -23,9 +23,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.controlsfx.control.Rating;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
@@ -225,7 +225,7 @@ class MyReviewsControllerTest extends ApplicationTest {
         Parent root = stage.getScene().getRoot();
         assertEquals("IT1901 - Informatikk prosjektarbeid I",
                 ((Label) root.lookup("#courseTitleLabel")).getText());
-        assertEquals("4", ((TextField) root.lookup("#ratingField")).getText());
+        assertEquals(4.0, ((Rating) root.lookup("#ratingStars")).getRating());
         assertTrue(((CheckBox) root.lookup("#anonymousCheckBox")).isSelected());
     }
 

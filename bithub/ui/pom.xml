@@ -40,6 +40,13 @@
             <version>21</version>
         </dependency>
 
+        <!-- ControlsFX for stjernevurdering (Rating) -->
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>11.2.1</version>
+        </dependency>
+
         <!-- JUnit testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
