@@ -55,7 +55,7 @@ mvn -pl springboot/restserver spring-boot:run
 Start så appen i en ny terminal, også fra `bithub/`:
 
 ```bash
-mvn javafx:run
+mvn -pl ui javafx:run
 ```
 
 Serveren kjører på `http://localhost:8080` og lagrer dataene i `courses.json` og `users.json` under `~/.bithub/`.

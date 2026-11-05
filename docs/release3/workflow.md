@@ -603,7 +603,7 @@ Koden skal primært være selvdokumenterende gjennom gode navnevalg på variable
 ```java
 /**
  * Beregner totalprisen for en handlekurv inkludert MVA og eventuell rabatt.
- * 
+ *
  * Tar hensyn til kampanjekoder dersom kunden er innlogget.
  *
  * @param handlekurv list over varer som skal beregnes
@@ -620,7 +620,4 @@ public double beregnTotalpris(List<Vare> handlekurv, String rabattkode) {
 }
 ```
 
-
-
 </div>
-
