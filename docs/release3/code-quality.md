@@ -64,7 +64,7 @@ Høy testdekning er ikke et mål i seg selv. Testene skal først og fremst sjekk
 ### Målt dekning i release 3
 
 Tallene under er hentet fra JaCoCo etter en full kjøring av `mvn clean verify`
-5. november 2026. Alle 637 tester bestod, uten feil eller tester som ble hoppet over.
+5. november 2026. Alle 639 tester bestod, uten feil eller tester som ble hoppet over.
 Hele prosjektet ble kontrollert. Checkstyle rapporterte 0 brudd, og SpotBugs
 rapporterte 0 funn.
 
@@ -72,7 +72,7 @@ rapporterte 0 funn.
 | --- | --- | --- | --- | --- |
 | `core` | 98,8 % | 98,4 % | 100,0 % | 169 |
 | `file` | 98,9 % | 99,0 % | 96,0 % | 72 |
-| `ui` | 95,9 % | 95,5 % | 90,2 % | 268 |
+| `ui` | 96,3 % | 95,8 % | 91,2 % | 270 |
 | `springboot/restserver` | 98,7 % | 98,7 % | 100,0 % | 128 |
 
 Instruksjonsdekning viser hvor mange av instruksjonene i den kompilerte koden som
@@ -87,6 +87,9 @@ gjentatte handlinger mens serverkall pågår. Vi testet også at mislykket endri
 eller sletting beholder brukerens data, og at REST-klientene håndterer ugyldige
 eller mangelfulle svar. Standardmetodene i `AuthenticationClient` testes for at
 handlinger som ikke er støttet, avvises med en forklarende melding.
+
+Emnesøkstestene bruker et tekstfelt der testen setter fokusstatusen. Da testes
+åpning og lukking av nedtrekkslisten uavhengig av operativsystemets aktive vindu.
 
 Det gjenstår udekkede kodeveier blant annet ved manglende elementer i listeceller,
 bekreftelsesdialogen for sletting, feil ved lasting av FXML og håndtering av
