@@ -2,7 +2,9 @@ package ui.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.service.ReviewService;
@@ -12,6 +14,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -19,6 +25,9 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 import ui.Navigation;
@@ -62,6 +71,75 @@ class RegisterUserControllerTest extends ApplicationTest {
         assertEquals("Fyll ut alle feltene.", statusLabel().getText());
         assertTrue(statusLabel().isVisible());
         assertEquals(0, authenticationClient.registerCalls.get());
+    }
+
+    /**
+     * Sjekker hvert obligatoriske felt separat, slik at de andre feltene fortsatt er gyldige.
+     *
+     * @param fieldId feltet som tømmes
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "#nameField", "#emailField", "#repeatEmailField", "#passwordField",
+        "#repeatPasswordField" })
+    void showsErrorWhenAnySingleFieldIsMissing(String fieldId) {
+        fillValidForm();
+
+        interact(() -> {
+            textField(fieldId).clear();
+            button("#registerButton").fire();
+        });
+
+        assertEquals("Fyll ut alle feltene.", statusLabel().getText());
+        assertTrue(statusLabel().isVisible());
+        assertEquals(0, authenticationClient.registerCalls.get());
+    }
+
+    /**
+     * Sjekker at hver nødvendig del av oppsettet kreves før registrering kan starte.
+     *
+     * @param missingDependency delen av oppsettet som utelates
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "authentication", "successHandler", "navigation" })
+    void missingSetupIsRejectedBeforeRegistration(String missingDependency) {
+        interact(() -> {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/RegisterUser.fxml"));
+            final Parent root;
+            try {
+                root = loader.load();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            RegisterUserController controller = loader.getController();
+            if (!missingDependency.equals("authentication")) {
+                controller.setAuthenticationClient(authenticationClient);
+            }
+            if (!missingDependency.equals("successHandler")) {
+                controller.setRegistrationSuccessHandler(result -> userSession.signIn(
+                        result.token(), result.name(), result.email()));
+            }
+            if (!missingDependency.equals("navigation")) {
+                InMemoryReviewRepository repository = new InMemoryReviewRepository();
+                controller.setNavigation(new Navigation(new ReviewService(repository), repository,
+                        userSession, authenticationClient));
+            }
+            stage.setScene(new Scene(root));
+        });
+        fillValidForm();
+
+        interact(() -> {
+            RuntimeException error = assertThrows(RuntimeException.class,
+                    () -> button("#registerButton").fire());
+            // FXML pakker feilen fra kontrolleren inn i refleksjonsunntak.
+            Throwable cause = error;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            assertInstanceOf(IllegalStateException.class, cause);
+            assertEquals("Registreringen er ikke konfigurert.", cause.getMessage());
+        });
+        assertEquals(0, authenticationClient.registerCalls.get());
+        assertFalse(userSession.isLoggedIn());
     }
 
     @Test
@@ -152,6 +230,30 @@ class RegisterUserControllerTest extends ApplicationTest {
         assertFalse(button("#registerButton").isDisabled());
     }
 
+    /**
+     * Sjekker at en avvisning uten brukbar melding gir generell feil og beholder skjemaet.
+     *
+     * @param message feilmeldingen fra tjenesten
+     * @throws Exception hvis ventingen på feilmeldingen feiler
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = { "   " })
+    void serverRejectionWithoutMessageKeepsForm(String message) throws Exception {
+        authenticationClient.registerError = new IllegalArgumentException(message);
+        fillValidForm();
+
+        interact(() -> button("#registerButton").fire());
+
+        awaitStatus("Kunne ikke fullføre registreringen. Prøv igjen senere.");
+        assertFalse(userSession.isLoggedIn());
+        assertEquals("Kari Nordmann", textField("#nameField").getText());
+        assertEquals("kari@ntnu.no", textField("#emailField").getText());
+        assertEquals("Hemmelig123", passwordField("#passwordField").getText());
+        assertFalse(button("#registerButton").isDisabled());
+        assertEquals(1, authenticationClient.registerCalls.get());
+    }
+
     @Test
     void networkFailureShowsGeneralMessage() throws Exception {
         authenticationClient.registerError = new UncheckedIOException(
@@ -188,6 +290,38 @@ class RegisterUserControllerTest extends ApplicationTest {
 
         awaitHome();
         assertEquals(1, authenticationClient.registerCalls.get());
+    }
+
+    /**
+     * Sjekker at et ekstra Enter-signal ikke starter en ny registrering mens første kall venter.
+     *
+     * @throws Exception hvis bakgrunnskallet ikke starter eller hjemmesiden ikke åpnes
+     */
+    @Test
+    void repeatedRegistrationWhileRunningSendsOnlyOneRequest() throws Exception {
+        CountDownLatch started = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        authenticationClient.requestStarted = started;
+        authenticationClient.releaseRequest = release;
+        fillValidForm();
+
+        try {
+            interact(() -> button("#registerButton").fire());
+            assertTrue(started.await(5, TimeUnit.SECONDS));
+
+            interact(() -> {
+                // Simulerer et Enter-signal som var på vei da feltet ble deaktivert.
+                passwordField("#repeatPasswordField").getOnAction().handle(new ActionEvent());
+                assertTrue(button("#registerButton").isDisabled());
+                assertEquals(1, authenticationClient.registerCalls.get());
+            });
+        } finally {
+            release.countDown();
+        }
+
+        awaitHome();
+        assertEquals(1, authenticationClient.registerCalls.get());
+        assertTrue(userSession.isLoggedIn());
     }
 
     @Test

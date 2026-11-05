@@ -36,6 +36,7 @@ class ReviewServiceTest {
     private Course storedCourse;
 
     private final List<String> updatedIds = new ArrayList<>();
+    private final List<String> updatedComments = new ArrayList<>();
     private final List<String> deletedIds = new ArrayList<>();
     private final List<String> renamedOwners = new ArrayList<>();
 
@@ -75,6 +76,7 @@ class ReviewServiceTest {
         public boolean updateReview(String reviewId, int rating, String comment,
                 boolean anonymous) {
             updatedIds.add(reviewId);
+            updatedComments.add(comment);
             return storageFindsReview;
         }
 
@@ -110,6 +112,20 @@ class ReviewServiceTest {
         assertEquals(anonymous ? "Anonym" : owner.getName(), review.getDisplayName());
         assertEquals(4, review.getRating());
         assertEquals("Bra fag", review.getComment());
+    }
+
+    /**
+     * Sjekker at innsending med en verifisert eier lagrer manglende kommentar som tom tekst.
+     */
+    @Test
+    void submitReviewWithOwnerSavesEmptyCommentWhenNull() {
+        User owner = new User("Ola Nordmann", "ola@example.com", "Passord123");
+
+        Review review = service.submitReview("IT1901", "Prosjektarbeid", owner, false, "4", null);
+
+        assertEquals(1, savedReviews.size());
+        assertSame(review, savedReviews.get(0));
+        assertEquals("", review.getComment());
     }
 
     @ParameterizedTest
@@ -419,6 +435,22 @@ class ReviewServiceTest {
     }
 
     /**
+     * Sjekker at null som ny kommentar blir tom tekst både i lagringen og i svaret.
+     */
+    @Test
+    void ownerCanRemoveReviewComment() {
+        storeReview("id-1", "ola@example.com");
+
+        Review updated = service.updateReview("id-1", "ola@example.com", "4", null, false);
+
+        assertEquals(List.of("id-1"), updatedIds);
+        assertEquals(List.of(""), updatedComments);
+        assertEquals("", updated.getComment());
+        assertEquals("id-1", updated.getId());
+        assertEquals("ola@example.com", updated.getOwnerEmail());
+    }
+
+    /**
      * Verifiserer at eieren kan slette sin egen anmeldelse.
      */
     @Test
@@ -567,6 +599,23 @@ class ReviewServiceTest {
         assertTrue(updated.isAnonymous());
         assertEquals(2, updated.getRating());
         assertEquals("Tungt", updated.getComment());
+    }
+
+    /**
+     * Sjekker at klienten kan fjerne kommentaren på en hentet anmeldelse ved å sende null.
+     */
+    @Test
+    void updateFetchedReviewSavesEmptyCommentWhenNull() {
+        Review review = new Review("id-1", "ola@example.com", "Ola", false, 4, "Bra");
+
+        Review updated = service.updateReview(review, "4", null, false);
+
+        assertEquals(List.of("id-1"), updatedIds);
+        assertEquals(List.of(""), updatedComments);
+        assertEquals("", updated.getComment());
+        assertEquals(review.getId(), updated.getId());
+        assertEquals(review.getOwnerEmail(), updated.getOwnerEmail());
+        assertEquals("Bra", review.getComment());
     }
 
     /**

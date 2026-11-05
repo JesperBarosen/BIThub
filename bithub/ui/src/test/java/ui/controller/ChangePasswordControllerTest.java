@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,6 +21,9 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 import ui.App;
@@ -65,6 +69,42 @@ class ChangePasswordControllerTest extends ApplicationTest {
 
         assertEquals("Fyll ut alle feltene.", statusLabel().getText());
         assertEquals(0, authenticationClient.changePasswordCalls.get());
+    }
+
+    /**
+     * Sjekker at hvert passordfelt kreves, selv om de to andre feltene er fylt ut.
+     *
+     * @param fieldId feltet som tømmes
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "#oldPasswordField", "#newPasswordField", "#repeatPasswordField" })
+    void rejectsChangeWhenAnySinglePasswordFieldIsMissing(String fieldId) {
+        fill("Gammelt123", "Nytt12345", "Nytt12345");
+
+        interact(() -> {
+            passwordField(fieldId).clear();
+            button("#changeButton").fire();
+        });
+
+        assertEquals("Fyll ut alle feltene.", statusLabel().getText());
+        assertEquals(0, authenticationClient.changePasswordCalls.get());
+    }
+
+    /**
+     * Sjekker at en avsluttet innlogging stopper passordbyttet før serveren kontaktes.
+     */
+    @Test
+    void loggedOutUserCannotChangePassword() {
+        fill("Gammelt123", "Nytt12345", "Nytt12345");
+
+        interact(() -> {
+            userSession.clear();
+            button("#changeButton").fire();
+        });
+
+        assertEquals("Du må være logget inn for å bytte passord.", statusLabel().getText());
+        assertEquals(0, authenticationClient.changePasswordCalls.get());
+        assertFalse(userSession.isLoggedIn());
     }
 
     @Test
@@ -160,6 +200,29 @@ class ChangePasswordControllerTest extends ApplicationTest {
         assertFalse(button("#changeButton").isDisabled());
     }
 
+    /**
+     * Sjekker at feil uten brukbar melding gir generell feil uten å tømme passordfeltene.
+     *
+     * @param message feilmeldingen fra tjenesten
+     * @throws Exception hvis ventingen på feilmeldingen feiler
+     */
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = { "   " })
+    void rejectionWithoutMessageKeepsPasswordFields(String message) throws Exception {
+        authenticationClient.error = new IllegalArgumentException(message);
+        fill("Gammelt123", "Nytt12345", "Nytt12345");
+
+        interact(() -> button("#changeButton").fire());
+
+        awaitStatus("Kunne ikke bekrefte at passordet ble endret. Prøv igjen senere.");
+        assertEquals("Gammelt123", passwordField("#oldPasswordField").getText());
+        assertEquals("Nytt12345", passwordField("#newPasswordField").getText());
+        assertEquals("Nytt12345", passwordField("#repeatPasswordField").getText());
+        assertFalse(button("#changeButton").isDisabled());
+        assertEquals(1, authenticationClient.changePasswordCalls.get());
+    }
+
     @Test
     void networkFailureGivesNoFalseConfirmation() throws Exception {
         authenticationClient.error = new UncheckedIOException(
@@ -196,6 +259,40 @@ class ChangePasswordControllerTest extends ApplicationTest {
 
         awaitStatus("Passordet er endret.");
         assertEquals(1, authenticationClient.changePasswordCalls.get());
+    }
+
+    /**
+     * Sjekker at en ekstra handling ikke sender et nytt passordbytte mens første kall venter.
+     *
+     * @throws Exception hvis bakgrunnskallet ikke starter eller svaret ikke vises
+     */
+    @Test
+    void repeatedPasswordChangeWhileRunningSendsOnlyOneRequest() throws Exception {
+        CountDownLatch started = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        authenticationClient.requestStarted = started;
+        authenticationClient.releaseRequest = release;
+        fill("Gammelt123", "Nytt12345", "Nytt12345");
+
+        try {
+            interact(() -> button("#changeButton").fire());
+            assertTrue(started.await(5, TimeUnit.SECONDS));
+
+            interact(() -> {
+                // Simulerer en handling som var på vei da knappen ble deaktivert.
+                button("#changeButton").getOnAction().handle(new ActionEvent());
+                assertTrue(button("#changeButton").isDisabled());
+                assertEquals(1, authenticationClient.changePasswordCalls.get());
+            });
+        } finally {
+            release.countDown();
+        }
+
+        awaitStatus("Passordet er endret.");
+        assertEquals(1, authenticationClient.changePasswordCalls.get());
+        assertEquals("", passwordField("#oldPasswordField").getText());
+        assertEquals("", passwordField("#newPasswordField").getText());
+        assertEquals("", passwordField("#repeatPasswordField").getText());
     }
 
     @Test
