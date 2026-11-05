@@ -1,4 +1,3 @@
-
 # BIThub - app for å skrive og lese anmeldelser av BIT fag
 
 ## Hva er BIThub?
@@ -186,9 +185,12 @@ med en annen standardadresse pakkes den på nytt.
 Windows-pakkingen er manuelt verifisert på Windows 10 med
 WiX Toolset 3.14.1.
 
-Følgende er verifisert:
+Følgende er verifisert på Windows:
 
-- Maven-bygging og opprettelse av tilpasset Java-runtime med jlink.
+- `mvn clean verify`: 558 tester bestått, ingen Checkstyle-brudd eller SpotBugs-funn.
+- `mvn -pl ui javafx:jlink` oppretter `ui/target/bithub/` og `bithub.zip`.
+- Jlink-klienten starter med `bin\bithub.bat` og fungerer mot server-JAR-en:
+  innlogging, gjestemodus og lesing og skriving av anmeldelser.
 - Generering av Windows-installasjonsfil med jpackage via Maven.
 - Generering av Windows app-image med pakkeskriptet.
 - Oppstart av Spring Boot fra kjørbar JAR.
@@ -198,8 +200,8 @@ Følgende er verifisert:
 Den tidligere Windows-løsningen er også prøvekjørt med installert
 JavaFX-klient mot kjørende REST-server.
 
-macOS- og Linux-pakkingen er konfigurert gjennom Maven, men er
-foreløpig ikke manuelt verifisert på disse operativsystemene.
+macOS-pakkingen er også manuelt testet. Linux-pakkingen er konfigurert
+via Maven, men er foreløpig ikke manuelt verifisert.
 
 ## Brukerlagring på REST-serveren
 
