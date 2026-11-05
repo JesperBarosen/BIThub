@@ -2,19 +2,36 @@
 
 ## Hva er BIThub?
 
-Beskrivelsen under viser appens planlagte funksjonalitet når programmet er ferdigstilt.
-BIThub skal gjøre det mulig for studenter ved BIT (Bachelor i informatikk) å legge igjen en offentlig anmeldelse av fag de har fullført. Hensikten med appen er at studenter skal kunne dele sine erfaringer med ulike fag ved BIT, slik at andre studenter og forelesere kan få nytte av det (se brukerhistorier).
+BIThub gjør det mulig for studenter ved BIT (Bachelor i informatikk) å skrive offentlige anmeldelser av emner de har tatt. Hensikten med appen er at studenter skal kunne dele erfaringene sine med ulike emner, slik at andre studenter og forelesere kan få nytte av dem (se [brukerhistoriene](#brukerhistorier)).
 
-Fra hjemskjermen kan man velge mellom å lese anmeldelser, skrive en anmeldelse og se egne anmeldelser.
+Når man åpner appen, kommer man til innloggingssiden. Der kan man logge inn, registrere en ny bruker eller fortsette som gjest. Fra hjemmesiden kan man velge mellom å lese anmeldelser, skrive en anmeldelse og se egne anmeldelser.
 
-**Lese anmeldelser:** Man kan bla gjennom fagene som tilbys på BIT, sortert etter fagkode, eller søke dem opp. Trykker man på et fag, får man se anmeldelsene av faget, gjennomsnittlig vurdering fra 1 til 5 og antall anmeldelser.
+<table>
+  <tr>
+    <td align="center"><img src="../docs/release3/bilder_release3/Home.png" alt="Hjemmesiden" height="300"></td>
+    <td align="center"><img src="../docs/release3/bilder_release3/ReadReviews.png" alt="Anmeldelser av TDT4100" height="300"></td>
+    <td align="center"><img src="../docs/release3/bilder_release3/WriteReview.png" alt="Skrive anmeldelse" height="300"></td>
+  </tr>
+</table>
 
-**Skrive anmeldelse:** Man velger fag på samme måte som når man leser. Deretter fyller man ut et skjema der man vurderer faget fra 1 til 5, skriver en kommentar og velger om anmeldelsen skal være anonym.
+**Lese anmeldelser:** Man velger et emne fra listen over alle emnene i studieplanen, eller søker det opp med emnekode eller navn. Deretter ser man anmeldelsene av emnet, antall anmeldelser og gjennomsnittlig vurdering, både som stjerner og som tall. Gjester kan også lese anmeldelser.
 
-**Mine anmeldelser:** Her kan man endre og slette anmeldelsene man har skrevet selv.
+**Skrive anmeldelse:** Man velger emne på samme måte som når man leser. Deretter gir man emnet fra en til fem stjerner, skriver en kommentar hvis man vil, og velger om anmeldelsen skal være anonym. Man må være logget inn for å skrive en anmeldelse, og hver bruker kan skrive en anmeldelse per emne.
 
-**Profil:** Her kan man endre navn, brukernavn og passord, og logge ut.
-Informasjon om appen finnes via lenken nederst på innloggings- og hjemskjermen.
+**Mine anmeldelser:** Her ser man anmeldelsene man har skrevet selv, også de anonyme. Man kan endre vurderingen, kommentaren og om anmeldelsen er anonym, eller slette anmeldelsen.
+
+**Profil:** Profilsymbolet øverst til høyre åpner profilsiden fra alle sidene inne i appen. Der ser man navnet og e-posten sin, og kan endre navn og passord og logge ut. E-posten kan ikke endres.
+
+Informasjon om appen finnes via lenken «Mer info om appen her.» nederst på innloggingssiden og hjemmesiden.
+
+### Anonyme anmeldelser og gjesteanmeldelser
+
+Begge typene vises uten navn, men de er ikke det samme:
+
+- **Anonyme anmeldelser** vises som «Anonym», men har en eier. Serveren lagrer hvem som skrev anmeldelsen, slik at eieren kan endre og slette den. E-posten til eieren sendes aldri ut fra serveren.
+- **Gjesteanmeldelser** er gamle anmeldelser fra release 2, da man kunne skrive anmeldelser uten å logge inn. De vises som «Gjest», har ingen eier og kan ikke endres eller slettes av noen. Det blir ikke laget nye gjesteanmeldelser.
+
+Mer om dette står i [release3.md](../docs/release3/release3.md#anonyme-anmeldelser-og-gjesteanmeldelser).
 
 ## Funksjonalitet
 
@@ -25,19 +42,25 @@ Informasjon om appen finnes via lenken nederst på innloggings- og hjemskjermen.
 - **Skrive anmeldelser:** Velge et fag og skrive en anmeldelse med vurdering fra 1 til 5, kommentar og anonymitet.
 - **Lagre anmeldelser:** Anmeldelser valideres og lagres automatisk i en JSON-fil.
 
-### Implementert til release 3
+### Implementert i release 3
 
-- **Søk etter fag:** Filtrer emnelisten på emnekode eller emnenavn mens
+- **Innlogging og registrering:** Lage en bruker med navn, e-post og passord, og logge inn. Passordet kan vises mens man skriver det.
+- **Gjestemodus:** Fortsette uten bruker og lese anmeldelser. Gjester kan logge inn eller registrere seg fra hjemmesiden.
+- **Søk etter emne:** Filtrer emnelisten på emnekode eller emnenavn mens
   du skriver. Søket ignorerer store og små bokstaver og mellomrom før
   og etter søket. Trefflisten åpnes automatisk og viser opptil seks
   emner om gangen, med rulling ved flere treff. Tomt søk viser alle
   emner. Søkefeltet brukes både når man skal lese og skrive anmeldelser.
+- **Alle emner:** Emnelisten inneholder alle emnene i studieplanen.
+- **Stjerner:** Vurderingen gis og vises som en til fem stjerner.
+- **Anonymitet:** Skrive anonymt. Anmeldelsen vises som «Anonym», men eieren kan fortsatt endre og slette den.
+- **En anmeldelse per emne:** Har man allerede anmeldt et emne, endrer man anmeldelsen under «Mine anmeldelser» i stedet for å skrive en ny.
+- **Mine anmeldelser:** Se, endre og slette egne anmeldelser.
+- **Profil:** Se navn og e-post, endre navn og passord, og logge ut.
+- **Glemt passord og infoside:** Lese om appen, anonymitet og retningslinjer for anmeldelser, og hva man gjør hvis man har glemt passordet.
+- **REST-server:** Klienten henter og lagrer alt gjennom en Spring Boot-server, og bare serveren leser og skriver filene.
 
-### Planlagt til release 3
-
-- **Innlogging og registrering:** Koble brukere til appen og lage sidene for dem.
-- **Profil:** Lage en profilside hvor det er mulig å endre navn og passord.
-- **Mine anmeldelser:** Implementere slik at dine tidligere skrevne anmeldelser dukker opp her.
+En oversikt med issue-numre og skjermbilder fra den ferdige appen står i [release3.md](../docs/release3/release3.md).
 
 ## Bygging, installasjon og oppstart
 
@@ -213,12 +236,14 @@ Brukere lagres som JSON med navn, e-post, passordhash og salt. Standardfilen
 er `.bithub/users.json` i hjemmemappen til brukeren som kjører serveren.
 Filstien kan overstyres med Spring-innstillingen `bithub.users-file`.
 
-Serverkoblingen er på plass. REST-endepunkter for registrering og
-innlogging implementeres i #174.
+Registrering, innlogging, passordbytte og navnebytte går gjennom endepunktene
+`POST /api/users`, `POST /api/login`, `PUT /api/users/{email}/password` og
+`PUT /api/users/{email}/name`. De er beskrevet i [rest-api.md](../docs/release3/rest-api.md).
 
 ## Illustrerende skjermbilde - Figma
 
-Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal se ut og fungere når den er ferdig
+Vi lagde skisser i Figma før vi begynte å kode, for å beskrive hvordan appen skulle se ut og fungere. Den ferdige
+appen ser litt annerledes ut. Skjermbilder av den står i [release3.md](../docs/release3/release3.md#skjermbilder).
 
 ### Innlogging og registrering
 
