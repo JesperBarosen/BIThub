@@ -2,16 +2,14 @@
 
 [open in Eclipse Che](https://che.iaas.ntnu.no/#https://git.ntnu.no/IT1901-2026-groups/gr2610?new)
 
-Dette er kodelageret til gruppe 2610 i faget IT1901 ved NTNU. Vi lager BIThub, en app der studenter kan anmelde emner
-med en til fem stjerner og en kommentar.
+BIThub er en app der studenter kan anmelde emner med en til fem stjerner og en kommentar. Den er laget av gruppe 2610
+i IT1901 ved NTNU, og består av en JavaFX-klient og en REST-server. Prosjektet er delt i fire moduler:
 
-## Innhold
-
-- [Funksjonalitet](#funksjonalitet)
-- [Kom i gang](#kom-i-gang)
-- [Dokumentasjon](#dokumentasjon)
-- [Arkitektur](#arkitektur)
-- [Mappestruktur](#mappestruktur)
+- `core` har domeneklassene, valideringen og tjenestene.
+- `file` leser og skriver dataene som JSON-filer.
+  - Filene ligger i `.bithub/` i hjemmemappen.
+- `springboot/restserver` er REST-serveren.
+- `ui` har brukergrensesnittet i JavaFX.
 
 ## Funksjonalitet
 
@@ -22,26 +20,66 @@ med en til fem stjerner og en kommentar.
 | Innloggede brukere | Skrive en anmeldelse per emne, med navn eller anonymt, og se, endre og slette egne anmeldelser under «Mine anmeldelser» |
 | Innloggede brukere | Se navn og e-post på profilsiden, endre navn og passord, og logge ut |
 
-I release 3 delte vi appen i en REST-server og en JavaFX-klient, og utvidet appen med brukerkontoer, gjestemodus,
-emnesøk, stjerner og «Mine anmeldelser». Klienten henter og sender alle data over HTTP, og bare serveren leser og skriver
-JSON-filene.
+Se [bithub/README.md](bithub/README.md) for en beskrivelse av appen og brukerhistorier.
 
-Se [bithub/README.md](bithub/README.md) for en beskrivelse av appen, skisser fra Figma og brukerhistorier.
+## Arkitektur
 
-## Kom i gang
+Kodingsprosjektet ligger i [`bithub/`](bithub/) og består av fire Maven-moduler. `core`, `file` og `ui` er i tillegg
+egne Java-moduler (`module-info.java`), slik at avhengighetene mellom lagene er eksplisitte.
 
-### Verktøy
+| Modul | Ansvar | Avhengig av |
+|---|---|---|
+| `core` (`bithub.core`) | Domeneklasser, validering, tjenester og grensesnitt for lagring | Ingen av de andre modulene |
+| `file` (`bithub.file`) | Implementerer [`ReviewRepository`](bithub/core/src/main/java/core/repository/ReviewRepository.java) og [`UserRepository`](bithub/core/src/main/java/core/repository/UserRepository.java) med JSON-filer | `core`, Jackson |
+| `ui` (`bithub.ui`) | JavaFX-klienten, som henter data fra serveren med [`RemoteReviewRepository`](bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java) | `core`, JavaFX, ControlsFX, Jackson, `java.net.http` |
+| `springboot/restserver` (`rest`) | REST-serveren, den eneste som leser og skriver JSON-filene | `core`, `file`, Spring Boot |
+
+REST-API-et er beskrevet i [docs/release3/rest-api.md](docs/release3/rest-api.md).
+
+### Pakkediagram
+
+[![Pakkediagram for BIThub](arkitektur/png/pakkeDiagram.png)](arkitektur/png/pakkeDiagram.png)
+
+Kildefilen til diagrammet ligger i [`arkitektur/pakkeDiagram.puml`](arkitektur/pakkeDiagram.puml).
+
+### Klassediagram for core
+
+[![Klassediagram for core](arkitektur/png/klassediagramCore.png)](arkitektur/png/klassediagramCore.png)
+
+Kildefilen til diagrammet ligger i [`arkitektur/klassediagramCore.puml`](arkitektur/klassediagramCore.puml).
+
+### Klassediagram for file
+
+[![Klassediagram for file](arkitektur/png/klassediagramFile.png)](arkitektur/png/klassediagramFile.png)
+
+Kildefilen til diagrammet ligger i [`arkitektur/klassediagramFile.puml`](arkitektur/klassediagramFile.puml).
+
+### Sekvensdiagrammer
+
+Sekvensdiagrammer for brukerhistorie 1 og 2 ligger i [bithub/README.md](bithub/README.md#brukerhistorier).
+
+## Krav
 
 | Verktøy | Versjon | Merknad |
 |---|---|---|
-| JDK | 17 eller nyere | Må installeres selv. Bruk JDK 21 hvis du skal lage installasjonsprogrammet. |
+| JDK | 17 eller nyere | Må installeres selv |
 | Maven | 3.9 eller nyere | Må installeres selv |
 | WiX Toolset | 3.14 | Bare for å lage installasjonsprogrammet på Windows |
 
-Maven laster ned resten ved bygging: JavaFX 21, ControlsFX 11.2, Spring Boot 3.4, Jackson, JUnit 5, TestFX,
-Mockito, JaCoCo, Checkstyle og SpotBugs.
+Maven laster ned resten ved bygging:
 
-### Kjøre lokalt
+- JavaFX 21
+- ControlsFX 11.2.1
+- Spring Boot 3.4.5
+- Jackson 2.15.2
+- JUnit 5.12.2
+- TestFX 4.0.18
+- Mockito 5.18.0
+- JaCoCo 0.8.12
+- Checkstyle 10.26.1
+- SpotBugs 4.8.6.6
+
+## Kjøre lokalt
 
 Appen trenger at REST-serveren kjører. Start serveren i en terminal fra `bithub/`:
 
@@ -63,7 +101,7 @@ Serveren kjører på `http://localhost:8080` og lagrer dataene i `courses.json` 
 Vil du prøve appen med ferdige data og testbrukere, står fremgangsmåten i
 [docs/release3/release3.md](docs/release3/release3.md#eksempeldata).
 
-### Kjøre i Eclipse Che
+## Kjøre i Eclipse Che
 
 1. Åpne lenken «open in Eclipse Che» øverst i denne filen.
 2. Kjør «1. Bygg og test (mvn clean verify)».
@@ -73,7 +111,7 @@ Vil du prøve appen med ferdige data og testbrukere, står fremgangsmåten i
 
 Kommandoene er definert i [`devfile.yaml`](devfile.yaml).
 
-### Bygge og teste
+## Bygge og teste
 
 Kommandoene kjøres fra `bithub/`:
 
@@ -90,113 +128,25 @@ Testdekningsrapporten ligger i `target/site/jacoco/index.html` i hver modul, for
 
 Hva kontrollene sjekker, står i [docs/release3/code-quality.md](docs/release3/code-quality.md).
 
-### Lage et ferdig produkt
+## Lage et ferdig produkt
 
-Hvordan du bygger serveren som en kjørbar JAR-fil og lager et installasjonsprogram for klienten med jlink og jpackage,
-står i [bithub/README.md](bithub/README.md#bygging-installasjon-og-oppstart).
+Kommandoene kjøres fra `bithub/`. Bygg serveren som en kjørbar JAR-fil og start den:
 
-## Dokumentasjon
+```bash
+mvn clean verify
+java -jar springboot/restserver/target/rest-0.0.1-SNAPSHOT.jar
+```
 
-Dokumentasjonen for hver innlevering ligger i egen mappe under `docs/`:
+Pakk klienten med jlink og jpackage:
 
-- [Release 1](docs/release1/release1.md)
-- [Release 2](docs/release2/release2.md)
-- [Release 3](docs/release3/release3.md)
+```bash
+mvn -pl ui -am clean install -DskipTests
+mvn -pl ui javafx:jlink
+mvn -pl ui jpackage:jpackage
+```
 
-Tekniske dokumenter for release 3:
-
-- [REST-API](docs/release3/rest-api.md)
-- [Tester for REST-serveren](docs/release3/rest-tester.md)
-- [Pakkestruktur](docs/release3/pakkestruktur.md)
-- [Kodekvalitet](docs/release3/code-quality.md)
-- [Persistens](docs/release3/persistence.md)
-- [JavaFX og asynkrone kall](docs/release3/javafx.md)
-
-Prosess og refleksjon for release 3:
-
-- [Arbeidsflyt](docs/release3/workflow.md)
-- [Samarbeid i teamet](docs/release3/teamwork.md)
-- [Bidrag fra hvert medlem](docs/release3/contribution.md)
-- [De største utfordringene](docs/release3/challenges.md)
-- [Bærekraft](docs/release3/sustainability.md)
-- [Bruk av KI-verktøy](docs/release3/ai-tools.md)
-
-## Arkitektur
-
-Kodingsprosjektet ligger i [`bithub/`](bithub/) og består av fire Maven-moduler. `core`, `file` og `ui` er i tillegg
-egne Java-moduler (`module-info.java`), slik at avhengighetene mellom lagene er eksplisitte.
-
-| Modul | Ansvar | Avhengig av |
-|---|---|---|
-| `core` (`bithub.core`) | Domeneklasser, validering, tjenester og grensesnitt for lagring | Ingen av de andre modulene |
-| `file` (`bithub.file`) | Implementerer [`ReviewRepository`](bithub/core/src/main/java/core/repository/ReviewRepository.java) og [`UserRepository`](bithub/core/src/main/java/core/repository/UserRepository.java) med JSON-filer | `core`, Jackson |
-| `ui` (`bithub.ui`) | JavaFX-klienten, som henter data fra serveren med [`RemoteReviewRepository`](bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java) | `core`, JavaFX, ControlsFX, Jackson, `java.net.http` |
-| `springboot/restserver` (`rest`) | REST-serveren, den eneste som leser og skriver JSON-filene | `core`, `file`, Spring Boot |
-
-Serverens tester bruker også `ui`, slik at klienten kan testes mot den ekte serveren i
-[`RemoteClientIntegrationTest`](bithub/springboot/restserver/src/test/java/rest/RemoteClientIntegrationTest.java).
-Serveren er ikke avhengig av `ui` når den kjører.
-
-### REST-arkitektur
-
-Klienten og serveren kjører som to separate programmer. Ingen av kontrollerne i `ui` kjenner `Remote*`-klassene. De
-bruker tjenester og grensesnitt, mens klassene i [`ui.client`](bithub/ui/src/main/java/ui/client) gjør kallene om til
-HTTP-forespørsler.
-
-- **Samme domenelogikk på begge sider:** [`ReviewService`](bithub/core/src/main/java/core/service/ReviewService.java)
-  validerer anmeldelsen i klienten før den sendes. Serveren validerer den på nytt, fordi den ikke stoler på at klienten
-  har sjekket noe.
-- **Innlogging:** [`RemoteAuthenticationClient`](bithub/ui/src/main/java/ui/client/RemoteAuthenticationClient.java)
-  sender innlogging og registrering til
-  [`UserController`](bithub/springboot/restserver/src/main/java/rest/api/UserController.java). Serveren lager et token
-  med [`TokenService`](bithub/springboot/restserver/src/main/java/rest/auth/TokenService.java) og sender det tilbake.
-- **Token i klienten:** [`UserSession`](bithub/ui/src/main/java/ui/session/UserSession.java) tar vare på tokenet og gir
-  det videre til [`RemoteReviewRepository`](bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java), som sender
-  det i headeren `Authorization` så lenge brukeren er innlogget. Passordbytte, navnebytte og utlogging går gjennom
-  [`RemoteAuthenticationClient`](bithub/ui/src/main/java/ui/client/RemoteAuthenticationClient.java).
-- **Bare serveren bruker `file`:** `ui` er ikke avhengig av `file`, så klienten kan ikke lese eller skrive filene selv.
-  Kontrollerne på serveren bruker tjenestene i `core`, som lagrer gjennom
-  [`ReviewHandler`](bithub/file/src/main/java/file/ReviewHandler.java) og
-  [`UserHandler`](bithub/file/src/main/java/file/UserHandler.java).
-
-Alle forespørslene serveren støtter, med eksempler, statuskoder og innlogging, er beskrevet i
-[docs/release3/rest-api.md](docs/release3/rest-api.md).
-
-### Pakkediagram
-
-![Pakkediagram for BIThub](arkitektur/png/pakkeDiagram.png)
-
-Kildefilen til diagrammet ligger i [`arkitektur/pakkeDiagram.puml`](arkitektur/pakkeDiagram.puml).
-
-### Klassediagram for core
-
-![Klassediagram for core](arkitektur/png/klassediagramCore.png)
-
-Kildefilen til diagrammet ligger i [`arkitektur/klassediagramCore.puml`](arkitektur/klassediagramCore.puml).
-
-- Et [`Course`](bithub/core/src/main/java/core/model/Course.java) har en liste med
-  [`Review`](bithub/core/src/main/java/core/model/Review.java), og regner ut gjennomsnittlig vurdering.
-- [`ReviewService`](bithub/core/src/main/java/core/service/ReviewService.java) validerer og sender anmeldelser videre,
-  men kjenner bare grensesnittet [`ReviewRepository`](bithub/core/src/main/java/core/repository/ReviewRepository.java).
-  Slik er ikke `core` avhengig av hvordan dataene lagres.
-
-### Klassediagram for file
-
-![Klassediagram for file](arkitektur/png/klassediagramFile.png)
-
-Kildefilen til diagrammet ligger i [`arkitektur/klassediagramFile.puml`](arkitektur/klassediagramFile.puml).
-
-- [`ReviewHandler`](bithub/file/src/main/java/file/ReviewHandler.java) og
-  [`UserHandler`](bithub/file/src/main/java/file/UserHandler.java) implementerer
-  [`DataHandler`](bithub/file/src/main/java/file/storage/DataHandler.java) og leser og skriver JSON med Jackson.
-- [`ReviewHandler`](bithub/file/src/main/java/file/ReviewHandler.java) gjør om mellom domeneklassene
-  ([`Course`](bithub/core/src/main/java/core/model/Course.java), [`Review`](bithub/core/src/main/java/core/model/Review.java))
-  og objektene som lagres i filen ([`CourseDTO`](bithub/file/src/main/java/file/dto/CourseDTO.java),
-  [`ReviewDTO`](bithub/file/src/main/java/file/dto/ReviewDTO.java)).
-
-### Sekvensdiagrammer
-
-Sekvensdiagrammer for brukerhistorie 1 og 2 ligger i [bithub/README.md](bithub/README.md#brukerhistorier).
+Klienten havner i `ui/target/bithub/` og startes med `bin/bithub` (`bin\bithub.bat` på Windows), og
+installasjonsfilen havner i `ui/target/jpackage/`. På Windows trengs WiX Toolset for å lage installasjonsfilen.
 
 ## Mappestruktur
 
@@ -205,7 +155,7 @@ Sekvensdiagrammer for brukerhistorie 1 og 2 ligger i [bithub/README.md](bithub/R
     ├───pom.xml
     │    -- Foreldre-POM som samler modulene core, file, ui og springboot/restserver.
     ├───README.md
-    │    -- Beskrivelse av appen, bygging og pakking, skisser fra Figma og brukerhistorier.
+    │    -- Beskrivelse av appen og brukerhistorier.
     │
     ├───core/src/main/java/core
     │   ├───model
@@ -263,3 +213,12 @@ Sekvensdiagrammer for brukerhistorie 1 og 2 ligger i [bithub/README.md](bithub/R
 
 Hver modul har testene sine under `src/test/java`, og de ligger stort sett i samme pakker som klassene de tester. Hva
 hver pakke inneholder, og hvorfor vi delte det slik, står i [docs/release3/pakkestruktur.md](docs/release3/pakkestruktur.md).
+
+## Dokumentasjon
+
+Dokumentasjonen for hver innlevering ligger i egen mappe under `docs/`. Release 3 lenker til de tekniske
+dokumentene og refleksjonene:
+
+- [Release 1](docs/release1/release1.md)
+- [Release 2](docs/release2/release2.md)
+- [Release 3](docs/release3/release3.md)
