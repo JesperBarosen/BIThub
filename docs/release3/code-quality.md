@@ -82,15 +82,12 @@ Tallene gjelder hver modul samlet, ikke hver enkelt klasse.
 I #206 brukte vi rapportene til å prioritere manglende feilsituasjoner og
 kodeveier. Vi la blant annet til tester for hvert tomme felt separat i innlogging,
 registrering og passordbytte, manglende kontrolleroppsett, tomme feilmeldinger og
-gjentatte handlinger mens
-serverkall pågår. Vi testet også at mislykket endring eller sletting beholder
-brukerens data, og at REST-klientene håndterer ugyldige eller mangelfulle svar.
-Målet for denne gjennomgangen var over 90 % branch-dekning i alle fire moduler.
-Vi endret ikke appkoden eller utelot kode fra rapportene for å nå målet.
+gjentatte handlinger mens serverkall pågår. Vi testet også at mislykket endring
+eller sletting beholder brukerens data, og at REST-klientene håndterer ugyldige
+eller mangelfulle svar.
 
-Det gjenstår noen udekkede kodeveier i brukergrensesnittet, selv om alle modulene
-har over 90 % branch-dekning. Dekningstallene er hentet fra en full kjøring av
-`mvn clean verify`.
+Det gjenstår noen udekkede kodeveier i brukergrensesnittet. Dekningstallene er
+hentet fra en full kjøring av `mvn clean verify`.
 
 ## Checkstyle
 
