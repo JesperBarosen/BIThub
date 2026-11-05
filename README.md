@@ -3,7 +3,7 @@
 [open in Eclipse Che](https://che.iaas.ntnu.no/#https://git.ntnu.no/IT1901-2026-groups/gr2610?new)
 
 Dette er kodelageret til gruppe 2610 i faget IT1901 ved NTNU. Vi lager BIThub, en app der studenter kan anmelde emner
-med terningkast 1-5 og kommentar.
+med en til fem stjerner og en kommentar.
 
 ## Innhold
 
@@ -19,14 +19,14 @@ med terningkast 1-5 og kommentar.
 |---|---|
 | Alle | Søke opp emner, lese anmeldelser med gjennomsnittlig vurdering og antall anmeldelser, og åpne infosiden |
 | Gjester | Fortsette uten konto, og logge inn eller registrere seg senere |
-| Innloggede brukere | Skrive anmeldelser med navn eller anonymt, og se, endre og slette egne anmeldelser under «Mine anmeldelser» |
-| Innloggede brukere | Se navn og e-post på profilsiden, bytte passord og logge ut |
+| Innloggede brukere | Skrive en anmeldelse per emne, med navn eller anonymt, og se, endre og slette egne anmeldelser under «Mine anmeldelser» |
+| Innloggede brukere | Se navn og e-post på profilsiden, endre navn og passord, og logge ut |
 
 I release 3 delte vi appen i en REST-server og en JavaFX-klient, og utvidet appen med brukerkontoer, gjestemodus,
-emnesøk og «Mine anmeldelser». Klienten henter og sender alle data over HTTP, og bare serveren leser og skriver
+emnesøk, stjerner og «Mine anmeldelser». Klienten henter og sender alle data over HTTP, og bare serveren leser og skriver
 JSON-filene.
 
-Se [bithub/README.md](bithub/README.md) for skisser fra Figma og brukerhistorier.
+Se [bithub/README.md](bithub/README.md) for en beskrivelse av appen, skisser fra Figma og brukerhistorier.
 
 ## Kom i gang
 
@@ -38,12 +38,12 @@ Se [bithub/README.md](bithub/README.md) for skisser fra Figma og brukerhistorier
 | Maven | 3.9 eller nyere | Må installeres selv |
 | WiX Toolset | 3.14 | Bare for å lage installasjonsprogrammet på Windows |
 
-Maven laster ned resten ved bygging: JavaFX 21, Spring Boot 3.4, Jackson, JUnit 5, TestFX, Mockito, JaCoCo,
-Checkstyle og SpotBugs.
+Maven laster ned resten ved bygging: JavaFX 21, ControlsFX 11.2, Spring Boot 3.4, Jackson, JUnit 5, TestFX,
+Mockito, JaCoCo, Checkstyle og SpotBugs.
 
 ### Kjøre lokalt
 
-Appen trenger at REST-serveren kjører. Start serveren i én terminal fra `bithub/`:
+Appen trenger at REST-serveren kjører. Start serveren i en terminal fra `bithub/`:
 
 ```bash
 mvn install -DskipTests
@@ -93,7 +93,7 @@ Hva kontrollene sjekker, står i [docs/release3/code-quality.md](docs/release3/c
 ### Lage et ferdig produkt
 
 Hvordan du bygger serveren som en kjørbar JAR-fil og lager et installasjonsprogram for klienten med jlink og jpackage,
-står i [bithub/README.md](bithub/README.md#bygging-installasjon-og-oppstart-på-windows).
+står i [bithub/README.md](bithub/README.md#bygging-installasjon-og-oppstart).
 
 ## Dokumentasjon
 
@@ -130,7 +130,7 @@ egne Java-moduler (`module-info.java`), slik at avhengighetene mellom lagene er 
 |---|---|---|
 | `core` (`bithub.core`) | Domeneklasser, validering, tjenester og grensesnitt for lagring | Ingen av de andre modulene |
 | `file` (`bithub.file`) | Implementerer [`ReviewRepository`](bithub/core/src/main/java/core/repository/ReviewRepository.java) og [`UserRepository`](bithub/core/src/main/java/core/repository/UserRepository.java) med JSON-filer | `core`, Jackson |
-| `ui` (`bithub.ui`) | JavaFX-klienten, som henter data fra serveren med [`RemoteReviewRepository`](bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java) | `core`, JavaFX, Jackson, `java.net.http` |
+| `ui` (`bithub.ui`) | JavaFX-klienten, som henter data fra serveren med [`RemoteReviewRepository`](bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java) | `core`, JavaFX, ControlsFX, Jackson, `java.net.http` |
 | `springboot/restserver` (`rest`) | REST-serveren, den eneste som leser og skriver JSON-filene | `core`, `file`, Spring Boot |
 
 Serverens tester bruker også `ui`, slik at klienten kan testes mot den ekte serveren i
@@ -152,7 +152,7 @@ HTTP-forespørsler.
   med [`TokenService`](bithub/springboot/restserver/src/main/java/rest/auth/TokenService.java) og sender det tilbake.
 - **Token i klienten:** [`UserSession`](bithub/ui/src/main/java/ui/session/UserSession.java) tar vare på tokenet og gir
   det videre til [`RemoteReviewRepository`](bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java), som sender
-  det i headeren `Authorization` så lenge brukeren er innlogget. Passordbytte og utlogging går gjennom
+  det i headeren `Authorization` så lenge brukeren er innlogget. Passordbytte, navnebytte og utlogging går gjennom
   [`RemoteAuthenticationClient`](bithub/ui/src/main/java/ui/client/RemoteAuthenticationClient.java).
 - **Bare serveren bruker `file`:** `ui` er ikke avhengig av `file`, så klienten kan ikke lese eller skrive filene selv.
   Kontrollerne på serveren bruker tjenestene i `core`, som lagrer gjennom
@@ -205,7 +205,7 @@ Sekvensdiagrammer for brukerhistorie 1 og 2 ligger i [bithub/README.md](bithub/R
     ├───pom.xml
     │    -- Foreldre-POM som samler modulene core, file, ui og springboot/restserver.
     ├───README.md
-    │    -- Skisser fra Figma og brukerhistorier.
+    │    -- Beskrivelse av appen, bygging og pakking, skisser fra Figma og brukerhistorier.
     │
     ├───core/src/main/java/core
     │   ├───model
@@ -247,7 +247,7 @@ Sekvensdiagrammer for brukerhistorie 1 og 2 ligger i [bithub/README.md](bithub/R
             ├───java/ui
             │   │   -- App starter appen, og Navigation åpner skjermene.
             │   ├───controller
-            │   │   -- Én kontroller per skjerm.
+            │   │   -- En kontroller per skjerm.
             │   ├───client
             │   │   -- RemoteReviewRepository og RemoteAuthenticationClient snakker med REST-serveren.
             │   │   -- AuthenticationClient er grensesnittet kontrollerne bruker for innlogging.
@@ -256,6 +256,7 @@ Sekvensdiagrammer for brukerhistorie 1 og 2 ligger i [bithub/README.md](bithub/R
             │   └───util
             │       -- BackgroundTaskRunner kjører serverkall i bakgrunnen.
             │       -- PasswordVisibility viser og skjuler passord.
+            │       -- RatingStars viser vurderinger som stjerner med ControlsFX.
             └───resources/ui
                 -- FXML-filene og Style.css for brukergrensesnittet.
 ```
