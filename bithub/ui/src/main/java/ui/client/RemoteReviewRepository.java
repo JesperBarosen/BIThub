@@ -31,7 +31,7 @@ import java.util.Optional;
  * kan bruke serveren uten å vite at dataene kommer over HTTP. Formatet på forespørslene og svarene
  * er beskrevet i {@code docs/release3/rest-api.md}.
  *
- * <p>Feil håndteres slik: <ul> <li>{@code 400}, {@code 403} og {@code 404} gir
+ * <p>Feil håndteres slik: <ul> <li>{@code 400}, {@code 403}, {@code 404} og {@code 409} gir
  * {@link IllegalArgumentException} med meldingen fra serveren, unntatt {@code 404} i
  * {@link #findCourse(String)}, som gir et tomt resultat, og {@code 403} og {@code 404} ved endring
  * og sletting.</li> <li>{@code 401} gir {@link IllegalArgumentException} med beskjed om å logge inn
@@ -176,8 +176,8 @@ public final class RemoteReviewRepository implements ReviewRepository {
      * @param courseCode emnekoden
      * @param courseName navnet på emnet, brukes ikke fordi serveren kjenner emnet fra før
      * @param review     anmeldelsen som skal lagres
-     * @throws IllegalArgumentException hvis serveren avviser anmeldelsen (400) eller emnet ikke
-     *                                      finnes (404)
+     * @throws IllegalArgumentException hvis serveren avviser anmeldelsen (400), emnet ikke finnes
+     *                                      (404), eller brukeren allerede har anmeldt emnet (409)
      * @throws UncheckedIOException     hvis serveren ikke svarer eller svarer med en annen feil
      */
     @Override
@@ -360,12 +360,12 @@ public final class RemoteReviewRepository implements ReviewRepository {
     }
 
     /**
-     * Sjekker statuskoden i svaret. Feil fra klienten (400, 403 og 404) gir meldingen fra serveren,
-     * og 401 gir beskjed om å logge inn på nytt. Andre feil behandles som at serveren ikke kunne
-     * svare.
+     * Sjekker statuskoden i svaret. Feil fra klienten (400, 403, 404 og 409) gir meldingen fra
+     * serveren, og 401 gir beskjed om å logge inn på nytt. Andre feil behandles som at serveren
+     * ikke kunne svare.
      *
      * @param response svaret fra serveren
-     * @throws IllegalArgumentException hvis statuskoden er 400, 401, 403 eller 404
+     * @throws IllegalArgumentException hvis statuskoden er 400, 401, 403, 404 eller 409
      * @throws UncheckedIOException     hvis statuskoden er en annen feil
      */
     private void checkStatus(HttpResponse<String> response) {
@@ -376,7 +376,7 @@ public final class RemoteReviewRepository implements ReviewRepository {
         if (status == 401) {
             throw new IllegalArgumentException(NOT_LOGGED_IN_MESSAGE);
         }
-        if (status == 400 || status == 403 || status == 404) {
+        if (status == 400 || status == 403 || status == 404 || status == 409) {
             throw new IllegalArgumentException(errorMessage(response));
         }
         throw new UncheckedIOException(
