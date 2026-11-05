@@ -584,7 +584,7 @@ Koden skal primært være selvdokumenterende gjennom gode navnevalg på variable
 * **Forklar *hvorfor*, ikke *hva*:** Kommentarer skal forklare bakgrunnen for komplekse logiske valg, forretningsregler eller omveier (workarounds), heller enn å gjenta hva koden gjør linje for linje.
 * **Javadoc:** Offentlige API-er, sentrale grensesnitt (interfaces) og komplekse offentlige metoder skal ha Javadoc som beskriver hva metoden gjør, argumenter (`@param`), returverdi (`@return`) og eventuelle unntak (`@throws`).
 * **Unngå utdatert og utkommentert kode:** Utkommentert kode skal ikke committes til `master`. Ubrukt kode fjernes helt, da tidligere versjoner uansett ligger i Git-historikken.
-* **TODO-kommentarer:** `// TODO:` kan brukes underveis i utviklingen på egne bransjer, men skal som hovedregel være resolved eller fylt ut før en Pull Request slås sammen med `master`.
+* **TODO-kommentarer:** `// TODO:` kan brukes underveis i utviklingen på egne brancher, men skal som hovedregel være resolved eller fylt ut før en Pull Request slås sammen med `master`.
 
 ## <span style="color:#E2E8F0"><u>Mal</u></span>
 

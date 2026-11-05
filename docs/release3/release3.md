@@ -21,8 +21,8 @@ Prosess og refleksjon:
 - [sustainability.md](sustainability.md) – bærekraft i BIThub
 - [ai-tools.md](ai-tools.md) – bruk av KI-verktøy
 
-Arkitektur, byggeinstruksjoner og diagrammer finnes i [README](../../README.md). Beskrivelse av appen, skisser
-fra Figma og brukerhistorier finnes i [bithub/README.md](../../bithub/README.md).
+Arkitektur, byggeinstruksjoner og diagrammer finnes i [README](../../README.md). Beskrivelse av appen og
+brukerhistorier finnes i [bithub/README.md](../../bithub/README.md).
 
 ## Mål for release 3
 
@@ -207,6 +207,29 @@ og [rest-tester.md](rest-tester.md).
 
 Ved innlevering av release 3 gir `mvn clean verify` ingen Checkstyle-warnings og ingen SpotBugs-funn utover de
 dokumenterte unntakene i [code-quality.md](code-quality.md).
+
+### Manuell testing av pakkingen
+
+Windows-pakkingen er manuelt verifisert på Windows 10 med
+WiX Toolset 3.14.1.
+
+Følgende er verifisert på Windows:
+
+- `mvn clean verify`: 648 tester bestått (core 173, file 72, ui 273, restserver 130), ingen Checkstyle-brudd eller SpotBugs-funn.
+- `mvn -pl ui javafx:jlink` oppretter `ui/target/bithub/` og `bithub.zip`.
+- Jlink-klienten starter med `bin\bithub.bat` og fungerer mot server-JAR-en:
+  innlogging, gjestemodus og lesing og skriving av anmeldelser.
+- Generering av Windows-installasjonsfil med jpackage via Maven.
+- Generering av Windows app-image med pakkeskriptet.
+- Oppstart av Spring Boot fra kjørbar JAR.
+- HTTP 200 og JSON-respons fra REST-endepunktet `/api/courses`.
+- Korrekt serveradresse i den installerte klientens `BIThub.cfg`.
+
+Den tidligere Windows-løsningen er også prøvekjørt med installert
+JavaFX-klient mot kjørende REST-server.
+
+macOS-pakkingen er også manuelt testet. Linux-pakkingen er konfigurert
+via Maven, men er foreløpig ikke manuelt verifisert.
 
 ## Arbeidsflyt og samarbeid
 
