@@ -240,19 +240,35 @@ class EditReviewControllerTest extends ApplicationTest {
     }
 
     /**
-     * Verifiserer at «Tilbake» går til «Mine anmeldelser» og «Hjem» til hjemmesiden, uten å lagre.
+     * Verifiserer at «Tilbake» går fra redigering til «Mine anmeldelser» uten å lagre.
      */
     @Test
-    void backOpensMyReviewsAndHomeOpensHomePage() {
+    void backOpensMyReviewsWithoutSaving() {
         interact(() -> {
             ratingField().setText("1");
             button("#backButton").fire();
         });
         assertNotNull(stage.getScene().getRoot().lookup("#reviewList"));
         assertEquals(4, repository.findReview("id-1").orElseThrow().getRating());
+    }
 
-        interact(() -> button("#homeButton").fire());
+    /**
+     * Verifiserer at «Hjem» går direkte fra redigering til hjemmesiden uten å lagre.
+     */
+    @Test
+    void homeOpensHomePageWithoutSaving() {
+        interact(() -> {
+            ratingField().setText("1");
+            commentArea().setText("Ulagret kommentar");
+            anonymousCheckBox().setSelected(true);
+            button("#homeButton").fire();
+        });
+
         assertNotNull(stage.getScene().getRoot().lookup("#myReviewsButton"));
+        Review stored = repository.findReview("id-1").orElseThrow();
+        assertEquals(4, stored.getRating());
+        assertEquals("Bra fag", stored.getComment());
+        assertFalse(stored.isAnonymous());
     }
 
     /**

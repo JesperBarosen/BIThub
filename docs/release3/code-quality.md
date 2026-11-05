@@ -64,14 +64,14 @@ Høy testdekning er ikke et mål i seg selv. Testene skal først og fremst sjekk
 ### Målt dekning i release 3
 
 Tallene under er hentet fra JaCoCo etter en full kjøring av `mvn clean verify`
-5. november 2026. Alle 633 tester bestod, uten feil eller tester som ble hoppet over.
+5. november 2026. Alle 634 tester bestod, uten feil eller tester som ble hoppet over.
 Checkstyle og SpotBugs hadde ingen funn etter kontrollen av endringene.
 
 | Modul | Instruksjonsdekning | Linjedekning | Branch-dekning | Tester |
 | --- | --- | --- | --- | --- |
 | `core` | 98,8 % | 98,4 % | 100,0 % | 169 |
 | `file` | 98,9 % | 99,0 % | 96,0 % | 72 |
-| `ui` | 95,5 % | 95,0 % | 90,2 % | 264 |
+| `ui` | 95,7 % | 95,2 % | 90,2 % | 265 |
 | `springboot/restserver` | 98,7 % | 98,7 % | 100,0 % | 128 |
 
 Instruksjonsdekning viser hvor mange av instruksjonene i den kompilerte koden som
