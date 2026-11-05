@@ -45,15 +45,21 @@ brukerkontoer og funksjonene fra brukerhistorie 4–7 (3.b). Samtidig ville vi h
 | Gjestemodus | Fortsette uten konto og lese anmeldelser | #183 |
 | Emnesøk | Filtrere emnelisten på emnekode eller emnenavn mens man skriver | #182 |
 | Skrive anmeldelser | Skrive en anmeldelse med navn eller anonymt. Krever innlogging. | #176, #183 |
+| En anmeldelse per emne | Skrive en anmeldelse per emne. Vil man endre den, gjør man det under «Mine anmeldelser» | #251 |
+| Stjerner | Gi emnet fra en til fem stjerner, og se vurderingene og gjennomsnittet som stjerner | #237 |
 | Mine anmeldelser | Se, endre og slette egne anmeldelser | #177, #181 |
-| Profil | Se navn og e-post, bytte passord og logge ut | #179 |
+| Profil | Se navn og e-post, endre navn og passord, og logge ut | #179, #236 |
 | Vis passord | Vise passordet mens man skriver det | #215 |
 | Glemt passord | Lese hva man gjør hvis man har glemt passordet | #216 |
 | Infoside | Lese om appen, anonymitet og retningslinjer for anmeldelser | #217 |
 | Alle emner | Velge blant alle emnene i studieplanen | #221 |
 
-På profilsiden kan brukeren se navn og e-post, men bare endre passordet. Appen kan ikke tilbakestille passord,
+På profilsiden kan brukeren se navn og e-post, og endre navn og passord. Det nye navnet vises også på
+anmeldelsene brukeren har skrevet med navn. E-posten kan ikke endres. Appen kan ikke tilbakestille passord,
 fordi det ville krevd at den sender e-post. Infosiden forklarer i stedet hva man gjør.
+
+Prøver en bruker å skrive en ny anmeldelse av et emne vedkommende allerede har anmeldt, svarer serveren med
+`409 Conflict`, og appen viser en melding om at anmeldelsen kan endres under «Mine anmeldelser».
 
 I tillegg har vi forbedret det som fantes fra før: Lange emnenavn vises i hele i skjemaet (#199), søkefeltet har fått
 samme stil som resten av appen (#219), og profilknappen virker på alle sidene (#232).
@@ -166,7 +172,7 @@ Dette er endret i arkitekturen siden release 2:
 - **REST-kall i bakgrunnen:** Alle kall til serveren går gjennom
   [`BackgroundTaskRunner`](../../bithub/ui/src/main/java/ui/util/BackgroundTaskRunner.java), slik at appen ikke
   fryser mens den venter på svar (#173). Mønsteret er beskrevet i [javafx.md](javafx.md).
-- **Søk uten nye REST-kall:** Emnelisten hentes én gang, og søket filtrerer den lokalt (#182).
+- **Søk uten nye REST-kall:** Emnelisten hentes en gang, og søket filtrerer den lokalt (#182).
 - **Fortsatt JSON-filer:** Vi lagrer fortsatt i JSON, men bare serveren leser og skriver filene. Lagringen er
   beskyttet mot samtidige forespørsler (#149) og er beskrevet i [persistence.md](persistence.md).
 
@@ -231,7 +237,7 @@ Eksempeldataene fra release 2 ligger fortsatt i [docs/release2/eksempeldata/](..
 | Emne | Anmeldelser |
 | --- | --- |
 | IT1901 Informatikk prosjektarbeid I | Anna med navn, Emil anonym |
-| TDT4100 Objektorientert programmering | Anna anonym, én gammel uten eier |
+| TDT4100 Objektorientert programmering | Anna anonym, en gammel uten eier |
 | IT2805 Webteknologi | Emil med navn |
 
 ### Testbrukere
@@ -272,7 +278,7 @@ Copy-Item docs\release3\eksempeldata\courses.json, docs\release3\eksempeldata\us
 
 `$HOME` skal stå akkurat slik. PowerShell bytter det ut med hjemmemappen din.
 
-Start så serveren og appen som beskrevet i [README](/README.md). Serveren
+Start så serveren og appen som beskrevet i [README](../../README.md#kjøre-lokalt). Serveren
 legger til standardemner som mangler, så emnelisten inneholder flere emner enn
 de tre i eksempelfilen.
 
