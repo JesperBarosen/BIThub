@@ -1,5 +1,6 @@
 package core.service;
 
+import core.exception.DuplicateReviewException;
 import core.exception.NotReviewOwnerException;
 import core.exception.ReviewNotFoundException;
 import core.model.Course;
@@ -38,6 +39,9 @@ public final class ReviewService {
      * <p>Bare innloggede brukere kan skrive anmeldelser, så alle nye anmeldelser får en eier.
      * Anmeldelser uten eier finnes bare fra release 2, og vises som «Gjest».
      *
+     * <p>Hver bruker kan skrive én anmeldelse per emne, enten den er anonym eller ikke. Metoden er
+     * synkronisert, slik at to forespørsler samtidig ikke kan gi to anmeldelser av samme emne.
+     *
      * @param courseCode emnekoden
      * @param courseName navnet på emnet
      * @param owner      den verifiserte brukeren
@@ -47,14 +51,18 @@ public final class ReviewService {
      * @return den lagrede anmeldelsen med id og eierskap
      * @throws IllegalArgumentException hvis brukeren mangler, eller emnet eller vurderingen er
      *                                      ugyldig
+     * @throws DuplicateReviewException hvis brukeren allerede har anmeldt emnet
      */
-    public Review submitReview(String courseCode, String courseName, User owner, boolean anonymous,
-            String ratingText, String comment) {
+    public synchronized Review submitReview(String courseCode, String courseName, User owner,
+            boolean anonymous, String ratingText, String comment) {
         if (owner == null) {
             throw new IllegalArgumentException("Du må logge inn for å skrive en anmeldelse.");
         }
         int rating = parseRating(ratingText);
         Course course = new Course(courseCode, courseName);
+        if (hasReviewed(owner.getEmail(), course.getCourseCode())) {
+            throw new DuplicateReviewException();
+        }
         Review review = new Review(UUID.randomUUID().toString(), owner.getEmail(), owner.getName(),
                 anonymous, rating, comment == null ? "" : comment.trim());
         reviewRepository.addReview(course.getCourseCode(), course.getCourseName(), review);
@@ -272,6 +280,18 @@ public final class ReviewService {
             throw new NotReviewOwnerException();
         }
         return review;
+    }
+
+    /**
+     * Sjekker om brukeren allerede har en anmeldelse av emnet, anonym eller ikke.
+     *
+     * @param ownerEmail e-posten til brukeren
+     * @param courseCode emnekoden
+     * @return true hvis brukeren har anmeldt emnet
+     */
+    private boolean hasReviewed(String ownerEmail, String courseCode) {
+        return reviewRepository.findReviewsByOwner(ownerEmail).stream()
+                .anyMatch(course -> course.getCourseCode().equalsIgnoreCase(courseCode));
     }
 
     /**

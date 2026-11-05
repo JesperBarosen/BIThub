@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import core.exception.DuplicateReviewException;
 import core.model.Course;
 import core.model.Review;
 import core.model.User;
@@ -120,6 +121,24 @@ class ReviewControllerTest {
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.comment").value(""));
 
         verify(reviewService).submitReview("IT1901", "Prosjektarbeid", owner, false, "5", null);
+    }
+
+    /**
+     * Verifiserer at en andre anmeldelse av samme emne gir 409 med meldingen fra core.
+     */
+    @Test
+    void secondReviewOfSameCourseReturnsConflict() throws Exception {
+        knownCourse();
+        final User owner = loggedInUser();
+        DuplicateReviewException error = new DuplicateReviewException();
+        doThrow(error).when(reviewService).submitReview("IT1901", "Prosjektarbeid", owner, true,
+                "4", null);
+
+        mockMvc.perform(post("/api/courses/IT1901/reviews").header("Authorization", TOKEN_HEADER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"rating\":4,\"anonymous\":true}"))
+                .andExpect(status().isConflict()).andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.message").value(error.getMessage()));
     }
 
     @ParameterizedTest
