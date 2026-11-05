@@ -1,4 +1,3 @@
-
 # BIThub - app for å skrive og lese anmeldelser av BIT fag
 
 ## Hva er BIThub?
@@ -39,6 +38,170 @@ Informasjon om appen finnes via lenken nederst på innloggings- og hjemskjermen.
 - **Innlogging og registrering:** Koble brukere til appen og lage sidene for dem.
 - **Profil:** Lage en profilside hvor det er mulig å endre navn og passord.
 - **Mine anmeldelser:** Implementere slik at dine tidligere skrevne anmeldelser dukker opp her.
+
+## Bygging, installasjon og oppstart
+
+BIThub består av en JavaFX-klient og en separat Spring Boot-server.
+Serveren må kjøre for at klienten skal kunne hente og lagre data.
+
+Klienten kan pakkes med jlink og jpackage på Windows, macOS og Linux.
+Pakkingen bruker `jpackage-maven-plugin` i `ui/pom.xml` og må kjøres
+på operativsystemet installasjonspakken skal brukes på.
+
+### Forutsetninger
+
+- JDK 17 eller nyere og Maven tilgjengelig i PATH.
+- Windows: WiX Toolset 3.14 for å lage `.exe`-installasjonsfil.
+- macOS: Et macOS-miljø for å lage `.dmg`-installasjonsfil.
+- Linux: Nødvendige pakkeverktøy, blant annet `fakeroot` for Debian-
+  baserte systemer eller `rpmbuild` for RPM-baserte systemer.
+- Den pakkede JavaFX-klienten trenger ikke en separat Java-installasjon.
+- REST-serveren krever Java 17 eller nyere.
+
+Alle byggekommandoene nedenfor kjøres fra `bithub/`.
+
+### Bygg og start REST-serveren
+
+Bygg hele prosjektet og kjør tester og kvalitetskontroller:
+
+```bash
+mvn clean verify
+```
+
+Dette oppretter en kjørbar server-JAR:
+
+`springboot/restserver/target/rest-0.0.1-SNAPSHOT.jar`
+
+Start serveren i et eget terminalvindu.
+
+Windows CMD:
+
+```cmd
+java -jar "springboot\restserver\target\rest-0.0.1-SNAPSHOT.jar"
+```
+
+macOS og Linux:
+
+```bash
+java -jar springboot/restserver/target/rest-0.0.1-SNAPSHOT.jar
+```
+
+Serveren lytter som standard på `http://localhost:8080` og kjører
+til den stoppes med `Ctrl+C`.
+
+Emner, anmeldelser og brukere lagres som standard i `.bithub/` under
+brukerens hjemmemappe, i filene `courses.json` og `users.json`.
+
+Filstiene kan overstyres med Spring Boot-argumentene
+`--bithub.reviews-file` og `--bithub.users-file`.
+
+### Pakk JavaFX-klienten med Maven
+
+Den samme byggeprosessen brukes på Windows, macOS og Linux:
+
+```bash
+mvn -pl ui -am clean install -DskipTests
+mvn -pl ui javafx:jlink
+mvn -pl ui jpackage:jpackage
+```
+
+Første kommando bygger klienten og avhengighetene. Andre kommando
+lager en tilpasset Java-runtime med jlink. Tredje kommando oppretter
+en installasjonspakke for operativsystemet som brukes.
+
+`-DskipTests` gjelder bare pakkebyggingen. Kjør `mvn clean verify`
+separat for å verifisere hele prosjektet med tester og kvalitetskontroller.
+
+Resultatene finnes under `ui/target/`:
+
+- `bithub/`: Klienten med en tilpasset Java-runtime fra jlink. Start den med
+  `ui\target\bithub\bin\bithub.bat` på Windows eller `ui/target/bithub/bin/bithub`
+  på macOS og Linux. Serveren må kjøre.
+- `bithub.zip`: Samme mappe som zip-fil, som kan deles og pakkes ut på en annen
+  maskin med samme operativsystem. Krever ikke WiX eller en egen Java-installasjon.
+- `jpackage/`: Native installasjonspakke fra jpackage.
+
+Installasjonsformatene avhenger av operativsystemet:
+
+| Operativsystem | Installasjonsformat |
+| --- | --- |
+| Windows | `.exe` |
+| macOS | `.dmg` |
+| Linux | `.deb` eller `.rpm`, avhengig av miljø og pakkeverktøy |
+
+På macOS og Linux må JavaFX-klienten bygges med riktig JDK og
+plattformavhengige biblioteker for maskinen som skal kjøre den.
+
+REST-serveren følger ikke med klientens installasjonspakke og
+må startes separat.
+
+### Windows: bygg også app-image
+
+På Windows kan hele pakkingen kjøres med skriptet:
+
+```cmd
+call scripts\package-windows.cmd
+```
+
+Skriptet bygger JavaFX-klienten, lager en tilpasset Java-runtime,
+oppretter et app-image og bruker Maven-pluginen til å lage
+Windows-installasjonsfilen.
+
+Resultatene finnes under `ui/target/jpackage/`:
+
+- `BIThub-1.0.0.exe`: Windows-installasjonsprogram.
+- `BIThub/BIThub.exe`: Kjørbar klient i app-image-format.
+
+Den installerte klienten kan startes uten Maven eller separat
+Java-installasjon.
+
+### Konfigurer serveradressen
+
+Den pakkede klienten bruker `http://localhost:8080` som standard.
+
+Ved pakking direkte med Maven kan serveradressen endres med
+egenskapen `bithub.server.url`:
+
+```bash
+mvn -pl ui jpackage:jpackage -Dbithub.server.url=http://servernavn:8080
+```
+
+På Windows kan serveradressen også konfigureres gjennom
+miljøvariabelen `BITHUB_SERVER_URL` før pakkeskriptet kjøres:
+
+```cmd
+set "BITHUB_SERVER_URL=http://servernavn:8080"
+call scripts\package-windows.cmd
+```
+
+Begge metodene legger serveradressen inn som JVM-argumentet
+`-Dbithub.server-url=...` i den pakkede klienten.
+
+Adressen bestemmes under pakking. For å distribuere klienten
+med en annen standardadresse pakkes den på nytt.
+
+### Verifisering
+
+Windows-pakkingen er manuelt verifisert på Windows 10 med
+WiX Toolset 3.14.1.
+
+Følgende er verifisert på Windows:
+
+- `mvn clean verify`: 558 tester bestått, ingen Checkstyle-brudd eller SpotBugs-funn.
+- `mvn -pl ui javafx:jlink` oppretter `ui/target/bithub/` og `bithub.zip`.
+- Jlink-klienten starter med `bin\bithub.bat` og fungerer mot server-JAR-en:
+  innlogging, gjestemodus og lesing og skriving av anmeldelser.
+- Generering av Windows-installasjonsfil med jpackage via Maven.
+- Generering av Windows app-image med pakkeskriptet.
+- Oppstart av Spring Boot fra kjørbar JAR.
+- HTTP 200 og JSON-respons fra REST-endepunktet `/api/courses`.
+- Korrekt serveradresse i den installerte klientens `BIThub.cfg`.
+
+Den tidligere Windows-løsningen er også prøvekjørt med installert
+JavaFX-klient mot kjørende REST-server.
+
+macOS-pakkingen er også manuelt testet. Linux-pakkingen er konfigurert
+via Maven, men er foreløpig ikke manuelt verifisert.
 
 ## Brukerlagring på REST-serveren
 

@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -31,6 +32,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.Builder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -53,6 +55,9 @@ class CourseSelectionControllerTest extends ApplicationTest {
     public void start(Stage stage) throws IOException {
         this.stage = stage;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/CourseSelection.fxml"));
+        JavaFXBuilderFactory builders = new JavaFXBuilderFactory();
+        loader.setBuilderFactory(type -> type == TextField.class
+                ? new FocusControlledTextField() : builders.getBuilder(type));
         root = loader.load();
         controller = loader.getController();
         repository = new InMemoryReviewRepository();
@@ -241,6 +246,49 @@ class CourseSelectionControllerTest extends ApplicationTest {
 
         interact(() -> searchField().appendText("19"));
         assertVisibleCourseCodes("IT1901");
+    }
+
+    /**
+     * Sjekker at søk med fokus åpner nedtrekkslisten med emnene som passer.
+     */
+    @Test
+    void opensCourseListWhenFocusedSearchHasMatches() throws Exception {
+        loadSearchCourses();
+
+        interact(() -> {
+            ((FocusControlledTextField) searchField()).focusForTest();
+            assertTrue(searchField().isFocused());
+            assertFalse(courseComboBox().isShowing());
+
+            searchField().setText("it19");
+
+            assertTrue(courseComboBox().isShowing());
+            assertEquals("", statusLabel().getText());
+        });
+
+        assertVisibleCourseCodes("IT1901");
+    }
+
+    /**
+     * Sjekker at et søk uten treff lukker en åpen nedtrekksliste mens søkefeltet har fokus.
+     */
+    @Test
+    void closesCourseListWhenFocusedSearchHasNoMatches() throws Exception {
+        loadSearchCourses();
+
+        interact(() -> {
+            ((FocusControlledTextField) searchField()).focusForTest();
+            searchField().setText("it19");
+            assertTrue(courseComboBox().isShowing());
+            assertTrue(searchField().isFocused());
+
+            searchField().setText("zzzzzz");
+
+            assertFalse(courseComboBox().isShowing());
+            assertTrue(courseComboBox().getItems().isEmpty());
+            assertEquals("Ingen emner samsvarer med søket.", statusLabel().getText());
+            assertTrue(button("#nextButton").isDisabled());
+        });
     }
 
     @Test
@@ -509,6 +557,23 @@ class CourseSelectionControllerTest extends ApplicationTest {
 
     private Button button(String selector) {
         return (Button) root.lookup(selector);
+    }
+
+    /**
+     * Lar testene styre feltets fokus uten å være avhengige av operativsystemets aktive vindu.
+     * Resten av feltet og FXML-oppsettet brukes som vanlig.
+     */
+    public static final class FocusControlledTextField extends TextField
+            implements Builder<TextField> {
+
+        private void focusForTest() {
+            setFocused(true);
+        }
+
+        @Override
+        public TextField build() {
+            return this;
+        }
     }
 
     /**

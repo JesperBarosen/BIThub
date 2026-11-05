@@ -456,6 +456,27 @@ class ReviewHandlerTest {
     }
 
     /**
+     * Sjekker at en blank id erstattes og lagres, slik at anmeldelsen får samme id ved ny lesing.
+     */
+    @Test
+    void blankReviewIdIsReplacedAndSaved() {
+        Path file = tempDir.resolve("blank-review-id.json");
+        CourseDTO course = new CourseDTO("IT1901", "Prosjektarbeid");
+        course.getReviews()
+                .add(new ReviewDTO("   ", "ola@ntnu.no", "Ola", false, 4, "Bra fag"));
+        new ReviewHandler(file).writeToFile(List.of(course));
+
+        Review firstRead = new ReviewHandler(file).findCourse("IT1901").orElseThrow()
+                .getReviews().get(0);
+        Review secondRead = new ReviewHandler(file).findCourse("IT1901").orElseThrow()
+                .getReviews().get(0);
+
+        assertFalse(firstRead.getId().isBlank());
+        assertEquals(firstRead.getId(), secondRead.getId());
+        assertEquals("Bra fag", secondRead.getComment());
+    }
+
+    /**
      * Kontrollerer at oppdateringer som skjer samtidig fra flere ReviewHandler-instanser ikke fører
      * til at anmeldelser går tapt i JSON-filen.
      *
@@ -554,6 +575,24 @@ class ReviewHandlerTest {
         assertEquals(5, review.getRating());
         assertEquals("Mye bedre", review.getComment());
         assertTrue(review.isAnonymous());
+    }
+
+    /**
+     * Sjekker at null som ny kommentar lagres som tom tekst og leses tilbake uten den gamle.
+     */
+    @Test
+    void updateReviewWithNullCommentRemovesStoredComment() {
+        Path path = tempDir.resolve("remove-comment.json");
+        ReviewHandler handler = new ReviewHandler(path);
+        handler.addReview("IT1901", "Prosjektarbeid",
+                ownedReview("id-1", "kari@ntnu.no", 4, "Gammel kommentar"));
+
+        assertTrue(handler.updateReview("id-1", 4, null, false));
+
+        Review review = new ReviewHandler(path).findReview("id-1").orElseThrow();
+        assertEquals("", review.getComment());
+        assertEquals("id-1", review.getId());
+        assertEquals("kari@ntnu.no", review.getOwnerEmail());
     }
 
     /**
