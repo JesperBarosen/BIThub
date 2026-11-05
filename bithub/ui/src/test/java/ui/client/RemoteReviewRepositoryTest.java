@@ -357,6 +357,24 @@ class RemoteReviewRepositoryTest {
     }
 
     /**
+     * Verifiserer at en andre anmeldelse av samme emne (409) gir IllegalArgumentException med
+     * meldingen fra serveren, og ikke en feil om at serveren ikke svarer.
+     */
+    @Test
+    void testAddReviewThrowsIllegalArgumentOnConflict() {
+        String message = "Du har allerede skrevet en anmeldelse av dette emnet. "
+                + "Du kan endre den under «Mine anmeldelser».";
+        respond("/api/courses/IT1901/reviews", 409, "{\"status\": 409, \"error\": \"Conflict\", "
+                + "\"message\": \"" + message + "\"}");
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+        Review review = new Review("Student", 4, "");
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> repository.addReview("IT1901", "Prosjektarbeid", review));
+        assertEquals(message, e.getMessage());
+    }
+
+    /**
      * Verifiserer at en anmeldelse til et ukjent emne (404) gir IllegalArgumentException.
      */
     @Test
