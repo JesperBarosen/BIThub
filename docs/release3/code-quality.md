@@ -64,14 +64,15 @@ Høy testdekning er ikke et mål i seg selv. Testene skal først og fremst sjekk
 ### Målt dekning i release 3
 
 Tallene under er hentet fra JaCoCo etter en full kjøring av `mvn clean verify`
-5. november 2026. Alle 634 tester bestod, uten feil eller tester som ble hoppet over.
-Checkstyle og SpotBugs hadde ingen funn etter kontrollen av endringene.
+5. november 2026. Alle 637 tester bestod, uten feil eller tester som ble hoppet over.
+Hele prosjektet ble kontrollert. Checkstyle rapporterte 0 brudd, og SpotBugs
+rapporterte 0 funn.
 
 | Modul | Instruksjonsdekning | Linjedekning | Branch-dekning | Tester |
 | --- | --- | --- | --- | --- |
 | `core` | 98,8 % | 98,4 % | 100,0 % | 169 |
 | `file` | 98,9 % | 99,0 % | 96,0 % | 72 |
-| `ui` | 95,7 % | 95,2 % | 90,2 % | 265 |
+| `ui` | 95,9 % | 95,5 % | 90,2 % | 268 |
 | `springboot/restserver` | 98,7 % | 98,7 % | 100,0 % | 128 |
 
 Instruksjonsdekning viser hvor mange av instruksjonene i den kompilerte koden som
@@ -84,10 +85,12 @@ kodeveier. Vi la blant annet til tester for hvert tomme felt separat i innloggin
 registrering og passordbytte, manglende kontrolleroppsett, tomme feilmeldinger og
 gjentatte handlinger mens serverkall pågår. Vi testet også at mislykket endring
 eller sletting beholder brukerens data, og at REST-klientene håndterer ugyldige
-eller mangelfulle svar.
+eller mangelfulle svar. Standardmetodene i `AuthenticationClient` testes for at
+handlinger som ikke er støttet, avvises med en forklarende melding.
 
-Det gjenstår noen udekkede kodeveier i brukergrensesnittet. Dekningstallene er
-hentet fra en full kjøring av `mvn clean verify`.
+Det gjenstår udekkede kodeveier blant annet ved manglende elementer i listeceller,
+bekreftelsesdialogen for sletting, feil ved lasting av FXML og håndtering av
+avbrutte bakgrunnskall. Disse finnes i `ui.controller`, `ui` og `ui.util`.
 
 ## Checkstyle
 
