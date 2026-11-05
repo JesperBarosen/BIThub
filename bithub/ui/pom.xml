@@ -161,7 +161,7 @@
                 <version>1.4.0</version>
                 <configuration>
                     <name>BIThub</name>
-                    <appVersion>0.0.1</appVersion>
+                    <appVersion>1.0.0</appVersion>
                     <vendor>gr2610</vendor>
                     <destination>${project.build.directory}/jpackage</destination>
                     <module>bithub.ui/ui.App</module>

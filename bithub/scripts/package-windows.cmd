@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0.."
 if errorlevel 1 exit /b 1
 
-set "APP_VERSION=0.0.1"
+set "APP_VERSION=1.0.0"
 set "PACKAGE_DIR=ui\target\jpackage"
 
 if not defined BITHUB_SERVER_URL set "BITHUB_SERVER_URL=http://localhost:8080"

@@ -146,7 +146,7 @@ Windows-installasjonsfilen.
 
 Resultatene finnes under `ui/target/jpackage/`:
 
-- `BIThub-0.0.1.exe`: Windows-installasjonsprogram.
+- `BIThub-1.0.0.exe`: Windows-installasjonsprogram.
 - `BIThub/BIThub.exe`: Kjørbar klient i app-image-format.
 
 Den installerte klienten kan startes uten Maven eller separat
