@@ -12,6 +12,7 @@ Dokumentet bygger på [persistence.md fra release 2](../release2/persistence.md)
 - Anmeldelser kan endres og slettes, og begge operasjonene er beskyttet mot samtidige oppdateringer (#177).
 - JavaFX-appen leser og skriver ikke filene selv lenger. Den henter og lagrer alt gjennom REST-serveren med [`RemoteReviewRepository`](../../bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java) (#172), og `ui` er ikke avhengig av `file` (#175). Bare serveren leser og skriver filene.
 - Serveren legger til standardemnene som mangler, når den starter (#221).
+- Når en bruker endrer navn, lagres brukeren på nytt med samme passordhash og salt i `users.json`, og navnet oppdateres i alle anmeldelsene brukeren eier i `courses.json` med [`updateReviewerName`](../../bithub/file/src/main/java/file/ReviewHandler.java#L282). Hver fil oppdateres under sin egen skrivelås. Feiler oppdateringen av anmeldelsene, setter [`UserController`](../../bithub/springboot/restserver/src/main/java/rest/api/UserController.java#L140) navnet tilbake, slik at brukeren og anmeldelsene ikke får forskjellige navn (#236).
 
 ## 1. Filformat
 
@@ -148,7 +149,7 @@ Derfor går all lesing og skriving gjennom [`JsonFileStorage`](../../bithub/file
 
 [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) gjør også en forhåndssjekk med [`findByEmail`](../../bithub/core/src/main/java/core/repository/UserRepository.java#L36), men denne sjekken alene beskytter ikke mot samtidige registreringer. Den samlede sjekken og lagringen i [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) sikrer at to samtidige registreringer med samme e-post ikke begge lykkes.
 
-[`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) endrer og sletter anmeldelser på samme måte. [`updateReview`](../../bithub/file/src/main/java/file/ReviewHandler.java#L226) og [`deleteReview`](../../bithub/file/src/main/java/file/ReviewHandler.java#L257) finner anmeldelsen, endrer eller fjerner den og skriver filen under samme skrivelås, og svarer `false` hvis id-en ikke finnes. [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) sjekker eierskapet før den kaller lagringen. Det er trygt selv om sjekken skjer utenfor låsen, fordi eieren og id-en til en anmeldelse aldri endres. Blir anmeldelsen slettet mellom sjekken og endringen, svarer lagringen `false`, og serveren svarer `404`.
+[`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) endrer og sletter anmeldelser på samme måte. [`updateReview`](../../bithub/file/src/main/java/file/ReviewHandler.java#L228) og [`deleteReview`](../../bithub/file/src/main/java/file/ReviewHandler.java#L259) finner anmeldelsen, endrer eller fjerner den og skriver filen under samme skrivelås, og svarer `false` hvis id-en ikke finnes. [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) sjekker eierskapet før den kaller lagringen. Det er trygt selv om sjekken skjer utenfor låsen, fordi eieren og id-en til en anmeldelse aldri endres. Blir anmeldelsen slettet mellom sjekken og endringen, svarer lagringen `false`, og serveren svarer `404`.
 
 ### 3.2 Skrivefeil og lesefeil
 

@@ -352,7 +352,7 @@ lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
   og gir tjenesten videre til [`Navigation`](ui/src/main/java/ui/Navigation.java).
   Klienten kommuniserer med REST-serveren og er ikke avhengig av `file`.
 - **Validering ligger i `core`:** Både format på vurdering (1–5, gyldig tall) og selve
-  [`Review`](core/src/main/java/core/model/Review.java)-objektet valideres i `core` ([`ReviewService.parseRating`](core/src/main/java/core/service/ReviewService.java#L265) og [`Review`](core/src/main/java/core/model/Review.java)-konstruktøren),
+  [`Review`](core/src/main/java/core/model/Review.java)-objektet valideres i `core` ([`ReviewService.parseRating`](core/src/main/java/core/service/ReviewService.java#L304) og [`Review`](core/src/main/java/core/model/Review.java)-konstruktøren),
   ikke i kontrolleren. Kontrolleren viser bare feilmeldingen den får tilbake.
 
 ## Brukerhistorie 2
@@ -375,12 +375,12 @@ lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
 
 ### Kommentarer til diagrammet
 
-- **Samme fagvelger for lesing og skriving:** [`Navigation.showCourseSelectionForReading`](ui/src/main/java/ui/Navigation.java#L168)
+- **Samme fagvelger for lesing og skriving:** [`Navigation.showCourseSelectionForReading`](ui/src/main/java/ui/Navigation.java#L181)
   åpner den samme [`CourseSelection`](ui/src/main/resources/ui/CourseSelection.fxml)-siden som brukes når man skriver en anmeldelse, men gir
-  [`CourseSelectionController`](ui/src/main/java/ui/controller/CourseSelectionController.java) beskjed om å kalle [`Navigation::showReviews`](ui/src/main/java/ui/Navigation.java#L179) når et fag er valgt.
+  [`CourseSelectionController`](ui/src/main/java/ui/controller/CourseSelectionController.java) beskjed om å kalle [`Navigation::showReviews`](ui/src/main/java/ui/Navigation.java#L192) når et fag er valgt.
   Kontrolleren vet ikke selv hvilken side som åpnes.
 - **`ui → core`:** [`ReadReviewsController`](ui/src/main/java/ui/controller/ReadReviewsController.java) kjenner kun [`core.service.ReviewService`](core/src/main/java/core/service/ReviewService.java). Den ber om
-  emnet med [`getCourseWithReviews`](core/src/main/java/core/service/ReviewService.java#L105) og vet ikke at anmeldelsene kommer fra en JSON-fil.
+  emnet med [`getCourseWithReviews`](core/src/main/java/core/service/ReviewService.java#L113) og vet ikke at anmeldelsene kommer fra en JSON-fil.
 - **`core → file` (via grensesnitt):** [`ReviewService`](core/src/main/java/core/service/ReviewService.java) kaller [`findCourse`](core/src/main/java/core/repository/ReviewRepository.java#L32) på
   [`core.repository.ReviewRepository`](core/src/main/java/core/repository/ReviewRepository.java). [`ReviewHandler`](file/src/main/java/file/ReviewHandler.java) i `file` implementerer metoden, leser filen og
   gjør [`CourseDTO`](file/src/main/java/file/dto/CourseDTO.java) om til [`Course`](core/src/main/java/core/model/Course.java). DTO-en brukes bare inne i `file`.
