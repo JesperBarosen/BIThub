@@ -21,7 +21,7 @@ ekstra møter i leveringsuken.
 
 I tilbakemeldingen på release 2 fikk vi beskjed om at flere commit-meldinger
 var for korte, for eksempel «Endre readme». I release 3 har vi fulgt malen i
-[workflow.md](../release2/workflow.md), med en beskrivende tittel og en tekst
+[workflow.md](../release3/workflow.md), med en beskrivende tittel og en tekst
 som forklarer hva som er endret og hvorfor. Vi rettet også formatet på
 `Co-authored-by`, som var feil i malen i release 2, slik at GitHub nå
 registrerer parprogrammeringen.
