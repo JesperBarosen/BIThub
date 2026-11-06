@@ -52,7 +52,7 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="nameField" editable="false" focusTraversable="false" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="nameField" onAction="#handleSaveName" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
                </children>
             </HBox>
             <HBox prefHeight="49.0" prefWidth="380.0">
@@ -63,6 +63,13 @@
                      </font>
                   </Label>
                   <TextField fx:id="emailField" editable="false" focusTraversable="false" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
+            <HBox prefHeight="26.0" prefWidth="380.0" spacing="10.0">
+               <children>
+                  <Button fx:id="changeNameButton" mnemonicParsing="false" onAction="#handleChangeName" styleClass="profil-knapper" stylesheets="@Style.css" text="ENDRE NAVN" />
+                  <Button fx:id="saveNameButton" mnemonicParsing="false" onAction="#handleSaveName" styleClass="profil-knapper" stylesheets="@Style.css" text="LAGRE" />
+                  <Button fx:id="cancelNameButton" mnemonicParsing="false" onAction="#handleCancelName" styleClass="profil-knapper" stylesheets="@Style.css" text="AVBRYT" />
                </children>
             </HBox>
             <HBox prefHeight="26.0" prefWidth="380.0">

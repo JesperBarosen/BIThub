@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Testklasse for {@link RemoteReviewRepository}.
@@ -139,6 +141,44 @@ class RemoteReviewRepositoryTest {
     @Test
     void testConstructorThrowsWhenBaseUrlIsBlank() {
         assertThrows(IllegalArgumentException.class, () -> new RemoteReviewRepository(" "));
+    }
+
+    @Test
+    void blankTokenRemovesAuthorizationHeader() {
+        respond("/api/courses", 200, "[]");
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+        repository.setToken("test-token");
+        repository.setToken("   ");
+
+        assertTrue(repository.findAllCourses().isEmpty());
+        assertNull(lastAuthorization);
+        assertEquals(1, requestCount.get());
+    }
+
+    /**
+     * Sjekker at manglende eller ubrukelig feilmelding gir en forståelig standardmelding.
+     *
+     * @param body feilsvaret fra serveren
+     */
+    @ParameterizedTest
+    @ValueSource(strings = { "{}", "{\"message\":\"   \"}", "ikke-json" })
+    void invalidErrorMessageUsesFallback(String body) {
+        respond("/api/courses", 400, body);
+
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> new RemoteReviewRepository(serverUrl()).findAllCourses());
+
+        assertEquals("Serveren avviste forespørselen (status 400).", error.getMessage());
+    }
+
+    @Test
+    void explicitNullCourseCodeIsRejected() {
+        respond("/api/courses", 200, "[{\"code\":null,\"name\":\"Prosjektarbeid\"}]");
+
+        UncheckedIOException error = assertThrows(UncheckedIOException.class,
+                () -> new RemoteReviewRepository(serverUrl()).findAllCourses());
+
+        assertEquals("Svaret fra serveren mangler feltet code.", error.getCause().getMessage());
     }
 
     /**
@@ -314,6 +354,24 @@ class RemoteReviewRepositoryTest {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> repository.addReview("IT1901", "Prosjektarbeid", review));
         assertEquals("Vurdering må være et tall fra 1 til 5.", e.getMessage());
+    }
+
+    /**
+     * Verifiserer at en andre anmeldelse av samme emne (409) gir IllegalArgumentException med
+     * meldingen fra serveren, og ikke en feil om at serveren ikke svarer.
+     */
+    @Test
+    void testAddReviewThrowsIllegalArgumentOnConflict() {
+        String message = "Du har allerede skrevet en anmeldelse av dette emnet. "
+                + "Du kan endre den under «Mine anmeldelser».";
+        respond("/api/courses/IT1901/reviews", 409, "{\"status\": 409, \"error\": \"Conflict\", "
+                + "\"message\": \"" + message + "\"}");
+        RemoteReviewRepository repository = new RemoteReviewRepository(serverUrl());
+        Review review = new Review("Student", 4, "");
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> repository.addReview("IT1901", "Prosjektarbeid", review));
+        assertEquals(message, e.getMessage());
     }
 
     /**

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import core.exception.DuplicateReviewException;
 import core.exception.NotReviewOwnerException;
 import core.exception.ReviewNotFoundException;
 import core.model.AuthorType;
@@ -36,7 +37,9 @@ class ReviewServiceTest {
     private Course storedCourse;
 
     private final List<String> updatedIds = new ArrayList<>();
+    private final List<String> updatedComments = new ArrayList<>();
     private final List<String> deletedIds = new ArrayList<>();
+    private final List<String> renamedOwners = new ArrayList<>();
 
     /**
      * Om den falske lagringen finner anmeldelsen når den skal endres eller slettes. Settes til
@@ -74,6 +77,7 @@ class ReviewServiceTest {
         public boolean updateReview(String reviewId, int rating, String comment,
                 boolean anonymous) {
             updatedIds.add(reviewId);
+            updatedComments.add(comment);
             return storageFindsReview;
         }
 
@@ -81,6 +85,12 @@ class ReviewServiceTest {
         public boolean deleteReview(String reviewId) {
             deletedIds.add(reviewId);
             return storageFindsReview;
+        }
+
+        @Override
+        public int updateReviewerName(String ownerEmail, String reviewerName) {
+            renamedOwners.add(ownerEmail + " -> " + reviewerName);
+            return 2;
         }
     };
 
@@ -105,6 +115,20 @@ class ReviewServiceTest {
         assertEquals("Bra fag", review.getComment());
     }
 
+    /**
+     * Sjekker at innsending med en verifisert eier lagrer manglende kommentar som tom tekst.
+     */
+    @Test
+    void submitReviewWithOwnerSavesEmptyCommentWhenNull() {
+        User owner = new User("Ola Nordmann", "ola@example.com", "Passord123");
+
+        Review review = service.submitReview("IT1901", "Prosjektarbeid", owner, false, "4", null);
+
+        assertEquals(1, savedReviews.size());
+        assertSame(review, savedReviews.get(0));
+        assertEquals("", review.getComment());
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = { false, true })
     void submitReviewWithoutOwnerIsRejected(boolean anonymous) {
@@ -124,6 +148,59 @@ class ReviewServiceTest {
         assertThrows(IllegalArgumentException.class,
                 () -> service.submitReview("IT1901", "Prosjektarbeid", owner, false, rating, ""));
         assertTrue(savedReviews.isEmpty());
+    }
+
+    /**
+     * Verifiserer at en bruker ikke kan anmelde samme emne to ganger, uansett om den første eller
+     * den nye anmeldelsen er anonym, og at e-posten sammenlignes uten store og små bokstaver.
+     */
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void submitReviewRejectsSecondReviewOfSameCourse(boolean firstAnonymous) {
+        storedCourse = new Course("IT1901", "Prosjektarbeid");
+        storedCourse.addReview(
+                new Review("r1", "ola@example.com", "Ola Nordmann", firstAnonymous, 3, ""));
+        User owner = new User("Ola Nordmann", "OLA@example.com", "Passord123");
+
+        for (boolean anonymous : new boolean[] { false, true }) {
+            DuplicateReviewException e = assertThrows(DuplicateReviewException.class, () -> service
+                    .submitReview("it1901", "Prosjektarbeid", owner, anonymous, "4", ""));
+            assertEquals("Du har allerede skrevet en anmeldelse av dette emnet. "
+                    + "Du kan endre den under «Mine anmeldelser».", e.getMessage());
+        }
+        assertTrue(savedReviews.isEmpty());
+    }
+
+    /**
+     * Verifiserer at brukeren kan anmelde et emne når andre har anmeldt det, og når brukeren bare
+     * har anmeldt andre emner.
+     */
+    @Test
+    void submitReviewAllowsOtherCoursesAndOtherUsers() {
+        storedCourse = new Course("TDT4100", "Objektorientert programmering");
+        storedCourse.addReview(new Review("r1", "ola@example.com", "Ola Nordmann", false, 3, ""));
+        storedCourse.addReview(new Review("r2", "kari@example.com", "Kari", true, 5, ""));
+        User ola = new User("Ola Nordmann", "ola@example.com", "Passord123");
+        User per = new User("Per Hansen", "per@example.com", "Passord123");
+
+        service.submitReview("IT1901", "Prosjektarbeid", ola, false, "4", "");
+        service.submitReview("TDT4100", "Objektorientert programmering", per, true, "2", "");
+
+        assertEquals(2, savedReviews.size());
+    }
+
+    /**
+     * Verifiserer at gamle gjesteanmeldelser uten eier ikke hindrer nye anmeldelser.
+     */
+    @Test
+    void submitReviewIgnoresGuestReviews() {
+        storedCourse = new Course("IT1901", "Prosjektarbeid");
+        storedCourse.addReview(new Review("Gjest", 3, "Fra release 2"));
+        User owner = new User("Ola Nordmann", "ola@example.com", "Passord123");
+
+        service.submitReview("IT1901", "Prosjektarbeid", owner, false, "4", "");
+
+        assertEquals(1, savedReviews.size());
     }
 
     @ParameterizedTest
@@ -412,6 +489,22 @@ class ReviewServiceTest {
     }
 
     /**
+     * Sjekker at null som ny kommentar blir tom tekst både i lagringen og i svaret.
+     */
+    @Test
+    void ownerCanRemoveReviewComment() {
+        storeReview("id-1", "ola@example.com");
+
+        Review updated = service.updateReview("id-1", "ola@example.com", "4", null, false);
+
+        assertEquals(List.of("id-1"), updatedIds);
+        assertEquals(List.of(""), updatedComments);
+        assertEquals("", updated.getComment());
+        assertEquals("id-1", updated.getId());
+        assertEquals("ola@example.com", updated.getOwnerEmail());
+    }
+
+    /**
      * Verifiserer at eieren kan slette sin egen anmeldelse.
      */
     @Test
@@ -563,6 +656,23 @@ class ReviewServiceTest {
     }
 
     /**
+     * Sjekker at klienten kan fjerne kommentaren på en hentet anmeldelse ved å sende null.
+     */
+    @Test
+    void updateFetchedReviewSavesEmptyCommentWhenNull() {
+        Review review = new Review("id-1", "ola@example.com", "Ola", false, 4, "Bra");
+
+        Review updated = service.updateReview(review, "4", null, false);
+
+        assertEquals(List.of("id-1"), updatedIds);
+        assertEquals(List.of(""), updatedComments);
+        assertEquals("", updated.getComment());
+        assertEquals(review.getId(), updated.getId());
+        assertEquals(review.getOwnerEmail(), updated.getOwnerEmail());
+        assertEquals("Bra", review.getComment());
+    }
+
+    /**
      * Verifiserer at en ugyldig vurdering avvises før lagringen blir kalt.
      *
      * @param rating den ugyldige vurderingen
@@ -634,5 +744,48 @@ class ReviewServiceTest {
     private Review submitAsStudent(String rating, String comment) {
         return service.submitReview("IT1901", "Prosjektarbeid", "student@ntnu.no", "Student", false,
                 rating, comment);
+    }
+
+    @Test
+    void renameReviewerSendsTrimmedEmailAndNameToStorage() {
+        assertEquals(2, service.renameReviewer(" ola@example.com ", "Ola Nordmann"));
+        assertEquals(List.of("ola@example.com -> Ola Nordmann"), renamedOwners);
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = { " " })
+    void renameReviewerRequiresEmailAndName(String value) {
+        assertThrows(IllegalArgumentException.class,
+                () -> service.renameReviewer(value, "Ola Nordmann"));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.renameReviewer("ola@example.com", value));
+        assertTrue(renamedOwners.isEmpty());
+    }
+
+    @Test
+    void storageWithoutRenameSupportThrows() {
+        ReviewRepository readOnly = new ReviewRepository() {
+            @Override
+            public void addReview(String courseCode, String courseName, Review review) {
+            }
+
+            @Override
+            public Optional<Course> findCourse(String courseCode) {
+                return Optional.empty();
+            }
+
+            @Override
+            public List<Course> findAllCourses() {
+                return List.of();
+            }
+
+            @Override
+            public void addCoursesIfMissing(List<Course> courses) {
+            }
+        };
+
+        assertThrows(UnsupportedOperationException.class,
+                () -> new ReviewService(readOnly).renameReviewer("ola@example.com", "Ola"));
     }
 }

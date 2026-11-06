@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -43,6 +44,9 @@ public final class LoginController {
 
     @FXML
     private Button guestButton;
+
+    @FXML
+    private Hyperlink aboutLink;
 
     @FXML
     private Label statusLabel;
@@ -156,6 +160,23 @@ public final class LoginController {
 
         taskRunner.cancel();
         navigation.showHome(guestButton);
+    }
+
+    /**
+     * Avbryter eventuell innlogging og åpner infosiden om appen.
+     */
+    @FXML
+    private void handleAbout() {
+        if (navigation == null) {
+            throw new IllegalStateException("Navigasjonen er ikke konfigurert.");
+        }
+
+        if (taskRunner.runningProperty().get()) {
+            statusLabel.setVisible(false);
+        }
+        taskRunner.cancel();
+        aboutLink.setVisited(false);
+        navigation.showAbout(aboutLink);
     }
 
     /**

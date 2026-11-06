@@ -11,7 +11,7 @@
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
    prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21"
-   xmlns:fx="http://javafx.com/fxml/1">
+   xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controller.AboutController">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="90.0" styleClass="header-bar"
          stylesheets="@Style.css">
@@ -132,7 +132,7 @@
                            </font>
                         </Label>
                         <Label
-                           text="BIThub er laget slik at den er enkel å bruke for alle. Etter at du har registrert deg og logget inn, kommer du til hjem-skjermen. Her har du tre valg: «Les anmeldelser», «Skriv anmeldelse» og «Mine anmeldelser». Velger du «Les anmeldelser», kommer du til en skjerm der du velger hvilket fag du vil se anmeldelser av. Når du har valgt fag, ser du den gjennomsnittlige vurderingen og alle anmeldelsene andre studenter har skrevet. Velger du «Skriv anmeldelse», velger du først fag, og deretter kan du skrive din egen anmeldelse med en vurdering fra 1 til 5 og en kommentar før du sender den inn. Under «Mine anmeldelser» kan du se, redigere og slette anmeldelsene du har skrevet. Ved å trykke på profilsymbolet øverst til høyre kommer du til profilsiden. Der ser du navnet og e-posten din, og du kan endre passord eller logge ut. Navn og e-post kan ikke endres. &#10;&#10;Vil du bare lese, kan du trykke «Fortsett som gjest» på innloggingsskjermen. Som gjest kan du lese alle anmeldelsene, men du må logge inn for å skrive en anmeldelse. Du kan logge inn eller registrere deg fra hjem-skjermen når som helst."
+                           text="BIThub er laget slik at den er enkel å bruke for alle. Når du åpner appen, kommer du til innloggingsskjermen. Der kan du logge inn, lage en ny bruker med «Registrer ny bruker» eller trykke «Fortsett som gjest». Etter at du har logget inn, kommer du til hjem-skjermen. Her har du tre valg: «LES ANMELDELSER», «SKRIV ANMELDELSE» og «MINE ANMELDELSER». &#10;&#10;Velger du «LES ANMELDELSER», velger du først hvilket fag du vil se anmeldelser av. Du kan søke etter emnekode eller navn, og trykker «GÅ VIDERE» når du har valgt fag. Da ser du den gjennomsnittlige vurderingen som stjerner og som tall, og alle anmeldelsene andre studenter har skrevet. Hver anmeldelse viser vurderingen som stjerner. &#10;&#10;Velger du «SKRIV ANMELDELSE», velger du også fag først. Deretter gir du faget fra én til fem stjerner ved å trykke på stjernene, skriver en kommentar hvis du vil, og velger om anmeldelsen skal være anonym før du trykker «SEND INN». Du kan skrive én anmeldelse per fag, enten den er anonym eller ikke. &#10;&#10;Under «MINE ANMELDELSER» ser du anmeldelsene du har skrevet. Trykk «ENDRE» for å endre vurderingen, kommentaren eller om anmeldelsen er anonym, og «SLETT» for å slette den. Har du ombestemt deg om et fag, endrer du anmeldelsen her i stedet for å skrive en ny. &#10;&#10;Profilsymbolet øverst til høyre tar deg til profilsiden fra alle sidene inne i appen. Der ser du navnet og e-posten din. Trykk «ENDRE NAVN», skriv inn det nye navnet og trykk «LAGRE», eller «AVBRYT» hvis du ombestemmer deg. Det nye navnet vises også på anmeldelsene du har skrevet med navn. På profilsiden kan du også endre passord med «ENDRE PASSORD» og logge ut med «LOGG UT». E-posten kan ikke endres. Nederst på sidene tar «TILBAKE» deg ett steg tilbake, og «HJEM» tar deg til hjem-skjermen. &#10;&#10;Vil du bare lese, kan du trykke «Fortsett som gjest» på innloggingsskjermen. Som gjest kan du lese alle anmeldelsene, men du må logge inn for å skrive en anmeldelse. Du kan logge inn eller registrere deg når som helst med «LOGG INN / REGISTRER» på hjem-skjermen. &#10;&#10;Denne infosiden åpner du med lenken «Mer info om appen her.» på innloggingsskjermen eller hjem-skjermen. «TILBAKE» tar deg tilbake dit du kom fra."
                            wrapText="true" />
                         <Label text="3. Glemt passord">
                            <font>
@@ -148,7 +148,7 @@
                            </font>
                         </Label>
                         <Label
-                           text="Når du skriver en anmeldelse, kan du velge om den skal publiseres med navnet ditt eller anonymt. Velger du anonym, vises anmeldelsen som «Anonym» for alle andre brukere, slik at du kan dele ærlige erfaringer uten at andre ser hvem du er. Anmeldelsen er fortsatt knyttet til kontoen din, slik at du kan finne den igjen under «Mine anmeldelser» og redigere eller slette den senere. Du kan også endre om den skal være anonym eller ikke etter den er laget. &#10;&#10;Anonym er ikke det samme som gjest. En anonym anmeldelse er skrevet av en innlogget bruker som har valgt å skjule navnet sitt. Anmeldelser som vises som «Gjest», ble skrevet før man måtte logge inn, og har ingen eier. De kan derfor ikke endres eller slettes."
+                           text="Når du skriver en anmeldelse, kan du velge om den skal publiseres med navnet ditt eller anonymt. Velger du anonym, vises anmeldelsen som «Anonym» for alle andre brukere, slik at du kan dele ærlige erfaringer uten at andre ser hvem du er. Anmeldelsen er fortsatt knyttet til kontoen din, slik at du kan finne den igjen under «MINE ANMELDELSER» og redigere eller slette den senere. Du kan også endre om den skal være anonym eller ikke etter den er laget. &#10;&#10;Anonym er ikke det samme som gjest. En anonym anmeldelse er skrevet av en innlogget bruker som har valgt å skjule navnet sitt. Anmeldelser som vises som «Gjest», ble skrevet før man måtte logge inn, og har ingen eier. De kan derfor ikke endres eller slettes."
                            wrapText="true" />
                         <Label text="5. Retningslinjer for anmeldelser">
                            <font>
@@ -164,7 +164,7 @@
                            </font>
                         </Label>
                         <Label
-                           text="BIThub er utviklet som et gruppeprosjekt i emnet IT1901 Informatikk prosjektarbeid I ved NTNU høsten 2026. Målet med emnet er å lære hvordan man utvikler programvare i team, med planlegging, kodegjennomgang og testing. Appen er delt opp i egne deler for brukergrensesnitt, logikk og lagring av data. Vi har jobbet med appen i flere runder, og den blir utvidet med ny funksjonalitet underveis i semesteret."
+                           text="BIThub er utviklet som et gruppeprosjekt i emnet IT1901 Informatikk prosjektarbeid I ved NTNU høsten 2026. Målet med emnet er å lære hvordan man utvikler programvare i team, med planlegging, kodegjennomgang og testing. Appen er delt opp i egne deler for brukergrensesnitt, logikk og lagring av data, og henter dataene fra en server. Vi har jobbet med appen i tre runder, og har utvidet den med ny funksjonalitet underveis i semesteret."
                            wrapText="true" />
                         <Label text="7. Om app-utviklerne">
                            <font>
@@ -172,7 +172,7 @@
                            </font>
                         </Label>
                         <Label
-                           text="BIThub er laget av Jesper Barosen, Nicole Bobier, Tias Bugge, Mathea Kalley, William Reitan  og Rebecca Selfors, som studerer Bachelor i informatikk ved NTNU. Vi har selv opplevd hvor vanskelig det kan være å velge fag uten å vite hva man går til. Derfor ønsket vi å lage et sted der studenter kan dele erfaringene sine og hjelpe hverandre med å ta gode valg."
+                           text="BIThub er laget av Jesper Barosen, Nicole Bobier, Tias Bugge, Mathea Kalley, William Reitan og Rebecca Selfors, som studerer Bachelor i informatikk ved NTNU. Vi har selv opplevd hvor vanskelig det kan være å velge fag uten å vite hva man går til. Derfor ønsket vi å lage et sted der studenter kan dele erfaringene sine og hjelpe hverandre med å ta gode valg."
                            wrapText="true" />
                      </children>
                   </VBox>
@@ -183,8 +183,8 @@
             </ScrollPane>
             <HBox prefHeight="22.0" prefWidth="380.0">
                <children>
-                  <Button mnemonicParsing="false" styleClass="profil-knapper"
-                     stylesheets="@Style.css" text="TILBAKE" />
+                  <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack"
+                     styleClass="profil-knapper" stylesheets="@Style.css" text="TILBAKE" />
                </children>
             </HBox>
          </children>

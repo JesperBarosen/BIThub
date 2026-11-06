@@ -24,6 +24,7 @@ Serveren kjører på `http://localhost:8080`. Alle stier starter med `/api`, og 
 | POST | `/api/login` | Logge inn | Nei | Ferdig (#174) |
 | POST | `/api/logout` | Logge ut | Ja | Ferdig (#176), brukes av klienten (#179) |
 | PUT | `/api/users/{email}/password` | Bytte eget passord | Ja | Ferdig (#174), tilgangskontroll (#176), brukes av klienten (#179) |
+| PUT | `/api/users/{email}/name` | Endre eget navn | Ja | Ferdig og brukes av klienten (#236) |
 | GET | `/api/me/reviews` | Egne anmeldelser, også anonyme | Ja | Ferdig (#174), brukes av klienten (#181) |
 
 ## Innlogging og token
@@ -62,7 +63,7 @@ Alle feil fra serveren har samme format, slik at klienten kan vise meldingen dir
 | 401 Unauthorized | Mangler innlogging, eller feil e-post eller passord ved innlogging |
 | 403 Forbidden | Innlogget, men ikke eier av det som skal endres |
 | 404 Not Found | Emnet, anmeldelsen eller brukeren finnes ikke |
-| 409 Conflict | E-posten er allerede registrert |
+| 409 Conflict | E-posten er allerede registrert, eller brukeren har allerede anmeldt emnet |
 | 500 Internal Server Error | Uventet feil på serveren, for eksempel at datafilen ikke kan leses |
 
 ## Valideringsregler
@@ -153,7 +154,7 @@ Feil: `404` hvis emnet ikke finnes.
 
 ### POST `/api/courses/{code}/reviews`
 
-Lager en ny anmeldelse og krever innlogging. Anmeldelsen blir knyttet til den innloggede brukeren, og `anonymous` bestemmer om den vises som [`USER`](../../bithub/core/src/main/java/core/model/AuthorType.java#L9) eller [`ANONYMOUS`](../../bithub/core/src/main/java/core/model/AuthorType.java#L12). Uten token svarer serveren `401`, og ingenting lagres.
+Lager en ny anmeldelse og krever innlogging. Anmeldelsen blir knyttet til den innloggede brukeren, og `anonymous` bestemmer om den vises som [`USER`](../../bithub/core/src/main/java/core/model/AuthorType.java#L9) eller [`ANONYMOUS`](../../bithub/core/src/main/java/core/model/AuthorType.java#L12). Uten token svarer serveren `401`, og ingenting lagres. Hver bruker kan skrive én anmeldelse per emne, enten den er anonym eller ikke. Vil brukeren endre mening, endres den eksisterende anmeldelsen med `PUT /api/reviews/{id}`.
 
 Forespørsel:
 
@@ -177,7 +178,7 @@ Svar `201`: anmeldelsen slik den vises offentlig, med `id`.
 }
 ```
 
-Feil: `400` ved ugyldig vurdering eller kommentar, `401` hvis tokenet mangler, er ukjent eller er logget ut, `404` hvis emnet ikke finnes.
+Feil: `400` ved ugyldig vurdering eller kommentar, `401` hvis tokenet mangler, er ukjent eller er logget ut, `404` hvis emnet ikke finnes, `409` hvis brukeren allerede har en anmeldelse av emnet.
 
 Serveren henter eier og navn fra brukerregisteret etter at tokenet er kontrollert. Klienten
 kan ikke velge eier ved å sende navn eller e-post i JSON. Anonyme anmeldelser beholder eieren
@@ -275,6 +276,35 @@ Svar `204`.
 
 Feil: `400` hvis det nye passordet er ugyldig eller det gamle er feil, `401` hvis tokenet
 mangler, er ugyldig eller er logget ut, `403` hvis e-posten tilhører en annen bruker.
+
+### PUT `/api/users/{email}/name`
+
+Endrer eget navn og krever `Authorization: Bearer <token>`. Tilgangskontrollen er den samme
+som ved passordbytte: serveren finner brukeren fra tokenet og kontrollerer at e-posten i stien
+tilhører samme bruker før navnet endres. Mellomrom rundt navnet fjernes, og navnet valideres
+med de samme reglene som ved registrering. E-posten kan ikke endres.
+
+Alle anmeldelsene brukeren eier, får det nye navnet. Anonyme anmeldelser vises fortsatt som
+«Anonym», men får det nye navnet hvis brukeren senere gjør dem synlige.
+
+Forespørsel:
+
+```json
+{
+  "name": "Kari Normann"
+}
+```
+
+Svar `200` med navnet slik det ble lagret:
+
+```json
+{
+  "name": "Kari Normann"
+}
+```
+
+Feil: `400` hvis navnet er ugyldig, `401` hvis tokenet mangler, er ugyldig eller er logget ut,
+`403` hvis e-posten tilhører en annen bruker.
 
 ### GET `/api/me/reviews`
 

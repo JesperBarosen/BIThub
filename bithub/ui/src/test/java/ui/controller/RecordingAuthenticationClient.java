@@ -7,18 +7,20 @@ import ui.client.AuthenticationClient;
 import ui.client.AuthenticationResult;
 
 /**
- * Falsk autentiseringstjeneste for tester av profil og passordbytte. Den husker hva
+ * Falsk autentiseringstjeneste for tester av profil, navnebytte og passordbytte. Den husker hva
  * den ble kalt med, og kan kaste en valgt feil og kan holde igjen et kall til testen slipper det.
  */
 public final class RecordingAuthenticationClient implements AuthenticationClient {
 
     final AtomicInteger changePasswordCalls = new AtomicInteger();
     final AtomicInteger logoutCalls = new AtomicInteger();
+    final AtomicInteger changeNameCalls = new AtomicInteger();
 
     volatile String receivedToken; 
     volatile String receivedEmail;
     volatile String receivedOldPassword;
     volatile String receivedNewPassword;
+    volatile String receivedName;
 
     volatile RuntimeException error;
     volatile CountDownLatch requestStarted;
@@ -43,6 +45,19 @@ public final class RecordingAuthenticationClient implements AuthenticationClient
         receivedOldPassword = oldPassword;
         receivedNewPassword = newPassword;
         waitAndMaybeFail();
+    }
+
+    /**
+     * Husker kallet og svarer med navnet uten mellomrom rundt, slik serveren lagrer det.
+     */
+    @Override
+    public String changeName(String token, String email, String name) {
+        changeNameCalls.incrementAndGet();
+        receivedToken = token;
+        receivedEmail = email;
+        receivedName = name;
+        waitAndMaybeFail();
+        return name.strip();
     }
 
     @Override
