@@ -2,8 +2,7 @@
 
 ### Verktøy
 
-- ChatGPT til forklaringer, feilsøking og konkrete kodeuttrykk.
-- Claude til utkast til kode og tekst, feilsøking av bygget, ekstra kontroll ved review og dokumentasjon.
+- Claude og ChatGPT til utkast til kode og tekst, feilsøking av bygget, ekstra kontroll ved review og dokumentasjon.
 - Google Gemini og OpenAI Codex i mindre grad, for å sammenligne svar.
 
 Gruppen bestemte hva som skulle lages, og alt fra KI ble gått gjennom og testet før det ble tatt med.
