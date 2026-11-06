@@ -2,397 +2,184 @@
 
 ## Hva er BIThub?
 
-Beskrivelsen under viser appens planlagte funksjonalitet når programmet er ferdigstilt.
-BIThub skal gjøre det mulig for studenter ved BIT (Bachelor i informatikk) å legge igjen en offentlig anmeldelse av fag de har fullført. Hensikten med appen er at studenter skal kunne dele sine erfaringer med ulike fag ved BIT, slik at andre studenter og forelesere kan få nytte av det (se brukerhistorier).
+BIThub gjør det mulig for studenter ved BIT (Bachelor i informatikk) å skrive offentlige anmeldelser av emner de har tatt. Hensikten med appen er at studenter skal kunne dele erfaringene sine med ulike emner, slik at andre studenter og forelesere kan få nytte av dem (se [brukerhistoriene](#brukerhistorier)).
 
-Fra hjemskjermen kan man velge mellom å lese anmeldelser, skrive en anmeldelse og se egne anmeldelser.
+Hvordan du starter appen, står i [README.md](../README.md#kjøre-lokalt).
 
-**Lese anmeldelser:** Man kan bla gjennom fagene som tilbys på BIT, sortert etter fagkode, eller søke dem opp. Trykker man på et fag, får man se anmeldelsene av faget, gjennomsnittlig vurdering fra 1 til 5 og antall anmeldelser.
+Når man åpner appen, kommer man til innloggingssiden. Der kan man logge inn, registrere en ny bruker eller fortsette som gjest. Fra hjemmesiden kan man velge mellom å lese anmeldelser, skrive en anmeldelse og se egne anmeldelser.
 
-**Skrive anmeldelse:** Man velger fag på samme måte som når man leser. Deretter fyller man ut et skjema der man vurderer faget fra 1 til 5, skriver en kommentar og velger om anmeldelsen skal være anonym.
-
-**Mine anmeldelser:** Her kan man endre og slette anmeldelsene man har skrevet selv.
-
-**Profil:** Her kan man endre navn, brukernavn og passord, og logge ut.
-Informasjon om appen finnes via lenken nederst på innloggings- og hjemskjermen.
+<table>
+  <tr>
+    <td align="center"><img src="../docs/release3/bilder_release3/Home.png" alt="Hjemmesiden" height="300"></td>
+    <td align="center"><img src="../docs/release3/bilder_release3/ReadReviews.png" alt="Anmeldelser av TDT4100" height="300"></td>
+    <td align="center"><img src="../docs/release3/bilder_release3/WriteReview.png" alt="Skrive anmeldelse" height="300"></td>
+  </tr>
+</table>
 
 ## Funksjonalitet
 
-### Implementert i release 2
+**Lese anmeldelser:**\
+Man velger et emne fra listen over alle emnene i studieplanen, eller søker det opp med emnekode eller navn. Deretter ser man anmeldelsene av emnet, antall anmeldelser og gjennomsnittlig vurdering, både som stjerner og som tall. Gjester kan også lese anmeldelser.
 
-- **Velge fag:** Man kan velge fag fra en liste, som brukes når man skal lese og skrive anmeldelser.
-- **Lese anmeldelser:** Se anmeldelser til fag, i tillegg til gjennomsnittlig vurdering og antall anmeldelser til et fag.
-- **Skrive anmeldelser:** Velge et fag og skrive en anmeldelse med vurdering fra 1 til 5, kommentar og anonymitet.
-- **Lagre anmeldelser:** Anmeldelser valideres og lagres automatisk i en JSON-fil.
+**Skrive anmeldelse:**\
+Man velger emne på samme måte som når man leser. Deretter gir man emnet fra en til fem stjerner, skriver en kommentar hvis man vil, og velger om anmeldelsen skal være anonym. Man må være logget inn for å skrive en anmeldelse, og hver bruker kan skrive en anmeldelse per emne.
 
-### Implementert til release 3
+**Mine anmeldelser:**\
+Her ser man anmeldelsene man har skrevet selv, også de anonyme. Man kan endre vurderingen, kommentaren og om anmeldelsen er anonym, eller slette anmeldelsen.
 
-- **Søk etter fag:** Filtrer emnelisten på emnekode eller emnenavn mens
-  du skriver. Søket ignorerer store og små bokstaver og mellomrom før
-  og etter søket. Trefflisten åpnes automatisk og viser opptil seks
-  emner om gangen, med rulling ved flere treff. Tomt søk viser alle
-  emner. Søkefeltet brukes både når man skal lese og skrive anmeldelser.
+**Profil:**\
+Profilsymbolet øverst til høyre åpner profilsiden fra alle sidene inne i appen. Der ser man navnet og e-posten sin, og kan endre navn og passord og logge ut. E-posten kan ikke endres.
 
-### Planlagt til release 3
+Informasjon om appen finnes via lenken «Mer info om appen her.» nederst på innloggingssiden og hjemmesiden.
 
-- **Innlogging og registrering:** Koble brukere til appen og lage sidene for dem.
-- **Profil:** Lage en profilside hvor det er mulig å endre navn og passord.
-- **Mine anmeldelser:** Implementere slik at dine tidligere skrevne anmeldelser dukker opp her.
+## Anonyme anmeldelser og gjesteanmeldelser
 
-## Bygging, installasjon og oppstart
+Begge typene vises uten navn, men de er ikke det samme:
 
-BIThub består av en JavaFX-klient og en separat Spring Boot-server.
-Serveren må kjøre for at klienten skal kunne hente og lagre data.
+- **Anonyme anmeldelser** vises som «Anonym», men har en eier. Serveren lagrer hvem som skrev anmeldelsen, slik at eieren kan endre og slette den. E-posten til eieren sendes aldri ut fra serveren.
+- **Gjesteanmeldelser** er gamle anmeldelser fra release 2, da man kunne skrive anmeldelser uten å logge inn. De vises som «Gjest», har ingen eier og kan ikke endres eller slettes av noen. Det blir ikke laget nye gjesteanmeldelser.
 
-Klienten kan pakkes med jlink og jpackage på Windows, macOS og Linux.
-Pakkingen bruker `jpackage-maven-plugin` i `ui/pom.xml` og må kjøres
-på operativsystemet installasjonspakken skal brukes på.
+Mer om dette står i [release3.md](../docs/release3/release3.md#anonyme-anmeldelser-og-gjesteanmeldelser).
 
-### Forutsetninger
+## Brukerhistorier
 
-- JDK 17 eller nyere og Maven tilgjengelig i PATH.
-- Windows: WiX Toolset 3.14 for å lage `.exe`-installasjonsfil.
-- macOS: Et macOS-miljø for å lage `.dmg`-installasjonsfil.
-- Linux: Nødvendige pakkeverktøy, blant annet `fakeroot` for Debian-
-  baserte systemer eller `rpmbuild` for RPM-baserte systemer.
-- Den pakkede JavaFX-klienten trenger ikke en separat Java-installasjon.
-- REST-serveren krever Java 17 eller nyere.
+Hver brukerhistorie har et kort bakgrunnsavsnitt, flyten i appen og kriteriene vi brukte for å si at den var ferdig.
+Brukerhistorie 1 og 2 har også sekvensdiagram.
 
-Alle byggekommandoene nedenfor kjøres fra `bithub/`.
+### 1. Skrive en anmeldelse
 
-### Bygg og start REST-serveren
+> Som student, skal jeg kunne skrive anmeldelser av fag, for å kunne hjelpe andre studenter med for eksempel å velge
+> riktig valgfag for dem.
 
-Bygg hele prosjektet og kjør tester og kvalitetskontroller:
+**Bakgrunn:** Studenter vet mye om et emne etter å ha tatt det, men det finnes ikke noe sted å dele det med dem som
+skal velge emner senere.
 
-```bash
-mvn clean verify
-```
+**Flyt i appen:**
+1. Brukeren logger inn og trykker «SKRIV ANMELDELSE» på hjemmesiden.
+2. Brukeren søker opp emnet og trykker «GÅ VIDERE».
+3. Brukeren gir en til fem stjerner, skriver eventuelt en kommentar og velger om anmeldelsen skal være anonym.
+4. «SEND INN» sender anmeldelsen til serveren, og appen bekrefter at den ble lagret.
 
-Dette oppretter en kjørbar server-JAR:
+**Ferdig når:**
+- Man må være logget inn for å skrive.
+- Vurderingen må være mellom en og fem stjerner, ellers vises en feilmelding og skjemaet beholdes.
+- Hver bruker kan skrive én anmeldelse per emne.
+- Appen bekrefter at anmeldelsen ble sendt, og den vises for alle under emnet.
 
-`springboot/restserver/target/rest-0.0.1-SNAPSHOT.jar`
+#### Sekvensdiagram for brukerhistorie 1
 
-Start serveren i et eget terminalvindu.
+[![Sekvensdiagram brukerhistorie 1](../arkitektur/png/brukerhistorie1Sekvensdiagram.png)](../arkitektur/png/brukerhistorie1Sekvensdiagram.png)
 
-Windows CMD:
+Kildefil: [`arkitektur/brukerhistorie1Sekvensdiagram.puml`](../arkitektur/brukerhistorie1Sekvensdiagram.puml)
 
-```cmd
-java -jar "springboot\restserver\target\rest-0.0.1-SNAPSHOT.jar"
-```
+[`WriteReviewController`](ui/src/main/java/ui/controller/WriteReviewController.java) kjenner bare
+[`ReviewService`](core/src/main/java/core/service/ReviewService.java), som validerer anmeldelsen i `core` før den
+sendes. I klienten lagrer `ReviewService` gjennom
+[`RemoteReviewRepository`](ui/src/main/java/ui/client/RemoteReviewRepository.java), som sender
+`POST /api/courses/{code}/reviews` til serveren. Serveren validerer på nytt og lagrer anmeldelsen i JSON-filen med
+[`ReviewHandler`](file/src/main/java/file/ReviewHandler.java).
 
-macOS og Linux:
+### 2. Lese anmeldelser av et emne
 
-```bash
-java -jar springboot/restserver/target/rest-0.0.1-SNAPSHOT.jar
-```
+> Som foreleser, skal jeg kunne lese anmeldelser av faget jeg har, for å kunne forbedre og tilpasse faget til neste år.
 
-Serveren lytter som standard på `http://localhost:8080` og kjører
-til den stoppes med `Ctrl+C`.
+**Bakgrunn:** Emneevalueringer kommer sent og har få svar. Anmeldelsene gir foreleseren tilbakemeldinger fortløpende.
 
-Emner, anmeldelser og brukere lagres som standard i `.bithub/` under
-brukerens hjemmemappe, i filene `courses.json` og `users.json`.
+**Flyt i appen:**
+1. Brukeren trykker «LES ANMELDELSER» på hjemmesiden. Det går også uten å logge inn.
+2. Brukeren søker opp emnet og trykker «GÅ VIDERE».
+3. Appen viser gjennomsnittlig vurdering som stjerner og tall, antall anmeldelser og alle anmeldelsene.
 
-Filstiene kan overstyres med Spring Boot-argumentene
-`--bithub.reviews-file` og `--bithub.users-file`.
+**Ferdig når:**
+- Gjennomsnittet og antallet stemmer med anmeldelsene som vises.
+- Et emne uten anmeldelser viser «Ingen anmeldelser ennå.» i stedet for en feil.
+- Anonyme anmeldelser viser ikke hvem som skrev dem.
 
-### Pakk JavaFX-klienten med Maven
+#### Sekvensdiagram for brukerhistorie 2
 
-Den samme byggeprosessen brukes på Windows, macOS og Linux:
+[![Sekvensdiagram brukerhistorie 2](../arkitektur/png/brukerhistorie2Sekvensdiagram.png)](../arkitektur/png/brukerhistorie2Sekvensdiagram.png)
 
-```bash
-mvn -pl ui -am clean install -DskipTests
-mvn -pl ui javafx:jlink
-mvn -pl ui jpackage:jpackage
-```
+Kildefil: [`arkitektur/brukerhistorie2Sekvensdiagram.puml`](../arkitektur/brukerhistorie2Sekvensdiagram.puml)
 
-Første kommando bygger klienten og avhengighetene. Andre kommando
-lager en tilpasset Java-runtime med jlink. Tredje kommando oppretter
-en installasjonspakke for operativsystemet som brukes.
+Den samme emnevelgeren brukes for lesing og skriving.
+[`Navigation`](ui/src/main/java/ui/Navigation.java) bestemmer hvilken side som åpnes når et emne er valgt.
+[`ReadReviewsController`](ui/src/main/java/ui/controller/ReadReviewsController.java) henter emnet med
+`ReviewService.getCourseWithReviews`, som går gjennom `RemoteReviewRepository` og `GET /api/courses/{code}`.
+Gjennomsnittet regnes ut i [`Course`](core/src/main/java/core/model/Course.java), så kontrolleren viser bare tallet.
 
-`-DskipTests` gjelder bare pakkebyggingen. Kjør `mvn clean verify`
-separat for å verifisere hele prosjektet med tester og kvalitetskontroller.
+### 3. Vurdere studiet før man begynner
 
-Resultatene finnes under `ui/target/`:
+> Som mulig fremtidig informatikkstudent, skal jeg kunne lese anmeldelsene av fagene, for å kunne se om dette er noe
+> jeg har lyst å studere.
 
-- `bithub/`: Klienten med en tilpasset Java-runtime fra jlink. Start den med
-  `ui\target\bithub\bin\bithub.bat` på Windows eller `ui/target/bithub/bin/bithub`
-  på macOS og Linux. Serveren må kjøre.
-- `bithub.zip`: Samme mappe som zip-fil, som kan deles og pakkes ut på en annen
-  maskin med samme operativsystem. Krever ikke WiX eller en egen Java-installasjon.
-- `jpackage/`: Native installasjonspakke fra jpackage.
+**Bakgrunn:** Den som vurderer å søke studiet, har ingen konto og vil bare se hvordan emnene er.
 
-Installasjonsformatene avhenger av operativsystemet:
+**Flyt i appen:** Brukeren trykker «Fortsett som gjest» på innloggingssiden og leser anmeldelser som i brukerhistorie 2.
 
-| Operativsystem | Installasjonsformat |
-| --- | --- |
-| Windows | `.exe` |
-| macOS | `.dmg` |
-| Linux | `.deb` eller `.rpm`, avhengig av miljø og pakkeverktøy |
+**Ferdig når:**
+- Gjester kan lese alle anmeldelsene uten å lage konto.
+- Gjester kan logge inn eller registrere seg senere fra hjemmesiden.
 
-På macOS og Linux må JavaFX-klienten bygges med riktig JDK og
-plattformavhengige biblioteker for maskinen som skal kjøre den.
+### 4. Lage konto og logge inn
 
-REST-serveren følger ikke med klientens installasjonspakke og
-må startes separat.
+> Som student, skal jeg kunne opprette en bruker og logge inn, for å kunne skrive, endre og slette egne anmeldelser
+> uten at andre kan endre på dem.
 
-### Windows: bygg også app-image
+**Bakgrunn:** For at bare den som skrev en anmeldelse skal kunne endre den, må appen vite hvem som er logget inn.
 
-På Windows kan hele pakkingen kjøres med skriptet:
+**Flyt i appen:**
+1. Brukeren trykker «Registrer ny bruker» og fyller inn navn, e-post og passord.
+2. Brukeren blir logget inn med en gang og kommer til hjemmesiden.
+3. Neste gang logger brukeren inn med e-post og passord.
 
-```cmd
-call scripts\package-windows.cmd
-```
+**Ferdig når:**
+- Samme e-post kan ikke registreres to ganger.
+- Passordet lagres ikke i klartekst på serveren.
+- Feil e-post eller passord gir en feilmelding.
 
-Skriptet bygger JavaFX-klienten, lager en tilpasset Java-runtime,
-oppretter et app-image og bruker Maven-pluginen til å lage
-Windows-installasjonsfilen.
+### 5. Endre og slette egne anmeldelser
 
-Resultatene finnes under `ui/target/jpackage/`:
+> Som student, skal jeg kunne se, endre og slette egne anmeldelser, for å holde anmeldelsene mine oppdaterte og
+> relevante for andre studenter.
 
-- `BIThub-1.0.0.exe`: Windows-installasjonsprogram.
-- `BIThub/BIThub.exe`: Kjørbar klient i app-image-format.
+**Bakgrunn:** Meningen om et emne kan endre seg, og da skal man kunne rette anmeldelsen i stedet for å skrive en ny.
 
-Den installerte klienten kan startes uten Maven eller separat
-Java-installasjon.
+**Flyt i appen:**
+1. Brukeren trykker «MINE ANMELDELSER» og ser alle anmeldelsene sine, også de anonyme.
+2. «ENDRE» åpner anmeldelsen, der man kan endre stjerner, kommentar og anonymitet.
+3. «SLETT» sletter anmeldelsen.
 
-### Konfigurer serveradressen
+**Ferdig når:**
+- Man ser bare sine egne anmeldelser.
+- Serveren avviser endring og sletting av andres anmeldelser.
 
-Den pakkede klienten bruker `http://localhost:8080` som standard.
+### 6. Profil og passord
 
-Ved pakking direkte med Maven kan serveradressen endres med
-egenskapen `bithub.server.url`:
+> Som registrert bruker, skal jeg kunne se profilen min og endre passordet mitt, for å kunne bytte til et sikrere
+> passord hvis jeg tror noen andre kjenner det.
 
-```bash
-mvn -pl ui jpackage:jpackage -Dbithub.server.url=http://servernavn:8080
-```
+**Bakgrunn:** Brukeren må kunne holde kontoen sin trygg og oppdatert uten hjelp fra oss.
 
-På Windows kan serveradressen også konfigureres gjennom
-miljøvariabelen `BITHUB_SERVER_URL` før pakkeskriptet kjøres:
-
-```cmd
-set "BITHUB_SERVER_URL=http://servernavn:8080"
-call scripts\package-windows.cmd
-```
+**Flyt i appen:**
+1. Profilsymbolet øverst til høyre åpner profilsiden, som viser navn og e-post.
+2. «ENDRE PASSORD» ber om det gamle og det nye passordet.
+3. «ENDRE NAVN» endrer navnet, også på anmeldelsene med navn.
+4. «LOGG UT» logger ut.
 
-Begge metodene legger serveradressen inn som JVM-argumentet
-`-Dbithub.server-url=...` i den pakkede klienten.
-
-Adressen bestemmes under pakking. For å distribuere klienten
-med en annen standardadresse pakkes den på nytt.
-
-### Verifisering
-
-Windows-pakkingen er manuelt verifisert på Windows 10 med
-WiX Toolset 3.14.1.
-
-Følgende er verifisert på Windows:
-
-- `mvn clean verify`: 558 tester bestått, ingen Checkstyle-brudd eller SpotBugs-funn.
-- `mvn -pl ui javafx:jlink` oppretter `ui/target/bithub/` og `bithub.zip`.
-- Jlink-klienten starter med `bin\bithub.bat` og fungerer mot server-JAR-en:
-  innlogging, gjestemodus og lesing og skriving av anmeldelser.
-- Generering av Windows-installasjonsfil med jpackage via Maven.
-- Generering av Windows app-image med pakkeskriptet.
-- Oppstart av Spring Boot fra kjørbar JAR.
-- HTTP 200 og JSON-respons fra REST-endepunktet `/api/courses`.
-- Korrekt serveradresse i den installerte klientens `BIThub.cfg`.
-
-Den tidligere Windows-løsningen er også prøvekjørt med installert
-JavaFX-klient mot kjørende REST-server.
-
-macOS-pakkingen er også manuelt testet. Linux-pakkingen er konfigurert
-via Maven, men er foreløpig ikke manuelt verifisert.
-
-## Brukerlagring på REST-serveren
-
-Serveren kobler [`UserService`](core/src/main/java/core/service/UserService.java) i `core` til [`UserHandler`](file/src/main/java/file/UserHandler.java) i `file` gjennom
-grensesnittet [`UserRepository`](core/src/main/java/core/repository/UserRepository.java). Koblingen konfigureres med Spring-beans i
-[`RestApplication`](springboot/restserver/src/main/java/rest/RestApplication.java).
-
-Brukere lagres som JSON med navn, e-post, passordhash og salt. Standardfilen
-er `.bithub/users.json` i hjemmemappen til brukeren som kjører serveren.
-Filstien kan overstyres med Spring-innstillingen `bithub.users-file`.
-
-Serverkoblingen er på plass. REST-endepunkter for registrering og
-innlogging implementeres i #174.
-
-## Illustrerende skjermbilde - Figma
-
-Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal se ut og fungere når den er ferdig
-
-### Innlogging og registrering
-
-<table>
-  <tr>
-    <td align="center">
-      <b>Logg inn</b><br>
-      <img src="ui/images/image.png" alt="Logg inn" height="300">
-    </td>
-    <td align="center">
-      <b>Registrer ny bruker</b><br>
-      <img src="ui/images/image-1.png" alt="Registrer ny bruker" height="300">
-    </td>
-  </tr>
-</table>
-
-### Info og profil
-
-<table>
-  <tr>
-    <td align="center">
-      <b>Info om appen</b><br>
-      <img src="ui/images/image-2.png" alt="Info om appen" height="300">
-    </td>
-    <td align="center">
-      <b>Profil side</b><br>
-      <img src="ui/images/image-3.png" alt="Profil side" height="300">
-    </td>
-    <td align="center">
-      <b>Endre passord</b><br>
-      <img src="ui/images/image-4.png" alt="Endre passord" height="300">
-    </td>
-  </tr>
-</table>
-
-### Hjem og fagvalg
-
-<table>
-  <tr>
-    <td align="center">
-      <b>Hjemmeside</b><br>
-      <img src="ui/images/image-5.png" alt="Hjemmeside" height="300">
-    </td>
-    <td align="center">
-      <b>Velg fag</b><br>
-      <img src="ui/images/image-6.png" alt="Velg fag" height="300"><br>
-    </td>
-  </tr>
-</table>
-
-### Anmeldelser
-
-<table>
-  <tr>
-    <td align="center">
-      <b>Lese anmeldelser - eksempel</b><br>
-      <img src="ui/images/image-7.png" alt="Lese anmeldelser" height="300">
-    </td>
-    <td align="center">
-      <b>Skrive anmeldelse</b><br>
-      <img src="ui/images/image-8.png" alt="Skrive anmeldelse" height="300">
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>Mine anmeldelser - eksempel</b><br>
-      <img src="ui/images/image-9.png" alt="Mine anmeldelser" height="300">
-    </td>
-    <td align="center">
-      <b>Endre egen anmeldelse - eksempel</b><br>
-      <img src="ui/images/image-10.png" alt="Endre egen anmeldelse" height="300">
-    </td>
-  </tr>
-</table>
+**Ferdig når:**
+- Det gamle passordet må være riktig for å bytte.
+- Det nye navnet vises på brukerens anmeldelser med navn.
 
-# Brukerhistorier
+### 7. Søke etter emner
 
-## Brukerhistorie 1
+> Som student, skal jeg kunne søke etter fag med fagkode eller navn, for å raskt finne faget jeg vil lese eller skrive
+> anmeldelser om.
 
-**Brukerhistorie 1:** «Som student, skal jeg kunne skrive anmeldelser av fag, for å kunne
-hjelpe andre studenter med for eksempel å velge riktig valgfag for dem.»
+**Bakgrunn:** Studieplanen har mange emner, så det tar tid å bla seg fram i en lang liste.
 
-Diagrammet dekker flyten fra brukeren velger fag i [`CourseSelectionController`](ui/src/main/java/ui/controller/CourseSelectionController.java), til anmeldelsen er
-validert i `core` og lagret som JSON av `file`-modulen.
+**Flyt i appen:** Brukeren skriver i søkefeltet når et emne skal velges, og listen filtreres mens man skriver.
 
-### Sekvensdiagram for brukerhistorie 1:
-
-![Sekvensdiagram brukerhistorie 1](../arkitektur/png/brukerhistorie1Sekvensdiagram.png)
-
-Kildefilen til diagrammet (PlantUML) ligger i
-[`arkitektur/brukerhistorie1Sekvensdiagram.puml`](../arkitektur/brukerhistorie1Sekvensdiagram.puml).
-
-PNG-en er generert fra `.puml`-filen via [plantuml.com](https://www.plantuml.com/plantuml/uml/):
-lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
-
-### Kommentarer til diagrammet
-
-- **`ui → core`:** [`WriteReviewController`](ui/src/main/java/ui/controller/WriteReviewController.java) kjenner kun [`core.service.ReviewService`](core/src/main/java/core/service/ReviewService.java). Den vet ingenting om
-  at anmeldelsen til slutt havner i en JSON-fil.
-- **`core → file` (via grensesnitt):** [`ReviewService`](core/src/main/java/core/service/ReviewService.java) kjenner kun [`core.repository.ReviewRepository`](core/src/main/java/core/repository/ReviewRepository.java).
-  [`ReviewHandler`](file/src/main/java/file/ReviewHandler.java) i `file`-modulen implementerer dette grensesnittet, så `core` er ikke
-  avhengig av `file`.
-- **Kobling ved oppstart:** [`App.start(...)`](ui/src/main/java/ui/App.java#L30)
-  setter opp [`RemoteReviewRepository`](ui/src/main/java/ui/client/RemoteReviewRepository.java)
-  og [`ReviewService`](core/src/main/java/core/service/ReviewService.java),
-  og gir tjenesten videre til [`Navigation`](ui/src/main/java/ui/Navigation.java).
-  Klienten kommuniserer med REST-serveren og er ikke avhengig av `file`.
-- **Validering ligger i `core`:** Både format på vurdering (1–5, gyldig tall) og selve
-  [`Review`](core/src/main/java/core/model/Review.java)-objektet valideres i `core` ([`ReviewService.parseRating`](core/src/main/java/core/service/ReviewService.java#L265) og [`Review`](core/src/main/java/core/model/Review.java)-konstruktøren),
-  ikke i kontrolleren. Kontrolleren viser bare feilmeldingen den får tilbake.
-
-## Brukerhistorie 2
-
-**Brukerhistorie 2:** «Som foreleser, skal jeg kunne lese anmeldelser av faget jeg har, for å kunne forbedre og tilpasse faget til neste år.»
-
-Diagrammet dekker flyten fra foreleseren trykker «Les anmeldelser» på hjemmesiden, til
-anmeldelsene er hentet fra JSON-filen i `file`, gjort om til domeneobjekter og vist med
-gjennomsnitt og antall i [`ReadReviewsController`](ui/src/main/java/ui/controller/ReadReviewsController.java).
-
-### Sekvensdiagram for brukerhistorie 2:
-
-![Sekvensdiagram brukerhistorie 2](../arkitektur/png/brukerhistorie2Sekvensdiagram.png)
-
-Kildefilen til diagrammet (PlantUML) ligger i
-[`arkitektur/brukerhistorie2Sekvensdiagram.puml`](../arkitektur/brukerhistorie2Sekvensdiagram.puml).
-
-PNG-en er generert fra `.puml`-filen via [plantuml.com](https://www.plantuml.com/plantuml/uml/):
-lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
-
-### Kommentarer til diagrammet
-
-- **Samme fagvelger for lesing og skriving:** [`Navigation.showCourseSelectionForReading`](ui/src/main/java/ui/Navigation.java#L168)
-  åpner den samme [`CourseSelection`](ui/src/main/resources/ui/CourseSelection.fxml)-siden som brukes når man skriver en anmeldelse, men gir
-  [`CourseSelectionController`](ui/src/main/java/ui/controller/CourseSelectionController.java) beskjed om å kalle [`Navigation::showReviews`](ui/src/main/java/ui/Navigation.java#L179) når et fag er valgt.
-  Kontrolleren vet ikke selv hvilken side som åpnes.
-- **`ui → core`:** [`ReadReviewsController`](ui/src/main/java/ui/controller/ReadReviewsController.java) kjenner kun [`core.service.ReviewService`](core/src/main/java/core/service/ReviewService.java). Den ber om
-  emnet med [`getCourseWithReviews`](core/src/main/java/core/service/ReviewService.java#L105) og vet ikke at anmeldelsene kommer fra en JSON-fil.
-- **`core → file` (via grensesnitt):** [`ReviewService`](core/src/main/java/core/service/ReviewService.java) kaller [`findCourse`](core/src/main/java/core/repository/ReviewRepository.java#L32) på
-  [`core.repository.ReviewRepository`](core/src/main/java/core/repository/ReviewRepository.java). [`ReviewHandler`](file/src/main/java/file/ReviewHandler.java) i `file` implementerer metoden, leser filen og
-  gjør [`CourseDTO`](file/src/main/java/file/dto/CourseDTO.java) om til [`Course`](core/src/main/java/core/model/Course.java). DTO-en brukes bare inne i `file`.
-- **Fag uten anmeldelser:** Finnes ikke faget i filen, returnerer [`findCourse`](core/src/main/java/core/repository/ReviewRepository.java#L32) en tom
-  `Optional`, og [`ReviewService`](core/src/main/java/core/service/ReviewService.java) lager et tomt [`Course`](core/src/main/java/core/model/Course.java). Kontrolleren trenger derfor ikke å
-  håndtere at faget mangler.
-- **Gjennomsnittet regnes ut i `core`:** [`Course.getAverageRating()`](core/src/main/java/core/model/Course.java#L82) står for utregningen.
-  Kontrolleren formaterer bare tallet med to desimaler.
-
-## Brukerhistorie 3
-
-**Brukerhistorie 3:** «Som mulig fremtidig informatikkstudent, skal jeg kunne lese anmeldelsene av fagene, for å kunne se om dette er noe jeg har lyst å studere.»
-
-Brukerhistorie 3 bruker samme flyt som brukerhistorie 2: man velger et fag under «Les anmeldelser»
-og ser anmeldelsene, gjennomsnittet og antallet. Se
-[sekvensdiagrammet for brukerhistorie 2](#sekvensdiagram-for-brukerhistorie-2).
-
-## Brukerhistorie 4
-
-**Brukerhistorie 4:** «Som student, skal jeg kunne opprette en bruker og logge inn, for å kunne skrive, endre og slette egne anmeldelser uten at andre kan endre på dem.»
-
-Diagrammet kommer i en senere sprint.
-
-## Brukerhistorie 5
-
-**Brukerhistorie 5:** «Som student, skal jeg kunne se, endre og slette egne anmeldelser, for å holde anmeldelsene mine oppdaterte og relevante for andre studenter.»
-
-Diagrammet kommer i en senere sprint.
-
-## Brukerhistorie 6
-
-**Brukerhistorie 6:** «Som registrert bruker, skal jeg kunne se profilen min og endre passordet mitt, for å kunne bytte til et sikrere passord hvis jeg tror noen andre kjenner det.»
-
-Diagrammet kommer i en senere sprint.
-
-## Brukerhistorie 7
-
-**Brukerhistorie 7:** «Som student, skal jeg kunne søke etter fag med fagkode eller navn, for å raskt finne faget jeg vil lese eller skrive anmeldelser om.»
-
-Diagrammet kommer i en senere sprint.
+**Ferdig når:**
+- Søket treffer både emnekode og emnenavn, uansett store og små bokstaver.
+- Et tomt søk viser alle emnene.
+- Det samme søkefeltet brukes når man leser og skriver.
