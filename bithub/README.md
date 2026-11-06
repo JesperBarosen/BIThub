@@ -1,235 +1,185 @@
-
 # BIThub - app for å skrive og lese anmeldelser av BIT fag
 
 ## Hva er BIThub?
 
-Beskrivelsen under viser appens planlagte funksjonalitet når programmet er ferdigstilt.
-BIThub skal gjøre det mulig for studenter ved BIT (Bachelor i informatikk) å legge igjen en offentlig anmeldelse av fag de har fullført. Hensikten med appen er at studenter skal kunne dele sine erfaringer med ulike fag ved BIT, slik at andre studenter og forelesere kan få nytte av det (se brukerhistorier).
+BIThub gjør det mulig for studenter ved BIT (Bachelor i informatikk) å skrive offentlige anmeldelser av emner de har tatt. Hensikten med appen er at studenter skal kunne dele erfaringene sine med ulike emner, slik at andre studenter og forelesere kan få nytte av dem (se [brukerhistoriene](#brukerhistorier)).
 
-Fra hjemskjermen kan man velge mellom å lese anmeldelser, skrive en anmeldelse og se egne anmeldelser.
+Hvordan du starter appen, står i [README.md](../README.md#kjøre-lokalt).
 
-**Lese anmeldelser:** Man kan bla gjennom fagene som tilbys på BIT, sortert etter fagkode, eller søke dem opp. Trykker man på et fag, får man se anmeldelsene av faget, gjennomsnittlig vurdering fra 1 til 5 og antall anmeldelser.
+Når man åpner appen, kommer man til innloggingssiden. Der kan man logge inn, registrere en ny bruker eller fortsette som gjest. Fra hjemmesiden kan man velge mellom å lese anmeldelser, skrive en anmeldelse og se egne anmeldelser.
 
-**Skrive anmeldelse:** Man velger fag på samme måte som når man leser. Deretter fyller man ut et skjema der man vurderer faget fra 1 til 5, skriver en kommentar og velger om anmeldelsen skal være anonym.
-
-**Mine anmeldelser:** Her kan man endre og slette anmeldelsene man har skrevet selv.
-
-**Profil:** Her kan man endre navn, brukernavn og passord, og logge ut.
-Informasjon om appen finnes via lenken nederst på innloggings- og hjemskjermen.
+<table>
+  <tr>
+    <td align="center"><img src="../docs/release3/bilder_release3/Home.png" alt="Hjemmesiden" height="300"></td>
+    <td align="center"><img src="../docs/release3/bilder_release3/ReadReviews.png" alt="Anmeldelser av TDT4100" height="300"></td>
+    <td align="center"><img src="../docs/release3/bilder_release3/WriteReview.png" alt="Skrive anmeldelse" height="300"></td>
+  </tr>
+</table>
 
 ## Funksjonalitet
 
-### Implementert i release 2
+**Lese anmeldelser:**\
+Man velger et emne fra listen over alle emnene i studieplanen, eller søker det opp med emnekode eller navn. Deretter ser man anmeldelsene av emnet, antall anmeldelser og gjennomsnittlig vurdering, både som stjerner og som tall. Gjester kan også lese anmeldelser.
 
-- **Velge fag:** Man kan velge fag fra en liste, som brukes når man skal lese og skrive anmeldelser.
-- **Lese anmeldelser:** Se anmeldelser til fag, i tillegg til gjennomsnittlig vurdering og antall anmeldelser til et fag.
-- **Skrive anmeldelser:** Velge et fag og skrive en anmeldelse med vurdering fra 1 til 5, kommentar og anonymitet.
-- **Lagre anmeldelser:** Anmeldelser valideres og lagres automatisk i en JSON-fil.
+**Skrive anmeldelse:**\
+Man velger emne på samme måte som når man leser. Deretter gir man emnet fra en til fem stjerner, skriver en kommentar hvis man vil, og velger om anmeldelsen skal være anonym. Man må være logget inn for å skrive en anmeldelse, og hver bruker kan skrive en anmeldelse per emne.
 
-### Implementert til release 3
+**Mine anmeldelser:**\
+Her ser man anmeldelsene man har skrevet selv, også de anonyme. Man kan endre vurderingen, kommentaren og om anmeldelsen er anonym, eller slette anmeldelsen.
 
-- **Søk etter fag:** Filtrer emnelisten på emnekode eller emnenavn mens
-  du skriver. Søket ignorerer store og små bokstaver og mellomrom før
-  og etter søket. Trefflisten åpnes automatisk og viser opptil seks
-  emner om gangen, med rulling ved flere treff. Tomt søk viser alle
-  emner. Søkefeltet brukes både når man skal lese og skrive anmeldelser.
+**Profil:**\
+Profilsymbolet øverst til høyre åpner profilsiden fra alle sidene inne i appen. Der ser man navnet og e-posten sin, og kan endre navn og passord og logge ut. E-posten kan ikke endres.
 
-### Planlagt til release 3
+Informasjon om appen finnes via lenken «Mer info om appen her.» nederst på innloggingssiden og hjemmesiden.
 
-- **Innlogging og registrering:** Koble brukere til appen og lage sidene for dem.
-- **Profil:** Lage en profilside hvor det er mulig å endre navn og passord.
-- **Mine anmeldelser:** Implementere slik at dine tidligere skrevne anmeldelser dukker opp her.
+## Anonyme anmeldelser og gjesteanmeldelser
 
-## Brukerlagring på REST-serveren
+Begge typene vises uten navn, men de er ikke det samme:
 
-Serveren kobler [`UserService`](core/src/main/java/core/service/UserService.java) i `core` til [`UserHandler`](file/src/main/java/file/UserHandler.java) i `file` gjennom
-grensesnittet [`UserRepository`](core/src/main/java/core/repository/UserRepository.java). Koblingen konfigureres med Spring-beans i
-[`RestApplication`](springboot/restserver/src/main/java/rest/RestApplication.java).
+- **Anonyme anmeldelser** vises som «Anonym», men har en eier. Serveren lagrer hvem som skrev anmeldelsen, slik at eieren kan endre og slette den. E-posten til eieren sendes aldri ut fra serveren.
+- **Gjesteanmeldelser** er gamle anmeldelser fra release 2, da man kunne skrive anmeldelser uten å logge inn. De vises som «Gjest», har ingen eier og kan ikke endres eller slettes av noen. Det blir ikke laget nye gjesteanmeldelser.
 
-Brukere lagres som JSON med navn, e-post, passordhash og salt. Standardfilen
-er `.bithub/users.json` i hjemmemappen til brukeren som kjører serveren.
-Filstien kan overstyres med Spring-innstillingen `bithub.users-file`.
+Mer om dette står i [release3.md](../docs/release3/release3.md#anonyme-anmeldelser-og-gjesteanmeldelser).
 
-Serverkoblingen er på plass. REST-endepunkter for registrering og
-innlogging implementeres i #174.
+## Brukerhistorier
 
-## Illustrerende skjermbilde - Figma
+Hver brukerhistorie har et kort bakgrunnsavsnitt, flyten i appen og kriteriene vi brukte for å si at den var ferdig.
+Brukerhistorie 1 og 2 har også sekvensdiagram.
 
-Vi lagde illustrerende skjermbilder i Figma for å beskrive hvordan appen skal se ut og fungere når den er ferdig
+### 1. Skrive en anmeldelse
 
-### Innlogging og registrering
+> Som student, skal jeg kunne skrive anmeldelser av fag, for å kunne hjelpe andre studenter med for eksempel å velge
+> riktig valgfag for dem.
 
-<table>
-  <tr>
-    <td align="center">
-      <b>Logg inn</b><br>
-      <img src="ui/images/image.png" alt="Logg inn" height="300">
-    </td>
-    <td align="center">
-      <b>Registrer ny bruker</b><br>
-      <img src="ui/images/image-1.png" alt="Registrer ny bruker" height="300">
-    </td>
-  </tr>
-</table>
+**Bakgrunn:** Studenter vet mye om et emne etter å ha tatt det, men det finnes ikke noe sted å dele det med dem som
+skal velge emner senere.
 
-### Info og profil
+**Flyt i appen:**
+1. Brukeren logger inn og trykker «SKRIV ANMELDELSE» på hjemmesiden.
+2. Brukeren søker opp emnet og trykker «GÅ VIDERE».
+3. Brukeren gir en til fem stjerner, skriver eventuelt en kommentar og velger om anmeldelsen skal være anonym.
+4. «SEND INN» sender anmeldelsen til serveren, og appen bekrefter at den ble lagret.
 
-<table>
-  <tr>
-    <td align="center">
-      <b>Info om appen</b><br>
-      <img src="ui/images/image-2.png" alt="Info om appen" height="300">
-    </td>
-    <td align="center">
-      <b>Profil side</b><br>
-      <img src="ui/images/image-3.png" alt="Profil side" height="300">
-    </td>
-    <td align="center">
-      <b>Endre passord</b><br>
-      <img src="ui/images/image-4.png" alt="Endre passord" height="300">
-    </td>
-  </tr>
-</table>
+**Ferdig når:**
+- Man må være logget inn for å skrive.
+- Vurderingen må være mellom en og fem stjerner, ellers vises en feilmelding og skjemaet beholdes.
+- Hver bruker kan skrive én anmeldelse per emne.
+- Appen bekrefter at anmeldelsen ble sendt, og den vises for alle under emnet.
 
-### Hjem og fagvalg
+#### Sekvensdiagram for brukerhistorie 1
 
-<table>
-  <tr>
-    <td align="center">
-      <b>Hjemmeside</b><br>
-      <img src="ui/images/image-5.png" alt="Hjemmeside" height="300">
-    </td>
-    <td align="center">
-      <b>Velg fag</b><br>
-      <img src="ui/images/image-6.png" alt="Velg fag" height="300"><br>
-    </td>
-  </tr>
-</table>
+[![Sekvensdiagram brukerhistorie 1](../arkitektur/png/brukerhistorie1Sekvensdiagram.png)](../arkitektur/png/brukerhistorie1Sekvensdiagram.png)
 
-### Anmeldelser
+Kildefil: [`arkitektur/brukerhistorie1Sekvensdiagram.puml`](../arkitektur/brukerhistorie1Sekvensdiagram.puml)
 
-<table>
-  <tr>
-    <td align="center">
-      <b>Lese anmeldelser - eksempel</b><br>
-      <img src="ui/images/image-7.png" alt="Lese anmeldelser" height="300">
-    </td>
-    <td align="center">
-      <b>Skrive anmeldelse</b><br>
-      <img src="ui/images/image-8.png" alt="Skrive anmeldelse" height="300">
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>Mine anmeldelser - eksempel</b><br>
-      <img src="ui/images/image-9.png" alt="Mine anmeldelser" height="300">
-    </td>
-    <td align="center">
-      <b>Endre egen anmeldelse - eksempel</b><br>
-      <img src="ui/images/image-10.png" alt="Endre egen anmeldelse" height="300">
-    </td>
-  </tr>
-</table>
+[`WriteReviewController`](ui/src/main/java/ui/controller/WriteReviewController.java) kjenner bare
+[`ReviewService`](core/src/main/java/core/service/ReviewService.java), som validerer anmeldelsen i `core` før den
+sendes. I klienten lagrer `ReviewService` gjennom
+[`RemoteReviewRepository`](ui/src/main/java/ui/client/RemoteReviewRepository.java), som sender
+`POST /api/courses/{code}/reviews` til serveren. Serveren validerer på nytt og lagrer anmeldelsen i JSON-filen med
+[`ReviewHandler`](file/src/main/java/file/ReviewHandler.java).
 
-# Brukerhistorier
+### 2. Lese anmeldelser av et emne
 
-## Brukerhistorie 1
+> Som foreleser, skal jeg kunne lese anmeldelser av faget jeg har, for å kunne forbedre og tilpasse faget til neste år.
 
-**Brukerhistorie 1:** «Som student, skal jeg kunne skrive anmeldelser av fag, for å kunne
-hjelpe andre studenter med for eksempel å velge riktig valgfag for dem.»
+**Bakgrunn:** Emneevalueringer kommer sent og har få svar. Anmeldelsene gir foreleseren tilbakemeldinger fortløpende.
 
-Diagrammet dekker flyten fra brukeren velger fag i [`CourseSelectionController`](ui/src/main/java/ui/controller/CourseSelectionController.java), til anmeldelsen er
-validert i `core` og lagret som JSON av `file`-modulen.
+**Flyt i appen:**
+1. Brukeren trykker «LES ANMELDELSER» på hjemmesiden. Det går også uten å logge inn.
+2. Brukeren søker opp emnet og trykker «GÅ VIDERE».
+3. Appen viser gjennomsnittlig vurdering som stjerner og tall, antall anmeldelser og alle anmeldelsene.
 
-### Sekvensdiagram for brukerhistorie 1:
+**Ferdig når:**
+- Gjennomsnittet og antallet stemmer med anmeldelsene som vises.
+- Et emne uten anmeldelser viser «Ingen anmeldelser ennå.» i stedet for en feil.
+- Anonyme anmeldelser viser ikke hvem som skrev dem.
 
-![Sekvensdiagram brukerhistorie 1](../arkitektur/png/brukerhistorie1Sekvensdiagram.png)
+#### Sekvensdiagram for brukerhistorie 2
 
-Kildefilen til diagrammet (PlantUML) ligger i
-[`arkitektur/brukerhistorie1Sekvensdiagram.puml`](../arkitektur/brukerhistorie1Sekvensdiagram.puml).
+[![Sekvensdiagram brukerhistorie 2](../arkitektur/png/brukerhistorie2Sekvensdiagram.png)](../arkitektur/png/brukerhistorie2Sekvensdiagram.png)
 
-PNG-en er generert fra `.puml`-filen via [plantuml.com](https://www.plantuml.com/plantuml/uml/):
-lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
+Kildefil: [`arkitektur/brukerhistorie2Sekvensdiagram.puml`](../arkitektur/brukerhistorie2Sekvensdiagram.puml)
 
-### Kommentarer til diagrammet
+Den samme emnevelgeren brukes for lesing og skriving.
+[`Navigation`](ui/src/main/java/ui/Navigation.java) bestemmer hvilken side som åpnes når et emne er valgt.
+[`ReadReviewsController`](ui/src/main/java/ui/controller/ReadReviewsController.java) henter emnet med
+`ReviewService.getCourseWithReviews`, som går gjennom `RemoteReviewRepository` og `GET /api/courses/{code}`.
+Gjennomsnittet regnes ut i [`Course`](core/src/main/java/core/model/Course.java), så kontrolleren viser bare tallet.
 
-- **`ui → core`:** [`WriteReviewController`](ui/src/main/java/ui/controller/WriteReviewController.java) kjenner kun [`core.service.ReviewService`](core/src/main/java/core/service/ReviewService.java). Den vet ingenting om
-  at anmeldelsen til slutt havner i en JSON-fil.
-- **`core → file` (via grensesnitt):** [`ReviewService`](core/src/main/java/core/service/ReviewService.java) kjenner kun [`core.repository.ReviewRepository`](core/src/main/java/core/repository/ReviewRepository.java).
-  [`ReviewHandler`](file/src/main/java/file/ReviewHandler.java) i `file`-modulen implementerer dette grensesnittet, så `core` er ikke
-  avhengig av `file`.
-- **Kobling ved oppstart:** [`App.start(...)`](ui/src/main/java/ui/App.java#L30)
-  setter opp [`RemoteReviewRepository`](ui/src/main/java/ui/client/RemoteReviewRepository.java)
-  og [`ReviewService`](core/src/main/java/core/service/ReviewService.java),
-  og gir tjenesten videre til [`Navigation`](ui/src/main/java/ui/Navigation.java).
-  Klienten kommuniserer med REST-serveren og er ikke avhengig av `file`.
-- **Validering ligger i `core`:** Både format på vurdering (1–5, gyldig tall) og selve
-  [`Review`](core/src/main/java/core/model/Review.java)-objektet valideres i `core` ([`ReviewService.parseRating`](core/src/main/java/core/service/ReviewService.java#L265) og [`Review`](core/src/main/java/core/model/Review.java)-konstruktøren),
-  ikke i kontrolleren. Kontrolleren viser bare feilmeldingen den får tilbake.
+### 3. Vurdere studiet før man begynner
 
-## Brukerhistorie 2
+> Som mulig fremtidig informatikkstudent, skal jeg kunne lese anmeldelsene av fagene, for å kunne se om dette er noe
+> jeg har lyst å studere.
 
-**Brukerhistorie 2:** «Som foreleser, skal jeg kunne lese anmeldelser av faget jeg har, for å kunne forbedre og tilpasse faget til neste år.»
+**Bakgrunn:** Den som vurderer å søke studiet, har ingen konto og vil bare se hvordan emnene er.
 
-Diagrammet dekker flyten fra foreleseren trykker «Les anmeldelser» på hjemmesiden, til
-anmeldelsene er hentet fra JSON-filen i `file`, gjort om til domeneobjekter og vist med
-gjennomsnitt og antall i [`ReadReviewsController`](ui/src/main/java/ui/controller/ReadReviewsController.java).
+**Flyt i appen:** Brukeren trykker «Fortsett som gjest» på innloggingssiden og leser anmeldelser som i brukerhistorie 2.
 
-### Sekvensdiagram for brukerhistorie 2:
+**Ferdig når:**
+- Gjester kan lese alle anmeldelsene uten å lage konto.
+- Gjester kan logge inn eller registrere seg senere fra hjemmesiden.
 
-![Sekvensdiagram brukerhistorie 2](../arkitektur/png/brukerhistorie2Sekvensdiagram.png)
+### 4. Lage konto og logge inn
 
-Kildefilen til diagrammet (PlantUML) ligger i
-[`arkitektur/brukerhistorie2Sekvensdiagram.puml`](../arkitektur/brukerhistorie2Sekvensdiagram.puml).
+> Som student, skal jeg kunne opprette en bruker og logge inn, for å kunne skrive, endre og slette egne anmeldelser
+> uten at andre kan endre på dem.
 
-PNG-en er generert fra `.puml`-filen via [plantuml.com](https://www.plantuml.com/plantuml/uml/):
-lim inn innholdet i `.puml`-filen der og last ned bildet som PNG.
+**Bakgrunn:** For at bare den som skrev en anmeldelse skal kunne endre den, må appen vite hvem som er logget inn.
 
-### Kommentarer til diagrammet
+**Flyt i appen:**
+1. Brukeren trykker «Registrer ny bruker» og fyller inn navn, e-post og passord.
+2. Brukeren blir logget inn med en gang og kommer til hjemmesiden.
+3. Neste gang logger brukeren inn med e-post og passord.
 
-- **Samme fagvelger for lesing og skriving:** [`Navigation.showCourseSelectionForReading`](ui/src/main/java/ui/Navigation.java#L168)
-  åpner den samme [`CourseSelection`](ui/src/main/resources/ui/CourseSelection.fxml)-siden som brukes når man skriver en anmeldelse, men gir
-  [`CourseSelectionController`](ui/src/main/java/ui/controller/CourseSelectionController.java) beskjed om å kalle [`Navigation::showReviews`](ui/src/main/java/ui/Navigation.java#L179) når et fag er valgt.
-  Kontrolleren vet ikke selv hvilken side som åpnes.
-- **`ui → core`:** [`ReadReviewsController`](ui/src/main/java/ui/controller/ReadReviewsController.java) kjenner kun [`core.service.ReviewService`](core/src/main/java/core/service/ReviewService.java). Den ber om
-  emnet med [`getCourseWithReviews`](core/src/main/java/core/service/ReviewService.java#L105) og vet ikke at anmeldelsene kommer fra en JSON-fil.
-- **`core → file` (via grensesnitt):** [`ReviewService`](core/src/main/java/core/service/ReviewService.java) kaller [`findCourse`](core/src/main/java/core/repository/ReviewRepository.java#L32) på
-  [`core.repository.ReviewRepository`](core/src/main/java/core/repository/ReviewRepository.java). [`ReviewHandler`](file/src/main/java/file/ReviewHandler.java) i `file` implementerer metoden, leser filen og
-  gjør [`CourseDTO`](file/src/main/java/file/dto/CourseDTO.java) om til [`Course`](core/src/main/java/core/model/Course.java). DTO-en brukes bare inne i `file`.
-- **Fag uten anmeldelser:** Finnes ikke faget i filen, returnerer [`findCourse`](core/src/main/java/core/repository/ReviewRepository.java#L32) en tom
-  `Optional`, og [`ReviewService`](core/src/main/java/core/service/ReviewService.java) lager et tomt [`Course`](core/src/main/java/core/model/Course.java). Kontrolleren trenger derfor ikke å
-  håndtere at faget mangler.
-- **Gjennomsnittet regnes ut i `core`:** [`Course.getAverageRating()`](core/src/main/java/core/model/Course.java#L82) står for utregningen.
-  Kontrolleren formaterer bare tallet med to desimaler.
+**Ferdig når:**
+- Samme e-post kan ikke registreres to ganger.
+- Passordet lagres ikke i klartekst på serveren.
+- Feil e-post eller passord gir en feilmelding.
 
-## Brukerhistorie 3
+### 5. Endre og slette egne anmeldelser
 
-**Brukerhistorie 3:** «Som mulig fremtidig informatikkstudent, skal jeg kunne lese anmeldelsene av fagene, for å kunne se om dette er noe jeg har lyst å studere.»
+> Som student, skal jeg kunne se, endre og slette egne anmeldelser, for å holde anmeldelsene mine oppdaterte og
+> relevante for andre studenter.
 
-Brukerhistorie 3 bruker samme flyt som brukerhistorie 2: man velger et fag under «Les anmeldelser»
-og ser anmeldelsene, gjennomsnittet og antallet. Se
-[sekvensdiagrammet for brukerhistorie 2](#sekvensdiagram-for-brukerhistorie-2).
+**Bakgrunn:** Meningen om et emne kan endre seg, og da skal man kunne rette anmeldelsen i stedet for å skrive en ny.
 
-## Brukerhistorie 4
+**Flyt i appen:**
+1. Brukeren trykker «MINE ANMELDELSER» og ser alle anmeldelsene sine, også de anonyme.
+2. «ENDRE» åpner anmeldelsen, der man kan endre stjerner, kommentar og anonymitet.
+3. «SLETT» sletter anmeldelsen.
 
-**Brukerhistorie 4:** «Som student, skal jeg kunne opprette en bruker og logge inn, for å kunne skrive, endre og slette egne anmeldelser uten at andre kan endre på dem.»
+**Ferdig når:**
+- Man ser bare sine egne anmeldelser.
+- Serveren avviser endring og sletting av andres anmeldelser.
 
-Diagrammet kommer i en senere sprint.
+### 6. Profil og passord
 
-## Brukerhistorie 5
+> Som registrert bruker, skal jeg kunne se profilen min og endre passordet mitt, for å kunne bytte til et sikrere
+> passord hvis jeg tror noen andre kjenner det.
 
-**Brukerhistorie 5:** «Som student, skal jeg kunne se, endre og slette egne anmeldelser, for å holde anmeldelsene mine oppdaterte og relevante for andre studenter.»
+**Bakgrunn:** Brukeren må kunne holde kontoen sin trygg og oppdatert uten hjelp fra oss.
 
-Diagrammet kommer i en senere sprint.
+**Flyt i appen:**
+1. Profilsymbolet øverst til høyre åpner profilsiden, som viser navn og e-post.
+2. «ENDRE PASSORD» ber om det gamle og det nye passordet.
+3. «ENDRE NAVN» endrer navnet, også på anmeldelsene med navn.
+4. «LOGG UT» logger ut.
 
-## Brukerhistorie 6
+**Ferdig når:**
+- Det gamle passordet må være riktig for å bytte.
+- Det nye navnet vises på brukerens anmeldelser med navn.
 
-**Brukerhistorie 6:** «Som registrert bruker, skal jeg kunne se profilen min og endre passordet mitt, for å kunne bytte til et sikrere passord hvis jeg tror noen andre kjenner det.»
+### 7. Søke etter emner
 
-Diagrammet kommer i en senere sprint.
+> Som student, skal jeg kunne søke etter fag med fagkode eller navn, for å raskt finne faget jeg vil lese eller skrive
+> anmeldelser om.
 
-## Brukerhistorie 7
+**Bakgrunn:** Studieplanen har mange emner, så det tar tid å bla seg fram i en lang liste.
 
-**Brukerhistorie 7:** «Som student, skal jeg kunne søke etter fag med fagkode eller navn, for å raskt finne faget jeg vil lese eller skrive anmeldelser om.»
+**Flyt i appen:** Brukeren skriver i søkefeltet når et emne skal velges, og listen filtreres mens man skriver.
 
-Diagrammet kommer i en senere sprint.
+**Ferdig når:**
+- Søket treffer både emnekode og emnenavn, uansett store og små bokstaver.
+- Et tomt søk viser alle emnene.
+- Det samme søkefeltet brukes når man leser og skriver.

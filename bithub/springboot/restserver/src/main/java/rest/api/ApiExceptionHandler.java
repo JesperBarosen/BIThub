@@ -1,6 +1,7 @@
 package rest.api;
 
 import core.exception.DuplicateEmailException;
+import core.exception.DuplicateReviewException;
 import core.exception.NotReviewOwnerException;
 import core.exception.ReviewNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -72,6 +73,17 @@ public class ApiExceptionHandler {
      */
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateEmail(DuplicateEmailException exception) {
+        return errorResponse(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    /**
+     * Forteller at brukeren allerede har skrevet en anmeldelse av emnet.
+     *
+     * @param exception feilen fra core
+     * @return feilsvar med status 409
+     */
+    @ExceptionHandler(DuplicateReviewException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateReview(DuplicateReviewException exception) {
         return errorResponse(HttpStatus.CONFLICT, exception.getMessage());
     }
 

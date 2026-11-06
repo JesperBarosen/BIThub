@@ -23,6 +23,7 @@ import javafx.scene.paint.Color;
 import ui.Navigation;
 import ui.session.UserSession;
 import ui.util.BackgroundTaskRunner;
+import ui.util.RatingStars;
 
 /**
  * Kontroller for «Mine anmeldelser», der den innloggede brukeren ser, endrer og sletter sine egne
@@ -177,8 +178,8 @@ public class MyReviewsController {
     }
 
     /**
-     * Lager visningen av én anmeldelse: emnet, vurderingen, kommentaren, om den er anonym, og
-     * knapper for å endre og slette.
+     * Lager visningen av én anmeldelse: emnet, vurderingen som stjerner, kommentaren, om den er
+     * anonym, og knapper for å endre og slette.
      *
      * @param ownReview anmeldelsen som skal vises
      * @return en boks med anmeldelsen og knappene
@@ -189,11 +190,10 @@ public class MyReviewsController {
         course.getStyleClass().add("anmeldelse-navn");
         course.setWrapText(true);
 
-        Label rating = new Label("VURDERING: " + review.getRating() + "/5");
         Label shownAs = new Label(
                 review.isAnonymous() ? "Vises som: Anonym" : "Vises som: " + userSession.getName());
 
-        VBox card = new VBox(4, course, rating, shownAs);
+        VBox card = new VBox(4, course, RatingStars.readOnly(review.getRating()), shownAs);
         card.getStyleClass().add("anmeldelse-kort");
 
         String comment = review.getComment();

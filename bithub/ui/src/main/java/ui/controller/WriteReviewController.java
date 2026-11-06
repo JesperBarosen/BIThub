@@ -8,8 +8,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
+import org.controlsfx.control.Rating;
 import ui.Navigation;
 import ui.session.UserSession;
 import ui.util.BackgroundTaskRunner;
@@ -23,7 +23,7 @@ public class WriteReviewController {
     private Label courseTitleLabel;
 
     @FXML
-    private TextField ratingField;
+    private Rating ratingStars;
 
     @FXML
     private TextArea commentArea;
@@ -60,7 +60,7 @@ public class WriteReviewController {
     @FXML
     private void initialize() {
         submitButton.disableProperty().bind(taskRunner.runningProperty());
-        ratingField.disableProperty().bind(taskRunner.runningProperty());
+        ratingStars.disableProperty().bind(taskRunner.runningProperty());
         commentArea.disableProperty().bind(taskRunner.runningProperty());
         anonymousCheckBox.disableProperty().bind(taskRunner.runningProperty());
     }
@@ -135,8 +135,9 @@ public class WriteReviewController {
      * Sender anmeldelsen i bakgrunnen uten å blokkere JavaFX-tråden.
      *
      * <p>Avkrysningen «Anonym?» sendes med, og serveren kobler anmeldelsen til brukeren ut fra
-     * tokenet. Uten innlogging vises en melding om å logge inn, og ingenting sendes.
-     * Skjemainnholdet beholdes ved feil og tømmes først etter bekreftet innsending.
+     * tokenet. Uten innlogging vises en melding om å logge inn, og uten valgt stjerne vises en
+     * melding om å velge en vurdering. I begge tilfellene sendes ingenting. Skjemainnholdet
+     * beholdes ved feil og tømmes først etter bekreftet innsending.
      */
     @FXML
     private void handleSubmit() {
@@ -149,12 +150,19 @@ public class WriteReviewController {
             return;
         }
 
+        // Rating gir et desimaltall, men uten halve stjerner er det alltid et helt tall.
+        int selectedStars = (int) Math.round(ratingStars.getRating());
+        if (selectedStars < 1) {
+            showErrorMessage("Velg en vurdering ved å trykke på stjernene.");
+            return;
+        }
+
         String ownerEmail = userSession.getEmail();
         String reviewerName = userSession.getName();
         boolean anonymous = anonymousCheckBox.isSelected();
         String selectedCourseCode = courseCode;
         String selectedCourseName = courseName;
-        String rating = ratingField.getText();
+        String rating = String.valueOf(selectedStars);
         String comment = commentArea.getText();
 
         statusLabel.setTextFill(Color.BLACK);
@@ -234,7 +242,7 @@ public class WriteReviewController {
      * Tømmer skjemaet slik at en ny anmeldelse kan skrives.
      */
     private void clearFields() {
-        ratingField.clear();
+        ratingStars.setRating(0);
         commentArea.clear();
         anonymousCheckBox.setSelected(false);
     }

@@ -10,8 +10,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
+import org.controlsfx.control.Rating;
 import ui.Navigation;
 import ui.util.BackgroundTaskRunner;
 
@@ -27,7 +27,7 @@ public class EditReviewController {
     private Label courseTitleLabel;
 
     @FXML
-    private TextField ratingField;
+    private Rating ratingStars;
 
     @FXML
     private TextArea commentArea;
@@ -62,7 +62,7 @@ public class EditReviewController {
     @FXML
     private void initialize() {
         saveButton.disableProperty().bind(taskRunner.runningProperty());
-        ratingField.disableProperty().bind(taskRunner.runningProperty());
+        ratingStars.disableProperty().bind(taskRunner.runningProperty());
         commentArea.disableProperty().bind(taskRunner.runningProperty());
         anonymousCheckBox.disableProperty().bind(taskRunner.runningProperty());
     }
@@ -100,7 +100,7 @@ public class EditReviewController {
     public void setReview(String courseCode, String courseName, Review review) {
         this.review = Objects.requireNonNull(review);
         courseTitleLabel.setText(courseCode + " - " + courseName);
-        ratingField.setText(String.valueOf(review.getRating()));
+        ratingStars.setRating(review.getRating());
         commentArea.setText(review.getComment());
         anonymousCheckBox.setSelected(review.isAnonymous());
         statusLabel.setText("");
@@ -108,7 +108,8 @@ public class EditReviewController {
 
     /**
      * Sender endringen i bakgrunnen. Ved suksess går appen tilbake til «Mine anmeldelser», som
-     * viser den endrede anmeldelsen. Ved feil vises en melding, og skjemaet beholdes.
+     * viser den endrede anmeldelsen. Uten valgt stjerne vises en melding om å velge en vurdering,
+     * og ingenting sendes. Ved feil vises en melding, og skjemaet beholdes.
      */
     @FXML
     private void handleSave() {
@@ -120,8 +121,15 @@ public class EditReviewController {
             return;
         }
 
+        // Rating gir et desimaltall, men uten halve stjerner er det alltid et helt tall.
+        int selectedStars = (int) Math.round(ratingStars.getRating());
+        if (selectedStars < 1) {
+            showErrorMessage("Velg en vurdering ved å trykke på stjernene.");
+            return;
+        }
+
         Review original = review;
-        String rating = ratingField.getText();
+        String rating = String.valueOf(selectedStars);
         String comment = commentArea.getText();
         boolean anonymous = anonymousCheckBox.isSelected();
 
