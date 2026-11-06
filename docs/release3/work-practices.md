@@ -62,8 +62,8 @@ for ett område i hver sprint, for eksempel REST-API, innlogging, rydding eller
 klient. Ved hver ny sprint blir én person i hvert par værende, mens den andre
 bytter til et nytt par. Den som blir værende, kjenner koden og oppgavene fra
 forrige sprint og kan sette den nye inn i dem, så arbeidet ikke må starte på
-nytt. Parene er satt opp slik at ingen av de faste parene er like i to
-sprinter, så alle blir kjent med flere i gruppen og med nye deler av koden.
+nytt. Ingen par er like i to sprinter, så alle får jobbe med flere i gruppen
+og med nye deler av koden.
 
 Blir et par ferdig med sine issues før de andre, hjelper en av dem gjerne et
 annet par med deres issues. Derfor har noen issues tre personer tildelt, og
