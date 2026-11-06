@@ -1,5 +1,4 @@
-@startuml
-!pragma layout smetana
+@startuml klassediagramFile
 hide empty members
 
 title Klassediagram for file
@@ -16,21 +15,23 @@ package file {
     class ReviewHandler {
         - path: Path {readOnly}
         - storage: JsonFileStorage {readOnly}
-        + addReview(courseCode, courseName, review: Review)
-        + findCourse(courseCode: String): Optional<Course>
+        + addReview(courseCode, courseName, review)
+        + findCourse(courseCode): Optional<Course>
         + findAllCourses(): List<Course>
-        + addCoursesIfMissing(courses: List<Course>)
+        + addCoursesIfMissing(courses)
+        + findReview(reviewId): Optional<Review>
         + updateReview(reviewId, rating, comment, anonymous): boolean
-        + deleteReview(reviewId: String): boolean
+        + deleteReview(reviewId): boolean
+        + updateReviewerName(ownerEmail, reviewerName): int
     }
 
     class UserHandler {
         - path: Path {readOnly}
         - storage: JsonFileStorage {readOnly}
-        + save(user: User)
-        + addUserIfEmailAvailable(user: User): boolean
-        + update(user: User)
-        + findByEmail(email: String): Optional<User>
+        + save(user)
+        + addUserIfEmailAvailable(user): boolean
+        + update(user)
+        + findByEmail(email): Optional<User>
     }
 }
 
@@ -42,12 +43,19 @@ package file.storage {
     }
 
     class JsonFileStorage {
+        - {static} LOCKS: Map<Path, ReentrantReadWriteLock>
         - path: Path {readOnly}
         - lock: ReentrantReadWriteLock {readOnly}
         + read(operation): T
         + update(operation): T
-        + write(data: Object)
+        + write(data)
     }
+
+    note bottom of JsonFileStorage
+      En lås per fil, delt av alle handlere som bruker samme fil.
+      update holder skrivelåsen gjennom les, endre og skriv.
+      write skriver til en midlertidig fil og flytter den over originalen.
+    end note
 }
 
 package file.dto {
@@ -72,32 +80,27 @@ package file.dto {
         - passwordHash: String
         - salt: String
     }
+
+    note bottom of UserDTO
+      DTO-ene har også en tom konstruktør,
+      gettere og settere for Jackson.
+      De er utelatt her.
+    end note
 }
 
-ReviewHandler ..|> ReviewRepository
-ReviewHandler ..|> DataHandler : <<bind>> T = CourseDTO
-UserHandler ..|> UserRepository
-UserHandler ..|> DataHandler : <<bind>> T = UserDTO
+ReviewRepository <|.. ReviewHandler
+UserRepository <|.. UserHandler
+Course <.. ReviewHandler : gjør om til
+Review <.. ReviewHandler : gjør om til
+User <.. UserHandler : gjør om til
 
+ReviewHandler ..|> DataHandler : <<bind>> T = CourseDTO
+UserHandler ..|> DataHandler : <<bind>> T = UserDTO
 ReviewHandler --> "1" JsonFileStorage : storage
 UserHandler --> "1" JsonFileStorage : storage
 
-CourseDTO "1" o-- "*" ReviewDTO : reviews
 ReviewHandler ..> CourseDTO : leser og skriver
-ReviewHandler ..> Course : gjør om til
-ReviewHandler ..> Review : gjør om til
 UserHandler ..> UserDTO : leser og skriver
-UserHandler ..> User : gjør om til
-
-note bottom of JsonFileStorage
-  Én lås per fil, delt av alle handlere som bruker samme fil.
-  update holder skrivelåsen gjennom les, endre og skriv.
-  write skriver til en midlertidig fil og flytter den over originalen.
-end note
-
-note bottom of UserDTO
-  DTO-ene har også en tom konstruktør,
-  gettere og settere for Jackson. De er utelatt her.
-end note
+CourseDTO "1" o-- "*" ReviewDTO : reviews
 
 @enduml

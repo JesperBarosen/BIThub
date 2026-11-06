@@ -1,5 +1,4 @@
 @startuml restArkitektur
-!pragma layout smetana
 
 title REST-arkitektur - BIThub
 
@@ -28,12 +27,12 @@ fileModul --> courses
 fileModul --> users
 
 note right of rest
-  /api/courses og /api/courses/{code}
-  /api/courses/{code}/reviews
-  /api/reviews/{id}
-  /api/users og /api/users/{email}/password
-  /api/login og /api/logout
-  /api/me/reviews
+  GET /api/courses og /api/courses/{code}
+  POST /api/courses/{code}/reviews
+  PUT og DELETE /api/reviews/{id}
+  POST /api/users, /api/login og /api/logout
+  PUT /api/users/{email}/password og /name
+  GET /api/me/reviews
 end note
 
 @enduml

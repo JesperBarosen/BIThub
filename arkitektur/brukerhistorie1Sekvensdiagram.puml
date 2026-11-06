@@ -1,4 +1,5 @@
-@startuml brukerhistorie1_skrive_anmeldelse
+@startuml brukerhistorie1Sekvensdiagram
+hide footbox
 
 title Brukerhistorie 1 - Skrive anmeldelse gjennom REST-API-et
 
@@ -18,20 +19,18 @@ participant "ReviewHandler\n(file)" as Handler
 database "courses.json" as File
 end box
 
-User -> WriteC : fyller ut vurdering, kommentar og anonym,\ntrykker «SEND INN»
-WriteC -> WriteC : leser feltene på JavaFX-tråden,\nviser «Sender anmeldelsen ...»
-WriteC -> Runner : execute(submitReview, onSuccess, onFailure)
-activate Runner
-Runner -> ClientService : submitReview(courseCode, courseName,\nownerEmail, reviewerName, anonymous, rating, comment)
-ClientService -> ClientService : parseRating(rating)
+User -> WriteC : velger stjerner, skriver kommentar,\nkrysser eventuelt av for anonym\nog trykker «SEND INN»
 
-alt ugyldig vurdering
-    ClientService --> Runner : IllegalArgumentException
-    Runner --> WriteC : onFailure, på JavaFX-tråden
-    WriteC --> User : viser feilmeldingen
-else gyldig vurdering
-    ClientService -> Remote : addReview(courseCode, courseName, review)
-    Remote -> RestC : POST /api/courses/{code}/reviews\nAuthorization: Bearer <token>\n{"rating", "comment", "anonymous"}
+alt ingen stjerner valgt
+    WriteC --> User : viser «Velg en vurdering ved\nå trykke på stjernene.»
+else stjerner valgt
+    WriteC -> WriteC : leser feltene på JavaFX-tråden,\nviser «Sender anmeldelsen ...»
+    WriteC -> Runner : execute(submitReview,\nonSuccess, onFailure)
+    activate Runner
+    Runner -> ClientService : submitReview(courseCode,\ncourseName, ownerEmail,\nreviewerName, anonymous,\nrating, comment)
+    ClientService -> ClientService : parseRating(rating)
+    ClientService -> Remote : addReview(courseCode,\ncourseName, review)
+    Remote -> RestC : POST /api/courses/{code}/reviews\nAuthorization: Bearer <token>\n{rating, comment, anonymous}
     RestC -> Auth : requireEmail(authorization)
     Auth --> RestC : e-posten til brukeren
     note right of RestC : Eieren bestemmes av tokenet,\nikke av innholdet i forespørselen
@@ -41,22 +40,37 @@ else gyldig vurdering
     ServerService --> RestC : Course
     RestC -> ServerService : submitReview(courseCode, courseName,\nowner, anonymous, rating, comment)
     ServerService -> ServerService : parseRating(rating)
-    ServerService -> Handler : addReview(courseCode, courseName, review)
-    Handler -> File : leser filen, legger til ReviewDTO\nog skriver under skrivelås
-    Handler --> ServerService
-    ServerService --> RestC : Review
-    RestC --> Remote : 201 Created + ReviewResponse
-    Remote --> ClientService
-    ClientService --> Runner : Review
-    Runner --> WriteC : onSuccess, på JavaFX-tråden
-    WriteC --> User : viser «Vurderingen ble sendt inn!»,\ntømmer feltene
+    ServerService -> Handler : findReviewsByOwner(email)
+    Handler --> ServerService : emnene brukeren\nhar anmeldt
+    note over ServerService, Handler : submitReview er synchronized, så\nsjekken og lagringen skjer uten at\nen annen forespørsel kommer imellom
+
+    alt brukeren har allerede anmeldt emnet
+        ServerService --> RestC : kaster DuplicateReviewException
+        RestC --> Remote : 409 Conflict + feilmelding\n(fra ApiExceptionHandler)
+        Remote --> ClientService : kaster IllegalArgumentException
+        ClientService --> Runner : IllegalArgumentException
+        Runner --> WriteC : onFailure,\npå JavaFX-tråden
+        WriteC --> User : viser «Du har allerede\nskrevet en anmeldelse\nav dette emnet ...»
+    else første anmeldelse av emnet
+        ServerService -> Handler : addReview(courseCode,\ncourseName, review)
+        Handler -> File : leser filen, legger\ntil ReviewDTO og skriver\nunder skrivelås
+        Handler --> ServerService
+        ServerService --> RestC : Review
+        RestC --> Remote : 201 Created + ReviewResponse
+        Remote --> ClientService
+        ClientService --> Runner : Review
+        Runner --> WriteC : onSuccess,\npå JavaFX-tråden
+        WriteC --> User : viser «Vurderingen ble\nsendt inn!» og\ntømmer feltene
+    end
+    deactivate Runner
 end
-deactivate Runner
 
 note over Remote, RestC
   Ugyldig token gir 401, ukjent emne 404 og ugyldig vurdering 400.
   RemoteReviewRepository gjør dem om til IllegalArgumentException,
-  og WriteReviewController viser feilmeldingen.
+  og WriteReviewController viser feilmeldingen. Svarer ikke serveren,
+  eller svarer den med en annen feil, vises «Kunne ikke bekrefte at
+  anmeldelsen ble lagret. Prøv igjen senere.»
 end note
 
 @enduml

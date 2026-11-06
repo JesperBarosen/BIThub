@@ -1,9 +1,15 @@
 @startuml pakkeDiagram
-!pragma layout smetana
+set separator none
 
 title Pakkediagram - BIThub
 
-component "Spring Boot" as springboot
+component "ui" as uiModul {
+    package ui
+    package ui.controller
+    package ui.client
+    package ui.session
+    package ui.util
+}
 
 component "springboot/restserver" as restModul {
     package rest
@@ -19,16 +25,6 @@ component "file" as fileModul {
     package file.storage
 }
 
-component Jackson
-
-component "ui" as uiModul {
-    package ui
-    package ui.controller
-    package ui.client
-    package ui.session
-    package ui.util
-}
-
 component "core" as coreModul {
     package core.model
     package core.service
@@ -36,26 +32,22 @@ component "core" as coreModul {
     package core.exception
 }
 
-component javafx {
-    component fxml
-    component controls
-    component graphics
-}
-
+component "JavaFX" as javafx
+component "ControlsFX" as controlsfx
 component "java.net.http" as httpClient
+component "Jackson" as jackson
+component "Spring Boot" as springboot
 
-restModul .left.> springboot
-restModul .down.> fileModul
-restModul .down.> coreModul
+uiModul .right[#D85A30].> restModul : HTTP + JSON\n(ikke en Maven-avhengighet)
+uiModul ..> coreModul
+restModul ..> fileModul
+restModul ..> coreModul
+fileModul ..> coreModul
 
-fileModul .down.> coreModul
-fileModul .down.> Jackson
-
-uiModul .right.> coreModul
-uiModul .up.> Jackson
-uiModul .right.> javafx
-uiModul .down.> httpClient
-
-uiModul .[#D85A30].> restModul : HTTP + JSON\n(ikke en Maven-avhengighet)
-
+uiModul ..> javafx
+uiModul ..> controlsfx
+uiModul ..> httpClient
+uiModul ..> jackson
+fileModul ..> jackson
+restModul ..> springboot
 @enduml
