@@ -9,12 +9,13 @@ vi sammen gjennom issuene og ble enige om dem før de ble opprettet på GitHub.
 
 ## Koordinering
 
-I hver sprint ble issuene fordelt på tre par. Ved ny sprint ble én i hvert par
-værende og kunne sette den nye inn i oppgavene, og ingen av de faste parene
-gjentok seg. Ble noen ferdige tidlig, hjalp de et annet par. Noen oppgaver, som
-REST-dokumentasjonen og contribution.md, gjorde hele gruppen sammen. Issuene
-ble satt opp i rekkefølge, siden mange var avhengige av hverandre. Vi fortsatte
-med ukentlige møter, og hadde to ekstra møter i leveringsuken.
+I hver sprint ble issuene fordelt på tre par. Ved ny sprint byttet vi par: én i hvert
+par ble værende og satte den nye partneren inn i oppgavene. Ingen par var like i to
+sprinter, så alle fikk jobbe med flere i gruppen og med nye deler av koden. Ble noen
+ferdige tidlig, hjalp de et annet par. Noen oppgaver, som REST-dokumentasjonen og
+contribution.md, gjorde hele gruppen sammen. Issuene ble satt opp i rekkefølge, siden
+mange var avhengige av hverandre. Vi fortsatte med ukentlige møter, og hadde to
+ekstra møter i leveringsuken.
 
 ## Tilbakemelding fra release 2
 

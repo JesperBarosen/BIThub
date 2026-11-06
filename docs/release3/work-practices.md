@@ -8,7 +8,7 @@ hvem som arbeider med hva, sikre samarbeid mellom gruppemedlemmene og bidra
 til jevn kvalitet gjennom prosjektet.
 
 Den konkrete arbeidsflyten for issues, brancher, commits og pull requests,
-med maler, er beskrevet i [workflow.md](../release2/workflow.md).
+med maler, er beskrevet i [workflow.md](../release3/workflow.md).
 
 ## Sprintplanlegging
 
@@ -55,7 +55,7 @@ Nesten alle arbeidsoppgaver gjennomføres i par, og parene bytter på å kode.
 Små oppgaver, som å gi modulen nytt navn eller fjerne `.DS_Store`, ble noen
 ganger gjort av én person. Arbeid som utføres i par, dokumenteres i
 commit-historikken med `Co-authored-by`, slik det er beskrevet i
-[workflow.md](../release2/workflow.md).
+[workflow.md](../release3/workflow.md).
 
 I release 3 er gruppen delt inn i tre par, A, B og C, og hvert par har ansvar
 for ett område i hver sprint, for eksempel REST-API, innlogging, rydding eller
@@ -84,7 +84,7 @@ at flere urelaterte endringer blir blandet sammen i samme commit.
 ## Kodegjennomgang
 
 Endringer integreres i `master` gjennom pull requests, med malen fra
-[workflow.md](../release2/workflow.md). Malen krever at det står hva som er
+[workflow.md](../release3/workflow.md). Malen krever at det står hva som er
 endret, hvordan endringen kan testes, og at sjekklisten før review er fylt ut.
 
 En pull request gjennomgås av noen fra et annet par enn det som har gjort
