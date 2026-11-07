@@ -261,6 +261,7 @@ class ChangePasswordControllerTest extends ApplicationTest {
         assertEquals(1, authenticationClient.changePasswordCalls.get());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Sjekker at en ekstra handling ikke sender et nytt passordbytte mens første kall venter.
      *

@@ -287,6 +287,7 @@ class ProfileControllerTest extends ApplicationTest {
         assertEquals(1, authenticationClient.changeNameCalls.get());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Sjekker at ekstra handlinger ikke endrer skjermen eller sesjonen mens navnet lagres.
      *
