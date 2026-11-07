@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Tester at JsonFileStorage skriver via en midlertidig fil og bevarer eksisterende data ved
  * skrivefeil.

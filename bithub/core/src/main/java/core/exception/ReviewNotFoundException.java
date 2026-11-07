@@ -1,5 +1,6 @@
 package core.exception;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Signalerer at det ikke finnes noen anmeldelse med den oppgitte id-en.
  */

@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import rest.auth.AuthenticationService;
 import rest.auth.TokenService;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Tester innsending av anmeldelser, krav om innlogging og JSON-feilsvar uten å skrive til fil.
  */
@@ -136,8 +137,8 @@ class ReviewControllerTest {
 
         mockMvc.perform(post("/api/courses/IT1901/reviews").header("Authorization", TOKEN_HEADER)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"rating\":4,\"anonymous\":true}"))
-                .andExpect(status().isConflict()).andExpect(jsonPath("$.status").value(409))
+                .content("{\"rating\":4,\"anonymous\":true}")).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status").value(409))
                 .andExpect(jsonPath("$.message").value(error.getMessage()));
     }
 

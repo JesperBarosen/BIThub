@@ -36,6 +36,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Integrasjonstester som starter hele serveren på en ledig port og sender ekte HTTP-forespørsler.
  *

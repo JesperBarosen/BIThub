@@ -6,6 +6,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Lar brukeren vise passordet i et passordfelt.
  *

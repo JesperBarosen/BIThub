@@ -22,6 +22,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Tester autentiseringsklienten mot en lokal falsk HTTP-server.
  */
@@ -243,8 +244,7 @@ class RemoteAuthenticationClientTest {
     @NullSource
     @ValueSource(strings = { "", "ftp://localhost:8080", "http:/api" })
     void rejectsInvalidServerAddresses(String address) {
-        assertThrows(IllegalArgumentException.class,
-                () -> new RemoteAuthenticationClient(address));
+        assertThrows(IllegalArgumentException.class, () -> new RemoteAuthenticationClient(address));
         assertNull(receivedMethod);
     }
 
@@ -450,8 +450,7 @@ class RemoteAuthenticationClientTest {
 
     @Test
     void changeNameShowsServerMessageForOtherUser() {
-        respond("/api/users/", 403,
-                "{\"status\":403,\"message\":\"Ingen tilgang.\"}");
+        respond("/api/users/", 403, "{\"status\":403,\"message\":\"Ingen tilgang.\"}");
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> new RemoteAuthenticationClient(serverUrl()).changeName("test-token",

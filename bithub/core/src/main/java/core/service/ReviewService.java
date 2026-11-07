@@ -33,8 +33,10 @@ public final class ReviewService {
         this.reviewRepository = Objects.requireNonNull(reviewRepository);
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
-     * Validerer og lagrer en anmeldelse med eier bestemt av serveren.
+     * Validerer og lagrer en anmeldelse med eier bestemt av serveren. Validerer og lagrer en
+     * anmeldelse med eier bestemt av serveren.
      *
      * <p>Bare innloggede brukere kan skrive anmeldelser, så alle nye anmeldelser får en eier.
      * Anmeldelser uten eier finnes bare fra release 2, og vises som «Gjest».

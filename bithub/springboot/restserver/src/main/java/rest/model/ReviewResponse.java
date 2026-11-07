@@ -3,9 +3,10 @@ package rest.model;
 import core.model.AuthorType;
 import core.model.Review;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
- * En anmeldelse slik den vises offentlig i REST-API-et. Eieren er aldri med i svaret, slik at
- * ingen kan se hvem som skrev en anonym anmeldelse.
+ * En anmeldelse slik den vises offentlig i REST-API-et. Eieren er aldri med i svaret, slik at ingen
+ * kan se hvem som skrev en anonym anmeldelse.
  *
  * @param id          den unike id-en til anmeldelsen
  * @param displayName navnet som vises: brukerens navn, «Anonym» eller «Gjest»

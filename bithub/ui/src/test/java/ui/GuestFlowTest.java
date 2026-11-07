@@ -25,6 +25,7 @@ import ui.client.AuthenticationResult;
 import ui.client.InMemoryReviewRepository;
 import ui.session.UserSession;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * TestFX-tester for gjesteflyten: fortsette som gjest fra innloggingen, lese anmeldelser, og logge
  * inn eller registrere seg senere uten å starte appen på nytt.
