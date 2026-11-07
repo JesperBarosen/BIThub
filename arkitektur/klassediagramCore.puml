@@ -1,27 +1,107 @@
 @startuml klassediagramCore
+hide empty members
 
-package core {
+title Klassediagram for core
 
+package core.service {
+    class UserService {
+        + register(name, email, password): User
+        + login(email, password): Optional<User>
+        + findByEmail(email): Optional<User>
+        + changePassword(email, oldPassword, newPassword)
+        + changeName(email, newName): User
+    }
+
+    class ReviewService {
+        + submitReview(courseCode, courseName, owner, anonymous, ratingText, comment): Review
+        + submitReview(courseCode, courseName, ownerEmail, reviewerName, anonymous, ratingText, comment): Review
+        + getCourseWithReviews(course): Course
+        + getAllCourses(): List<Course>
+        + findCourse(courseCode): Optional<Course>
+        + findReviewsByOwner(ownerEmail): List<Course>
+        + updateReview(reviewId, ownerEmail, ratingText, comment, anonymous): Review
+        + deleteReview(reviewId, ownerEmail)
+        + renameReviewer(ownerEmail, reviewerName): int
+    }
+
+    class PasswordHasher {
+        + {static} generateSalt(): String
+        + {static} hashPassword(password, salt): String
+        + {static} verifyPassword(password, salt, expectedHash): boolean
+    }
+
+    class DefaultCourses {
+        + {static} all(): List<Course>
+    }
+}
+
+package core.repository {
+    interface UserRepository {
+        + save(user)
+        + findByEmail(email): Optional<User>
+        + update(user)
+    }
+
+    interface ReviewRepository {
+        + addReview(courseCode, courseName, review)
+        + findCourse(courseCode): Optional<Course>
+        + findAllCourses(): List<Course>
+        + addCoursesIfMissing(courses)
+        + findReview(reviewId): Optional<Review>
+        + findReviewsByOwner(ownerEmail): List<Course>
+        + updateReview(reviewId, rating, comment, anonymous): boolean
+        + deleteReview(reviewId): boolean
+        + updateReviewerName(ownerEmail, reviewerName): int
+    }
+
+    note bottom of ReviewRepository
+      Implementeres av ReviewHandler i file
+      (på serveren) og RemoteReviewRepository
+      i ui (i klienten).
+    end note
+
+    note bottom of UserRepository
+      Implementeres av
+      UserHandler i file.
+    end note
+}
+
+package core.exception {
+    class DuplicateEmailException
+    class ReviewNotFoundException
+    class NotReviewOwnerException
+    class DuplicateReviewException
+}
+
+package core.model {
     class Course {
         - courseCode: String
         - courseName: String
         - reviews: List<Review>
-        + Course(courseCode: String, courseName: String)
-        + String getCourseCode()
-        + String getCourseName()
-        + void addReview(review: Review)
-        + List<Review> getReviews()
-        + double getAverageRating()
+        + getCourseCode(): String
+        + getCourseName(): String
+        + addReview(review)
+        + getReviews(): List<Review>
+        + getAverageRating(): double
     }
 
     class Review {
+        - id: String {readOnly}
+        - ownerEmail: String {readOnly}
         - reviewerName: String {readOnly}
+        - anonymous: boolean {readOnly}
         - rating: int {readOnly}
         - comment: String {readOnly}
-        + Review(reviewerName: String, rating: int, comment: String)
-        + String getReviewerName()
-        + int getRating()
-        + String getComment()
+        + getAuthorType(): AuthorType
+        + getDisplayName(): String
+        + getRating(): int
+        + getComment(): String
+    }
+
+    enum AuthorType {
+        USER
+        ANONYMOUS
+        GUEST
     }
 
     class User {
@@ -29,49 +109,22 @@ package core {
         - email: String {readOnly}
         - passwordHash: String {readOnly}
         - salt: String {readOnly}
-        + User(name: String, email: String, password: String)
-        + User(name: String, email: String, passwordHash: String, salt: String)
-        + String getName()
-        + String getEmail()
-        + String getPasswordHash()
-        + String getSalt()
-        + boolean verifyPassword(password: String)
+        + getName(): String
+        + getEmail(): String
+        + verifyPassword(password): boolean
     }
-
-    class PasswordHasher {
-        - {static} ITERATIONS: int
-        - {static} HASH_LENGTH: int
-        - {static} SALT_LENGTH: int
-        + {static} String generateSalt()
-        + {static} String hashPassword(password: String, salt: String)
-        + {static} boolean verifyPassword(password: String, salt: String, expectedHash: String)
-    }
-
-    interface ReviewRepository {
-        + void addReview(courseCode: String, courseName: String, review: Review)
-        + Optional<Course> findCourse(courseCode: String)
-    }
-
-    class ReviewService {
-        - reviewRepository: ReviewRepository {readOnly}
-        + ReviewService(reviewRepository: ReviewRepository)
-        + void submitReview(courseCode: String, courseName: String, reviewerName: String, ratingText: String, comment: String)
-        + Course getCourseWithReviews(course: Course)
-        - {static} int parseRating(ratingText: String)
-    }
-
-    User ..> PasswordHasher : hashing og verifisering
-    Course --> "reviews: *" Review
-    ReviewService --> "reviewRepository: 1" ReviewRepository
-    ReviewService ..> Course : henter via ReviewRepository.findCourse(String)
-    ReviewService ..> Review : oppretter i submitReview(...)
-    ReviewRepository ..> Course
-    ReviewRepository ..> Review
 }
 
-note bottom of ReviewRepository
-  Implementeres av ReviewHandler i file-modulen,
-  så core ikke er avhengig av hvordan data lagres.
-end note
+ReviewService --> "1" ReviewRepository : reviewRepository
+UserService --> "1" UserRepository : userRepository
+
+ReviewService ..> ReviewNotFoundException : kaster
+ReviewService ..> NotReviewOwnerException : kaster
+ReviewService ..> DuplicateReviewException : kaster
+UserService ..> DuplicateEmailException : kaster
+
+Course "1" o-- "*" Review : reviews
+Review ..> AuthorType
+PasswordHasher <.. User : hasher og\nsjekker passord
 
 @enduml
