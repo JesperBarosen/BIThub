@@ -54,9 +54,22 @@ Kildefilen til diagrammet ligger i [`arkitektur/klassediagramCore.puml`](arkitek
 
 Kildefilen til diagrammet ligger i [`arkitektur/klassediagramFile.puml`](arkitektur/klassediagramFile.puml).
 
+### Klassediagram for REST-serveren
+
+[![Klassediagram for REST-serveren](arkitektur/png/klassediagramRest.png)](arkitektur/png/klassediagramRest.png)
+
+Kildefilen til diagrammet ligger i [`arkitektur/klassediagramRest.puml`](arkitektur/klassediagramRest.puml).
+
+Kontrollerne i `rest.api` tar imot HTTP-forespørslene og bruker `ReviewService` og `UserService` fra `core`, slik at
+reglene er de samme som i klienten. `AuthenticationService` og `TokenService` i `rest.auth` finner brukeren ut fra
+tokenet i `Authorization`-headeren. Forespørsler og svar er records i `rest.model`, og `ApiExceptionHandler` gjør om
+unntak til riktig statuskode. På serveren lagrer tjenestene gjennom `ReviewHandler` og `UserHandler` i `file`.
+
 ### Sekvensdiagrammer
 
-Sekvensdiagrammer for brukerhistorie 1 og 2 ligger i [bithub/README.md](bithub/README.md#brukerhistorier).
+Hver brukerhistorie har et sekvensdiagram, og de ligger under brukerhistoriene i
+[bithub/README.md](bithub/README.md#brukerhistorier). Kildefilene er `arkitektur/brukerhistorie1Sekvensdiagram.puml`
+til `arkitektur/brukerhistorie7Sekvensdiagram.puml`.
 
 ## Krav
 

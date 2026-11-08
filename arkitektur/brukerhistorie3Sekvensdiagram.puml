@@ -1,0 +1,61 @@
+@startuml brukerhistorie3Sekvensdiagram
+hide footbox
+
+title Brukerhistorie 3 - Lese anmeldelser som gjest
+
+actor "Mulig student" as User
+box "JavaFX-klient" #F1EFE8
+participant "LoginController\n(ui)" as LoginC
+participant "Navigation\n(ui)" as Nav
+participant "HomeController\n(ui)" as HomeC
+participant "UserSession\n(ui)" as Session
+participant "RemoteReviewRepository\n(ui)" as Remote
+end box
+participant "Annen HTTP-klient\n(f.eks. curl)" as Curl
+box "REST-server" #FAECE7
+participant "ReviewController\n(rest)" as RestC
+participant "AuthenticationService\n(rest)" as Auth
+participant "CourseController\n(rest)" as CourseC
+end box
+
+== Fortsette som gjest ==
+
+User -> LoginC : trykker «Fortsett som gjest»
+LoginC -> Nav : showHome(guestButton)
+Nav -> HomeC : setUserSession(userSession)
+HomeC -> Session : isLoggedIn()
+Session --> HomeC : false
+HomeC -> HomeC : skjuler «SKRIV ANMELDELSE»,\n«MINE ANMELDELSER» og profilknappen,\nviser «LOGG INN / REGISTRER»
+HomeC --> User : hjemmesiden for gjester
+
+== Lese anmeldelser ==
+
+User -> HomeC : trykker «LES ANMELDELSER»
+note over HomeC, CourseC
+  Videre er flyten den samme som i brukerhistorie 2.
+  GET /api/courses og GET /api/courses/{code} krever
+  ikke innlogging, så RemoteReviewRepository sender
+  dem uten Authorization-header.
+end note
+Remote -> CourseC : GET /api/courses/{code}\n(uten token)
+CourseC --> Remote : 200 OK + emnet med anmeldelser
+Remote --> User : anmeldelsene vises som for\nen innlogget bruker
+
+== Gjester kan ikke skrive ==
+
+note over Curl, RestC
+  Appen viser ikke knappen for å skrive. Sender noen likevel
+  forespørselen direkte, for eksempel med curl, avviser serveren den.
+end note
+Curl -> RestC : POST /api/courses/{code}/reviews\n(uten Authorization-header)
+RestC -> Auth : requireEmail(null)
+Auth --> RestC : kaster NotLoggedInException
+RestC --> Curl : 401 Unauthorized + feilmelding\n(fra ApiExceptionHandler)
+
+== Logge inn senere ==
+
+User -> HomeC : trykker «LOGG INN / REGISTRER»
+HomeC -> Nav : showLogin(loginButton)
+Nav --> User : innloggingssiden\n(se brukerhistorie 4)
+
+@enduml

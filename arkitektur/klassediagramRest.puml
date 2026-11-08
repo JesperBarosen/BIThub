@@ -1,0 +1,121 @@
+@startuml klassediagramRest
+hide empty members
+
+title Klassediagram for springboot/restserver
+
+package rest.api {
+    class CourseController {
+        + getAllCourses(): List<CourseResponse>
+        + getCourse(code): CourseDetailsResponse
+    }
+
+    class ReviewController {
+        + createReview(code, request, authorization): ReviewResponse
+    }
+
+    class OwnReviewController {
+        + updateReview(id, request, authorization): ReviewResponse
+        + deleteReview(id, authorization)
+    }
+
+    class UserController {
+        + register(request): AuthResponse
+        + login(request): AuthResponse
+        + logout(authorization)
+        + changePassword(email, request, authorization)
+        + changeName(email, request, authorization): NameResponse
+        + getOwnReviews(authorization): List<OwnReviewResponse>
+    }
+
+    class ApiExceptionHandler
+
+    note right of ApiExceptionHandler
+      Gjør om unntak til statuskoder:
+      400 ugyldig input, 401 ikke innlogget eller
+      feil passord, 403 ikke eier, 404 finnes ikke,
+      409 e-post eller anmeldelse finnes allerede.
+    end note
+}
+
+package rest.auth {
+    class AuthenticationService {
+        + requireEmail(authorization): String
+        + logout(authorization)
+    }
+
+    class TokenService {
+        - emailsByToken: Map<String, String> {readOnly}
+        + createToken(email): String
+        + findEmail(token): Optional<String>
+        + removeToken(token): boolean
+    }
+}
+
+package rest.model {
+    class ReviewResponse {
+        - id: String
+        - displayName: String
+        - authorType: AuthorType
+        - rating: int
+        - comment: String
+    }
+
+    class AuthResponse {
+        - token: String
+        - name: String
+        - email: String
+    }
+
+    class ErrorResponse {
+        - status: int
+        - error: String
+        - message: String
+    }
+
+    note bottom of ReviewResponse
+      Alle forespørsler og svar er records i rest.model,
+      for eksempel RegisterRequest, NewReviewRequest
+      og CourseDetailsResponse. Bare noen er vist her.
+    end note
+}
+
+package core {
+    class ReviewService
+    class UserService
+    interface ReviewRepository
+    interface UserRepository
+}
+
+package file {
+    class ReviewHandler
+    class UserHandler
+}
+
+
+CourseController --> "1" ReviewService : reviewService
+ReviewController --> "1" ReviewService : reviewService
+ReviewController --> "1" UserService : userService
+OwnReviewController --> "1" ReviewService : reviewService
+UserController --> "1" UserService : userService
+UserController --> "1" ReviewService : reviewService
+
+
+ReviewController --> "1" AuthenticationService : authenticationService
+OwnReviewController --> "1" AuthenticationService : authenticationService
+UserController --> "1" AuthenticationService : authenticationService
+UserController --> "1" TokenService : tokenService
+AuthenticationService --> "1" TokenService : tokenService
+
+ApiExceptionHandler ..> ErrorResponse : svarer med
+
+ReviewService --> "1" ReviewRepository : reviewRepository
+UserService --> "1" UserRepository : userRepository
+ReviewRepository <|.. ReviewHandler
+UserRepository <|.. UserHandler
+
+
+CourseController -[hidden]down- UserController
+ReviewController -[hidden]down- OwnReviewController
+TokenService -[hidden]down- AuthResponse
+
+@enduml

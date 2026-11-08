@@ -1,0 +1,84 @@
+@startuml brukerhistorie6Sekvensdiagram
+hide footbox
+
+title Brukerhistorie 6 - Profil, passord, navn og utlogging
+
+actor "Registrert bruker" as User
+box "JavaFX-klient" #F1EFE8
+participant "ProfileController\n(ui)" as ProfileC
+participant "ChangePasswordController\n(ui)" as PassC
+participant "UserSession\n(ui)" as Session
+participant "RemoteAuthenticationClient\n(ui)" as AuthClient
+end box
+box "REST-server" #FAECE7
+participant "UserController\n(rest)" as UserC
+participant "AuthenticationService\n(rest)" as Auth
+participant "UserService\n(core)" as UserS
+participant "ReviewService\n(core)" as ReviewS
+participant "UserHandler /\nReviewHandler (file)" as Handlers
+end box
+
+== Se profilen ==
+
+User -> ProfileC : trykker på profilsymbolet
+ProfileC -> Session : getName() og getEmail()
+ProfileC --> User : viser navn og e-post
+
+== Endre passord ==
+
+User -> ProfileC : trykker «ENDRE PASSORD»
+ProfileC -> PassC : showChangePassword(...) via Navigation
+User -> PassC : skriver gammelt passord og nytt\npassord to ganger, trykker «ENDRE»
+PassC -> PassC : sjekker at feltene er fylt ut, at de nye\ner like, minst 8 tegn og ulikt det gamle
+PassC -> AuthClient : changePassword(token, email,\noldPassword, newPassword)\n(i bakgrunnen)
+AuthClient -> UserC : PUT /api/users/{email}/password\nAuthorization: Bearer <token>\n{oldPassword, newPassword}
+UserC -> Auth : requireEmail(authorization)
+Auth --> UserC : e-posten i tokenet
+
+alt e-posten i stien tilhører en annen
+    UserC --> AuthClient : 403 Forbidden
+else egen bruker
+    UserC -> UserS : changePassword(email,\noldPassword, newPassword)
+    UserS -> UserS : login(email, oldPassword)
+    alt det gamle passordet er feil
+        UserS --> UserC : IllegalArgumentException
+        UserC --> AuthClient : 400 Bad Request +\n«Det gamle passordet er feil.»
+        AuthClient --> PassC : IllegalArgumentException
+        PassC --> User : viser feilmeldingen
+    else riktig
+        UserS -> Handlers : update(new User(name, email,\nnewPassword))
+        note right of Handlers : Nytt salt og ny hash\nlagres i users.json
+        UserC --> AuthClient : 204 No Content
+        PassC --> User : «Passordet er endret.»
+    end
+end
+
+== Endre navn ==
+
+User -> ProfileC : trykker «ENDRE NAVN», skriver\nnytt navn og trykker «LAGRE»
+ProfileC -> AuthClient : changeName(token, email, newName)\n(i bakgrunnen)
+AuthClient -> UserC : PUT /api/users/{email}/name\nAuthorization: Bearer <token>\n{name}
+UserC -> Auth : requireEmail(authorization)
+UserC -> UserS : changeName(email, name)
+UserS -> Handlers : update(renamed)
+UserC -> ReviewS : renameReviewer(email, name)
+ReviewS -> Handlers : updateReviewerName(email, name)
+note right of ReviewS : Feiler dette, settes det gamle\nnavnet tilbake på brukeren
+UserC --> AuthClient : 200 OK + {name}
+AuthClient --> ProfileC : navnet slik det ble lagret
+ProfileC -> Session : updateName(savedName)
+ProfileC --> User : «Navnet er endret.»
+
+== Logge ut ==
+
+User -> ProfileC : trykker «LOGG UT»
+ProfileC -> Session : clear()
+note right of Session : Tokenet fjernes i klienten med en\ngang, også i RemoteReviewRepository
+ProfileC -> AuthClient : logout(token) (i bakgrunnen)
+AuthClient -> UserC : POST /api/logout\nAuthorization: Bearer <token>
+UserC -> Auth : logout(authorization)
+Auth -> Auth : tokenService.removeToken(token)
+UserC --> AuthClient : 204 No Content
+ProfileC --> User : innloggingssiden\n(også hvis serveren ikke svarer)
+
+@enduml
