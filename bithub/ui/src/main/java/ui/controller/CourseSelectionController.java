@@ -68,6 +68,7 @@ public class CourseSelectionController {
             cell.setPrefWidth(0);
             return cell;
         });
+        // Slutt på kode laget med hjelp av KI.
         courseComboBox.setItems(filteredCourses);
         courseComboBox.setVisibleRowCount(6);
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {

@@ -165,6 +165,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
         // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         return readFromFile().stream().map(ReviewHandler::toCourse)
                 .sorted(Comparator.comparing(course -> course.getCourseCode())).toList();
+        // Slutt på kode laget med hjelp av KI.
     }
 
     /**
