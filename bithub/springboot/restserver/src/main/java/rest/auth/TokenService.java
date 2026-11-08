@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Service;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Lager innloggingstokener og husker hvilken bruker hvert token tilhører.
  *

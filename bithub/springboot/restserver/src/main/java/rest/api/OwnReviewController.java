@@ -16,6 +16,7 @@ import rest.exception.NotLoggedInException;
 import rest.model.ReviewResponse;
 import rest.model.UpdateReviewRequest;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Lar innloggede brukere endre og slette sine egne anmeldelser.
  */
