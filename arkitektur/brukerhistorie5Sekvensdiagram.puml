@@ -1,0 +1,91 @@
+@startuml brukerhistorie5Sekvensdiagram
+hide footbox
+
+title Brukerhistorie 5 - Se, endre og slette egne anmeldelser
+
+actor "Student" as User
+box "JavaFX-klient" #F1EFE8
+participant "MyReviewsController\n(ui)" as MyC
+participant "EditReviewController\n(ui)" as EditC
+participant "ReviewService\n(core)" as ClientService
+participant "RemoteReviewRepository\n(ui)" as Remote
+end box
+box "REST-server" #FAECE7
+participant "UserController /\nOwnReviewController (rest)" as RestC
+participant "AuthenticationService\n(rest)" as Auth
+participant "ReviewService\n(core)" as ServerService
+participant "ReviewHandler\n(file)" as Handler
+database "courses.json" as File
+end box
+
+== Se egne anmeldelser ==
+
+User -> MyC : trykker «MINE ANMELDELSER»
+MyC -> ClientService : findReviewsByOwner(email)\n(i bakgrunnen)
+ClientService -> Remote : findReviewsByOwner(email)
+Remote -> RestC : GET /api/me/reviews\nAuthorization: Bearer <token>
+RestC -> Auth : requireEmail(authorization)
+Auth --> RestC : e-posten til brukeren
+note right of RestC : E-posten kommer fra tokenet,\nså man får bare sine egne\nanmeldelser, også de anonyme
+RestC -> ServerService : findReviewsByOwner(email)
+ServerService -> Handler : findAllCourses()
+Handler -> File : leser filen
+Handler --> ServerService : alle emnene
+ServerService -> ServerService : beholder bare anmeldelsene\nder ownerEmail er brukeren
+note right of ServerService : default-metoden\nReviewRepository.findReviewsByOwner
+ServerService --> RestC : List<Course>
+RestC --> Remote : 200 OK + liste med OwnReviewResponse
+Remote --> MyC : List<Course> (via ReviewService)
+MyC --> User : ett kort per anmeldelse\nmed «ENDRE ✎» og «SLETT»
+
+== Endre en anmeldelse ==
+
+User -> MyC : trykker «ENDRE ✎»
+MyC -> EditC : showEditReview(...) via Navigation\nskjemaet fylles med anmeldelsen
+User -> EditC : endrer stjerner, kommentar eller\nanonymitet og trykker «ENDRE ✎»
+EditC -> ClientService : updateReview(original, rating,\ncomment, anonymous) (i bakgrunnen)
+ClientService -> Remote : updateReview(id, rating,\ncomment, anonymous)
+Remote -> RestC : PUT /api/reviews/{id}\nAuthorization: Bearer <token>\n{rating, comment, anonymous}
+RestC -> Auth : requireEmail(authorization)
+RestC -> ServerService : updateReview(id, email,\nrating, comment, anonymous)
+ServerService -> ServerService : requireOwnReview(id, email)
+
+alt anmeldelsen tilhører en annen
+    ServerService --> RestC : kaster NotReviewOwnerException
+    RestC --> Remote : 403 Forbidden
+    Remote --> EditC : NotReviewOwnerException
+    EditC --> User : viser feilmelding
+else egen anmeldelse
+    ServerService -> Handler : updateReview(id, rating,\ncomment, anonymous)
+    Handler -> File : endrer anmeldelsen\nunder skrivelås
+    RestC --> Remote : 200 OK + ReviewResponse
+    Remote --> EditC : Review (via ReviewService)
+    EditC -> MyC : showMyReviews(saveButton)
+    MyC --> User : listen med den\nendrede anmeldelsen
+end
+
+== Slette en anmeldelse ==
+
+User -> MyC : trykker «SLETT»
+MyC --> User : «Vil du slette anmeldelsen av ...?»
+User -> MyC : trykker OK
+MyC -> ClientService : deleteReview(review)\n(i bakgrunnen)
+ClientService -> Remote : deleteReview(id)
+Remote -> RestC : DELETE /api/reviews/{id}\nAuthorization: Bearer <token>
+RestC -> Auth : requireEmail(authorization)
+RestC -> ServerService : deleteReview(id, email)
+ServerService -> ServerService : requireOwnReview(id, email)
+ServerService -> Handler : deleteReview(id)
+Handler -> File : fjerner anmeldelsen\nunder skrivelås
+RestC --> Remote : 204 No Content
+Remote --> ClientService : true
+ClientService --> MyC : ferdig
+MyC --> User : fjerner kortet og viser\n«Anmeldelsen ble slettet.»
+
+note over Remote, RestC
+  404 betyr at anmeldelsen allerede er slettet. Da viser appen
+  «Anmeldelsen finnes ikke lenger.» og fjerner kortet.
+  Uten gyldig token svarer serveren 401.
+end note
+
+@enduml

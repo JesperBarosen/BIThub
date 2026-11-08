@@ -1,0 +1,55 @@
+@startuml brukerhistorie7Sekvensdiagram
+hide footbox
+
+title Brukerhistorie 7 - Søke etter emner
+
+actor "Student" as User
+box "JavaFX-klient" #F1EFE8
+participant "CourseSelectionController\n(ui)" as SelectC
+participant "BackgroundTaskRunner\n(ui)" as Runner
+participant "RemoteReviewRepository\n(ui)" as Remote
+participant "FilteredList<Course>\n(JavaFX)" as Filtered
+end box
+box "REST-server" #FAECE7
+participant "CourseController\n(rest)" as CourseC
+participant "ReviewService\n(core)" as ServerService
+end box
+
+== Hente emnene én gang ==
+
+User -> SelectC : åpner emnevelgeren fra\n«LES ANMELDELSER» eller\n«SKRIV ANMELDELSE»
+SelectC -> Runner : execute(findAllCourses, ...)
+activate Runner
+Runner -> Remote : findAllCourses()
+Remote -> CourseC : GET /api/courses
+CourseC -> ServerService : getAllCourses()
+ServerService --> CourseC : List<Course>
+CourseC --> Remote : 200 OK + emnene
+Remote --> Runner : List<Course>
+Runner --> SelectC : onSuccess, på JavaFX-tråden
+deactivate Runner
+SelectC -> Filtered : fyller listen med alle emnene
+SelectC --> User : alle emnene i nedtrekkslisten
+
+== Søke ==
+
+loop for hvert tegn brukeren skriver
+    User -> SelectC : skriver i søkefeltet,\nfor eksempel «tdt41»
+    SelectC -> SelectC : filterCourses(searchText)\ngjør søket om til små bokstaver
+    SelectC -> Filtered : setPredicate(emnekode eller\nemnenavn inneholder søket)
+    Filtered --> SelectC : emnene som passer
+    SelectC -> SelectC : beholder valgt emne hvis\ndet fortsatt passer
+    SelectC --> User : filtrert liste og antall treff
+end
+
+note over SelectC, Filtered
+  Søket skjer i klienten. Emnene hentes bare én gang, så det
+  sendes ingen nye forespørsler mens brukeren skriver. Et tomt
+  søk viser alle emnene. Samme kontroller brukes når man leser
+  og når man skriver anmeldelser.
+end note
+
+User -> SelectC : velger emnet og trykker «GÅ VIDERE»
+SelectC --> User : åpner lese- eller skrivesiden\n(se brukerhistorie 1 og 2)
+
+@enduml

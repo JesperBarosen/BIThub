@@ -1,0 +1,94 @@
+@startuml brukerhistorie4Sekvensdiagram
+hide footbox
+
+title Brukerhistorie 4 - Lage konto og logge inn
+
+actor "Student" as User
+box "JavaFX-klient" #F1EFE8
+participant "RegisterUserController /\nLoginController (ui)" as FormC
+participant "BackgroundTaskRunner\n(ui)" as Runner
+participant "RemoteAuthenticationClient\n(ui)" as AuthClient
+participant "Navigation\n(ui)" as Nav
+participant "UserSession\n(ui)" as Session
+participant "RemoteReviewRepository\n(ui)" as Remote
+end box
+box "REST-server" #FAECE7
+participant "UserController\n(rest)" as UserC
+participant "UserService\n(core)" as UserS
+participant "User\n(core)" as UserModel
+participant "UserHandler\n(file)" as Handler
+participant "TokenService\n(rest)" as Tokens
+database "users.json" as File
+end box
+
+== Registrere ny bruker ==
+
+User -> FormC : trykker «Registrer ny bruker» og fyller inn navn, e-post to ganger og\npassord to ganger, trykker «Lag ny bruker»
+FormC -> FormC : checkForm(...)
+
+alt feltene er tomme eller ikke like
+    FormC --> User : viser feilmelding,\nsender ingenting
+else skjemaet er gyldig
+    FormC -> Runner : execute(register, onSuccess, onFailure)
+    activate Runner
+    Runner -> AuthClient : register(name, email, password)
+    AuthClient -> UserC : POST /api/users\n{name, email, password}
+    UserC -> UserS : register(name, email, password)
+    UserS -> UserModel : new User(name, email, password)
+    note right of UserModel : Validerer navn, e-post og passord.\nPasswordHasher lager salt og hash,\nså passordet lagres aldri i klartekst.
+    UserS -> Handler : save(user)
+    Handler -> File : addUserIfEmailAvailable(user)\nsjekker e-post og lagrer\nunder samme skrivelås
+
+    alt e-posten er allerede registrert
+        Handler --> UserS : kaster DuplicateEmailException
+        UserC --> AuthClient : 409 Conflict + feilmelding
+        AuthClient --> Runner : kaster IllegalArgumentException
+        Runner --> FormC : onFailure, på JavaFX-tråden
+        FormC --> User : viser «E-postadressen er\nallerede registrert.»
+    else ny e-post
+        Handler --> UserS
+        UserS --> UserC : User
+        UserC -> Tokens : createToken(email)
+        Tokens --> UserC : token
+        UserC --> AuthClient : 201 Created +\n{token, name, email}
+        AuthClient --> Runner : AuthenticationResult
+        Runner --> FormC : onSuccess, på JavaFX-tråden
+        FormC -> Nav : registrationSuccessHandler.accept(result),\nsom er Navigation.signIn
+        Nav -> Session : signIn(token, name, email)
+        Session -> Remote : setToken(token)
+        note right of Remote : Tokenet sendes nå med alle\nkall som krever innlogging.
+        FormC -> Nav : showHome(registerButton)
+        Nav --> User : hjemmesiden som innlogget
+    end
+    deactivate Runner
+end
+
+== Logge inn senere ==
+
+User -> FormC : skriver e-post og passord,\ntrykker «Logg inn»
+FormC -> Runner : execute(login, onSuccess, onFailure)
+activate Runner
+Runner -> AuthClient : login(email, password)
+AuthClient -> UserC : POST /api/login {email, password}
+UserC -> UserS : login(email, password)
+UserS -> Handler : findByEmail(email)
+Handler --> UserS : Optional<User>
+UserS -> UserModel : verifyPassword(password)
+
+alt feil e-post eller passord
+    UserS --> UserC : Optional.empty()
+    UserC --> AuthClient : 401 Unauthorized\n(InvalidCredentialsException)
+    AuthClient --> FormC : IllegalArgumentException\n(via onFailure)
+    FormC --> User : viser feilmelding
+else riktig
+    UserS --> UserC : Optional med User
+    UserC -> Tokens : createToken(email)
+    UserC --> AuthClient : 200 OK + {token, name, email}
+    AuthClient --> FormC : AuthenticationResult\n(via onSuccess)
+    FormC -> Nav : signIn(result) og showHome(loginButton)
+    Nav -> Session : signIn(token, name, email)
+    Nav --> User : hjemmesiden som innlogget
+end
+deactivate Runner
+
+@enduml
