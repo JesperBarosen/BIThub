@@ -220,13 +220,9 @@ Følgende er verifisert på Windows:
 - Jlink-klienten starter med `bin\bithub.bat` og fungerer mot server-JAR-en:
   innlogging, gjestemodus og lesing og skriving av anmeldelser.
 - Generering av Windows-installasjonsfil med jpackage via Maven.
-- Generering av Windows app-image med pakkeskriptet.
 - Oppstart av Spring Boot fra kjørbar JAR.
 - HTTP 200 og JSON-respons fra REST-endepunktet `/api/courses`.
 - Korrekt serveradresse i den installerte klientens `BIThub.cfg`.
-
-Den tidligere Windows-løsningen er også prøvekjørt med installert
-JavaFX-klient mot kjørende REST-server.
 
 macOS-pakkingen er også manuelt testet. Linux-pakkingen er konfigurert
 via Maven, men er foreløpig ikke manuelt verifisert.
