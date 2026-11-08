@@ -77,7 +77,7 @@ til `arkitektur/brukerhistorie7Sekvensdiagram.puml`.
 |---|---|---|
 | JDK | 17 eller nyere | Må installeres selv |
 | Maven | 3.9 eller nyere | Må installeres selv |
-| WiX Toolset | 3.14 | Bare for å lage installasjonsprogrammet på Windows |
+| WiX Toolset | 3.14 | Bare for å lage installasjonsprogrammet på Windows, må ligge i PATH |
 
 Maven laster ned resten ved bygging:
 
@@ -159,7 +159,16 @@ mvn -pl ui jpackage:jpackage
 ```
 
 Klienten havner i `ui/target/bithub/` og startes med `bin/bithub` (`bin\bithub.bat` på Windows), og
-installasjonsfilen havner i `ui/target/jpackage/`. På Windows trengs WiX Toolset for å lage installasjonsfilen.
+installasjonsfilen havner i `ui/target/jpackage/`. På Windows må WiX Toolset ligge i PATH for å lage
+installasjonsfilen, for eksempel `C:\Program Files (x86)\WiX Toolset v3.14\bin`.
+
+Klienten bruker `http://localhost:8080` som serveradresse. En annen adresse settes ved pakking:
+
+```bash
+mvn -pl ui jpackage:jpackage -Dbithub.server.url=http://servernavn:8080
+```
+
+Adressen legges inn i installasjonsfilen, så den må lages på nytt for å bruke en annen adresse.
 
 ## Mappestruktur
 

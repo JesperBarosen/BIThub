@@ -1,60 +1,901 @@
-[
-    {
-        "courseCode": "IT1901",
-        "courseName": "Informatikk prosjektarbeid I",
-        "reviews": [
-            {
-                "id": "21400000-0000-4000-8000-000000000001",
-                "ownerEmail": "anna@example.com",
-                "reviewerName": "Anna Hansen",
-                "anonymous": false,
-                "rating": 5,
-                "comment": "Lærerikt prosjekt med god trening i Git, testing og samarbeid."
-            },
-            {
-                "id": "21400000-0000-4000-8000-000000000002",
-                "ownerEmail": "emil@example.com",
-                "reviewerName": "Emil Berg",
-                "anonymous": true,
-                "rating": 4,
-                "comment": "Mye praktisk læring, men det lønner seg å fordele arbeidet tidlig."
-            }
-        ]
-    },
-    {
-        "courseCode": "TDT4100",
-        "courseName": "Objektorientert programmering",
-        "reviews": [
-            {
-                "id": "21400000-0000-4000-8000-000000000003",
-                "ownerEmail": "anna@example.com",
-                "reviewerName": "Anna Hansen",
-                "anonymous": true,
-                "rating": 4,
-                "comment": "Øvingene gjorde det lettere å forstå objekter og grensesnitt."
-            },
-            {
-                "id": "21400000-0000-4000-8000-000000000004",
-                "ownerEmail": null,
-                "reviewerName": "Gjest",
-                "anonymous": false,
-                "rating": 3,
-                "comment": "Nyttig fag, men krevende øvinger."
-            }
-        ]
-    },
-    {
-        "courseCode": "IT2805",
-        "courseName": "Webteknologi",
-        "reviews": [
-            {
-                "id": "21400000-0000-4000-8000-000000000005",
-                "ownerEmail": "emil@example.com",
-                "reviewerName": "Emil Berg",
-                "anonymous": false,
-                "rating": 5,
-                "comment": "Fin innføring i HTML, CSS og JavaScript med praktiske oppgaver."
-            }
-        ]
-    }
-]
+[ {
+  "courseCode" : "BI2081",
+  "courseName" : "Natur, miljø og bærekraft",
+  "reviews" : [ {
+    "id" : "d55c30f2-97ba-41cd-99f1-01f6f2ec9ab8",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Interessant å se teknologi i et bærekraftsperspektiv."
+  }, {
+    "id" : "87811dfd-c1f8-43b9-a750-c1207b93a0ff",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : true,
+    "rating" : 2,
+    "comment" : "Mye pensum som ikke handler om informatikk, men greit å ha med seg"
+  }, {
+    "id" : "467e2a89-9f4f-4dd8-9b6a-130584780145",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : true,
+    "rating" : 1,
+    "comment" : ""
+  } ]
+}, {
+  "courseCode" : "EXPH0300",
+  "courseName" : "Examen philosophicum for naturvitenskap og teknologi",
+  "reviews" : [ {
+    "id" : "d29ca947-d88b-4672-8e0d-5a5c49b0d6e3",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : true,
+    "rating" : 1,
+    "comment" : "Mye lesing og lite sammenheng med resten av studiet"
+  }, {
+    "id" : "8839fbe6-2f17-48b0-abb1-7b303b725e5a",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Interessante diskusjoner i seminarene."
+  }, {
+    "id" : "08517c03-8bca-406f-96f2-f44b6899285d",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Overraskende givende. Etikkdelen var spesielt relevant for oss som skal lage teknologi"
+  } ]
+}, {
+  "courseCode" : "HMS0002",
+  "courseName" : "HMS-kurs for 1. årsstudenter",
+  "reviews" : [ {
+    "id" : "c75cf099-0d66-451c-9337-4b6bb3d4f97e",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 3,
+    "comment" : "Kort og greit. Nødvendig, men ikke spennende"
+  }, {
+    "id" : "1c00a464-e353-4efd-9449-eb5351e41776",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : true,
+    "rating" : 4,
+    "comment" : "Raskt unnagjort og greit å ha gjort."
+  } ]
+}, {
+  "courseCode" : "IT1604",
+  "courseName" : "Digitalt samfunn",
+  "reviews" : [ {
+    "id" : "bcb20713-0158-4855-9475-a03a7979fbfc",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Fint å diskutere hvordan teknologi påvirker samfunnet."
+  }, {
+    "id" : "0bba2ced-f0ff-4ad5-a65e-2652187f67e5",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Bra forelesere og relevante case fra virkeligheten."
+  }, {
+    "id" : "96ccbe3a-688d-46d5-85dc-bc396ac4ce2e",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : true,
+    "rating" : 3,
+    "comment" : "Gode tema, men skrivingen tok mye tid"
+  } ]
+}, {
+  "courseCode" : "IT1901",
+  "courseName" : "Informatikk prosjektarbeid I",
+  "reviews" : [ {
+    "id" : "82c7f4ae-b3cf-48c3-ad98-0e881de935c4",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Lærerikt å jobbe i team med git og code review. Mye jobb mot slutten av hver release"
+  }, {
+    "id" : "ed69c298-2b5f-4e71-bf7d-9545498381be",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : true,
+    "rating" : 3,
+    "comment" : "Gøy prosjekt, men mye tid går til dokumentasjon og oppsett"
+  }, {
+    "id" : "67506f0b-59a8-4b4b-acb6-9c8fc2097889",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Det beste emnet så langt. Endelig fikk vi lage en hel app fra start til slutt."
+  }, {
+    "id" : "586b8fa3-01a4-4ea1-95c5-1b93af0e35c7",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Grei arbeidsmengde, men gruppen må planlegge godt"
+  } ]
+}, {
+  "courseCode" : "IT2805",
+  "courseName" : "Webteknologi",
+  "reviews" : [ {
+    "id" : "a0f283c8-3c73-449f-aa3b-54b16e34b035",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Fint å lage noe visuelt. HTML og CSS var nytt for meg."
+  }, {
+    "id" : "7ae6b2cb-318f-4071-a9bf-273a53bcd2ee",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : true,
+    "rating" : 3,
+    "comment" : "Prosjektet var gøy, men forelesningene var litt tynne."
+  }, {
+    "id" : "cf91279f-76ef-4d69-b15c-91bddf9f36fe",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : ""
+  } ]
+}, {
+  "courseCode" : "IT2810",
+  "courseName" : "Webutvikling",
+  "reviews" : [ {
+    "id" : "39974fde-4fb2-404b-9872-2169efe1b41b",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : true,
+    "rating" : 5,
+    "comment" : "Veldig relevant for jobb. Bruk tid på prosjektene"
+  }, {
+    "id" : "4e3611da-fa47-41cd-9ad1-5cd1c6fed21a",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Lærte React og TypeScript ordentlig. Prosjektene er store, så start tidlig og fordel arbeidet i gruppa"
+  }, {
+    "id" : "aa15e72c-fd71-4203-bfde-fe198b49b96e",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : false,
+    "rating" : 3,
+    "comment" : "Mye å sette seg inn i på kort tid"
+  } ]
+}, {
+  "courseCode" : "IT2901",
+  "courseName" : "Informatikk prosjektarbeid II",
+  "reviews" : [ {
+    "id" : "850c35cc-dc88-4172-a4d5-415d91513b8c",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Ekte kunde gjorde prosjektet mye mer motiverende."
+  }, {
+    "id" : "db840b9f-0a76-437b-a615-2879ecb42507",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : true,
+    "rating" : 4,
+    "comment" : "Krevende, men man lærer mye"
+  } ]
+}, {
+  "courseCode" : "IT3212",
+  "courseName" : "Datadrevet Programvare",
+  "reviews" : [ {
+    "id" : "34e579fe-b0ec-4e05-9382-9427e0f12cca",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : ""
+  }, {
+    "id" : "a4c09fa7-1a98-4ee4-a34b-a874c8cd17c2",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : true,
+    "rating" : 5,
+    "comment" : "Fin blanding av maskinlæring og programvareutvikling."
+  }, {
+    "id" : "996b9aa4-b889-4bda-b54e-5eab93024504",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Spennende å jobbe med ekte datasett."
+  } ]
+}, {
+  "courseCode" : "IØ2000",
+  "courseName" : "Hvordan bli en endringsagent? Innovasjon og entreprenørskap i praksis",
+  "reviews" : [ {
+    "id" : "f4ca0c5a-74d9-407c-86b3-4cdc6d60f574",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Annerledes enn de andre emnene, med mye gruppearbeid og presentasjoner"
+  }, {
+    "id" : "59bd0796-0f34-402d-b41b-2074faee21ff",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : true,
+    "rating" : 1,
+    "comment" : "Uklare krav og lite oppfølging. Vanskelig å vite hva som ble forventet."
+  }, {
+    "id" : "b030940e-5605-422d-a131-b9ce4f7da13a",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Lærte mye om å utvikle en idé fra start."
+  } ]
+}, {
+  "courseCode" : "MA0001",
+  "courseName" : "Brukerkurs i matematikk A",
+  "reviews" : [ {
+    "id" : "0495f734-a208-409f-947b-8a72afa51880",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 1,
+    "comment" : "Altfor høyt tempo. Jeg falt helt av etter tre uker"
+  }, {
+    "id" : "5dc63c37-d387-4c95-a797-d70a8a1e3281",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 2,
+    "comment" : "Grei repetisjon, men tempoet er høyt."
+  }, {
+    "id" : "9c220713-f600-414c-99c0-69f2e150c269",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : true,
+    "rating" : 5,
+    "comment" : "Godt tilpasset de som ikke har hatt R2"
+  } ]
+}, {
+  "courseCode" : "MA0301",
+  "courseName" : "Elementær diskret matematikk",
+  "reviews" : [ {
+    "id" : "ae10aae9-ebbe-4cb5-a513-00edf86339db",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 3,
+    "comment" : "Bevis tok lang tid å skjønne"
+  }, {
+    "id" : "d3ce01c0-b9bf-4e7c-97a6-f229e62d8d23",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 2,
+    "comment" : ""
+  }, {
+    "id" : "6f01652c-d2c4-49e5-9464-5128354de6a9",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : true,
+    "rating" : 1,
+    "comment" : "Abstrakt og vanskelig å se nytten av underveis."
+  }, {
+    "id" : "7bf8cf8c-dbe7-4bf5-b82e-9108f0653adc",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : false,
+    "rating" : 3,
+    "comment" : "Logikk og mengdelære kommer godt med senere i studiet"
+  } ]
+}, {
+  "courseCode" : "TDT4100",
+  "courseName" : "Objektorientert programmering",
+  "reviews" : [ {
+    "id" : "6545291e-acf5-4820-8c60-4fb4c1ac444c",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Godt strukturert, og øvingene bygger fint på hverandre"
+  }, {
+    "id" : "395215f4-1389-40c7-aaa0-49f746480d5f",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Mange øvinger, men de gjør deg god i Java"
+  }, {
+    "id" : "4c44575c-72bb-4826-8c06-7da414e412dd",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : ""
+  }, {
+    "id" : "9d8e069e-40fe-47b4-a57e-7c6b5ab68219",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : true,
+    "rating" : 3,
+    "comment" : "Bratt læringskurve hvis man ikke har programmert før"
+  } ]
+}, {
+  "courseCode" : "TDT4109",
+  "courseName" : "Informasjonsteknologi, grunnkurs",
+  "reviews" : [ {
+    "id" : "74495179-0f14-4c15-859f-d7d0e9b7184a",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : true,
+    "rating" : 4,
+    "comment" : "Fint første programmeringsemne med gode øvingstimer"
+  }, {
+    "id" : "81d5987d-b434-470a-b245-ca93eeace10e",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Grei introduksjon til Python, også for nybegynnere"
+  }, {
+    "id" : "54d4b9dd-c551-4dd8-b450-59f57001f775",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Litt lett hvis man har programmert før."
+  } ]
+}, {
+  "courseCode" : "TDT4117",
+  "courseName" : "Informasjonsgjenfinning",
+  "reviews" : [ {
+    "id" : "a1193d41-009a-4644-bdb9-de58d44d6e59",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : true,
+    "rating" : 4,
+    "comment" : "Teorien var tung, men øvingene hjalp"
+  }, {
+    "id" : "53947164-136b-4434-9c5a-df6f3bfd9d83",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Spennende å lære hvordan søkemotorer fungerer."
+  } ]
+}, {
+  "courseCode" : "TDT4120",
+  "courseName" : "Algoritmer og datastrukturer",
+  "reviews" : [ {
+    "id" : "08600a00-b031-4071-afc4-16e89f5e86ed",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 2,
+    "comment" : "Alt for mye stoff, men viktig"
+  }, {
+    "id" : "7dfc2105-d7e7-47ba-917b-cecf24ff199b",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : true,
+    "rating" : 4,
+    "comment" : "Pensum er krevende, men forelesningene hjelper mye."
+  }, {
+    "id" : "1e2079a4-da9e-4590-80a6-8eb8dc016e51",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 3,
+    "comment" : "Tungt, men veldig nyttig. Sett av tid til øvingene"
+  }, {
+    "id" : "9eaa34ad-2ebb-4e8f-87cb-94b28245af2e",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : true,
+    "rating" : 5,
+    "comment" : "Ga meg en helt ny måte å tenke på problemer"
+  } ]
+}, {
+  "courseCode" : "TDT4136",
+  "courseName" : "Introduksjon til kunstig intelligens",
+  "reviews" : [ {
+    "id" : "58eefad2-1a00-4790-a7fd-5219b0e99b00",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Gøy å lære søkealgoritmer"
+  }, {
+    "id" : "85d0508b-2607-45fb-aff8-d65636ab69c8",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : true,
+    "rating" : 4,
+    "comment" : "Spennende pensum, men eksamen var bred"
+  }, {
+    "id" : "b0b473c6-8bad-4f5b-8a89-a2aa54300ee7",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Et av de mest interessante emnene i studiet. Prosjektet der vi lagde en agent som spilte et brettspill, var det morsomste jeg har gjort så langt."
+  } ]
+}, {
+  "courseCode" : "TDT4137",
+  "courseName" : "Kognitive systemer",
+  "reviews" : [ {
+    "id" : "55ac680f-30bc-45f1-a31d-f6614e19b302",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 3,
+    "comment" : "Interessant teori, men litt uklart hva som var viktig til eksamen"
+  }, {
+    "id" : "1eb0ea84-fa58-44ce-b613-1f12d7ca1ca3",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : true,
+    "rating" : 4,
+    "comment" : "Gode forelesninger om hvordan mennesker og maskiner tenker"
+  } ]
+}, {
+  "courseCode" : "TDT4140",
+  "courseName" : "Programvareutvikling",
+  "reviews" : [ {
+    "id" : "437088e1-32ed-4097-b7fe-4a2571d19b30",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Godt å jobbe i et team med Scrum"
+  }, {
+    "id" : "c5b7f120-210d-490b-ae7d-77232518e11c",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : true,
+    "rating" : 2,
+    "comment" : ""
+  }, {
+    "id" : "35a7fde2-35a0-473d-8c21-68c7003008a7",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : true,
+    "rating" : 3,
+    "comment" : "Mye møter og dokumentasjon, men realistisk."
+  }, {
+    "id" : "2febf36f-5c96-4600-8d5b-e5f92ee6894f",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Fint å bruke det vi lærte i IT1901 i et større prosjekt."
+  } ]
+}, {
+  "courseCode" : "TDT4145",
+  "courseName" : "Datamodellering og databasesystemer",
+  "reviews" : [ {
+    "id" : "99d9a4a8-c269-4660-acf3-a8ac7b3d4114",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : ""
+  }, {
+    "id" : "984f25a3-27b8-442d-a800-aaa356cf3400",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : true,
+    "rating" : 5,
+    "comment" : "Godt organisert, og prosjektet var relevant"
+  }, {
+    "id" : "532311a7-0720-41df-b95f-597935c83fd8",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Praktisk emne. SQL kommer man til å bruke mye"
+  } ]
+}, {
+  "courseCode" : "TDT4160",
+  "courseName" : "Datamaskiner",
+  "reviews" : [ {
+    "id" : "59b66ae1-e9e8-4ed2-b6bb-c41ba8a5e0ec",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : true,
+    "rating" : 1,
+    "comment" : "Mye detaljer om maskinvare. Ikke min favoritt"
+  }, {
+    "id" : "177aa6c6-6689-4572-9e8d-590234806eac",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 3,
+    "comment" : "Øvingene var det beste med emnet."
+  }, {
+    "id" : "83ac8a4f-c816-49ed-897e-624bb0ef9048",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 3,
+    "comment" : "Vanskelig å se sammenhengen i starten, men det løsner"
+  } ]
+}, {
+  "courseCode" : "TDT4165",
+  "courseName" : "Programmeringsspråk",
+  "reviews" : [ {
+    "id" : "53001a51-943f-4977-9cbb-53442fc85a62",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : false,
+    "rating" : 3,
+    "comment" : "Mange språk på kort tid"
+  }, {
+    "id" : "6d836033-8b9d-4f63-8619-46b6c1490ebb",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Lærte å tenke funksjonelt. Uvant, men nyttig"
+  }, {
+    "id" : "e6009076-e428-4a1e-a378-78f431d3fd3f",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : ""
+  } ]
+}, {
+  "courseCode" : "TDT4171",
+  "courseName" : "Metoder i kunstig intelligens",
+  "reviews" : [ {
+    "id" : "b67ab0cb-ace5-427f-b30b-a2f5a67d981d",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Godt bygget opp, med gøye innleveringer"
+  }, {
+    "id" : "03d03317-a3ad-46e4-b593-bf2ac97f503c",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : true,
+    "rating" : 5,
+    "comment" : "Mye sannsynlighetsregning. Repeter statistikk før du tar emnet."
+  } ]
+}, {
+  "courseCode" : "TDT4175",
+  "courseName" : "Informasjonssystemer",
+  "reviews" : [ {
+    "id" : "cfe9f8a1-5081-43c6-9853-226e5d0d73fe",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Relevant hvis du vil jobbe med IT i virksomheter"
+  }, {
+    "id" : "8b224650-52fa-4e99-a1fd-b6761e4cb40e",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 2,
+    "comment" : "Lite nytt for meg, og forelesningene var tørre."
+  }, {
+    "id" : "704887ee-2805-4784-8531-bb64fe9244b5",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : true,
+    "rating" : 2,
+    "comment" : "Mye begreper å lære, lite praktisk arbeid."
+  } ]
+}, {
+  "courseCode" : "TDT4180",
+  "courseName" : "Menneske-maskin-interaksjon",
+  "reviews" : [ {
+    "id" : "71aef6ea-50df-459b-a50a-ef25a732a063",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : true,
+    "rating" : 4,
+    "comment" : "Gøy å designe skjermer og få tilbakemelding fra brukere"
+  }, {
+    "id" : "ce5f6369-695a-4ede-bae7-3bdf78cfe02e",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Lærte mye om brukertesting og design"
+  }, {
+    "id" : "0b9bd9dd-0c20-4c56-af57-04aeb7e1f308",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Fint å lage prototyper og teste dem på ekte brukere"
+  } ]
+}, {
+  "courseCode" : "TDT4186",
+  "courseName" : "Operativsystemer",
+  "reviews" : [ {
+    "id" : "b29c78ac-44ff-4aff-a741-3f50c2e9eef5",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : true,
+    "rating" : 3,
+    "comment" : "Krevende øvinger, men lærerikt."
+  }, {
+    "id" : "8d22a586-2690-4a51-97a5-8390da0f0806",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : ""
+  }, {
+    "id" : "63e6e5ef-62ff-48eb-9b0f-f53509873f0d",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Endelig forsto jeg hva som skjer når et program kjører"
+  } ]
+}, {
+  "courseCode" : "TDT4205",
+  "courseName" : "Kompilatorteknikk",
+  "reviews" : [ {
+    "id" : "138e589f-c424-46fb-b690-1caa977e6ea7",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Utrolig kult å lage sin egen kompilator."
+  }, {
+    "id" : "5a543c81-2c40-4815-ac6e-bf6450f7f50c",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : true,
+    "rating" : 4,
+    "comment" : "Mye arbeid, men et av de mest lærerike emnene"
+  } ]
+}, {
+  "courseCode" : "TDT4237",
+  "courseName" : "Programvaresikkerhet og personvern",
+  "reviews" : [ {
+    "id" : "3e56a7d8-15f5-4ba3-8502-ece5f796b586",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Veldig nyttig å lære hvordan angrep fungerer i praksis"
+  }, {
+    "id" : "2622c1bf-538a-4cbc-9465-b1d9fafff98d",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : ""
+  }, {
+    "id" : "75b8a079-5c34-4c59-8062-b4952e912e9b",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : true,
+    "rating" : 5,
+    "comment" : "Prosjektet der vi skulle finne sårbarheter var gøy"
+  }, {
+    "id" : "82e9d4f6-6012-44fb-adbb-fd3b3a1b21eb",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 2,
+    "comment" : "Interessant, men eksamen hadde lite med øvingene å gjøre"
+  } ]
+}, {
+  "courseCode" : "TDT4240",
+  "courseName" : "Programvarearkitektur",
+  "reviews" : [ {
+    "id" : "564f4928-ff5a-473a-8b8d-f45a53e06737",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 2,
+    "comment" : ""
+  }, {
+    "id" : "fb3a152f-63b2-4503-a4ca-82340e6305e0",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : true,
+    "rating" : 4,
+    "comment" : "Fint å lage et spill i gruppe"
+  }, {
+    "id" : "307e2160-e1dd-42b5-bc4b-57ec159d8331",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : false,
+    "rating" : 2,
+    "comment" : "Mye teori om arkitektur og lite sammenheng med prosjektet"
+  } ]
+}, {
+  "courseCode" : "TDT4258",
+  "courseName" : "Maskinnær programmering",
+  "reviews" : [ {
+    "id" : "5d7bf6fe-c1ba-4260-b6bd-a17fe0693fb8",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 2,
+    "comment" : "Lavnivåprogrammering er tungt, men man lærer mye."
+  }, {
+    "id" : "8b6127ae-a914-4418-b937-1ee2142baad3",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : true,
+    "rating" : 1,
+    "comment" : "Vanskelige øvinger og nesten ingen hjelp. Brukte altfor mye tid på dette emnet."
+  }, {
+    "id" : "515e9c47-9283-4ea7-9865-54b064273259",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : true,
+    "rating" : 2,
+    "comment" : "For lite veiledning i forhold til hvor vanskelige øvingene var."
+  }, {
+    "id" : "d4f57d93-29d6-4b3e-b2ca-8a2bd24dd485",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Gøy å programmere direkte på maskinvare."
+  } ]
+}, {
+  "courseCode" : "TDT4300",
+  "courseName" : "Datavarehus og datagruvedrift",
+  "reviews" : [ {
+    "id" : "85d09e9a-a56f-40c0-8a84-c0afb31c6709",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : true,
+    "rating" : 3,
+    "comment" : "Artig, men noe av pensum føltes utdatert"
+  }, {
+    "id" : "410acb87-0351-4f85-adab-01b5f43e7a0e",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Bra!"
+  } ]
+}, {
+  "courseCode" : "TDT4310",
+  "courseName" : "Intelligent tekstanalyse og språkforståelse",
+  "reviews" : [ {
+    "id" : "f2446fcb-f916-49de-98d9-645f4a99f3e4",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Spennende emne om hvordan datamaskiner forstår tekst"
+  }, {
+    "id" : "bfc8fd7f-8b82-4693-9e67-a14fdb01b57a",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Krever at man har tatt maskinlæring før"
+  }, {
+    "id" : "8110a779-12e1-4b47-aadf-19cb0a75405a",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : true,
+    "rating" : 5,
+    "comment" : "Svært spennende. Fikk lyst til å skrive masteroppgave om språkmodeller"
+  } ]
+}, {
+  "courseCode" : "TTM4100",
+  "courseName" : "Kommunikasjon - Tjenester og nett",
+  "reviews" : [ {
+    "id" : "ee5560ef-d820-46e6-9c52-151bf3fd1941",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : false,
+    "rating" : 3,
+    "comment" : "Nyttig grunnlag."
+  }, {
+    "id" : "8982f57b-6333-4e40-9cb6-60075a23da33",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : false,
+    "rating" : 3,
+    "comment" : ""
+  }, {
+    "id" : "e6ba8d79-3236-4073-b2e5-b813c6be47f9",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 2,
+    "comment" : "Mye utenatlæring og lite praktisk."
+  }, {
+    "id" : "4e518e98-ec45-46f7-8028-2371191dafdd",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : true,
+    "rating" : 3,
+    "comment" : "Mye å pugge, men nyttig grunnlag."
+  } ]
+}, {
+  "courseCode" : "TTM4135",
+  "courseName" : "Anvendt kryptografi og nettverksikkerhet",
+  "reviews" : [ {
+    "id" : "2e7361d8-8bf4-44b3-b3d0-acfac700f215",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Krevende matte, men veldig interessant"
+  }, {
+    "id" : "6d2bd660-f3c8-47f9-8f8f-bba0f9f0d02c",
+    "ownerEmail" : "sara@example.com",
+    "reviewerName" : "Sara Nilsen",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : ""
+  }, {
+    "id" : "a7e5cf03-7496-49a7-8cf6-1abd896a438d",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : true,
+    "rating" : 3,
+    "comment" : "Bra emne, men forelesningene gikk fort"
+  } ]
+}, {
+  "courseCode" : "TTM4185",
+  "courseName" : "Sikkerhet og robusthet i IKT system",
+  "reviews" : [ {
+    "id" : "d5d7bbd4-89c3-434a-ba7c-ee9e12f13dfe",
+    "ownerEmail" : "jonas@example.com",
+    "reviewerName" : "Jonas Lie",
+    "anonymous" : false,
+    "rating" : 5,
+    "comment" : "Relevant og godt organisert"
+  }, {
+    "id" : "0cdaf2dc-afbd-477f-8bd3-9137dea5e97a",
+    "ownerEmail" : "ida@example.com",
+    "reviewerName" : "Ida Moe",
+    "anonymous" : false,
+    "rating" : 4,
+    "comment" : "Litt overlapp med andre sikkerhetsemner"
+  } ]
+}, {
+  "courseCode" : "ØKO1001",
+  "courseName" : "Ledelse",
+  "reviews" : [ {
+    "id" : "805eafd0-90d1-4118-88ac-155deb6fab48",
+    "ownerEmail" : "anna@example.com",
+    "reviewerName" : "Anna Hansen",
+    "anonymous" : false,
+    "rating" : 2,
+    "comment" : ""
+  }, {
+    "id" : "4ef349bd-6c16-41cf-b957-248fe77c1fff",
+    "ownerEmail" : "emil@example.com",
+    "reviewerName" : "Emil Berg",
+    "anonymous" : true,
+    "rating" : 4,
+    "comment" : "Overraskende nyttig"
+  }, {
+    "id" : "7f6872f0-0fdd-4787-a58f-d18173f2de98",
+    "ownerEmail" : "magnus@example.com",
+    "reviewerName" : "Magnus Strand",
+    "anonymous" : false,
+    "rating" : 1,
+    "comment" : "Føltes som bortkastet tid for en informatikkstudent."
+  } ]
+} ]

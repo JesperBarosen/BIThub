@@ -148,7 +148,7 @@
                            </font>
                         </Label>
                         <Label
-                           text="Når du skriver en anmeldelse, kan du velge om den skal publiseres med navnet ditt eller anonymt. Velger du anonym, vises anmeldelsen som «Anonym» for alle andre brukere, slik at du kan dele ærlige erfaringer uten at andre ser hvem du er. Anmeldelsen er fortsatt knyttet til kontoen din, slik at du kan finne den igjen under «MINE ANMELDELSER» og redigere eller slette den senere. Du kan også endre om den skal være anonym eller ikke etter den er laget. &#10;&#10;Anonym er ikke det samme som gjest. En anonym anmeldelse er skrevet av en innlogget bruker som har valgt å skjule navnet sitt. Anmeldelser som vises som «Gjest», ble skrevet før man måtte logge inn, og har ingen eier. De kan derfor ikke endres eller slettes."
+                           text="Når du skriver en anmeldelse, kan du velge om den skal publiseres med navnet ditt eller anonymt. Velger du anonym, vises anmeldelsen som «Anonym» for alle andre brukere, slik at du kan dele ærlige erfaringer uten at andre ser hvem du er. Anmeldelsen er fortsatt knyttet til kontoen din, slik at du kan finne den igjen under «MINE ANMELDELSER» og redigere eller slette den senere. Du kan også endre om den skal være anonym eller ikke etter den er laget. &#10;&#10;Anonym er ikke det samme som å fortsette som gjest. En anonym anmeldelse er skrevet av en innlogget bruker som har valgt å skjule navnet sitt. Som gjest er du ikke logget inn, og kan bare lese anmeldelser."
                            wrapText="true" />
                         <Label text="5. Retningslinjer for anmeldelser">
                            <font>
