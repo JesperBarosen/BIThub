@@ -37,7 +37,7 @@ else skjemaet er gyldig
     UserS -> UserModel : new User(name, email, password)
     note right of UserModel : Validerer navn, e-post og passord.\nPasswordHasher lager salt og hash,\nså passordet lagres aldri i klartekst.
     UserS -> Handler : findByEmail(email)
-    Handler --> UserS : Optional<User>
+    Handler --> UserS : Optional<User>  
 
     alt e-posten er allerede registrert
         UserS --> UserC : kaster DuplicateEmailException
@@ -48,7 +48,7 @@ else skjemaet er gyldig
     else ny e-post
         UserS -> Handler : save(user)
         Handler -> File : addUserIfEmailAvailable(user)\nsjekker e-posten på nytt og lagrer\nunder samme skrivelås
-        note right of Handler : Registrerer to brukere samme e-post\nsamtidig, kaster save også\nDuplicateEmailException (409).
+        note right of Handler : Registrerer to brukere seg med samme e-post\nsamtidig, kaster save også\nDuplicateEmailException (409).
         Handler --> UserS
         UserS --> UserC : User
         UserC -> Tokens : createToken(email)
