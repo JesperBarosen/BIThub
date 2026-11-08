@@ -224,9 +224,6 @@ Følgende er verifisert på Windows:
 - HTTP 200 og JSON-respons fra REST-endepunktet `/api/courses`.
 - Korrekt serveradresse i den installerte klientens `BIThub.cfg`.
 
-Den tidligere Windows-løsningen er også prøvekjørt med installert
-JavaFX-klient mot kjørende REST-server.
-
 macOS-pakkingen er også manuelt testet. Linux-pakkingen er konfigurert
 via Maven, men er foreløpig ikke manuelt verifisert.
 
