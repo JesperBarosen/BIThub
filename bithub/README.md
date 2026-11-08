@@ -44,7 +44,8 @@ Mer om dette står i [release3.md](../docs/release3/release3.md#anonyme-anmeldel
 ## Brukerhistorier
 
 Hver brukerhistorie har et kort bakgrunnsavsnitt, flyten i appen og kriteriene vi brukte for å si at den var ferdig.
-Brukerhistorie 1 og 2 har også sekvensdiagram.
+Alle brukerhistoriene har et sekvensdiagram som viser hva som skjer i klienten, hvilke REST-kall som sendes og hva
+serveren gjør.
 
 ### 1. Skrive en anmeldelse
 
@@ -120,6 +121,18 @@ Gjennomsnittet regnes ut i [`Course`](core/src/main/java/core/model/Course.java)
 - Gjester kan lese alle anmeldelsene uten å lage konto.
 - Gjester kan logge inn eller registrere seg senere fra hjemmesiden.
 
+#### Sekvensdiagram for brukerhistorie 3
+
+[![Sekvensdiagram brukerhistorie 3](../arkitektur/png/brukerhistorie3Sekvensdiagram.png)](../arkitektur/png/brukerhistorie3Sekvensdiagram.png)
+
+Kildefil: [`arkitektur/brukerhistorie3Sekvensdiagram.puml`](../arkitektur/brukerhistorie3Sekvensdiagram.puml)
+
+[`HomeController`](ui/src/main/java/ui/controller/HomeController.java) spør
+[`UserSession`](ui/src/main/java/ui/session/UserSession.java) om brukeren er logget inn, og skjuler knappene for å
+skrive og se egne anmeldelser for gjester. Lesing krever ikke innlogging, så `RemoteReviewRepository` sender
+`GET /api/courses/{code}` uten token. Prøver noen likevel å sende en anmeldelse uten token, for eksempel med curl,
+svarer [`ReviewController`](springboot/restserver/src/main/java/rest/api/ReviewController.java) med 401.
+
 ### 4. Lage konto og logge inn
 
 > Som student, skal jeg kunne opprette en bruker og logge inn, for å kunne skrive, endre og slette egne anmeldelser
@@ -137,6 +150,20 @@ Gjennomsnittet regnes ut i [`Course`](core/src/main/java/core/model/Course.java)
 - Passordet lagres ikke i klartekst på serveren.
 - Feil e-post eller passord gir en feilmelding.
 
+#### Sekvensdiagram for brukerhistorie 4
+
+[![Sekvensdiagram brukerhistorie 4](../arkitektur/png/brukerhistorie4Sekvensdiagram.png)](../arkitektur/png/brukerhistorie4Sekvensdiagram.png)
+
+Kildefil: [`arkitektur/brukerhistorie4Sekvensdiagram.puml`](../arkitektur/brukerhistorie4Sekvensdiagram.puml)
+
+[`RegisterUserController`](ui/src/main/java/ui/controller/RegisterUserController.java) og
+[`LoginController`](ui/src/main/java/ui/controller/LoginController.java) sender `POST /api/users` og
+`POST /api/login` gjennom [`RemoteAuthenticationClient`](ui/src/main/java/ui/client/RemoteAuthenticationClient.java)
+i bakgrunnen. På serveren lager [`UserService`](core/src/main/java/core/service/UserService.java) brukeren, og
+[`PasswordHasher`](core/src/main/java/core/service/PasswordHasher.java) lagrer bare salt og hash. En e-post som
+allerede er registrert, gir 409, og feil passord gir 401. Ved suksess får klienten et token, som `UserSession` gir
+videre til `RemoteReviewRepository`, slik at det sendes med alle kall som krever innlogging.
+
 ### 5. Endre og slette egne anmeldelser
 
 > Som student, skal jeg kunne se, endre og slette egne anmeldelser, for å holde anmeldelsene mine oppdaterte og
@@ -152,6 +179,18 @@ Gjennomsnittet regnes ut i [`Course`](core/src/main/java/core/model/Course.java)
 **Ferdig når:**
 - Man ser bare sine egne anmeldelser.
 - Serveren avviser endring og sletting av andres anmeldelser.
+
+#### Sekvensdiagram for brukerhistorie 5
+
+[![Sekvensdiagram brukerhistorie 5](../arkitektur/png/brukerhistorie5Sekvensdiagram.png)](../arkitektur/png/brukerhistorie5Sekvensdiagram.png)
+
+Kildefil: [`arkitektur/brukerhistorie5Sekvensdiagram.puml`](../arkitektur/brukerhistorie5Sekvensdiagram.puml)
+
+[`MyReviewsController`](ui/src/main/java/ui/controller/MyReviewsController.java) henter anmeldelsene med
+`GET /api/me/reviews`. Serveren finner e-posten ut fra tokenet, så man får bare sine egne anmeldelser.
+[`EditReviewController`](ui/src/main/java/ui/controller/EditReviewController.java) sender `PUT /api/reviews/{id}`, og
+sletting sender `DELETE /api/reviews/{id}`. [`OwnReviewController`](springboot/restserver/src/main/java/rest/api/OwnReviewController.java)
+lar `ReviewService` sjekke at anmeldelsen tilhører brukeren før den endres eller slettes, ellers svarer serveren 403.
 
 ### 6. Profil og passord
 
@@ -170,6 +209,18 @@ Gjennomsnittet regnes ut i [`Course`](core/src/main/java/core/model/Course.java)
 - Det gamle passordet må være riktig for å bytte.
 - Det nye navnet vises på brukerens anmeldelser med navn.
 
+#### Sekvensdiagram for brukerhistorie 6
+
+[![Sekvensdiagram brukerhistorie 6](../arkitektur/png/brukerhistorie6Sekvensdiagram.png)](../arkitektur/png/brukerhistorie6Sekvensdiagram.png)
+
+Kildefil: [`arkitektur/brukerhistorie6Sekvensdiagram.puml`](../arkitektur/brukerhistorie6Sekvensdiagram.puml)
+
+[`ChangePasswordController`](ui/src/main/java/ui/controller/ChangePasswordController.java) sjekker skjemaet før
+`PUT /api/users/{email}/password` sendes. [`UserController`](springboot/restserver/src/main/java/rest/api/UserController.java)
+svarer 403 hvis e-posten i stien ikke er brukerens egen, og 400 hvis det gamle passordet er feil. Når navnet endres
+fra [`ProfileController`](ui/src/main/java/ui/controller/ProfileController.java), oppdaterer serveren både brukeren og
+anmeldelsene med navn. Ved utlogging fjernes tokenet i klienten først, og så sendes `POST /api/logout`.
+
 ### 7. Søke etter emner
 
 > Som student, skal jeg kunne søke etter fag med fagkode eller navn, for å raskt finne faget jeg vil lese eller skrive
@@ -183,3 +234,13 @@ Gjennomsnittet regnes ut i [`Course`](core/src/main/java/core/model/Course.java)
 - Søket treffer både emnekode og emnenavn, uansett store og små bokstaver.
 - Et tomt søk viser alle emnene.
 - Det samme søkefeltet brukes når man leser og skriver.
+
+#### Sekvensdiagram for brukerhistorie 7
+
+[![Sekvensdiagram brukerhistorie 7](../arkitektur/png/brukerhistorie7Sekvensdiagram.png)](../arkitektur/png/brukerhistorie7Sekvensdiagram.png)
+
+Kildefil: [`arkitektur/brukerhistorie7Sekvensdiagram.puml`](../arkitektur/brukerhistorie7Sekvensdiagram.puml)
+
+[`CourseSelectionController`](ui/src/main/java/ui/controller/CourseSelectionController.java) henter alle emnene med
+`GET /api/courses` én gang når siden åpnes. Søket filtrerer listen i klienten med en `FilteredList`, så det sendes
+ingen nye forespørsler mens brukeren skriver.
