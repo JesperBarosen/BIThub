@@ -1,14 +1,31 @@
-[
-    {
-        "name": "Anna Hansen",
-        "email": "anna@example.com",
-        "passwordHash": "IetCnTbcy5sz1dcewGRZliSfBGJA7ruewv+2FjxpQAY=", 
-        "salt": "h4SzLGOrPQ7ct3VFCcX8sw=="
-    },
-    {
-        "name": "Emil Berg",
-        "email": "emil@example.com",
-        "passwordHash": "D0uwkTbU4QSSbotOkjK3H9oE48RifAt1NPHWGHiL2ho=", 
-        "salt": "LF9BqjB1NbvnscNF6OzqFQ=="
-    }
-]
+[ {
+  "name" : "Anna Hansen",
+  "email" : "anna@example.com",
+  "passwordHash" : "xBvnZme6vnqMZR5oF/OOMrHDXAO2qSEWDT8N3ly6w10=",
+  "salt" : "rdMn8uZiio4s9SQEbs0SNA=="
+}, {
+  "name" : "Emil Berg",
+  "email" : "emil@example.com",
+  "passwordHash" : "FpsQwKLRgSADsqu/xOhII0k02peLMLMI+kwvSwCRXvc=",
+  "salt" : "W2A/z4KY02asekdtVQIoIw=="
+}, {
+  "name" : "Sara Nilsen",
+  "email" : "sara@example.com",
+  "passwordHash" : "0W1YTDu14s+1WwWkrHRoM0pfVPJ1czXAS7jjTDvrvcI=",
+  "salt" : "UZ4OUsj4poXASgQK1GXrKw=="
+}, {
+  "name" : "Jonas Lie",
+  "email" : "jonas@example.com",
+  "passwordHash" : "KS93gebyQ1mHoOsuMqdX18tr7gZ2UTBLcoSuAhgRtU4=",
+  "salt" : "ywtnREdMMoTtmdgKYWh4xQ=="
+}, {
+  "name" : "Ida Moe",
+  "email" : "ida@example.com",
+  "passwordHash" : "qpyvVeEgzJggN/Rm5pAAF19If9bpM3nZULRvw3D6pFE=",
+  "salt" : "J1oWCozA35l9y61VnCllDg=="
+}, {
+  "name" : "Magnus Strand",
+  "email" : "magnus@example.com",
+  "passwordHash" : "4vEF+O5Kx2FU8dRQtzdB3rJZ7yTbvQsTi4pKicf0EfI=",
+  "salt" : "T0BtabwWHG4y0o96jQMv5g=="
+} ]

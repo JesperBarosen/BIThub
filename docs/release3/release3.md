@@ -102,7 +102,7 @@ brukeren Anna Hansen. Trykk på et bilde for å åpne det i full størrelse i ma
     </td>
     <td align="center">
       <b>Lese anmeldelser</b><br>
-      <a href="bilder_release3/ReadReviews.png"><img src="bilder_release3/ReadReviews.png" alt="Anmeldelser av TDT4100 med en anonym anmeldelse og en gjesteanmeldelse" height="300"></a>
+      <a href="bilder_release3/ReadReviews.png"><img src="bilder_release3/ReadReviews.png" alt="Anmeldelser av IT1901 med stjerner og gjennomsnitt" height="300"></a>
     </td>
     <td align="center">
       <b>Skrive anmeldelse</b><br>
@@ -246,48 +246,45 @@ i [contribution.md](contribution.md). De to største utfordringene vi hadde, er 
 
 ## Eksempeldata
 
-Mappen [eksempeldata](eksempeldata/) inneholder tre emner, fem anmeldelser og to
-testbrukere i lagringsformatet for release 3. Med dem kan du logge inn og se
-innhold under «Mine anmeldelser» uten å registrere brukere og skrive
-anmeldelser først.
+Mappen [eksempeldata](eksempeldata/) inneholder anmeldelser av alle emnene i emnelisten, skrevet av seks
+testbrukere. Med dem har alle emnene anmeldelser, gjennomsnitt og stjerner, både for gjester og for innloggede
+brukere.
 
-- [courses.json](eksempeldata/courses.json): emner og anmeldelser med unike
-  id-er, eier og om anmeldelsen er anonym.
-- [users.json](eksempeldata/users.json): testbrukere med passordhash og salt.
+- [courses.json](eksempeldata/courses.json): 108 anmeldelser, 2–4 per emne, både med navn og anonyme. Alle
+  anmeldelsene har en eier.
+- [users.json](eksempeldata/users.json): seks testbrukere med passordhash og salt.
 
+Dataene er laget ved å bruke appen. Ingen bruker har mer enn én anmeldelse per emne (#251).
 Eksempeldataene fra release 2 ligger fortsatt i [docs/release2/eksempeldata/](../release2/eksempeldata/).
-
-| Emne | Anmeldelser |
-| --- | --- |
-| IT1901 Informatikk prosjektarbeid I | Anna med navn, Emil anonym |
-| TDT4100 Objektorientert programmering | Anna anonym, en gammel uten eier |
-| IT2805 Webteknologi | Emil med navn |
 
 ### Testbrukere
 
-| Navn | E-post | Passord |
+Alle testbrukerne har passordet `Bithub214!`.
+
+| Navn | E-post | Anmeldelser |
 | --- | --- | --- |
-| Anna Hansen | anna@example.com | Bithub214! |
-| Emil Berg | emil@example.com | Bithub214! |
+| Anna Hansen | anna@example.com | 16 |
+| Emil Berg | emil@example.com | 17 |
+| Sara Nilsen | sara@example.com | 18 |
+| Jonas Lie | jonas@example.com | 19 |
+| Ida Moe | ida@example.com | 19 |
+| Magnus Strand | magnus@example.com | 19 |
 
 Dette er fiktive brukere med offentlige testpassord. Passordene lagres som hash
 med PBKDF2-HMAC-SHA256, 600 000 iterasjoner, 16 byte salt og 32 byte hash, begge
 Base64-kodet.
 
-Anmeldelsen uten eier i TDT4100 viser hvordan anmeldelser fra release 2 vises
-etter at innlogging ble innført. Den har `ownerEmail: null`, vises som «Gjest»
-og kan ikke endres av noen.
-
 ### Bruke eksempeldataene
 
 Serveren leser og skriver `courses.json` og `users.json` i mappen `.bithub` i
-hjemmemappen din. For å bruke eksempeldataene kopierer du begge filene dit før
-du starter serveren. Har du allerede filer der, ta en kopi av dem først, for de
-blir overskrevet.
+hjemmemappen din. Kopier begge filene dit før du starter serveren.
+
+**Har du allerede filer i `.bithub`, blir de overskrevet.** Ta en kopi først hvis du vil beholde dem.
 
 Fra rotmappen i repoet, på macOS, Linux og i Eclipse Che:
 
 ```bash
+cp -r ~/.bithub ~/.bithub-backup   # bare hvis du har egne data
 mkdir -p ~/.bithub
 cp docs/release3/eksempeldata/courses.json docs/release3/eksempeldata/users.json ~/.bithub/
 ```
@@ -295,25 +292,25 @@ cp docs/release3/eksempeldata/courses.json docs/release3/eksempeldata/users.json
 På Windows (PowerShell), fra rotmappen i repoet:
 
 ```powershell
+Copy-Item "$HOME\.bithub" "$HOME\.bithub-backup" -Recurse   # bare hvis du har egne data
 New-Item -ItemType Directory -Force "$HOME\.bithub"
-Copy-Item docs\release3\eksempeldata\courses.json, docs\release3\eksempeldata\users.json "$HOME\.bithub\"
+Copy-Item docs\release3\eksempeldata\courses.json, docs\release3\eksempeldata\users.json "$HOME\.bithub\" -Force
 ```
 
 `$HOME` skal stå akkurat slik. PowerShell bytter det ut med hjemmemappen din.
 
-Start så serveren og appen som beskrevet i [README](../../README.md#kjøre-lokalt). Serveren
-legger til standardemner som mangler, så emnelisten inneholder flere emner enn
-de tre i eksempelfilen.
+Start så serveren og appen som beskrevet i [README](../../README.md#kjøre-lokalt).
 
-For å starte på nytt med de opprinnelige dataene: stopp serveren, kopier begge
-filene på nytt og start serveren igjen.
+For å starte på nytt med eksempeldataene: stopp serveren, kopier begge filene på nytt og start serveren igjen.
+For å få tilbake dine egne data: stopp serveren, slett `.bithub` og gi `.bithub-backup` navnet `.bithub` igjen.
 
 ### Prøv eksempeldataene
 
-1. Logg inn som `anna@example.com` med passordet `Bithub214!`.
-2. Åpne «Mine anmeldelser». Anna har to anmeldelser, i IT1901 og TDT4100.
-3. Les anmeldelsene i IT1901. Anna vises med navn og Emil som «Anonym».
-4. Les anmeldelsene i TDT4100. Anna vises som «Anonym», og anmeldelsen uten
-   eier vises som «Gjest».
-5. Logg ut og inn som `emil@example.com` med samme passord.
-6. Åpne «Mine anmeldelser». Emil har to anmeldelser, i IT1901 og IT2805.
+1. Trykk «Fortsett som gjest» og åpne «Les anmeldelser». Alle emnene har anmeldelser. IT1901 har fire, med et
+   snitt på 4.25.
+2. Logg inn som `anna@example.com` med passordet `Bithub214!`.
+3. Åpne «Mine anmeldelser». Anna har 16 anmeldelser, både med navn og anonyme.
+4. Prøv å skrive en ny anmeldelse av IT1901. Appen sier at du allerede har anmeldt emnet, og at du kan endre
+   anmeldelsen under «Mine anmeldelser».
+5. Logg ut og inn som `emil@example.com` med samme passord. Emil har 17 anmeldelser.
+6. Registrer en ny bruker. Den nye brukeren ser alle anmeldelsene, men har ingen under «Mine anmeldelser».
