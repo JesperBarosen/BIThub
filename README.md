@@ -155,7 +155,7 @@ Klienten bruker `http://localhost:8080` som serveradresse. En annen adresse sett
 mvn -pl ui jpackage:jpackage -Dbithub.server.url=http://servernavn:8080
 ```
 
-Adressen legges inn i den pakkede klienten, så klienten må pakkes på nytt for å bruke en annen adresse.
+Adressen legges inn i installasjonsfilen, så den må lages på nytt for å bruke en annen adresse.
 
 ## Mappestruktur
 
