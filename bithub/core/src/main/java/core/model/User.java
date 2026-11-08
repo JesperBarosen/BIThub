@@ -85,6 +85,7 @@ public final class User {
             throw new IllegalArgumentException(
                     "Navn kan kun inneholde bokstaver, mellomrom, bindestrek og apostrof.");
         }
+        // Slutt på kode laget med hjelp av KI.
     }
 
     private static void validateEmail(String email) {
@@ -96,6 +97,7 @@ public final class User {
         if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             throw new IllegalArgumentException("E-post må ha et gyldig format.");
         }
+        // Slutt på kode laget med hjelp av KI.
     }
 
     /**

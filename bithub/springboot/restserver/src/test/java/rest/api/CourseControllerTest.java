@@ -53,7 +53,8 @@ class CourseControllerTest {
         when(reviewService.getAllCourses()).thenReturn(List.of(courseWithReviews(),
                 new Course("TDT4100", "Objektorientert programmering")));
 
-        mockMvc.perform(get("/api/courses")).andExpect(status().isOk())
+        mockMvc.perform(get("/api/courses"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].code").value("IT1901"))
                 .andExpect(jsonPath("$[0].name").value("Informatikk prosjektarbeid I"))
@@ -73,7 +74,8 @@ class CourseControllerTest {
     void getAllCoursesReturnsEmptyListWhenNoCourses() throws Exception {
         when(reviewService.getAllCourses()).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/courses")).andExpect(status().isOk())
+        mockMvc.perform(get("/api/courses"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
@@ -87,7 +89,8 @@ class CourseControllerTest {
     void getCourseReturnsCourseWithGuestReviews() throws Exception {
         when(reviewService.findCourse("IT1901")).thenReturn(Optional.of(courseWithReviews()));
 
-        mockMvc.perform(get("/api/courses/IT1901")).andExpect(status().isOk())
+        mockMvc.perform(get("/api/courses/IT1901"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("IT1901"))
                 .andExpect(jsonPath("$.averageRating").value(4.5))
                 .andExpect(jsonPath("$.reviews.length()").value(2))
@@ -107,7 +110,8 @@ class CourseControllerTest {
     void getCourseReturnsNotFoundForUnknownCourse() throws Exception {
         when(reviewService.findCourse("TDT4100")).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/courses/TDT4100")).andExpect(status().isNotFound())
+        mockMvc.perform(get("/api/courses/TDT4100"))
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.message").value("Fant ikke emnet TDT4100."));
@@ -123,7 +127,8 @@ class CourseControllerTest {
         when(reviewService.findCourse("ugyldig"))
                 .thenThrow(new IllegalArgumentException("Ugyldig emnekode."));
 
-        mockMvc.perform(get("/api/courses/ugyldig")).andExpect(status().isBadRequest())
+        mockMvc.perform(get("/api/courses/ugyldig"))
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("Bad Request"))
                 .andExpect(jsonPath("$.message").value("Ugyldig emnekode."));
@@ -141,7 +146,8 @@ class CourseControllerTest {
         course.addReview(new Review("id-2", "ola@ntnu.no", "Ola", true, 4, ""));
         when(reviewService.findCourse("IT1901")).thenReturn(Optional.of(course));
 
-        mockMvc.perform(get("/api/courses/IT1901")).andExpect(status().isOk())
+        mockMvc.perform(get("/api/courses/IT1901"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.reviews[0].id").value("id-1"))
                 .andExpect(jsonPath("$.reviews[0].displayName").value("Kari"))
                 .andExpect(jsonPath("$.reviews[0].authorType").value("USER"))

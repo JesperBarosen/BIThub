@@ -93,7 +93,6 @@ public interface ReviewRepository {
     // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Endrer vurderingen, kommentaren og anonymiteten til en lagret anmeldelse. Id, eier og navn
-     * Endrer vurderingen, kommentaren og anonymiteten til en lagret anmeldelse. Id, eier og navn
      * beholdes. Lagringer som ikke støtter endring, kaster {@link UnsupportedOperationException}.
      *
      * @param reviewId  id-en til anmeldelsen
@@ -110,8 +109,7 @@ public interface ReviewRepository {
 
     // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
-     * Sletter en lagret anmeldelse. Lagringer som ikke støtter sletting, kaster Sletter en lagret
-     * anmeldelse. Lagringer som ikke støtter sletting, kaster
+     * Sletter en lagret anmeldelse. Lagringer som ikke støtter sletting, kaster
      * {@link UnsupportedOperationException}.
      *
      * @param reviewId id-en til anmeldelsen
@@ -124,10 +122,9 @@ public interface ReviewRepository {
 
     // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
-     * Gir alle anmeldelsene en bruker eier, det nye navnet, for eksempel etter at brukeren har Gir
-     * alle anmeldelsene en bruker eier, det nye navnet, for eksempel etter at brukeren har endret
-     * navnet sitt. Anonyme anmeldelser får også det nye navnet, men vises fortsatt som «Anonym».
-     * Lagringer som ikke støtter dette, kaster {@link UnsupportedOperationException}.
+     * Gir alle anmeldelsene en bruker eier, det nye navnet, for eksempel etter at brukeren har
+     * endret navnet sitt. Anonyme anmeldelser får også det nye navnet, men vises fortsatt som
+     * «Anonym». Lagringer som ikke støtter dette, kaster {@link UnsupportedOperationException}.
      *
      * @param ownerEmail   e-posten til eieren, store og små bokstaver skilles ikke
      * @param reviewerName det nye navnet
