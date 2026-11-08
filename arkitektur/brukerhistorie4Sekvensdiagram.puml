@@ -36,16 +36,19 @@ else skjemaet er gyldig
     UserC -> UserS : register(name, email, password)
     UserS -> UserModel : new User(name, email, password)
     note right of UserModel : Validerer navn, e-post og passord.\nPasswordHasher lager salt og hash,\nså passordet lagres aldri i klartekst.
-    UserS -> Handler : save(user)
-    Handler -> File : addUserIfEmailAvailable(user)\nsjekker e-post og lagrer\nunder samme skrivelås
+    UserS -> Handler : findByEmail(email)
+    Handler --> UserS : Optional<User>
 
     alt e-posten er allerede registrert
-        Handler --> UserS : kaster DuplicateEmailException
+        UserS --> UserC : kaster DuplicateEmailException
         UserC --> AuthClient : 409 Conflict + feilmelding
         AuthClient --> Runner : kaster IllegalArgumentException
         Runner --> FormC : onFailure, på JavaFX-tråden
         FormC --> User : viser «E-postadressen er\nallerede registrert.»
     else ny e-post
+        UserS -> Handler : save(user)
+        Handler -> File : addUserIfEmailAvailable(user)\nsjekker e-posten på nytt og lagrer\nunder samme skrivelås
+        note right of Handler : Registrerer to brukere samme e-post\nsamtidig, kaster save også\nDuplicateEmailException (409).
         Handler --> UserS
         UserS --> UserC : User
         UserC -> Tokens : createToken(email)
@@ -85,8 +88,10 @@ else riktig
     UserC -> Tokens : createToken(email)
     UserC --> AuthClient : 200 OK + {token, name, email}
     AuthClient --> FormC : AuthenticationResult\n(via onSuccess)
-    FormC -> Nav : signIn(result) og showHome(loginButton)
+    FormC -> Nav : loginSuccessHandler.accept(result),\nsom er Navigation.signIn
     Nav -> Session : signIn(token, name, email)
+    Session -> Remote : setToken(token)
+    FormC -> Nav : showHome(loginButton)
     Nav --> User : hjemmesiden som innlogget
 end
 deactivate Runner
