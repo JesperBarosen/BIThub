@@ -7,9 +7,11 @@ Her beskriver vi hvordan vi tester REST-serveren i [`springboot/restserver`](../
 | Testklasse | Type | Hva den tester |
 |---|---|---|
 | [`CourseControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/CourseControllerTest.java) | `MockMvc` med falsk [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) | `GET /api/courses` og `GET /api/courses/{code}`: JSON-feltene, gjennomsnitt, visningsnavn og `authorType`, at e-posten til eieren aldri sendes ut, 400 og 404 |
-| [`ReviewControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/ReviewControllerTest.java) | `MockMvc` med falsk [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) | `POST /api/courses/{code}/reviews`: gyldig anmeldelse gir 201, ugyldig vurdering og ugyldig JSON gir 400, ukjent emne gir 404 uten at noe lagres |
-| [`UserControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/UserControllerTest.java) | `MockMvc` med falske [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java), [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) og [`TokenService`](../../bithub/springboot/restserver/src/main/java/rest/auth/TokenService.java) | `POST /api/users`, `POST /api/login`, `PUT /api/users/{email}/password` og `GET /api/me/reviews`: token i svaret, at passord, hash og salt aldri sendes ut, 204, 400, 401 og 409 |
+| [`ReviewControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/ReviewControllerTest.java) | `MockMvc` med falsk [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) | `POST /api/courses/{code}/reviews`: gyldig anmeldelse gir 201, ugyldig vurdering og ugyldig JSON gir 400, ukjent emne gir 404 uten at noe lagres, og en andre anmeldelse av samme emne gir 409 |
+| [`UserControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/UserControllerTest.java) | `MockMvc` med falske [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java), [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) og [`TokenService`](../../bithub/springboot/restserver/src/main/java/rest/auth/TokenService.java) | `POST /api/users`, `POST /api/login`, `PUT /api/users/{email}/password`, `PUT /api/users/{email}/name` og `GET /api/me/reviews`: token i svaret, at passord, hash og salt aldri sendes ut, 204, 400, 401, 403 og 409 |
+| [`OwnReviewControllerTest`](../../bithub/springboot/restserver/src/test/java/rest/api/OwnReviewControllerTest.java) | `MockMvc` med falsk [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) | `PUT /api/reviews/{id}` og `DELETE /api/reviews/{id}`: endring og sletting av egne anmeldelser, 400, 401, 403 og 404 |
 | [`TokenServiceTest`](../../bithub/springboot/restserver/src/test/java/rest/auth/TokenServiceTest.java) | Vanlig enhetstest | At hvert token er unikt og hører til riktig bruker, og at ukjente eller manglende tokener ikke gir noen bruker |
+| [`AuthenticationServiceTest`](../../bithub/springboot/restserver/src/test/java/rest/auth/AuthenticationServiceTest.java) | Vanlig enhetstest | At hvert token gir riktig e-post, og at manglende og ugyldige tokener og tokener uten «Bearer » avvises |
 | [`RestIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestIntegrationTest.java) | `@SpringBootTest` med ekte server og HTTP | Hele serveren startes på en ledig port med ekte tjenester i core og ekte lagring i file. Testene sender HTTP-forespørsler med `java.net.http.HttpClient` og sjekker både svaret og innholdet i datafilene, blant annet samtidig registrering og passordbytte |
 | [`RemoteClientIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RemoteClientIntegrationTest.java) | `@SpringBootTest` med ekte server og klientene fra ui | [`RemoteReviewRepository`](../../bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java) og [`RemoteAuthenticationClient`](../../bithub/ui/src/main/java/ui/client/RemoteAuthenticationClient.java) snakker med hele serveren: registrering, innlogging, anmeldelser med token, anonyme og egne anmeldelser, endring og sletting, passordbytte, utlogging, gjester som avvises med `401` og JSON-kontrakten fra [`rest-api.md`](rest-api.md) (#180) |
 | [`RestApplicationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestApplicationTest.java) | Start av Spring-konteksten | At serveren starter, og at [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java) og [`UserService`](../../bithub/core/src/main/java/core/service/UserService.java) skriver til filene som er satt med `bithub.reviews-file` og `bithub.users-file` |
@@ -39,13 +41,13 @@ static void useTemporaryFiles(DynamicPropertyRegistry registry) {
 
 ## 3. Avtale for testene av REST-klienten
 
-Testene for REST-klienten lages i sprint 2 (#180). Vi har avtalt dette for testen der en ekte klient snakker med en ekte server:
+Testene for REST-klienten ble laget i #180. Dette avtalte vi for testen der en ekte klient snakker med en ekte server:
 
 - **Serveren startes av testen.** Testen bruker `@SpringBootTest(webEnvironment = RANDOM_PORT)`, slik som [`RestIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestIntegrationTest.java). Spring starter serveren på en ledig port før testen og stopper den etterpå, så ingen må starte serveren manuelt, og testen kolliderer ikke med en server som allerede kjører på 8080.
 - **Klienten får adressen fra testen.** [`RemoteReviewRepository`](../../bithub/ui/src/main/java/ui/client/RemoteReviewRepository.java) (#172) må kunne lages med en serveradresse, for eksempel `new RemoteReviewRepository(URI.create("http://localhost:" + port))`. Porten hentes med `@LocalServerPort`.
 - **Testen ligger i [`springboot/restserver`](../../bithub/springboot/restserver).** Modulen ui skal ikke avhenge av serveren, så den gjennomgående testen legges i [`springboot/restserver/src/test/java/rest/`](../../bithub/springboot/restserver/src/test/java/rest). Modulen får `ui` som avhengighet med `<scope>test</scope>`, slik at bare testene kan bruke klienten.
 - **Data lagres i midlertidige filer,** slik det er beskrevet i avsnitt 2.
-- **Testen sjekker JSON-kontrakten fra begge sider.** Klienten sender inn en anmeldelse og henter den tilbake, og testen sjekker at feltene stemmer med [`rest-api.md`](rest-api.md). Når innlogging er på plass (#176), utvides testen med registrering og innlogging.
+- **Testen sjekker JSON-kontrakten fra begge sider.** Klienten sender inn en anmeldelse og henter den tilbake, og testen sjekker at feltene stemmer med [`rest-api.md`](rest-api.md). Testen dekker også registrering og innlogging (#176).
 - **`MockMvc`-testene i [`springboot/restserver`](../../bithub/springboot/restserver) og testene i ui med falsk server eller falsk `HttpClient` blir i tillegg.** Den gjennomgående testen erstatter dem ikke, men viser at klient og server faktisk passer sammen.
 
 ## 4. Tester av REST-klienten i ui
@@ -55,7 +57,7 @@ Klientene i ui testes mot en falsk server laget med `com.sun.net.httpserver.Http
 | Testklasse | Hva den tester |
 |---|---|
 | [`RemoteReviewRepositoryTest`](../../bithub/ui/src/test/java/ui/client/RemoteReviewRepositoryTest.java) | Forespørslene og JSON-en klienten sender, at tokenet sendes, 400, 401, 403, 404 og 500, forsinket svar, tidsavbrudd, ugyldig JSON, manglende felt og at serveren ikke svarer |
-| [`RemoteAuthenticationClientTest`](../../bithub/ui/src/test/java/ui/client/RemoteAuthenticationClientTest.java) | Registrering, innlogging, passordbytte og utlogging: JSON, token i headeren, kodet e-post i stien, 400, 401, 403, 409 og 500, og at serveren ikke svarer |
+| [`RemoteAuthenticationClientTest`](../../bithub/ui/src/test/java/ui/client/RemoteAuthenticationClientTest.java) | Registrering, innlogging, passordbytte, navnebytte og utlogging: JSON, token i headeren, kodet e-post i stien, 400, 401, 403, 409 og 500, og at serveren ikke svarer |
 | [`RemoteClientIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RemoteClientIntegrationTest.java) | De samme klientene mot den ekte serveren, se avsnitt 1 |
 
 Klienten gjør om feilsvar slik at skjermene kan vise en melding:
@@ -70,4 +72,4 @@ TestFX-testene trenger ingen server. De bruker [`InMemoryReviewRepository`](../.
 
 ## 5. Nye endepunkter
 
-Endepunktene som kommer i sprint 2, får egne `MockMvc`-tester i samme issue som lager endepunktet, og bør legges til i [`RestIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestIntegrationTest.java) når de påvirker lagringen.
+Nye endepunkter får egne `MockMvc`-tester i samme issue som lager endepunktet, og legges til i [`RestIntegrationTest`](../../bithub/springboot/restserver/src/test/java/rest/RestIntegrationTest.java) når de påvirker lagringen.

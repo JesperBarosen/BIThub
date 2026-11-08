@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Håndterer registrering og innlogging av brukere.
+ * Håndterer registrering, innlogging, passordbytte og navnebytte for brukere.
  *
  * <p>Bruker et repository slik at tjenesten er uavhengig av hvordan brukerne lagres.
  */
@@ -30,8 +30,8 @@ public final class UserService {
      * Validerer og registrerer en ny bruker.
      *
      * <p>E-postadressen normaliseres ved å fjerne mellomrom rundt adressen og gjøre bokstavene små
-     * med {@link Locale#ROOT} før validering, oppslag og lagring. Passordet hashes
-     * før brukeren lagres.
+     * med {@link Locale#ROOT} før validering, oppslag og lagring. Passordet hashes før brukeren
+     * lagres.
      *
      * @param name     navnet til brukeren
      * @param email    e-postadressen til brukeren
@@ -57,8 +57,8 @@ public final class UserService {
      * <p>E-postadressen normaliseres ved å fjerne mellomrom rundt adressen og gjøre bokstavene små
      * med {@link Locale#ROOT} før oppslag. Passordet brukes uendret ved kontroll mot hashen.
      *
-     * <p>Hvis e-post eller passord er null eller blankt, returneres et tomt resultat
-     * uten oppslag i lagringen.
+     * <p>Hvis e-post eller passord er null eller blankt, returneres et tomt resultat uten oppslag i
+     * lagringen.
      *
      * @param email    e-postadressen til brukeren
      * @param password passordet til brukeren
@@ -94,17 +94,37 @@ public final class UserService {
      * @param oldPassword det nåværende passordet
      * @param newPassword det nye passordet, som valideres som ved registrering
      * @throws IllegalArgumentException hvis det gamle passordet er feil, brukeren ikke finnes,
-     *                                  eller det nye passordet er ugyldig
+     *                                      eller det nye passordet er ugyldig
      */
-    public void changePassword(String email, String oldPassword, String newPassword) {
+    public synchronized void changePassword(String email, String oldPassword, String newPassword) {
         User user = login(email, oldPassword)
                 .orElseThrow(() -> new IllegalArgumentException("Det gamle passordet er feil."));
         userRepository.update(new User(user.getName(), user.getEmail(), newPassword));
     }
 
     /**
-     * Fjerner mellomrom rundt e-postadressen og gjør den om til små bokstaver, slik
-     * at {@code Ola@ntnu.no} og {@code ola@ntnu.no} regnes som samme adresse.
+     * Endrer navnet til en bruker. E-post, passordhash og salt beholdes.
+     *
+     * <p>Mellomrom rundt navnet fjernes, og navnet valideres med de samme reglene som ved
+     * registrering. Hvem som har lov til å endre navnet, sjekkes på serveren og ikke her.
+     *
+     * @param email   e-postadressen til brukeren, som normaliseres før oppslag
+     * @param newName det nye navnet
+     * @return brukeren med det nye navnet
+     * @throws IllegalArgumentException hvis brukeren ikke finnes eller navnet er ugyldig
+     */
+    public synchronized User changeName(String email, String newName) {
+        User user = findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Brukeren finnes ikke."));
+        User renamed = new User(newName == null ? null : newName.strip(), user.getEmail(),
+                user.getPasswordHash(), user.getSalt());
+        userRepository.update(renamed);
+        return renamed;
+    }
+
+    /**
+     * Fjerner mellomrom rundt e-postadressen og gjør den om til små bokstaver, slik at
+     * {@code Ola@ntnu.no} og {@code ola@ntnu.no} regnes som samme adresse.
      *
      * @param email e-postadressen som skal normaliseres
      * @return den normaliserte e-postadressen, eller null hvis email er null

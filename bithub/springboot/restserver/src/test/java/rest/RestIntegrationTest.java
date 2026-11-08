@@ -120,13 +120,22 @@ class RestIntegrationTest {
     }
 
     private String createReview(String token, String json) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder(uri("/api/courses/IT1901/reviews"))
+        return createReview(token, "IT1901", json);
+    }
+
+    private String createReview(String token, String courseCode, String json) throws Exception {
+        HttpResponse<String> created = postReview(token, courseCode, json);
+        assertEquals(201, created.statusCode());
+        return MAPPER.readTree(created.body()).get("id").asText();
+    }
+
+    private HttpResponse<String> postReview(String token, String courseCode, String json)
+            throws Exception {
+        HttpRequest request = HttpRequest.newBuilder(uri("/api/courses/" + courseCode + "/reviews"))
                 .header("Authorization", "Bearer " + token)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json)).build();
-        HttpResponse<String> created = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, created.statusCode());
-        return MAPPER.readTree(created.body()).get("id").asText();
+        return CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     private static core.model.Review savedReview(String id) {
@@ -617,5 +626,76 @@ class RestIntegrationTest {
         assertEquals(401, delete("/api/reviews/" + id, token).statusCode());
 
         assertEquals(4, savedReview(id).getRating());
+    }
+
+    /**
+     * Verifiserer at et nytt navn lagres for brukeren og på anmeldelsene brukeren har skrevet, at
+     * anonyme anmeldelser fortsatt vises som «Anonym», og at innloggingen viser det nye navnet.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void changedNameIsSavedOnUserAndOwnReviews() throws Exception {
+        String token = register("Navn Nordmann", "rename@example.com");
+        String named = createReview(token,
+                "{\"rating\":4,\"comment\":\"Bra\",\"anonymous\":false}");
+        final String anonymous = createReview(token, "TDT4100",
+                "{\"rating\":3,\"comment\":\"Grei\",\"anonymous\":true}");
+
+        HttpResponse<String> changed = put("/api/users/rename@example.com/name",
+                "{\"name\":\"  Nytt Navn  \"}", token);
+        assertEquals(200, changed.statusCode());
+        assertEquals("Nytt Navn", MAPPER.readTree(changed.body()).get("name").asText());
+
+        assertEquals("Nytt Navn", savedReview(named).getDisplayName());
+        assertEquals("Nytt Navn", savedReview(anonymous).getReviewerName());
+        assertEquals("Anonym", savedReview(anonymous).getDisplayName());
+
+        String login = "{\"email\":\"rename@example.com\",\"password\":\"Passord123\"}";
+        HttpResponse<String> loggedIn = post("/api/login", login);
+        assertEquals("Nytt Navn", MAPPER.readTree(loggedIn.body()).get("name").asText());
+    }
+
+    /**
+     * Verifiserer at en bruker bare kan ha én anmeldelse per emne, også når den ene er anonym, og
+     * at brukeren kan skrive en ny etter å ha slettet den gamle.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void secondReviewOfSameCourseIsRejectedUntilFirstIsDeleted() throws Exception {
+        String token = register("Dobbel Anmelder", "duplicate@example.com");
+        final String first = createReview(token, "TDT4109", "{\"rating\":4,\"anonymous\":false}");
+        final int before = savedReviewCount("TDT4109");
+
+        HttpResponse<String> second = postReview(token, "TDT4109",
+                "{\"rating\":1,\"anonymous\":true}");
+        assertEquals(409, second.statusCode());
+        assertEquals(409, MAPPER.readTree(second.body()).get("status").asInt());
+        assertEquals(before, savedReviewCount("TDT4109"));
+
+        assertEquals(204, delete("/api/reviews/" + first, token).statusCode());
+        createReview(token, "TDT4109", "{\"rating\":2,\"anonymous\":true}");
+    }
+
+    /**
+     * Verifiserer at et ugyldig navn og en annen brukers e-post avvises uten at navnet endres.
+     *
+     * @throws Exception hvis en av forespørslene feiler
+     */
+    @Test
+    void invalidOrForeignNameChangeIsRejected() throws Exception {
+        String token = register("Bruker C", "user-c@example.com");
+        register("Bruker D", "user-d@example.com");
+
+        assertEquals(400,
+                put("/api/users/user-c@example.com/name", "{\"name\":\"C1\"}", token).statusCode());
+        assertEquals(403,
+                put("/api/users/user-d@example.com/name", "{\"name\":\"Ny Bruker\"}", token)
+                        .statusCode());
+
+        String login = "{\"email\":\"user-d@example.com\",\"password\":\"Passord123\"}";
+        assertEquals("Bruker D",
+                MAPPER.readTree(post("/api/login", login).body()).get("name").asText());
     }
 }

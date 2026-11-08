@@ -1,57 +1,87 @@
-@startuml brukerhistorie2_lese_anmeldelser
+@startuml brukerhistorie2Sekvensdiagram
+hide footbox
 
 title Brukerhistorie 2 - Foreleser leser anmeldelser av faget sitt
 
 actor "Foreleser" as User
-participant "HjemmesideController\n(ui)" as HomeC
+box "JavaFX-klient" #F1EFE8
+participant "HomeController\n(ui)" as HomeC
 participant "Navigation\n(ui)" as Nav
-participant "VelgFagController\n(ui)" as SelectC
-participant "LeseAnmeldelserController\n(ui)" as ReadC
-participant "ReviewService\n(core)" as Service
-participant "ReviewRepository\n(interface, core)" as Repo
+participant "CourseSelectionController\n(ui)" as SelectC
+participant "ReadReviewsController\n(ui)" as ReadC
+participant "BackgroundTaskRunner\n(ui)" as Runner
+participant "ReviewService\n(core)" as ClientService
+participant "RemoteReviewRepository\n(ui)" as Remote
+end box
+box "REST-server" #FAECE7
+participant "CourseController\n(rest)" as CourseC
+participant "ReviewService\n(core)" as ServerService
 participant "ReviewHandler\n(file)" as Handler
 database "courses.json" as File
+end box
 
 == Velge fag ==
 
-User -> HomeC : trykker "Les anmeldelser"
-HomeC -> Nav : showCourseSelectionForReading(readReviewsButton)
-Nav -> SelectC : setOnCourseSelected(Navigation::showReviews)
-Nav --> User : viser VelgFag\n(nedtrekksliste med fag)
+User -> HomeC : trykker «LES ANMELDELSER»
+HomeC -> Nav : showCourseSelectionForReading(\nreadReviewsButton)
+Nav -> SelectC : setOnCourseSelected(\nthis::showReviews)
+note right of SelectC : Samme fagvelger som når man\nskriver en anmeldelse. Navigation\nbestemmer hvilken side som åpnes.
+Nav -> SelectC : setReviewRepository(\nreviewRepository)
+SelectC -> Remote : findAllCourses()\n(i bakgrunnen)
+Remote -> CourseC : GET /api/courses
+CourseC -> ServerService : getAllCourses()
+ServerService -> Handler : findAllCourses()
+Handler -> File : leser filen
+Handler --> ServerService : emnene, sortert\npå emnekode
+ServerService --> CourseC : List<Course>
+CourseC --> Remote : 200 OK + emnene
+Remote --> SelectC : List<Course>
+SelectC --> User : viser emnene i\nnedtrekkslisten
 
-User -> SelectC : velger faget sitt og trykker "Gå videre"
+User -> SelectC : velger faget sitt og\ntrykker «GÅ VIDERE»
+SelectC -> Nav : onCourseSelected.accept(\nnextButton, course)
+Nav -> ReadC : setReviewService(reviewService)\nsetCourse(course)
 
-alt ingen fag valgt
-    SelectC --> User : viser "Velg et fag først."
-else fag valgt
-    SelectC -> Nav : onCourseSelected.accept(nextButton, course)\nsom kaller showReviews(nextButton, course)
-    Nav -> ReadC : setReviewService(reviewService)
-    Nav -> ReadC : setCourse(course)
+== Hente anmeldelser ==
 
-    == Hente anmeldelser ==
+ReadC --> User : viser «Henter anmeldelser ...»
+ReadC -> Runner : execute(getCourseWithReviews,\nonSuccess, onFailure)
+activate Runner
+Runner -> ClientService : getCourseWithReviews(course)
+ClientService -> Remote : findCourse(courseCode)
+Remote -> CourseC : GET /api/courses/{code}
+CourseC -> ServerService : findCourse(code)
+ServerService -> Handler : findCourse(code)
+Handler -> File : leser filen og\nfinner emnet
+Handler --> ServerService : Optional<Course>
+ServerService --> CourseC : Optional<Course>
 
-    ReadC -> Service : getCourseWithReviews(course)
-    Service -> Repo : findCourse(courseCode)
-    note right of Repo : implementeres av ReviewHandler
-    Repo -> Handler : findCourse(courseCode)
-    Handler -> File : readFromFile()
-    File --> Handler : liste med CourseDTO
-    Handler -> Handler : finn CourseDTO med samme emnekode\n(skiller ikke store og små bokstaver)
-
-    alt faget har anmeldelser
-        Handler -> Handler : toCourse(courseDto)\nnew Course + addReview for hver anmeldelse
-        Handler --> Service : Optional med Course
-        Service --> ReadC : Course med anmeldelser
-    else faget finnes ikke i filen
-        Handler --> Service : Optional.empty()
-        Service -> Service : new Course(courseCode, courseName)
-        Service --> ReadC : tomt Course
-    end
-
-    == Vise anmeldelser ==
-
-    ReadC -> ReadC : getAverageRating(), getReviews()\nfyller ut tittel, gjennomsnitt,\nantall og liste
-    ReadC --> User : viser alle anmeldelsene,\ngjennomsnittlig vurdering og antall
+alt emnet finnes
+    CourseC --> Remote : 200 OK +\nCourseDetailsResponse
+    note right of CourseC : Serveren sender bare visningsnavnet:\nnavnet til brukeren, «Anonym» eller\n«Gjest». E-posten sendes ikke.
+    Remote --> ClientService : Optional med Course
+    ClientService --> Runner : Course med anmeldelser
+else emnet finnes ikke
+    CourseC --> Remote : 404 Not Found
+    Remote --> ClientService : Optional.empty()
+    ClientService -> ClientService : new Course(courseCode,\ncourseName)
+    ClientService --> Runner : Course uten anmeldelser
 end
+
+Runner --> ReadC : onSuccess,\npå JavaFX-tråden
+deactivate Runner
+
+== Vise anmeldelser ==
+
+ReadC -> ReadC : henter getAverageRating()\nog getReviews() fra Course
+ReadC --> User : viser gjennomsnittet som tall\nog stjerner, antall anmeldelser og\net kort per anmeldelse med navn,\nstjerner og kommentar
+
+note over SelectC, ReadC
+  Får klienten ikke kontakt med serveren,
+  viser CourseSelectionController «Kunne ikke
+  hente emnene. Prøv igjen senere.», og
+  ReadReviewsController viser «Kunne ikke lese
+  anmeldelsene. Prøv igjen senere.»
+end note
 
 @enduml

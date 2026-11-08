@@ -1,78 +1,77 @@
 @startuml klassediagramFile
 hide empty members
 
+title Klassediagram for file
+
 package core {
-    interface ReviewRepository {
-        + void addReview(courseCode: String, courseName: String, review: Review)
-        + Optional<Course> findCourse(courseCode: String)
-    }
+    interface ReviewRepository
+    interface UserRepository
     class Course
     class Review
     class User
 }
 
 package file {
-
-    interface "DataHandler<T>" as DataHandler {
-        + List<T> readFromFile()
-        + void writeToFile(data: List<T>)
-        + boolean isEmpty()
-    }
-
     class ReviewHandler {
         - path: Path {readOnly}
-        - objectMapper: ObjectMapper {readOnly}
-        + ReviewHandler()
-        + ReviewHandler(path: Path)
-        + boolean isEmpty()
-        + List<CourseDTO> readFromFile()
-        + void writeToFile(data: List<CourseDTO>)
-        + void addReview(courseCode: String, courseName: String, review: Review)
-        + Optional<Course> findCourse(courseCode: String)
-        - {static} Course toCourse(courseDto: CourseDTO)
-        + {static} Path getDefaultPath(fileName: String)
+        - storage: JsonFileStorage {readOnly}
+        + addReview(courseCode, courseName, review)
+        + findCourse(courseCode): Optional<Course>
+        + findAllCourses(): List<Course>
+        + addCoursesIfMissing(courses)
+        + findReview(reviewId): Optional<Review>
+        + updateReview(reviewId, rating, comment, anonymous): boolean
+        + deleteReview(reviewId): boolean
+        + updateReviewerName(ownerEmail, reviewerName): int
     }
 
     class UserHandler {
         - path: Path {readOnly}
-        - objectMapper: ObjectMapper {readOnly}
-        + UserHandler()
-        + UserHandler(path: Path)
-        + boolean isEmpty()
-        + List<UserDTO> readFromFile()
-        + void writeToFile(data: List<UserDTO>)
-        + void addUser(user: User)
-        + List<User> getUsers()
-        - {static} User toUser(userDto: UserDTO)
-        + {static} Path getDefaultPath(fileName: String)
+        - storage: JsonFileStorage {readOnly}
+        + save(user)
+        + addUserIfEmailAvailable(user): boolean
+        + update(user)
+        + findByEmail(email): Optional<User>
+    }
+}
+
+package file.storage {
+    interface "DataHandler<T>" as DataHandler {
+        + readFromFile(): List<T>
+        + writeToFile(data: List<T>)
+        + isEmpty(): boolean
     }
 
+    class JsonFileStorage {
+        - {static} LOCKS: Map<Path, ReentrantReadWriteLock>
+        - path: Path {readOnly}
+        - lock: ReentrantReadWriteLock {readOnly}
+        + read(operation): T
+        + update(operation): T
+        + write(data)
+    }
+
+    note bottom of JsonFileStorage
+      En lås per fil, delt av alle handlere som bruker samme fil.
+      update holder skrivelåsen gjennom les, endre og skriv.
+      write skriver til en midlertidig fil og flytter den over originalen.
+    end note
+}
+
+package file.dto {
     class CourseDTO {
         - courseCode: String
         - courseName: String
         - reviews: List<ReviewDTO>
-        + CourseDTO()
-        + CourseDTO(courseCode: String, courseName: String)
-        + String getCourseCode()
-        + void setCourseCode(courseCode: String)
-        + String getCourseName()
-        + void setCourseName(courseName: String)
-        + List<ReviewDTO> getReviews()
-        + void setReviews(reviews: List<ReviewDTO>)
     }
 
     class ReviewDTO {
+        - id: String
+        - ownerEmail: String
         - reviewerName: String
+        - anonymous: boolean
         - rating: int
         - comment: String
-        + ReviewDTO()
-        + ReviewDTO(reviewerName: String, rating: int, comment: String)
-        + String getReviewerName()
-        + void setReviewerName(reviewerName: String)
-        + int getRating()
-        + void setRating(rating: int)
-        + String getComment()
-        + void setComment(comment: String)
     }
 
     class UserDTO {
@@ -80,29 +79,28 @@ package file {
         - email: String
         - passwordHash: String
         - salt: String
-        + UserDTO()
-        + UserDTO(name: String, email: String, passwordHash: String, salt: String)
-        + String getName()
-        + void setName(name: String)
-        + String getEmail()
-        + void setEmail(email: String)
-        + String getPasswordHash()
-        + void setPasswordHash(passwordHash: String)
-        + String getSalt()
-        + void setSalt(salt: String)
     }
 
-    ReviewHandler ..|> DataHandler
-    UserHandler ..|> DataHandler
-    ReviewHandler ..> CourseDTO : leser/skriver List<CourseDTO>
-    CourseDTO --> "reviews: *" ReviewDTO
-    ReviewHandler ..> ReviewDTO : gjør om til og fra Review
-    UserHandler ..> UserDTO : leser/skriver List<UserDTO>
+    note bottom of UserDTO
+      DTO-ene har også en tom konstruktør,
+      gettere og settere for Jackson.
+      De er utelatt her.
+    end note
 }
 
-ReviewHandler ..|> ReviewRepository
-ReviewHandler ..> Course : oppretter i toCourse(CourseDTO)
-ReviewHandler ..> Review : leser i addReview(...), oppretter i toCourse(...)
-UserHandler ..> User : lagrer i addUser(User), gjenoppretter i toUser(UserDTO)
+ReviewRepository <|.. ReviewHandler
+UserRepository <|.. UserHandler
+Course <.. ReviewHandler : gjør om til
+Review <.. ReviewHandler : gjør om til
+User <.. UserHandler : gjør om til
+
+ReviewHandler ..|> DataHandler : <<bind>> T = CourseDTO
+UserHandler ..|> DataHandler : <<bind>> T = UserDTO
+ReviewHandler --> "1" JsonFileStorage : storage
+UserHandler --> "1" JsonFileStorage : storage
+
+ReviewHandler ..> CourseDTO : leser og skriver
+UserHandler ..> UserDTO : leser og skriver
+CourseDTO "1" o-- "*" ReviewDTO : reviews
 
 @enduml
