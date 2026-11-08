@@ -8,6 +8,7 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.concurrent.Task;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Kjører ett bakgrunnskall om gangen for en kontroller.
  *

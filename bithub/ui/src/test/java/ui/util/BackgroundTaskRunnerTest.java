@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Tester trådbruk, lastetilstand og avbrudd ved bakgrunnskall.
  */

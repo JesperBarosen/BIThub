@@ -34,6 +34,7 @@ public final class UserSession {
         this.tokenListener = Objects.requireNonNull(tokenListener);
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Lagrer en vellykket innlogging eller registrering.
      *
@@ -48,6 +49,7 @@ public final class UserSession {
         tokenListener.accept(session.token());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Sjekker om en bruker er innlogget.
      *
@@ -57,6 +59,7 @@ public final class UserSession {
         return current != null;
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Henter tokenet som brukes i autentiserte HTTP-kall.
      *
@@ -67,6 +70,7 @@ public final class UserSession {
         return session == null ? null : session.token();
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Henter navnet til den innloggede brukeren.
      *
@@ -77,6 +81,7 @@ public final class UserSession {
         return session == null ? null : session.name();
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Henter e-postadressen til den innloggede brukeren.
      *
@@ -103,6 +108,7 @@ public final class UserSession {
         current = new SessionData(session.token(), requireText(name, "Navn"), session.email());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Fjerner brukeropplysningene og tokenet fra minnet.
      */
@@ -111,6 +117,7 @@ public final class UserSession {
         tokenListener.accept(null);
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Kontrollerer at serveren har returnert en gyldig tekstverdi.
      */

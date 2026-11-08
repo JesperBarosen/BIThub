@@ -131,6 +131,7 @@ public class WriteReviewController {
         courseTitleLabel.setText(courseCode + " - " + courseName);
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Sender anmeldelsen i bakgrunnen uten å blokkere JavaFX-tråden.
      *
