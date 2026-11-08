@@ -60,6 +60,7 @@ public class CourseSelectionController {
     @FXML
     private void initialize() {
         courseComboBox.setButtonCell(courseCell());
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         courseComboBox.setCellFactory(listView -> {
             ListCell<Course> cell = courseCell();
             // Lange emnenavn brytes, så listen ikke blir bredere enn feltet.

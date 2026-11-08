@@ -11,6 +11,7 @@ public final class DefaultCourses {
     private DefaultCourses() {
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Lager standardemnene uten anmeldelser.
      *
