@@ -215,7 +215,7 @@ WiX Toolset 3.14.1.
 
 Følgende er verifisert på Windows:
 
-- `mvn clean verify`: 648 tester bestått (core 173, file 72, ui 273, restserver 130), ingen Checkstyle-brudd eller SpotBugs-funn.
+- `mvn clean verify`: 649 tester bestått (core 173, file 72, ui 274, restserver 130), ingen Checkstyle-brudd eller SpotBugs-funn.
 - `mvn -pl ui javafx:jlink` oppretter `ui/target/bithub/` og `bithub.zip`.
 - Jlink-klienten starter med `bin\bithub.bat` og fungerer mot server-JAR-en:
   innlogging, gjestemodus og lesing og skriving av anmeldelser.
