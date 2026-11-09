@@ -1,6 +1,6 @@
-
 package ui;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javafx.scene.control.Button;
@@ -14,8 +14,11 @@ import org.testfx.framework.junit5.ApplicationTest;
  */
 class AppStartupTest extends ApplicationTest {
 
+    private Stage stage;
+
     @Override
     public void start(Stage stage) throws Exception {
+        this.stage = stage;
         new App().start(stage);
     }
 
@@ -23,5 +26,10 @@ class AppStartupTest extends ApplicationTest {
     void startsOnLoginScreen() {
         assertNotNull(lookup("#emailField").queryAs(TextField.class));
         assertNotNull(lookup("#loginButton").queryAs(Button.class));
+    }
+
+    @Test
+    void windowTitleIsBitHub() {
+        assertEquals("BIThub", stage.getTitle());
     }
 }

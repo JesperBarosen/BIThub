@@ -38,6 +38,7 @@ public class App extends Application {
         Navigation navigation = new Navigation(reviewService, repository, userSession,
                 authenticationClient);
 
+        stage.setTitle("BIThub");
         navigation.showLogin(stage);
         stage.show();
     }
