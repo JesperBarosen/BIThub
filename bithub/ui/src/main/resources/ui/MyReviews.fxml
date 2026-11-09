@@ -18,7 +18,7 @@
          stylesheets="@Style.css">
          <children>
             <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-            <Label alignment="CENTER" prefHeight="70.0" prefWidth="250.0" text="BIThub">
+            <Label alignment="CENTER" minWidth="-Infinity" prefHeight="70.0" text="BIThub">
                <font>
                   <Font name="System Bold" size="40.0" />
                </font>
