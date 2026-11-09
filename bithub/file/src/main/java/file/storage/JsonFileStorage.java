@@ -32,6 +32,7 @@ public final class JsonFileStorage {
     private final ObjectMapper objectMapper;
     private final ReentrantReadWriteLock lock;
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Oppretter lagringshjelper for en JSON-fil.
      *

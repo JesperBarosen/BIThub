@@ -2,6 +2,7 @@ package ui.util;
 
 import org.controlsfx.control.Rating;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Lager stjerner som viser en vurdering uten at brukeren kan endre den.
  */

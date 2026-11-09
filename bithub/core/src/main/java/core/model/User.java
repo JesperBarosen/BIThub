@@ -78,22 +78,26 @@ public final class User {
         if (name.length() < 3 || name.length() > 30) {
             throw new IllegalArgumentException("Navn må være mellom 3 og 30 tegn.");
         }
-        // Regex foreslått av ChatGPT for å tillate bokstaver fra alle språk,
-        // samt mellomrom, bindestrek og apostrof mellom navnedeler.
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
+        // Tillater bokstaver fra alle språk, og mellomrom, bindestrek og apostrof mellom
+        // navnedeler.
         if (!name.matches("\\p{L}+(?:[ '-]\\p{L}+)*")) {
             throw new IllegalArgumentException(
                     "Navn kan kun inneholde bokstaver, mellomrom, bindestrek og apostrof.");
         }
+        // Slutt på kode laget med hjelp av KI.
     }
 
     private static void validateEmail(String email) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("E-postadressen kan ikke være null eller tom.");
         }
-        // Regex foreslått av ChatGPT for enkel validering av e-postformat.
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
+        // Enkel sjekk av e-postformatet.
         if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             throw new IllegalArgumentException("E-post må ha et gyldig format.");
         }
+        // Slutt på kode laget med hjelp av KI.
     }
 
     /**

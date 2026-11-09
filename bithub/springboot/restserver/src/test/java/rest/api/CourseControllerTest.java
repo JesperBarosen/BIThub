@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Tester endepunktene for emner med en falsk tjeneste, uten fil og uten ekte server.
  */

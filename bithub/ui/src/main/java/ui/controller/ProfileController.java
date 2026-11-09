@@ -247,12 +247,14 @@ public final class ProfileController {
             return;
         }
 
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         showStatus("Logger ut ...", Color.BLACK);
         taskRunner.execute(() -> {
             authenticationClient.logout(token);
             return null;
         }, ignored -> navigation.showLogin(logoutButton),
                 error -> navigation.showLogin(logoutButton));
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     }
 
     /**

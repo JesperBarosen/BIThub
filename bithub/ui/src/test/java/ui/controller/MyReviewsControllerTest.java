@@ -195,6 +195,7 @@ class MyReviewsControllerTest extends ApplicationTest {
         assertTrue(repository.findReview("id-1").isPresent());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Sjekker at en mislykket sletting beholder anmeldelsen og lar brukeren prøve igjen.
      *
@@ -229,6 +230,7 @@ class MyReviewsControllerTest extends ApplicationTest {
         assertTrue(repository.findReview("id-1").isEmpty());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Sjekker at avvist eierskap viser serverens melding uten å fjerne anmeldelsen fra lista.
      *

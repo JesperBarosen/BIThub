@@ -33,6 +33,7 @@ public final class ReviewService {
         this.reviewRepository = Objects.requireNonNull(reviewRepository);
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Validerer og lagrer en anmeldelse med eier bestemt av serveren.
      *

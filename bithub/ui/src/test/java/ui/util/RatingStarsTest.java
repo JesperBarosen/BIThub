@@ -9,6 +9,7 @@ import org.controlsfx.control.Rating;
 import org.junit.jupiter.api.Test;
 import org.testfx.framework.junit5.ApplicationTest;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Tester at stjernene viser vurderingen og ikke kan endres av brukeren.
  */

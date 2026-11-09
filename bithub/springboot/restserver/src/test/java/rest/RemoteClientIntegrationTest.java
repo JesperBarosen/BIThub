@@ -31,6 +31,7 @@ import ui.client.AuthenticationResult;
 import ui.client.RemoteAuthenticationClient;
 import ui.client.RemoteReviewRepository;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Integrasjonstester der klientene fra ui snakker med hele serveren over HTTP.
  *

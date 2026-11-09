@@ -1,5 +1,6 @@
 package core.exception;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Signalerer at brukeren allerede har skrevet en anmeldelse av emnet.
  */

@@ -47,6 +47,7 @@ class ChangePasswordControllerTest extends ApplicationTest {
         userSession.signIn("test-token", "Kari Nordmann", "kari@stud.ntnu.no");
         authenticationClient = new RecordingAuthenticationClient();
 
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         InMemoryReviewRepository repository = new InMemoryReviewRepository();
         Navigation navigation = new Navigation(new ReviewService(repository), repository,
                 userSession, authenticationClient);
@@ -57,6 +58,7 @@ class ChangePasswordControllerTest extends ApplicationTest {
         controller.setAuthenticationClient(authenticationClient);
         controller.setNavigation(navigation);
         controller.setUserSession(userSession);
+        // Slutt på kode laget med hjelp av KI.
 
         stage.setScene(new Scene(root));
         stage.show();
@@ -261,6 +263,7 @@ class ChangePasswordControllerTest extends ApplicationTest {
         assertEquals(1, authenticationClient.changePasswordCalls.get());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Sjekker at en ekstra handling ikke sender et nytt passordbytte mens første kall venter.
      *

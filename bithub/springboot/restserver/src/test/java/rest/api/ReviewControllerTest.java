@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import rest.auth.AuthenticationService;
 import rest.auth.TokenService;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Tester innsending av anmeldelser, krav om innlogging og JSON-feilsvar uten å skrive til fil.
  */

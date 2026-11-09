@@ -411,6 +411,7 @@ public final class Navigation {
     }
 
     private void showFxml(Node source, String fileName) {
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fileName));
         try {
             final Parent root = loader.load();
@@ -421,6 +422,7 @@ public final class Navigation {
             }
 
             stageOf(source).setScene(new Scene(root));
+            // Slutt på kode laget med hjelp av KI.
         } catch (IOException e) {
             throw new IllegalStateException("Kunne ikke åpne " + fileName, e);
         }

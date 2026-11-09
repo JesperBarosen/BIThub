@@ -170,6 +170,7 @@ class EditReviewControllerTest extends ApplicationTest {
         assertEquals(4, repository.findReview("id-1").orElseThrow().getRating());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Sjekker at en nettverksfeil beholder skjemaet og ikke endrer den lagrede anmeldelsen.
      *

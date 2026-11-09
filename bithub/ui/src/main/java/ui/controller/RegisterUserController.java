@@ -15,6 +15,7 @@ import ui.client.AuthenticationResult;
 import ui.util.BackgroundTaskRunner;
 import ui.util.PasswordVisibility;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Håndterer registrering av nye brukere.
  *

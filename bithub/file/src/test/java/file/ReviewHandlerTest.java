@@ -378,6 +378,7 @@ class ReviewHandlerTest {
         assertEquals("Kari", course.getReviews().get(1).getReviewerName());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Verifiserer at en fil med emnelisten fra før får de nye standardemnene, at alle emnene hentes
      * sortert på emnekode, og at anmeldelser og navn som finnes fra før, beholdes.

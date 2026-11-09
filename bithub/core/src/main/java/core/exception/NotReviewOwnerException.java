@@ -1,5 +1,6 @@
 package core.exception;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Signalerer at en bruker prøver å endre eller slette en anmeldelse som ikke er brukerens egen.
  * Gjelder også gjesteanmeldelser, som ikke har noen eier.

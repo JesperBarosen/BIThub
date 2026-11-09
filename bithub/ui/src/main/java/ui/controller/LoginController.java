@@ -98,6 +98,7 @@ public final class LoginController {
         this.loginSuccessHandler = Objects.requireNonNull(loginSuccessHandler);
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Validerer feltene og sender innloggingsforespørselen i bakgrunnen.
      */

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
  */
 class UserSessionTest {
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     @Test
     void startsWithoutLoggedInUser() {
         UserSession session = new UserSession();
@@ -27,6 +28,7 @@ class UserSessionTest {
         assertNull(session.getEmail());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     @Test
     void storesAuthenticatedUser() {
         UserSession session = new UserSession();
@@ -39,6 +41,7 @@ class UserSessionTest {
         assertEquals("kari@ntnu.no", session.getEmail());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     @Test
     void clearsAuthenticatedUser() {
         UserSession session = new UserSession();
@@ -52,6 +55,7 @@ class UserSessionTest {
         assertNull(session.getEmail());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     @Test
     void rejectsInvalidAuthenticationData() {
         UserSession session = new UserSession();
@@ -65,6 +69,7 @@ class UserSessionTest {
         assertFalse(session.isLoggedIn());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     @Test
     void invalidSignInPreservesExistingSession() {
         UserSession session = new UserSession();

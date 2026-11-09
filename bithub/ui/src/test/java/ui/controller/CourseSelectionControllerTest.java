@@ -41,6 +41,7 @@ import org.testfx.util.WaitForAsyncUtils;
 import ui.Navigation;
 import ui.client.InMemoryReviewRepository;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Tester emnesøk og emnevalg ved vellykket henting, venting, feil og navigering.
  */

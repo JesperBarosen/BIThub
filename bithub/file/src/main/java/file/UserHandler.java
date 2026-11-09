@@ -157,6 +157,7 @@ public final class UserHandler implements DataHandler<UserDTO>, UserRepository {
         }
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Erstatter den lagrede brukeren som har samme e-postadresse. Lesingen, endringen og skrivingen
      * skjer under samme skrivelås, slik at samtidige endringer ikke overskriver hverandre. Store og

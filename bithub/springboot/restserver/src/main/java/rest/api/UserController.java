@@ -163,6 +163,7 @@ public class UserController {
         }
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Henter anmeldelsene den innloggede brukeren har skrevet, også de anonyme.
      *

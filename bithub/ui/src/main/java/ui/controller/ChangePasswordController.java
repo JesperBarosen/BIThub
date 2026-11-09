@@ -157,6 +157,7 @@ public final class ChangePasswordController {
         String token = userSession.getToken();
         String email = userSession.getEmail();
 
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         showStatus("Bytter passord ...", Color.BLACK);
         taskRunner.execute(() -> {
             authenticationClient.changePassword(token, email, oldPassword, newPassword);
@@ -172,6 +173,7 @@ public final class ChangePasswordController {
                 showError("Kunne ikke bekrefte at passordet ble endret. Prøv igjen senere.");
             }
         });
+        // Slutt på kode laget med hjelp av KI.
 
     }
 

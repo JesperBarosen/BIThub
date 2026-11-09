@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import rest.auth.AuthenticationService;
 import rest.auth.TokenService;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Tester endring og sletting av egne anmeldelser med falske tjenester, uten fil og uten ekte
  * server.

@@ -103,6 +103,7 @@ public class ReadReviewsController {
         navigation.connectProfileButton(profileButton, taskRunner::cancel);
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Henter og viser anmeldelsene og gjennomsnittet for emnet, både som tall og stjerner.
      *

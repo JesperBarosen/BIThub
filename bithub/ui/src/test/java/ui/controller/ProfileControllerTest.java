@@ -48,6 +48,7 @@ class ProfileControllerTest extends ApplicationTest {
      */
     private final AtomicReference<String> forwardedToken = new AtomicReference<>();
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
@@ -55,6 +56,7 @@ class ProfileControllerTest extends ApplicationTest {
         userSession.signIn("test-token", "Kari Nordmann", "kari@stud.ntnu.no");
         authenticationClient = new RecordingAuthenticationClient();
 
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         InMemoryReviewRepository repository = new InMemoryReviewRepository();
         navigation = new Navigation(new ReviewService(repository), repository, userSession,
                 authenticationClient);
@@ -65,6 +67,7 @@ class ProfileControllerTest extends ApplicationTest {
         controller.setAuthenticationClient(authenticationClient);
         controller.setNavigation(navigation);
         controller.setUserSession(userSession);
+        // Slutt på kode laget med hjelp av KI.
 
         stage.setScene(new Scene(root));
         stage.show();
@@ -235,6 +238,7 @@ class ProfileControllerTest extends ApplicationTest {
 
     @Test
     void profileWithoutLoginShowsMessageAndCannotChangePassword() {
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         interact(() -> {
             userSession.clear();
             navigation.showProfile(button("#homeButton"));
@@ -250,6 +254,7 @@ class ProfileControllerTest extends ApplicationTest {
 
         assertNotNull(stage.getScene().getRoot().lookup("#loginButton"));
         assertEquals(0, authenticationClient.logoutCalls.get());
+        // Slutt på kode laget med hjelp av KI.
     }
 
     @Test
@@ -287,6 +292,7 @@ class ProfileControllerTest extends ApplicationTest {
         assertEquals(1, authenticationClient.changeNameCalls.get());
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Sjekker at ekstra handlinger ikke endrer skjermen eller sesjonen mens navnet lagres.
      *

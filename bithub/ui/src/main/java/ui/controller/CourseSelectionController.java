@@ -60,6 +60,7 @@ public class CourseSelectionController {
     @FXML
     private void initialize() {
         courseComboBox.setButtonCell(courseCell());
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         courseComboBox.setCellFactory(listView -> {
             ListCell<Course> cell = courseCell();
             // Lange emnenavn brytes, så listen ikke blir bredere enn feltet.
@@ -67,6 +68,8 @@ public class CourseSelectionController {
             cell.setPrefWidth(0);
             return cell;
         });
+        // Slutt på kode laget med hjelp av KI.
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         courseComboBox.setItems(filteredCourses);
         courseComboBox.setVisibleRowCount(6);
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -82,6 +85,7 @@ public class CourseSelectionController {
             }
         });
         searchField.disableProperty().bind(taskRunner.runningProperty());
+        // Slutt på kode laget med hjelp av KI.
 
         courseComboBox.disableProperty().bind(taskRunner.runningProperty());
         nextButton.disableProperty()
@@ -90,6 +94,7 @@ public class CourseSelectionController {
 
     private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Setter lagringen og henter emnene i bakgrunnen, også de uten anmeldelser.
      *
@@ -173,6 +178,7 @@ public class CourseSelectionController {
         navigation.showHome(homeButton);
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Filtrerer de innlastede emnene på kode og navn uten nye serverkall.
      *
@@ -197,6 +203,7 @@ public class CourseSelectionController {
         updateSearchStatus();
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Oppdaterer søkeresultatet uten å overskrive laste- eller feilmeldinger.
      */

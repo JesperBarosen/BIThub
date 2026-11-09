@@ -15,6 +15,7 @@ import org.controlsfx.control.Rating;
 import ui.Navigation;
 import ui.util.BackgroundTaskRunner;
 
+// Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
 /**
  * Kontroller for skjemaet der brukeren endrer en av sine egne anmeldelser.
  *

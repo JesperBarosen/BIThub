@@ -119,6 +119,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
         storage.update(() -> {
             List<CourseDTO> courses = readFromFile();
 
+            // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
             CourseDTO targetCourse = courses.stream()
                     .filter(c -> c.getCourseCode() != null
                             && c.getCourseCode().equalsIgnoreCase(courseCode))
@@ -128,6 +129,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
                 targetCourse = new CourseDTO(courseCode, courseName);
                 courses.add(targetCourse);
             }
+            // Slutt på kode laget med hjelp av KI.
 
             targetCourse.getReviews()
                     .add(new ReviewDTO(review.getId(), review.getOwnerEmail(),
@@ -162,8 +164,10 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
      */
     @Override
     public List<Course> findAllCourses() {
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         return readFromFile().stream().map(ReviewHandler::toCourse)
                 .sorted(Comparator.comparing(course -> course.getCourseCode())).toList();
+        // Slutt på kode laget med hjelp av KI.
     }
 
     /**
@@ -179,6 +183,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
             List<CourseDTO> storedCourses = readFromFile();
             boolean changed = false;
 
+            // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
             for (Course course : courses) {
                 boolean exists = storedCourses.stream()
                         .anyMatch(c -> course.getCourseCode().equalsIgnoreCase(c.getCourseCode()));
@@ -188,6 +193,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
                     changed = true;
                 }
             }
+            // Slutt på kode laget med hjelp av KI.
             if (changed) {
                 storage.write(storedCourses);
             }
