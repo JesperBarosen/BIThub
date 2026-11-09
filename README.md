@@ -36,6 +36,15 @@ egne Java-moduler (`module-info.java`), slik at avhengighetene mellom lagene er 
 
 REST-API-et er beskrevet i [docs/release3/rest-api.md](docs/release3/rest-api.md).
 
+### Klient og server
+
+[![REST-arkitektur for BIThub](arkitektur/png/restArkitektur.png)](arkitektur/png/restArkitektur.png)
+
+Diagrammet viser at JavaFX-klienten og REST-serveren er to separate programmer som snakker sammen over HTTP. Begge
+bruker `core`, men bare serveren bruker `file` til å lese og skrive JSON-filene i `~/.bithub`.
+
+Kildefilen til diagrammet ligger i [`arkitektur/restArkitektur.puml`](arkitektur/restArkitektur.puml).
+
 ### Pakkediagram
 
 [![Pakkediagram for BIThub](arkitektur/png/pakkeDiagram.png)](arkitektur/png/pakkeDiagram.png)
