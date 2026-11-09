@@ -71,7 +71,6 @@ public final class ChangePasswordController {
 
     private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
 
-    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Deaktiverer skjemaet mens passordbyttet sendes, og kobler til «Vis passord».
      */

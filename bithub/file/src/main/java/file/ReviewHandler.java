@@ -105,7 +105,6 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
         return changed;
     }
 
-    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Legger til en anmeldelse for et emne. Dersom emnet allerede finnes i JSON-filen, legges
      * anmeldelsen til i det eksisterende emnet. Hele lesingen, endringen og skrivingen skjer med
@@ -120,6 +119,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
         storage.update(() -> {
             List<CourseDTO> courses = readFromFile();
 
+            // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
             CourseDTO targetCourse = courses.stream()
                     .filter(c -> c.getCourseCode() != null
                             && c.getCourseCode().equalsIgnoreCase(courseCode))
@@ -129,6 +129,7 @@ public final class ReviewHandler implements DataHandler<CourseDTO>, ReviewReposi
                 targetCourse = new CourseDTO(courseCode, courseName);
                 courses.add(targetCourse);
             }
+            // Slutt på kode laget med hjelp av KI.
 
             targetCourse.getReviews()
                     .add(new ReviewDTO(review.getId(), review.getOwnerEmail(),

@@ -65,7 +65,6 @@ public final class Navigation {
      */
     private Scene sceneBeforeAbout;
 
-    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Oppretter navigasjonen uten innlogging. Brukes av tester for skjermer som ikke trenger
      * innlogging, og appen oppfører seg da som for en gjest.

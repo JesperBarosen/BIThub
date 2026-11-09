@@ -40,7 +40,6 @@ class ChangePasswordControllerTest extends ApplicationTest {
     private UserSession userSession;
     private RecordingAuthenticationClient authenticationClient;
 
-    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
@@ -48,6 +47,7 @@ class ChangePasswordControllerTest extends ApplicationTest {
         userSession.signIn("test-token", "Kari Nordmann", "kari@stud.ntnu.no");
         authenticationClient = new RecordingAuthenticationClient();
 
+        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
         InMemoryReviewRepository repository = new InMemoryReviewRepository();
         Navigation navigation = new Navigation(new ReviewService(repository), repository,
                 userSession, authenticationClient);
@@ -58,6 +58,7 @@ class ChangePasswordControllerTest extends ApplicationTest {
         controller.setAuthenticationClient(authenticationClient);
         controller.setNavigation(navigation);
         controller.setUserSession(userSession);
+        // Slutt på kode laget med hjelp av KI.
 
         stage.setScene(new Scene(root));
         stage.show();
