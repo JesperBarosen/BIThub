@@ -200,10 +200,10 @@ og [rest-tester.md](rest-tester.md).
 
 | Modul | Instruksjonsdekning | Grendekning |
 | --- | --- | --- |
-| core | __ % | __ % |
-| file | __ % | __ % |
-| ui | __ % | __ % |
-| springboot/restserver | __ % | __ % |
+| core | 98 % | 100 % |
+| file | 98 % | 96 % |
+| ui | 96 % | 90 % |
+| springboot/restserver | 98 % | 100 % |
 
 Ved innlevering av release 3 gir `mvn clean verify` ingen Checkstyle-warnings og ingen SpotBugs-funn utover de
 dokumenterte unntakene i [code-quality.md](code-quality.md).
