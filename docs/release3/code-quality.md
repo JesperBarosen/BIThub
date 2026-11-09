@@ -63,7 +63,7 @@ Høy testdekning er ikke et mål i seg selv. Testene skal først og fremst sjekk
 
 ### Målt dekning i release 3
 
-Tallene under er hentet fra JaCoCo etter en full kjøring av mvn clean verify 9. november 2026. Alle 649 tester bestod, uten feil eller tester som ble hoppet over.
+Tallene under er hentet fra JaCoCo etter en full kjøring av `mvn clean verify` 9. november 2026. Alle 649 tester bestod, uten feil eller tester som ble hoppet over.
 Hele prosjektet ble kontrollert. Checkstyle rapporterte 0 brudd, og SpotBugs
 rapporterte 0 funn.
 
