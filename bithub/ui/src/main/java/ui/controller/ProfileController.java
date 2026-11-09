@@ -60,6 +60,7 @@ public final class ProfileController {
     private final BooleanProperty editingName = new SimpleBooleanProperty(false);
     private final BackgroundTaskRunner taskRunner = new BackgroundTaskRunner();
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Deaktiverer knappene mens et kall til serveren pågår. Navnebytte og passordbytte krever
      * innlogging. «LAGRE» og «AVBRYT» vises bare mens navnet redigeres, i stedet for «ENDRE NAVN».
@@ -222,6 +223,7 @@ public final class ProfileController {
         navigation.showChangePassword(changePasswordButton);
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     /**
      * Logger ut og viser innloggingsskjerm.
      * 

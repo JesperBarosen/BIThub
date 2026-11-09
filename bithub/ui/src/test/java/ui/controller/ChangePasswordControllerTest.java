@@ -40,6 +40,7 @@ class ChangePasswordControllerTest extends ApplicationTest {
     private UserSession userSession;
     private RecordingAuthenticationClient authenticationClient;
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;

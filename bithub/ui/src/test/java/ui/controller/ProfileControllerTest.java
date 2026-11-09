@@ -48,6 +48,7 @@ class ProfileControllerTest extends ApplicationTest {
      */
     private final AtomicReference<String> forwardedToken = new AtomicReference<>();
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
@@ -233,6 +234,7 @@ class ProfileControllerTest extends ApplicationTest {
         assertNotNull(stage.getScene().getRoot().lookup("#oldPasswordField"));
     }
 
+    // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
     @Test
     void profileWithoutLoginShowsMessageAndCannotChangePassword() {
         interact(() -> {
