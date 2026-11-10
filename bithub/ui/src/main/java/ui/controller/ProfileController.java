@@ -254,7 +254,7 @@ public final class ProfileController {
             return null;
         }, ignored -> navigation.showLogin(logoutButton),
                 error -> navigation.showLogin(logoutButton));
-        // Laget med hjelp av KI, gjennomgått og tilpasset av gruppen.
+        // Slutt på kode laget med hjelp av KI.
     }
 
     /**

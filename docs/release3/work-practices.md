@@ -87,8 +87,9 @@ Endringer integreres i `master` gjennom pull requests, med malen fra
 [workflow.md](../release3/workflow.md). Malen krever at det står hva som er
 endret, hvordan endringen kan testes, og at sjekklisten før review er fylt ut.
 
-En pull request gjennomgås av noen fra et annet par enn det som har gjort
-arbeidet, og kan først merges når den er godkjent. Finner den som reviewer,
+En pull request gjennomgås av minst to andre på gruppen, og minst én av dem er
+fra et annet par enn det som har gjort arbeidet. Den kan først merges når begge
+har godkjent. Finner den som reviewer,
 noe som må rettes, brukes «Request changes», gjerne med kodeforslag direkte
 på linjene. Paret retter endringene, svarer på kommentarene og ber om ny
 review. I #245 (navnebytte) fant reviewen for eksempel at samtidige endringer

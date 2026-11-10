@@ -22,7 +22,7 @@ Feilsvar med `401` testes i [`UserControllerTest`](../../bithub/springboot/rests
 
 ### Testdekning
 
-JaCoCo lager en rapport for modulen i `bithub/springboot/restserver/target/site/jacoco/index.html` når `mvn clean verify` kjøres. Etter #154 dekker testene 98 % av instruksjonene. Det eneste som ikke kjøres, er [`main`](../../bithub/springboot/restserver/src/main/java/rest/RestApplication.java#L27)-metoden i [`RestApplication`](../../bithub/springboot/restserver/src/main/java/rest/RestApplication.java).
+JaCoCo lager en rapport for modulen i `bithub/springboot/restserver/target/site/jacoco/index.html` når `mvn clean verify` kjøres. Testene dekker 98,7 % av instruksjonene. Det som ikke kjøres, er [`main`](../../bithub/springboot/restserver/src/main/java/rest/RestApplication.java#L27)-metoden i [`RestApplication`](../../bithub/springboot/restserver/src/main/java/rest/RestApplication.java) og feilen i [`changeName`](../../bithub/springboot/restserver/src/main/java/rest/api/UserController.java#L150) for en bruker som ikke finnes. Den kan bare skje hvis brukeren mangler selv om tokenet er gyldig.
 
 ## 2. Midlertidige filer
 

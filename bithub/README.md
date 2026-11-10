@@ -11,7 +11,7 @@ Når man åpner appen, kommer man til innloggingssiden. Der kan man logge inn, r
 <table>
   <tr>
     <td align="center"><img src="../docs/release3/bilder_release3/Home.png" alt="Hjemmesiden" height="300"></td>
-    <td align="center"><img src="../docs/release3/bilder_release3/ReadReviews.png" alt="Anmeldelser av TDT4100" height="300"></td>
+    <td align="center"><img src="../docs/release3/bilder_release3/ReadReviews.png" alt="Anmeldelser av IT1901" height="300"></td>
     <td align="center"><img src="../docs/release3/bilder_release3/WriteReview.png" alt="Skrive anmeldelse" height="300"></td>
   </tr>
 </table>

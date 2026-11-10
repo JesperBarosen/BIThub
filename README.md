@@ -36,6 +36,15 @@ egne Java-moduler (`module-info.java`), slik at avhengighetene mellom lagene er 
 
 REST-API-et er beskrevet i [docs/release3/rest-api.md](docs/release3/rest-api.md).
 
+### Klient og server
+
+[![REST-arkitektur for BIThub](arkitektur/png/restArkitektur.png)](arkitektur/png/restArkitektur.png)
+
+Diagrammet viser at JavaFX-klienten og REST-serveren er to separate programmer som snakker sammen over HTTP. Begge
+bruker `core`, men bare serveren bruker `file` til å lese og skrive JSON-filene i `~/.bithub`.
+
+Kildefilen til diagrammet ligger i [`arkitektur/restArkitektur.puml`](arkitektur/restArkitektur.puml).
+
 ### Pakkediagram
 
 [![Pakkediagram for BIThub](arkitektur/png/pakkeDiagram.png)](arkitektur/png/pakkeDiagram.png)
@@ -84,7 +93,7 @@ Maven laster ned resten ved bygging:
 - JavaFX 21
 - ControlsFX 11.2.1
 - Spring Boot 3.4.5
-- Jackson 2.15.2
+- Jackson 2.15.2 (REST-serveren bruker versjonen fra Spring Boot)
 - JUnit 5.12.2
 - TestFX 4.0.18
 - Mockito 5.18.0
@@ -173,6 +182,24 @@ Adressen legges inn i installasjonsfilen, så den må lages på nytt for å bruk
 ## Mappestruktur
 
 ```text
+gr2610
+├───.vscode
+│    -- Felles innstillinger for VS Code, blant annet formatering og testoppsett.
+├───arkitektur
+│    -- PlantUML-diagrammene (.puml). Bildene ligger i png/.
+├───config
+│    -- Oppsettet for Checkstyle og SpotBugs.
+├───docs
+│    -- Dokumentasjonen for hver innlevering, i release1, release2 og release3.
+├───.gitignore
+│    -- Filer og mapper git skal ignorere, blant annet byggemapper.
+├───.mailmap
+│    -- Samler navnevarianter for samme person i git-historikken.
+├───devfile.yaml
+│    -- Oppsett og kommandoer for Eclipse Che.
+├───README.md
+│    -- Denne filen.
+│
 └───bithub
     ├───pom.xml
     │    -- Foreldre-POM som samler modulene core, file, ui og springboot/restserver.

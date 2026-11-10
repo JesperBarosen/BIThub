@@ -200,10 +200,10 @@ og [rest-tester.md](rest-tester.md).
 
 | Modul | Instruksjonsdekning | Grendekning |
 | --- | --- | --- |
-| core | __ % | __ % |
-| file | __ % | __ % |
-| ui | __ % | __ % |
-| springboot/restserver | __ % | __ % |
+| core | 98,8 % | 100,0 % |
+| file | 98,9 % | 96,0 % |
+| ui | 96,2 % | 90,8 % |
+| springboot/restserver | 98,7 % | 100,0 % |
 
 Ved innlevering av release 3 gir `mvn clean verify` ingen Checkstyle-warnings og ingen SpotBugs-funn utover de
 dokumenterte unntakene i [code-quality.md](code-quality.md).
@@ -215,7 +215,7 @@ WiX Toolset 3.14.1.
 
 Følgende er verifisert på Windows:
 
-- `mvn clean verify`: 648 tester bestått (core 173, file 72, ui 273, restserver 130), ingen Checkstyle-brudd eller SpotBugs-funn.
+- `mvn clean verify`: 649 tester bestått (core 173, file 72, ui 274, restserver 130), ingen Checkstyle-brudd eller SpotBugs-funn.
 - `mvn -pl ui javafx:jlink` oppretter `ui/target/bithub/` og `bithub.zip`.
 - Jlink-klienten starter med `bin\bithub.bat` og fungerer mot server-JAR-en:
   innlogging, gjestemodus og lesing og skriving av anmeldelser.
