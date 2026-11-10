@@ -93,7 +93,7 @@ Maven laster ned resten ved bygging:
 - JavaFX 21
 - ControlsFX 11.2.1
 - Spring Boot 3.4.5
-- Jackson 2.15.2
+- Jackson 2.15.2 (REST-serveren bruker versjonen fra Spring Boot)
 - JUnit 5.12.2
 - TestFX 4.0.18
 - Mockito 5.18.0
@@ -191,6 +191,10 @@ gr2610
 │    -- Oppsettet for Checkstyle og SpotBugs.
 ├───docs
 │    -- Dokumentasjonen for hver innlevering, i release1, release2 og release3.
+├───.gitignore
+│    -- Filer og mapper git skal ignorere, blant annet byggemapper.
+├───.mailmap
+│    -- Samler navnevarianter for samme person i git-historikken.
 ├───devfile.yaml
 │    -- Oppsett og kommandoer for Eclipse Che.
 ├───README.md
