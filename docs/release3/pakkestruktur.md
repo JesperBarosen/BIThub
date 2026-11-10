@@ -8,7 +8,7 @@ Dette dokumentet forklarer hvordan klassene i BIThub er delt inn i pakker, og hv
 - **Samme navn på tvers av modulene.** Samme type klasse har samme pakkenavn i alle modulene. Unntak ligger for eksempel i `exception` både i `core` og i [`springboot/restserver`](../../bithub/springboot/restserver).
 - **Inngangspunktene ligger øverst.** Klassene som binder modulen sammen ligger i rotpakken, slik at de er lette å finne. Det gjelder [`App`](../../bithub/ui/src/main/java/ui/App.java) og [`Navigation`](../../bithub/ui/src/main/java/ui/Navigation.java) i `ui`, og [`ReviewHandler`](../../bithub/file/src/main/java/file/ReviewHandler.java) og [`UserHandler`](../../bithub/file/src/main/java/file/UserHandler.java) i `file`.
 - **Testene speiler koden.** En test ligger i samme pakke som klassen den tester, for eksempel [`core.service.ReviewServiceTest`](../../bithub/core/src/test/java/core/service/ReviewServiceTest.java) for [`core.service.ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java).
-- **Engelske pakkenavn.** Pakkene følger samme regel som resten av koden: Navn i koden er på engelsk, mens kommentarer og tekst brukeren ser er på norsk.
+- **Engelske pakkenavn.** Pakkene følger samme regel som resten av Java-koden: Navn i koden er på engelsk, mens kommentarer og tekst brukeren ser er på norsk. CSS-klassene i `Style.css` ble laget tidlig i prosjektet og har  norske navn, for eksempel `.meny-knapp`.
 
 ## core
 
