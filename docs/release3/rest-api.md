@@ -44,7 +44,7 @@ Serveren bestemmer alltid hvem brukeren er ut fra tokenet. Hvis forespørselen i
 
 ## Feilsvar
 
-Alle feil som API-et selv svarer med, har samme format, slik at klienten kan vise meldingen direkte til brukeren. Formatet lages i [`ApiExceptionHandler`](../../bithub/springboot/restserver/src/main/java/rest/api/ApiExceptionHandler.java):
+Alle feil serveren håndterer selv, har samme format, slik at klienten kan vise meldingen direkte til brukeren. Formatet lages i [`ApiExceptionHandler`](../../bithub/springboot/restserver/src/main/java/rest/api/ApiExceptionHandler.java):
 
 ```json
 {
@@ -65,7 +65,9 @@ Alle feil som API-et selv svarer med, har samme format, slik at klienten kan vis
 | 404 Not Found | Emnet eller anmeldelsen finnes ikke |
 | 409 Conflict | E-posten er allerede registrert, eller brukeren har allerede anmeldt emnet |
 | 500 Internal Server Error | Uventet feil på serveren, for eksempel at datafilen ikke kan leses |
+
 Feil som Spring Boot håndterer selv, for eksempel en sti som ikke finnes (`404`), feil HTTP-metode (`405`), feil `Content-Type` (`415`) eller en uventet feil (`500`), får Spring Boot sitt standardformat med `timestamp` og `path` i stedet for `message`. Da viser klienten «Serveren avviste forespørselen (status …)».
+
 ## Valideringsregler
 
 Reglene ligger i core ([`User`](../../bithub/core/src/main/java/core/model/User.java), [`Review`](../../bithub/core/src/main/java/core/model/Review.java) og [`ReviewService`](../../bithub/core/src/main/java/core/service/ReviewService.java)), og serveren svarer `400` når en av dem brytes.
