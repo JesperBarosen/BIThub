@@ -182,6 +182,20 @@ Adressen legges inn i installasjonsfilen, så den må lages på nytt for å bruk
 ## Mappestruktur
 
 ```text
+gr2610
+├───.vscode
+│    -- Felles innstillinger for VS Code, blant annet formatering og testoppsett.
+├───arkitektur
+│    -- PlantUML-diagrammene (.puml). Bildene ligger i png/.
+├───config
+│    -- Oppsettet for Checkstyle og SpotBugs.
+├───docs
+│    -- Dokumentasjonen for hver innlevering, i release1, release2 og release3.
+├───devfile.yaml
+│    -- Oppsett og kommandoer for Eclipse Che.
+├───README.md
+│    -- Denne filen.
+│
 └───bithub
     ├───pom.xml
     │    -- Foreldre-POM som samler modulene core, file, ui og springboot/restserver.
