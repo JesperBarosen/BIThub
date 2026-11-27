@@ -1,3 +1,18 @@
+> [!NOTE]
+> **Om dette repoet**
+> BIThub er et gruppeprosjekt fra IT1901 Informatikk, prosjektarbeid I ved NTNU høsten 2026, laget av seks studenter. Repoet er en kopi av originalen på NTNUs GitHub Enterprise, med hele commit-historikken.
+>
+> **Mine bidrag (Jesper Barosen)**
+> - Satte opp flermodulstrukturen i Maven med JaCoCo
+> - Laget JSON-lagringen og sikret den mot tap av data
+> - Bygde REST-serveren i Spring Boot med endepunkter for emner og anmeldelser
+> - Koblet JavaFX-klienten til REST-API-et og testet den mot ekte server
+> - Laget registrering, endring og sletting av anmeldelser, «Mine anmeldelser» og «Fortsett som gjest»
+> - Hindret at samtidige navne- og passordbytter overskrev hverandre
+> - Skrev tester for alle modulene, UML-diagrammer og store deler av dokumentasjonen
+>
+> Hele arbeidsfordelingen står i [docs/release3/contribution.md](docs/release3/contribution.md).
+
 # Gr2610 - IT1901 prosjekt
 
 [open in Eclipse Che](https://che.iaas.ntnu.no/#https://git.ntnu.no/IT1901-2026-groups/gr2610?new)
