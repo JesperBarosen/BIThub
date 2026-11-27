@@ -1,17 +1,17 @@
 > [!NOTE]
-> **Om dette repoet**
-> BIThub er et gruppeprosjekt fra IT1901 Informatikk, prosjektarbeid I ved NTNU høsten 2026, laget av seks studenter. Repoet er en kopi av originalen på NTNUs GitHub Enterprise, med hele commit-historikken.
+> **About this repository**
+> BIThub is a group project from IT1901 Informatics, Project I at NTNU (autumn 2026), built by a team of six students. This repository is a copy of the original on NTNU GitHub Enterprise, with the full commit history. The project itself is written in Norwegian.
 >
-> **Mine bidrag (Jesper Barosen)**
-> - Satte opp flermodulstrukturen i Maven med JaCoCo
-> - Laget JSON-lagringen og sikret den mot tap av data
-> - Bygde REST-serveren i Spring Boot med endepunkter for emner og anmeldelser
-> - Koblet JavaFX-klienten til REST-API-et og testet den mot ekte server
-> - Laget registrering, endring og sletting av anmeldelser, «Mine anmeldelser» og «Fortsett som gjest»
-> - Hindret at samtidige navne- og passordbytter overskrev hverandre
-> - Skrev tester for alle modulene, UML-diagrammer og store deler av dokumentasjonen
+> **My contributions (Jesper Barosen)**
+> - Set up the Maven multi-module structure with JaCoCo test coverage
+> - Built the JSON persistence layer and protected it against data loss
+> - Built the Spring Boot REST server with endpoints for courses and reviews
+> - Connected the JavaFX client to the REST API and tested it against a real server
+> - Implemented registration, editing and deleting reviews, "My reviews" and "Continue as guest"
+> - Prevented concurrent name and password changes from overwriting each other
+> - Wrote tests for all modules, UML diagrams and much of the documentation
 >
-> Hele arbeidsfordelingen står i [docs/release3/contribution.md](docs/release3/contribution.md).
+> The full breakdown of contributions (in Norwegian) is in [docs/release3/contribution.md](docs/release3/contribution.md).
 
 # Gr2610 - IT1901 prosjekt
 
